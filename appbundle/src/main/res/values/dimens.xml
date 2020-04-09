@@ -1,0 +1,6 @@
+<resources>
+	<dimen name="base_bkg_corner_radius_tiny">4dp</dimen>
+	<dimen name="base_bkg_corner_radius_small">8dp</dimen>
+	<dimen name="base_bkg_corner_radius_medium">12dp</dimen>
+	<dimen name="base_bkg_corner_radius_large">16dp</dimen>
+</resources>

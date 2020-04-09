@@ -1,0 +1,325 @@
+<resources>
+	<!--BaseThem Light-->
+	<style name="Dk.BaseTheme.Light" parent="Theme.AppCompat.Light.NoActionBar">
+		<item name="windowActionBar">false</item>
+		<item name="windowNoTitle">true</item>
+		<item name="android:windowBackground">@drawable/bkg_window</item>
+		<item name="actionOverflowButtonStyle">@style/DkOverflowButtonStyle</item>
+		<item name="preferenceTheme">@style/Dk.BaseTheme.Light.Preference</item>
+		<item name="dialogTheme">@style/Dk.LightTheme.Dialog</item>
+		<item name="alertDialogTheme">@style/Dk.LightTheme.Dialog.Alert</item>
+		<item name="dk_color_layout_bkg">@color/white</item>
+		<item name="dk_color_layout_bkg_opposite">@color/black</item>
+	</style>
+	<style name="Dk.BaseTheme.Light.Preference" parent="PreferenceFragment">
+		<item name="android:background">@color/white</item>
+	</style>
+
+	<!--BaseThem Dark-->
+	<style name="Dk.BaseTheme.Dark" parent="Theme.AppCompat.NoActionBar">
+		<item name="windowActionBar">false</item>
+		<item name="windowNoTitle">true</item>
+		<item name="android:windowBackground">@drawable/bkg_window</item>
+		<item name="actionOverflowButtonStyle">@style/DkOverflowButtonStyle</item>
+		<item name="preferenceTheme">@style/Dk.BaseTheme.Dark.Preference</item>
+		<item name="dialogTheme">@style/Dk.DarkTheme.Dialog</item>
+		<item name="alertDialogTheme">@style/Dk.DarkTheme.Dialog.Alert</item>
+		<item name="dk_color_layout_bkg">@color/black</item>
+		<item name="dk_color_layout_bkg_opposite">@color/white</item>
+	</style>
+	<style name="Dk.BaseTheme.Dark.Preference" parent="PreferenceFragment">
+		<item name="android:background">@color/black</item>
+	</style>
+
+	<!--BaseThem DayNight-->
+	<style name="Dk.BaseTheme.DayNight" parent="Theme.AppCompat.DayNight.NoActionBar">
+		<item name="windowActionBar">false</item>
+		<item name="windowNoTitle">true</item>
+		<item name="android:windowBackground">@drawable/bkg_window</item>
+		<item name="actionOverflowButtonStyle">@style/DkOverflowButtonStyle</item>
+		<item name="preferenceTheme">@style/Dk.BaseTheme.DayNight.Preference</item>
+		<item name="dialogTheme">@style/Dk.LightTheme.Dialog</item>
+		<item name="alertDialogTheme">@style/Dk.LightTheme.Dialog.Alert</item>
+		<item name="dk_color_layout_bkg">@color/black</item>
+		<item name="dk_color_layout_bkg_opposite">@color/white</item>
+	</style>
+	<style name="Dk.BaseTheme.DayNight.Preference" parent="PreferenceFragment">
+		<item name="android:background">@color/white</item>
+	</style>
+
+	<style name="DkOverflowButtonStyle" parent="Widget.AppCompat.ActionButton.Overflow">
+		<item name="android:tint">@color/white</item>
+	</style>
+
+	<!--DarkTheme for app-->
+	<style name="Dk.DarkTheme.Dialog" parent="Theme.AppCompat.Dialog"/>
+	<style name="Dk.DarkTheme.Dialog.Alert" parent="Theme.AppCompat.Dialog.Alert"/>
+	<!--blue gray-->
+	<style name="Dk.DarkTheme.BlueGray" parent="Dk.BaseTheme.Dark">
+		<item name="dk_color_translucent">@color/material_blue_gray_translucent</item>
+		<item name="dk_color_material_050">@color/material_blue_gray_050</item>
+		<item name="dk_color_material_100">@color/material_blue_gray_100</item>
+		<item name="dk_color_material_200">@color/material_blue_gray_200</item>
+		<item name="dk_color_material_300">@color/material_blue_gray_300</item>
+		<item name="dk_color_material_400">@color/material_blue_gray_400</item>
+		<item name="dk_color_material_500">@color/material_blue_gray_500</item>
+		<item name="dk_color_material_600">@color/material_blue_gray_600</item>
+		<item name="dk_color_material_700">@color/material_blue_gray_700</item>
+		<item name="dk_color_material_800">@color/material_blue_gray_800</item>
+		<item name="dk_color_material_900">@color/material_blue_gray_900</item>
+		<item name="dk_color_material_a100">@color/material_blue_gray_A100</item>
+		<item name="dk_color_material_a200">@color/material_blue_gray_A200</item>
+		<item name="dk_color_material_a400">@color/material_blue_gray_A400</item>
+		<item name="dk_color_material_a700">@color/material_blue_gray_A700</item>
+
+		<item name="colorPrimary">@color/material_blue_gray_500</item>
+		<item name="colorPrimaryDark">@color/material_blue_gray_700</item>
+		<item name="colorAccent">@color/material_blue_gray_A700</item>
+		<item name="colorControlNormal">@color/material_blue_gray_500</item>
+		<item name="colorControlActivated">@color/material_blue_gray_500</item>
+		<!--<item name="colorControlHighlight">@color/selector_blue_gray_pressed</item>-->
+
+		<item name="dialogTheme">@style/Dk.DarkTheme.Dialog.BlueGray</item>
+		<item name="alertDialogTheme">@style/Dk.DarkTheme.Dialog.Alert.BlueGray</item>
+	</style>
+	<style name="Dk.DarkTheme.Dialog.BlueGray">
+		<item name="colorPrimary">@color/material_blue_gray_500</item>
+		<item name="colorPrimaryDark">@color/material_blue_gray_700</item>
+		<item name="colorAccent">@color/material_blue_gray_A700</item>
+	</style>
+	<style name="Dk.DarkTheme.Dialog.Alert.BlueGray">
+		<item name="colorPrimary">@color/material_blue_gray_500</item>
+		<item name="colorPrimaryDark">@color/material_blue_gray_700</item>
+		<item name="colorAccent">@color/material_blue_gray_A700</item>
+	</style>
+	<!--LightTheme for app-->
+	<style name="Dk.LightTheme.FullScreen" parent="Dk.BaseTheme.Light">
+		<item name="android:windowNoTitle">true</item>
+		<item name="android:windowActionBar">false</item>
+		<item name="android:windowFullscreen">true</item>
+		<item name="android:windowContentOverlay">@null</item>
+	</style>
+	<style name="Dk.LightTheme.Dialog" parent="Theme.AppCompat.Light.Dialog"/>
+	<style name="Dk.LightTheme.Dialog.Alert" parent="Theme.AppCompat.Light.Dialog.Alert"/>
+	<!--blue gray-->
+	<style name="Dk.LightTheme.BlueGray" parent="Dk.BaseTheme.Light">
+		<item name="dk_color_translucent">@color/material_blue_gray_translucent</item>
+		<item name="dk_color_material_050">@color/material_blue_gray_050</item>
+		<item name="dk_color_material_100">@color/material_blue_gray_100</item>
+		<item name="dk_color_material_200">@color/material_blue_gray_200</item>
+		<item name="dk_color_material_300">@color/material_blue_gray_300</item>
+		<item name="dk_color_material_400">@color/material_blue_gray_400</item>
+		<item name="dk_color_material_500">@color/material_blue_gray_500</item>
+		<item name="dk_color_material_600">@color/material_blue_gray_600</item>
+		<item name="dk_color_material_700">@color/material_blue_gray_700</item>
+		<item name="dk_color_material_800">@color/material_blue_gray_800</item>
+		<item name="dk_color_material_900">@color/material_blue_gray_900</item>
+		<item name="dk_color_material_a100">@color/material_blue_gray_A100</item>
+		<item name="dk_color_material_a200">@color/material_blue_gray_A200</item>
+		<item name="dk_color_material_a400">@color/material_blue_gray_A400</item>
+		<item name="dk_color_material_a700">@color/material_blue_gray_A700</item>
+
+		<item name="colorPrimary">@color/material_blue_gray_500</item>
+		<item name="colorPrimaryDark">@color/material_blue_gray_700</item>
+		<item name="colorAccent">@color/material_blue_gray_A700</item>
+		<item name="colorControlNormal">@color/material_blue_gray_500</item>
+		<item name="colorControlActivated">@color/material_blue_gray_500</item>
+
+		<item name="dialogTheme">@style/Dk.LightTheme.Dialog.BlueGray</item>
+		<item name="alertDialogTheme">@style/Dk.LightTheme.Dialog.Alert.BlueGray</item>
+	</style>
+	<style name="Dk.LightTheme.BlueGray.FullScreen" parent="Dk.BaseTheme.Light">
+		<item name="android:windowNoTitle">true</item>
+		<item name="android:windowActionBar">false</item>
+		<item name="android:windowFullscreen">true</item>
+		<item name="android:windowContentOverlay">@null</item>
+	</style>
+	<style name="Dk.LightTheme.Dialog.BlueGray">
+		<item name="colorPrimary">@color/material_blue_gray_500</item>
+		<item name="colorPrimaryDark">@color/material_blue_gray_700</item>
+		<item name="colorAccent">@color/material_blue_gray_A700</item>
+	</style>
+	<style name="Dk.LightTheme.Dialog.Alert.BlueGray">
+		<item name="colorPrimary">@color/material_blue_gray_500</item>
+		<item name="colorPrimaryDark">@color/material_blue_gray_700</item>
+		<item name="colorAccent">@color/material_blue_gray_A700</item>
+	</style>
+	<!--orange-->
+	<style name="Dk.LightTheme.Orange" parent="Dk.BaseTheme.Light">
+		<item name="dk_color_translucent">@color/material_orange_translucent</item>
+		<item name="dk_color_material_050">@color/material_orange_050</item>
+		<item name="dk_color_material_100">@color/material_orange_100</item>
+		<item name="dk_color_material_200">@color/material_orange_200</item>
+		<item name="dk_color_material_300">@color/material_orange_300</item>
+		<item name="dk_color_material_400">@color/material_orange_400</item>
+		<item name="dk_color_material_500">@color/material_orange_500</item>
+		<item name="dk_color_material_600">@color/material_orange_600</item>
+		<item name="dk_color_material_700">@color/material_orange_700</item>
+		<item name="dk_color_material_800">@color/material_orange_800</item>
+		<item name="dk_color_material_900">@color/material_orange_900</item>
+		<item name="dk_color_material_a100">@color/material_orange_A100</item>
+		<item name="dk_color_material_a200">@color/material_orange_A200</item>
+		<item name="dk_color_material_a400">@color/material_orange_A400</item>
+		<item name="dk_color_material_a700">@color/material_orange_A700</item>
+
+		<item name="colorPrimary">@color/material_orange_500</item>
+		<item name="colorPrimaryDark">@color/material_orange_700</item>
+		<item name="colorAccent">@color/material_orange_A700</item>
+		<item name="colorControlNormal">@color/material_orange_500</item>
+		<item name="colorControlActivated">@color/material_orange_500</item>
+
+		<item name="dialogTheme">@style/Dk.LightTheme.Dialog.Orange</item>
+		<item name="alertDialogTheme">@style/Dk.LightTheme.Dialog.Alert.Orange</item>
+	</style>
+	<style name="Dk.LightTheme.Orange.FullScreen" parent="Dk.BaseTheme.Light">
+		<item name="android:windowNoTitle">true</item>
+		<item name="android:windowActionBar">false</item>
+		<item name="android:windowFullscreen">true</item>
+		<item name="android:windowContentOverlay">@null</item>
+	</style>
+	<style name="Dk.LightTheme.Dialog.Orange">
+		<item name="colorPrimary">@color/material_orange_500</item>
+		<item name="colorPrimaryDark">@color/material_orange_700</item>
+		<item name="colorAccent">@color/material_orange_A700</item>
+	</style>
+	<style name="Dk.LightTheme.Dialog.Alert.Orange">
+		<item name="colorPrimary">@color/material_orange_500</item>
+		<item name="colorPrimaryDark">@color/material_orange_700</item>
+		<item name="colorAccent">@color/material_orange_A700</item>
+	</style>
+	<!--lime-->
+	<style name="Dk.LightTheme.Lime" parent="Dk.BaseTheme.Light">
+		<item name="dk_color_translucent">@color/material_lime_translucent</item>
+		<item name="dk_color_material_050">@color/material_lime_050</item>
+		<item name="dk_color_material_100">@color/material_lime_100</item>
+		<item name="dk_color_material_200">@color/material_lime_200</item>
+		<item name="dk_color_material_300">@color/material_lime_300</item>
+		<item name="dk_color_material_400">@color/material_lime_400</item>
+		<item name="dk_color_material_500">@color/material_lime_500</item>
+		<item name="dk_color_material_600">@color/material_lime_600</item>
+		<item name="dk_color_material_700">@color/material_lime_700</item>
+		<item name="dk_color_material_800">@color/material_lime_800</item>
+		<item name="dk_color_material_900">@color/material_lime_900</item>
+		<item name="dk_color_material_a100">@color/material_lime_A100</item>
+		<item name="dk_color_material_a200">@color/material_lime_A200</item>
+		<item name="dk_color_material_a400">@color/material_lime_A400</item>
+		<item name="dk_color_material_a700">@color/material_lime_A700</item>
+
+		<item name="colorPrimary">@color/material_lime_500</item>
+		<item name="colorPrimaryDark">@color/material_lime_700</item>
+		<item name="colorAccent">@color/material_lime_A700</item>
+		<item name="colorControlNormal">@color/material_lime_500</item>
+		<item name="colorControlActivated">@color/material_lime_500</item>
+
+		<item name="dialogTheme">@style/Dk.LightTheme.Dialog.Lime</item>
+		<item name="alertDialogTheme">@style/Dk.LightTheme.Dialog.Alert.Lime</item>
+	</style>
+	<style name="Dk.LightTheme.Lime.FullScreen" parent="Dk.BaseTheme.Light">
+		<item name="android:windowNoTitle">true</item>
+		<item name="android:windowActionBar">false</item>
+		<item name="android:windowFullscreen">true</item>
+		<item name="android:windowContentOverlay">@null</item>
+	</style>
+	<style name="Dk.LightTheme.Dialog.Lime">
+		<item name="colorPrimary">@color/material_lime_500</item>
+		<item name="colorPrimaryDark">@color/material_lime_700</item>
+		<item name="colorAccent">@color/material_lime_A700</item>
+	</style>
+	<style name="Dk.LightTheme.Dialog.Alert.Lime">
+		<item name="colorPrimary">@color/material_lime_500</item>
+		<item name="colorPrimaryDark">@color/material_lime_700</item>
+		<item name="colorAccent">@color/material_lime_A700</item>
+	</style>
+	<!--teal-->
+	<style name="Dk.LightTheme.Teal" parent="Dk.BaseTheme.Light">
+		<item name="dk_color_translucent">@color/material_teal_translucent</item>
+		<item name="dk_color_material_050">@color/material_teal_050</item>
+		<item name="dk_color_material_100">@color/material_teal_100</item>
+		<item name="dk_color_material_200">@color/material_teal_200</item>
+		<item name="dk_color_material_300">@color/material_teal_300</item>
+		<item name="dk_color_material_400">@color/material_teal_400</item>
+		<item name="dk_color_material_500">@color/material_teal_500</item>
+		<item name="dk_color_material_600">@color/material_teal_600</item>
+		<item name="dk_color_material_700">@color/material_teal_700</item>
+		<item name="dk_color_material_800">@color/material_teal_800</item>
+		<item name="dk_color_material_900">@color/material_teal_900</item>
+		<item name="dk_color_material_a100">@color/material_teal_A100</item>
+		<item name="dk_color_material_a200">@color/material_teal_A200</item>
+		<item name="dk_color_material_a400">@color/material_teal_A400</item>
+		<item name="dk_color_material_a700">@color/material_teal_A700</item>
+
+		<item name="colorPrimary">@color/material_teal_500</item>
+		<item name="colorPrimaryDark">@color/material_teal_700</item>
+		<item name="colorAccent">@color/material_teal_A700</item>
+		<item name="colorControlNormal">@color/material_teal_500</item>
+		<item name="colorControlActivated">@color/material_teal_500</item>
+
+		<item name="dialogTheme">@style/Dk.LightTheme.Dialog.Teal</item>
+		<item name="alertDialogTheme">@style/Dk.LightTheme.Dialog.Alert.Teal</item>
+	</style>
+	<style name="Dk.LightTheme.Teal.FullScreen" parent="Dk.BaseTheme.Light">
+		<item name="android:windowNoTitle">true</item>
+		<item name="android:windowActionBar">false</item>
+		<item name="android:windowFullscreen">true</item>
+		<item name="android:windowContentOverlay">@null</item>
+	</style>
+	<style name="Dk.LightTheme.Dialog.Teal">
+		<item name="colorPrimary">@color/material_teal_500</item>
+		<item name="colorPrimaryDark">@color/material_teal_700</item>
+		<item name="colorAccent">@color/material_teal_A700</item>
+	</style>
+	<style name="Dk.LightTheme.Dialog.Alert.Teal">
+		<item name="colorPrimary">@color/material_teal_500</item>
+		<item name="colorPrimaryDark">@color/material_teal_700</item>
+		<item name="colorAccent">@color/material_teal_A700</item>
+	</style>
+	<!--purple-->
+	<style name="Dk.LightTheme.Purple" parent="Dk.BaseTheme.Light">
+		<item name="dk_color_translucent">@color/material_purple_translucent</item>
+		<item name="dk_color_material_050">@color/material_purple_050</item>
+		<item name="dk_color_material_100">@color/material_purple_100</item>
+		<item name="dk_color_material_200">@color/material_purple_200</item>
+		<item name="dk_color_material_300">@color/material_purple_300</item>
+		<item name="dk_color_material_400">@color/material_purple_400</item>
+		<item name="dk_color_material_500">@color/material_purple_500</item>
+		<item name="dk_color_material_600">@color/material_purple_600</item>
+		<item name="dk_color_material_700">@color/material_purple_700</item>
+		<item name="dk_color_material_800">@color/material_purple_800</item>
+		<item name="dk_color_material_900">@color/material_purple_900</item>
+		<item name="dk_color_material_a100">@color/material_purple_A100</item>
+		<item name="dk_color_material_a200">@color/material_purple_A200</item>
+		<item name="dk_color_material_a400">@color/material_purple_A400</item>
+		<item name="dk_color_material_a700">@color/material_purple_A700</item>
+
+		<item name="colorPrimary">@color/material_purple_500</item>
+		<item name="colorPrimaryDark">@color/material_purple_700</item>
+		<item name="colorAccent">@color/material_purple_A700</item>
+		<item name="colorControlNormal">@color/material_purple_500</item>
+		<item name="colorControlActivated">@color/material_purple_500</item>
+
+		<item name="dialogTheme">@style/Dk.LightTheme.Dialog.Purple</item>
+		<item name="alertDialogTheme">@style/Dk.LightTheme.Dialog.Alert.Purple</item>
+	</style>
+	<style name="Dk.LightTheme.Purple.FullScreen" parent="Dk.BaseTheme.Light">
+		<item name="android:windowNoTitle">true</item>
+		<item name="android:windowActionBar">false</item>
+		<item name="android:windowFullscreen">true</item>
+		<item name="android:windowContentOverlay">@null</item>
+	</style>
+	<style name="Dk.LightTheme.Dialog.Purple">
+		<item name="colorPrimary">@color/material_purple_500</item>
+		<item name="colorPrimaryDark">@color/material_purple_700</item>
+		<item name="colorAccent">@color/material_purple_A700</item>
+	</style>
+	<style name="Dk.LightTheme.Dialog.Alert.Purple">
+		<item name="colorPrimary">@color/material_purple_500</item>
+		<item name="colorPrimaryDark">@color/material_purple_700</item>
+		<item name="colorAccent">@color/material_purple_A700</item>
+	</style>
+	<!--appbar-->
+	<style name="Dk.LightTheme.AppBar.Light" parent="ThemeOverlay.AppCompat.ActionBar">
+		<item name="colorControlNormal">@color/black</item>
+		<item name="android:actionMenuTextColor">@color/white</item>
+	</style>
+
+</resources>

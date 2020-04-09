@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<!--global scope, all custom attributes will use this-->
+	<declare-styleable name="DKAttrs">
+		<!--color-->
+		<attr name="dk_color_layout_bkg" format="color" />
+		<attr name="dk_color_layout_bkg_opposite" format="color" />
+		<attr name="dk_color_popup_theme" format="color" />
+		<attr name="dk_color_translucent" format="color" />
+		<attr name="dk_color_material_050" format="color" />
+		<attr name="dk_color_material_100" format="color" />
+		<attr name="dk_color_material_200" format="color" />
+		<attr name="dk_color_material_300" format="color" />
+		<attr name="dk_color_material_400" format="color" />
+		<attr name="dk_color_material_500" format="color" />
+		<attr name="dk_color_material_600" format="color" />
+		<attr name="dk_color_material_700" format="color" />
+		<attr name="dk_color_material_800" format="color" />
+		<attr name="dk_color_material_900" format="color" />
+		<attr name="dk_color_material_a100" format="color" />
+		<attr name="dk_color_material_a200" format="color" />
+		<attr name="dk_color_material_a400" format="color" />
+		<attr name="dk_color_material_a700" format="color" />
+
+		<!--menu sync with preference-->
+		<attr name="dk_preference_key" format="integer" />
+		<attr name="dk_preference_tag_value" format="string" />
+		<attr name="dk_icon_status" format="integer" />
+		<attr name="dk_submenu" format="integer" />
+
+		<!--foreground view-->
+		<attr name="dk_animation" format="string" />
+		<attr name="dk_normal_color" format="color" />
+		<attr name="dk_pressed_color" format="color" />
+		<attr name="dk_corner_radius" format="dimension" />
+		<attr name="dk_left_top_corner_radius" format="dimension" />
+		<attr name="dk_right_top_corner_radius" format="dimension" />
+		<attr name="dk_right_bottom_corner_radius" format="dimension" />
+		<attr name="dk_left_bottom_corner_radius" format="dimension" />
+	</declare-styleable>
+
+	<declare-styleable name="DkMenuView">
+		<attr name="dk_preference_key" />
+		<attr name="dk_preference_tag_value" />
+		<attr name="dk_icon_status" />
+		<attr name="dk_submenu" />
+	</declare-styleable>
+
+	<declare-styleable name="DKForegroundView">
+		<attr name="dk_animation" />
+		<attr name="dk_normal_color" />
+		<attr name="dk_pressed_color" />
+		<attr name="dk_corner_radius" />
+		<attr name="dk_left_top_corner_radius" />
+		<attr name="dk_right_top_corner_radius" />
+		<attr name="dk_right_bottom_corner_radius" />
+		<attr name="dk_left_bottom_corner_radius" />
+	</declare-styleable>
+
+	<!-- Background Drawable of View's -->
+	<attr name="backgroundCompat" format="reference" />
+	<attr name="isInScrollContainer" format="boolean" />
+	<!-- Drawable used to show animated touch feedback. -->
+	<declare-styleable name="DkRippleDrawable">
+		<!-- The color to use for ripple effects. This attribute is required. -->
+		<attr name="android:color"/>
+	</declare-styleable>
+	<!-- Drawable used to render several drawables stacked on top of each other. Each child drawable can be controlled individually. -->
+	<declare-styleable name="DkLayerDrawable">
+		<attr name="android:visible"/>
+		<!-- Indicates the opacity of the layer. This can be useful to allow the system to enable drawing optimizations. The default value is translucent. -->
+		<attr name="android:opacity"/>
+		<!-- Indicates if the drawable needs to be mirrored when its layout direction is RTL. -->
+		<attr name="android:autoMirrored"/>
+		<!-- Indicates how layer padding should affect the bounds of subsequent layers.
+		The default padding mode value is nest. -->
+		<attr name="android:paddingMode"/>
+	</declare-styleable>
+	<!-- Describes an item (or child) of a LayerDrawable. -->
+	<declare-styleable name="LayerDrawableItem">
+		<attr name="android:id"/>
+		<attr name="android:left"/>
+		<attr name="android:top"/>
+		<attr name="android:right"/>
+		<attr name="android:bottom"/>
+		<attr name="android:drawable"/>
+	</declare-styleable>
+
+</resources>

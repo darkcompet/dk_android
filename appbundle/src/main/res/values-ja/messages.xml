@@ -1,0 +1,11 @@
+<resources>
+	<string name="msg_has_new_update">アプリの新バージョンがリリースされました．交換性と効率性の向上のため，最新バージョンの更新をお勧めします．</string>
+	<string name="msg_connect_failed">通信に失敗しました</string>
+	<string name="msg_bad_request">Bad request</string>
+	<string name="msg_internal_server_error">Internal server error</string>
+	<string name="msg_unknown_error">Unkown error</string>
+	<string name="msg_not_acceptable">Not acceptable</string>
+	<string name="msg_not_found">Not found</string>
+	<string name="msg_oops">Oops! Something got wrong</string>
+	<string name="msg_tap_one_more_to_quit">戻りボタンを再度押してアプリが終了します</string>
+</resources>
