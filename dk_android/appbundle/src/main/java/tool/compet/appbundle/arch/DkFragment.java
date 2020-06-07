@@ -21,7 +21,7 @@ import androidx.fragment.app.Fragment;
 import tool.compet.appbundle.arch.navigator.DkFragmentNavigator;
 
 /**
- * Fragment interface for Dk library. Implements this to work where Dk library.
+ * Fragment interface for Dk library. Implements this to work with Dk library.
  */
 public interface DkFragment {
    /**

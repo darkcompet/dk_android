@@ -38,11 +38,13 @@ import android.view.animation.Animation;
 import android.view.animation.Transformation;
 import android.view.animation.TranslateAnimation;
 import android.webkit.WebView;
+import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.appcompat.widget.Toolbar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.ViewCompat;
 
 import tool.compet.core.type.DkCallback;
@@ -336,5 +338,40 @@ public class DkViews {
 		Rect offset = new Rect();
 		ancestor.offsetRectIntoDescendantCoords(descendant, offset);
 		return offset;
+	}
+
+	/**
+	 * Scan up to find a layout like FrameLayout which can make layer of views.
+	 * This try to find Android root layout as possible.
+	 *
+	 * @return Nomarly, it results Root FrameLayout of current Activity.
+	 */
+	public static ViewGroup findSuperFrameLayout(View view) {
+		ViewGroup layout = null;
+		ViewGroup fallback = null;
+		ViewParent viewParent = view.getParent();
+
+		if (viewParent instanceof ViewGroup) {
+			layout = (ViewGroup) viewParent;
+		}
+
+		do {
+			if (layout instanceof CoordinatorLayout) {
+				return layout;
+			}
+			if (layout instanceof FrameLayout) {
+				if (layout.getId() == android.R.id.content) {
+					return layout;
+				}
+				fallback = layout;
+			}
+			if (layout != null) {
+				ViewParent parent = layout.getParent();
+				layout = (parent instanceof ViewGroup) ? (ViewGroup) parent : null;
+			}
+		}
+		while (layout != null);
+
+		return fallback;
 	}
 }

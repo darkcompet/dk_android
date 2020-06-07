@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import tool.compet.appbundle.R;
+import tool.compet.core.view.DkViews;
 
 /**
  * When show it, it urgently dismiss all current bars and show next.
@@ -35,7 +36,7 @@ public class DkUrgentSnackbar extends DkSnackbar {
 
 	// It will hide super newIns() method from outside-invoke
 	public static DkUrgentSnackbar newIns(ViewGroup parent) {
-		parent = findSuitableParent(parent);
+		parent = DkViews.findSuperFrameLayout(parent);
 
 		if (parent == null) {
 			throw new RuntimeException("No suitable parent found");

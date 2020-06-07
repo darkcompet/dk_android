@@ -50,7 +50,7 @@ public class DkToastbar extends DkFloatingbar {
 	}
 
 	public static DkToastbar newIns(ViewGroup parent) {
-		parent = findSuitableParent(parent);
+		parent = DkViews.findSuperFrameLayout(parent);
 
 		if (parent == null) {
 			throw new RuntimeException("No suitable parent found");

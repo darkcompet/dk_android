@@ -25,6 +25,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import tool.compet.appbundle.R;
+import tool.compet.core.view.DkViews;
 
 public class DkSnackbar extends DkFloatingbar {
 	public static final int DURATION_SHORT = 2000;
@@ -46,7 +47,7 @@ public class DkSnackbar extends DkFloatingbar {
 	}
 
 	public static DkSnackbar newIns(ViewGroup parent) {
-		parent = findSuitableParent(parent);
+		parent = DkViews.findSuperFrameLayout(parent);
 
 		if (parent == null) {
 			throw new RuntimeException("No suitable parent found");

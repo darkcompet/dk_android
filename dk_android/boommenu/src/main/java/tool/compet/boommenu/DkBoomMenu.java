@@ -248,8 +248,6 @@ public class DkBoomMenu {
 		cluster.itemBuilders.add(itemBuilder);
 	}
 
-	//region Privates
-
 	/**
 	 * Create background if not yet existed -> just add as child to ancestor without showing.
 	 */
@@ -414,17 +412,13 @@ public class DkBoomMenu {
 			return null;
 		}
 		if (backgroundWholeScreen) {
-			return DkViews.findSuperFrameLayout(view, true);
+			return DkViews.findSuperFrameLayout(view);
 		}
 
 		ViewParent parent = view.getParent();
 
 		return parent instanceof ViewGroup ? (ViewGroup) parent : null;
 	}
-
-	//endregion Privates
-
-	//region GetSet
 
 	public DkBoomMenu setBackgroundDimColor(int dimColor) {
 		background.dimColor = dimColor;
@@ -522,6 +516,4 @@ public class DkBoomMenu {
 		cluster.autoUnisize = autoUnisize;
 		return this;
 	}
-
-	//endregion
 }
