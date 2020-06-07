@@ -23,5 +23,5 @@ import java.util.List;
 
 public class VmlStore extends ViewModel {
    List<DkVmlViewLogic> allViewLogics;
-   SimpleArrayMap<Class, Object> inViewFieldMap;
+   SimpleArrayMap<Class, Object> inViewFieldTypeToVmlObjectMap;
 }

@@ -38,6 +38,7 @@ import tool.compet.appbundle.arch.scopedTopic.TopicProvider;
 import tool.compet.appbundle.binder.DkBinder;
 import tool.compet.appbundle.floatingbar.DkSnackbar;
 import tool.compet.appbundle.floatingbar.DkToastbar;
+import tool.compet.appbundle.BuildConfig;
 import tool.compet.core.util.DkLogs;
 import tool.compet.core.util.Dks;
 
@@ -104,7 +105,7 @@ public abstract class DkSimpleFragment extends Fragment implements DkFragment,
 
    @Override
    public void onAttach(@NonNull Context context) {
-      if (true) {
+      if (BuildConfig.DEBUG) {
          DkLogs.log(this, "onAttach (context)");
       }
 
@@ -116,7 +117,7 @@ public abstract class DkSimpleFragment extends Fragment implements DkFragment,
    @Override
    @SuppressWarnings("deprecation")
    public void onAttach(@NonNull Activity activity) {
-      if (true) {
+      if (BuildConfig.DEBUG) {
          DkLogs.log(this, "onAttach (activity)");
       }
 
@@ -127,7 +128,7 @@ public abstract class DkSimpleFragment extends Fragment implements DkFragment,
 
    @Override
    public void onCreate(@Nullable Bundle savedInstanceState) {
-      if (true) {
+      if (BuildConfig.DEBUG) {
          DkLogs.log(this, "onCreate");
       }
       super.setRetainInstance(isRetainInstance());
@@ -136,7 +137,7 @@ public abstract class DkSimpleFragment extends Fragment implements DkFragment,
 
    @Override
    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-      if (true) {
+      if (BuildConfig.DEBUG) {
          DkLogs.log(this, "onCreateView");
       }
 
@@ -154,7 +155,7 @@ public abstract class DkSimpleFragment extends Fragment implements DkFragment,
 
    @Override
    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-      if (true) {
+      if (BuildConfig.DEBUG) {
          DkLogs.log(this, "onViewCreated");
       }
       super.onViewCreated(view, savedInstanceState);
@@ -162,7 +163,7 @@ public abstract class DkSimpleFragment extends Fragment implements DkFragment,
 
    @Override
    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-      if (true) {
+      if (BuildConfig.DEBUG) {
          DkLogs.log(this, "onActivityCreated");
       }
       if (navigator != null) {
@@ -173,7 +174,7 @@ public abstract class DkSimpleFragment extends Fragment implements DkFragment,
 
    @Override
    public void onStart() {
-      if (true) {
+      if (BuildConfig.DEBUG) {
          DkLogs.log(this, "onStart");
       }
       super.onStart();
@@ -187,7 +188,7 @@ public abstract class DkSimpleFragment extends Fragment implements DkFragment,
 
    @Override
    public void onActive(boolean isResume) {
-      if (true) {
+      if (BuildConfig.DEBUG) {
          DkLogs.log(this, isResume ? "onResume" : "onFront");
       }
    }
@@ -200,14 +201,14 @@ public abstract class DkSimpleFragment extends Fragment implements DkFragment,
 
    @Override
    public void onInactive(boolean isPause) {
-      if (true) {
+      if (BuildConfig.DEBUG) {
          DkLogs.log(this, isPause ? "onPause" : "onBehind");
       }
    }
 
    @Override
    public void onStop() {
-      if (true) {
+      if (BuildConfig.DEBUG) {
          DkLogs.log(this, "onStop");
       }
       super.onStop();
@@ -215,7 +216,7 @@ public abstract class DkSimpleFragment extends Fragment implements DkFragment,
 
    @Override
    public void onDestroyView() {
-      if (true) {
+      if (BuildConfig.DEBUG) {
          DkLogs.log(this, "onDestroyView");
       }
       super.onDestroyView();
@@ -223,7 +224,7 @@ public abstract class DkSimpleFragment extends Fragment implements DkFragment,
 
    @Override
    public void onDestroy() {
-      if (true) {
+      if (BuildConfig.DEBUG) {
          DkLogs.log(this, "onDestroy");
       }
       super.onDestroy();
@@ -231,7 +232,7 @@ public abstract class DkSimpleFragment extends Fragment implements DkFragment,
 
    @Override
    public void onDetach() {
-      if (true) {
+      if (BuildConfig.DEBUG) {
          DkLogs.log(this, "onDetach");
       }
 
@@ -243,7 +244,7 @@ public abstract class DkSimpleFragment extends Fragment implements DkFragment,
 
    @Override
    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-      if (true) {
+      if (BuildConfig.DEBUG) {
          DkLogs.log(this, "onActivityResult");
       }
       super.onActivityResult(requestCode, resultCode, data);
@@ -251,7 +252,7 @@ public abstract class DkSimpleFragment extends Fragment implements DkFragment,
 
    @Override
    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-      if (true) {
+      if (BuildConfig.DEBUG) {
          DkLogs.log(this, "onActivityResult");
       }
       super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -259,7 +260,7 @@ public abstract class DkSimpleFragment extends Fragment implements DkFragment,
 
    @Override
    public void onLowMemory() {
-      if (true) {
+      if (BuildConfig.DEBUG) {
          DkLogs.log(this, "onLowMemory");
       }
       super.onLowMemory();
@@ -267,7 +268,7 @@ public abstract class DkSimpleFragment extends Fragment implements DkFragment,
 
    @Override
    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-      if (true) {
+      if (BuildConfig.DEBUG) {
          DkLogs.log(this, "onViewStateRestored");
       }
       super.onViewStateRestored(savedInstanceState);
@@ -275,7 +276,7 @@ public abstract class DkSimpleFragment extends Fragment implements DkFragment,
 
    @Override
    public void onSaveInstanceState(@NonNull Bundle outState) {
-      if (true) {
+      if (BuildConfig.DEBUG) {
          DkLogs.log(this, "onSaveInstanceState");
       }
       if (navigator != null) {

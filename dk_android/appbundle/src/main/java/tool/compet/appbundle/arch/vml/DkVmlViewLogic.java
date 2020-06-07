@@ -60,7 +60,7 @@ public abstract class DkVmlViewLogic<V extends VmlView> {
    // Actions which sent to View when View was absent
    // We need optimize this field since 2 consequence commands maybe update
    // same part of View.
-   private ArrayList<DkCallback<V>> pendingCommands;
+   private ArrayList<DkCallback<V>> _pendingCommands;
 
    // Indicates whether View has ever notified lifecycle-events to ViewLogic
    // It is useful for checking whether events (#onCreate(), #onDestroy()...) of View
@@ -106,7 +106,7 @@ public abstract class DkVmlViewLogic<V extends VmlView> {
          command.call(view);
       }
       else {
-         addPendingCommand(command);
+         _addPendingCommand(command);
       }
    }
 
@@ -149,14 +149,14 @@ public abstract class DkVmlViewLogic<V extends VmlView> {
       }
       isCalledOnActive = true;
 
-      if (isResume && view != null && pendingCommands != null) {
-         for (DkCallback<V> action : pendingCommands) {
+      if (isResume && view != null && _pendingCommands != null) {
+         for (DkCallback<V> action : _pendingCommands) {
             action.call(view);
          }
          if (DEBUG) {
-            DkLogs.log(this, "Executed %d pending actions", pendingCommands.size());
+            DkLogs.log(this, "Executed %d pending actions", _pendingCommands.size());
          }
-         pendingCommands = null;
+         _pendingCommands = null;
       }
    }
 
@@ -189,7 +189,7 @@ public abstract class DkVmlViewLogic<V extends VmlView> {
       lifeCycleState = STATE_DESTROY;
       isCalledOnDestroy = true;
 
-      pendingCommands = null;
+      _pendingCommands = null;
       detachView();
    }
 
@@ -233,10 +233,10 @@ public abstract class DkVmlViewLogic<V extends VmlView> {
       isCalledOnRequestPermissionsResult = true;
    }
 
-   private void addPendingCommand(DkCallback<V> command) {
-      if (pendingCommands == null) {
-         pendingCommands = new ArrayList<>();
+   private void _addPendingCommand(DkCallback<V> command) {
+      if (_pendingCommands == null) {
+         _pendingCommands = new ArrayList<>();
       }
-      pendingCommands.add(command);
+      _pendingCommands.add(command);
    }
 }

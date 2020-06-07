@@ -19,6 +19,8 @@ package tool.compet.database;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import androidx.annotation.NonNull;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.lang.reflect.Field;
@@ -44,11 +46,11 @@ import static tool.compet.database.DkExpress.joinVals;
  *
  * @author darkcompet (co.vp@kilobytes.com.vn)
  */
-public class DkQuerier implements DkSqliteKeyword {
+public class DkQuery implements DkSqliteKeyword {
    private SQLiteDatabase database;
    private StringBuilder builder;
 
-   private DkQuerier(SQLiteDatabase database) {
+   private DkQuery(SQLiteDatabase database) {
       this.database = database;
       this.builder = new StringBuilder(256);
    }
@@ -56,8 +58,8 @@ public class DkQuerier implements DkSqliteKeyword {
    /**
     * Caller should take care passing readable or writable SQLiteDatabase object to this.
     */
-   public static DkQuerier newIns(SQLiteDatabase db) {
-      return new DkQuerier(db);
+   public static DkQuery newIns(SQLiteDatabase db) {
+      return new DkQuery(db);
    }
 
    public Cursor raw() throws Exception {
@@ -176,7 +178,7 @@ public class DkQuerier implements DkSqliteKeyword {
    /**
     * Set new query. The query built before calling this method will be cleared.
     */
-   public DkQuerier setSql(String query) {
+   public DkQuery setSql(String query) {
       if (builder.length() > 0) {
          builder = new StringBuilder(query.length());
       }
@@ -187,7 +189,7 @@ public class DkQuerier implements DkSqliteKeyword {
    /**
     * Just append given text.
     */
-   private DkQuerier justAppend(String text) {
+   private DkQuery justAppend(String text) {
       builder.append(text);
       return this;
    }
@@ -195,32 +197,32 @@ public class DkQuerier implements DkSqliteKeyword {
    /**
     * Append given text and a space next.
     */
-   private DkQuerier appendNext(String text) {
+   private DkQuery appendNext(String text) {
       builder.append(text).append(" ");
       return this;
    }
 
    /**
-    * Like {@link DkQuerier#appendNext(String)} but it takes care about keyword confliction.
+    * Like {@link DkQuery#appendNext(String)} but it takes care about keyword confliction.
     */
-   private DkQuerier appendName(String name) {
+   private DkQuery appendName(String name) {
       builder.append("'").append(name).append("'").append(" ");
       return this;
    }
 
-   public DkQuerier select(String... cols) {
+   public DkQuery select(String... cols) {
       return appendNext(SELECT).appendNext(DkExpress.joinCols(Arrays.asList(cols)));
    }
 
-   public DkQuerier from(String tableName) {
+   public DkQuery from(String tableName) {
       return appendNext(FROM).appendName(tableName);
    }
 
-   public DkQuerier selectFrom(String tableName, String... cols) {
+   public DkQuery selectFrom(String tableName, String... cols) {
       return selectFrom(false, tableName, cols);
    }
 
-   public DkQuerier selectFrom(boolean isDistinct, String tableName, String... cols) {
+   public DkQuery selectFrom(boolean isDistinct, String tableName, String... cols) {
       if (isDistinct) {
          appendNext(SELECT).appendNext(DISTINCT);
       }
@@ -239,25 +241,25 @@ public class DkQuerier implements DkSqliteKeyword {
     *            row will be counted. Otherwise non-null-value of the row
     *            will be counted.
     */
-   public DkQuerier selectCount(String tableName, String col) {
+   public DkQuery selectCount(String tableName, String col) {
       return appendNext("SELECT COUNT(")
          .justAppend(col).appendNext(")")
          .appendNext(FROM)
          .appendName(tableName);
    }
 
-   public DkQuerier innerJoin(String tableName, String joinOnCondition) {
+   public DkQuery innerJoin(String tableName, String joinOnCondition) {
       return appendNext(INNER_JOIN).appendName(tableName)
          .appendNext(ON).appendNext(joinOnCondition);
    }
 
-   public DkQuerier update(String tableName, List<String> cols, List<Object> vals, String whereClause) {
+   public DkQuery update(String tableName, List<String> cols, List<Object> vals, String whereClause) {
       return appendNext(UPDATE).appendName(tableName)
          .appendNext(SET).appendNext(DkExpress.set(cols, vals))
          .appendNext(WHERE).appendNext(whereClause);
    }
 
-   public DkQuerier insertInto(String tableName, List<String> cols, List<Object> vals) {
+   public DkQuery insertInto(String tableName, List<String> cols, List<Object> vals) {
       if (cols == null || vals == null || cols.size() != vals.size()) {
          DkLogs.complain(this, "Cols and Vals must be non null and same size");
       }
@@ -267,19 +269,23 @@ public class DkQuerier implements DkSqliteKeyword {
          .appendNext("VALUES (").justAppend(joinVals(vals)).appendNext(")");
    }
 
-   public DkQuerier deleteFrom(String tableName) {
+   public DkQuery deleteFrom(String tableName) {
       return appendNext("DELETE FROM").appendName(tableName);
    }
 
-   public DkQuerier dropTable(String tableName) {
+   public DkQuery dropTable(String tableName) {
       return appendNext("DROP TABLE IF EXISTS").appendName(tableName);
    }
 
-   public DkQuerier where(String whereClause) {
+   public DkQuery where(String whereClause) {
       return appendNext(WHERE).appendNext(whereClause);
    }
 
-   public DkQuerier orderby(boolean isAsc, String... sortCols) {
+   public DkQuery where(DkExpress where) {
+      return appendNext(WHERE).appendNext(where.toString());
+   }
+
+   public DkQuery orderby(boolean isAsc, String... sortCols) {
       if (sortCols != null && sortCols.length > 0) {
          appendNext(ORDER_BY)
             .appendNext(DkExpress.joinCols(Arrays.asList(sortCols)))
@@ -288,14 +294,19 @@ public class DkQuerier implements DkSqliteKeyword {
       return this;
    }
 
-   public DkQuerier limit(int capacity) {
+   public DkQuery limit(int capacity) {
       return appendNext(LIMIT).appendNext(String.valueOf(capacity));
+   }
+
+   @NonNull
+   public String toString() {
+      return builder.toString();
    }
 
    /**
     * Validate the correctness of sql query.
     */
-   public DkQuerier validate() {
+   public DkQuery validate() {
       String sql = builder.toString();
       throw new RuntimeException("Invalid sql");
    }

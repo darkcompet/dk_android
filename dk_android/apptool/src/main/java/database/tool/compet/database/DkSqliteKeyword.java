@@ -83,6 +83,7 @@ public interface DkSqliteKeyword {
    String IGNORE = "IGNORE";
    String IMMEDIATE = "IMMEDIATE";
    String IN = "IN";
+   String INNER_JOIN = "INNER JOIN";
    String INDEX = "INDEX";
    String INDEXED = "INDEXED";
    String INITIALLY = "INITIALLY";
@@ -112,6 +113,7 @@ public interface DkSqliteKeyword {
    String ON = "ON";
    String OR = "OR";
    String ORDER = "ORDER";
+   String ORDER_BY = "ORDER BY";
    String OTHERS = "OTHERS";
    String OUTER = "OUTER";
    String OVER = "OVER";

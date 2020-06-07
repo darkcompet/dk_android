@@ -54,30 +54,30 @@ class VmlInjector {
 
       //+ Lookup cache from store first
       if (store.allViewLogics != null) {
-         List<Field> inViewFields = new ArrayList<>();
+         List<Field> inViewVmlFields = new ArrayList<>();
 
-         inViewFields.addAll(inViewMlFields);
-         inViewFields.addAll(inViewVlFields);
-         inViewFields.addAll(inViewArgFields);
-         inViewFields.addAll(inViewPlainFields);
+         inViewVmlFields.addAll(inViewMlFields);
+         inViewVmlFields.addAll(inViewVlFields);
+         inViewVmlFields.addAll(inViewArgFields);
+         inViewVmlFields.addAll(inViewPlainFields);
 
-         for (Field f : inViewFields) {
-            setFieldValue(f, view, store.inViewFieldMap.get(f.getType()));
+         for (Field inViewVmlField : inViewVmlFields) {
+            setFieldValue(inViewVmlField, view, store.inViewFieldTypeToVmlObjectMap.get(inViewVmlField.getType()));
          }
          return store.allViewLogics;
       }
 
       //+ Not found cache in the store, Init all vml-annotated fields in the View.
-      store.inViewFieldMap = new ArrayMap<>();
-      store.inViewFieldMap.putAll(initModelLogicFields(view, inViewMlFields));
-      store.inViewFieldMap.putAll(initViewLogicFields(view, inViewVlFields));
-      store.inViewFieldMap.putAll(initArgumentFields(view, inViewArgFields));
-      store.inViewFieldMap.putAll(initPlainFields(view, inViewPlainFields));
+      store.inViewFieldTypeToVmlObjectMap = new ArrayMap<>();
+      store.inViewFieldTypeToVmlObjectMap.putAll(initModelLogicFields(view, inViewMlFields));
+      store.inViewFieldTypeToVmlObjectMap.putAll(initViewLogicFields(view, inViewVlFields));
+      store.inViewFieldTypeToVmlObjectMap.putAll(initArgumentFields(view, inViewArgFields));
+      store.inViewFieldTypeToVmlObjectMap.putAll(initPlainFields(view, inViewPlainFields));
 
       //+ Scan and Init all VML-annotated-fields recursively.
-      if (store.inViewFieldMap.size() > 0) {
-         for (int index = store.inViewFieldMap.size() - 1; index >= 0; --index) {
-            Class inViewObjType = store.inViewFieldMap.keyAt(index);
+      if (store.inViewFieldTypeToVmlObjectMap.size() > 0) {
+         for (int index = store.inViewFieldTypeToVmlObjectMap.size() - 1; index >= 0; --index) {
+            Class inViewObjType = store.inViewFieldTypeToVmlObjectMap.keyAt(index);
 
             if (allComponentMap.getOrDefault(inViewObjType, null).needInitialize) {
                injectVmlAnnotatedFieldsInside(inViewObjType);

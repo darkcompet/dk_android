@@ -21,17 +21,17 @@ import com.google.gson.annotations.SerializedName;
 
 import tool.compet.core.security.DkUidGenerator;
 import tool.compet.core.util.DkLogs;
-import tool.compet.database.annotation.DkColumnDescription;
+import tool.compet.database.annotation.DkColumnInfo;
 
 /**
  * All schema of each table inside database should extend this abstract schema.
  * Note that, we don't support Blob type, so assure type of each field
- * is one of: Integer, Real or String (see DkSqliteSupportedTypes.TYPE_XXX).
+ * is one of: Integer, Real or String (see {@link tool.compet.database.helper.DkSqliteSupportedTypes}).
  */
-public abstract class DkTableSchemaModel implements DkTableSchema {
+public abstract class DkTableModel implements DkTableSchema {
 	@Expose
 	@SerializedName(COL_ID)
-	@DkColumnDescription(primaryKey = true, notNull = true)
+	@DkColumnInfo(primaryKey = true, notNull = true)
 	private String id;
 
 	public void issueId() {

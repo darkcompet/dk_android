@@ -29,48 +29,42 @@ import java.util.List;
 import tool.compet.core.reflection.DkReflectionFinder;
 import tool.compet.core.util.DkLogs;
 import tool.compet.core.util.DkStrings;
-import tool.compet.database.annotation.DkColumnDescription;
-import tool.compet.database.annotation.DkTable;
+import tool.compet.database.annotation.DkColumnInfo;
 import tool.compet.database.helper.DkSqliteSupportedTypes;
 
 import static tool.compet.database.DkExpress.eq;
 
 /**
- * Table access class, you can execute commands to the table associated with this.
+ * Data access object, you can execute commands to the table which be associated with this.
  * <p></p>
- * Specify annotation DkTable on the class to provide tableName and modelClass for us.
+ * Subclass must provide tableName and modelType for us.
  * <p></p>
  * Override onCreate(), onUpgrade() to hear upgrading events.
  * <p></p>
- * This will use DkQuery to make a SQL sentence, but maybe you have to
+ * This will use {@link DkQuery} to make a SQL sentence, but maybe you have to
  * write a complex query manually.
  */
-public abstract class DkTableManager<T extends DkTableSchemaModel> implements DkTableSchema {
+public abstract class DkDao<T extends DkTableModel> implements DkTableSchema {
 	protected String tableName;
 	protected Class<T> modelClass;
+
+	protected abstract String getTableName();
+	protected abstract Class<T> getModelType();
 
 	public abstract SQLiteDatabase getReadableDatabase();
 	public abstract SQLiteDatabase getWritableDatabase();
 
-	@SuppressWarnings("unchecked")
-	protected DkTableManager() {
-		Class clazz = getClass();
-		DkTable annotation = (DkTable) clazz.getAnnotation(DkTable.class);
-
-		if (annotation == null) {
-			throw new RuntimeException("Must annotate DkTable on the class: " + clazz);
-		}
-
-		tableName = annotation.tableName();
-		modelClass = annotation.modelType();
+	protected DkDao() {
+		tableName = getTableName();
+		modelClass = getModelType();
 	}
 
-	protected DkQuerier newReader() {
-		return DkQuerier.newIns(getReadableDatabase());
+	protected DkQuery newReader() {
+		return DkQuery.newIns(getReadableDatabase());
 	}
 
-	protected DkQuerier newWriter() {
-		return DkQuerier.newIns(getWritableDatabase());
+	protected DkQuery newWriter() {
+		return DkQuery.newIns(getWritableDatabase());
 	}
 
 	public void onCreate(SQLiteDatabase db) throws Exception {
@@ -106,8 +100,8 @@ public abstract class DkTableManager<T extends DkTableSchemaModel> implements Dk
 				}
 			}
 
-			if (field.isAnnotationPresent(DkColumnDescription.class)) {
-				DkColumnDescription descriptionInfo = field.getAnnotation(DkColumnDescription.class);
+			if (field.isAnnotationPresent(DkColumnInfo.class)) {
+				DkColumnInfo descriptionInfo = field.getAnnotation(DkColumnInfo.class);
 
 				if (descriptionInfo.primaryKey()) {
 					definition += " PRIMARY KEY";
@@ -126,7 +120,7 @@ public abstract class DkTableManager<T extends DkTableSchemaModel> implements Dk
 		creationScript.append(DkStrings.join(", ", definitions));
 		creationScript.append(")");
 
-		DkQuerier.newIns(db).setSql(creationScript.toString()).exe();
+		DkQuery.newIns(db).setSql(creationScript.toString()).exe();
 	}
 
 	public void onUpgrade(SQLiteDatabase db) throws Exception {
@@ -173,15 +167,22 @@ public abstract class DkTableManager<T extends DkTableSchemaModel> implements Dk
 			.raw(modelClass);
 	}
 
+	public List<T> queryAll(String whereClause) throws Exception {
+		return newReader()
+				.selectFrom(tableName)
+				.where(whereClause)
+				.raw(modelClass);
+	}
+
 	public List<T> queryAll() throws Exception {
 		return newReader().selectFrom(tableName).raw(modelClass);
 	}
 
-	public void update(DkTableSchemaModel model) throws Exception {
+	public void update(DkTableModel model) throws Exception {
 		update(model, eq(COL_ID, model.getId()).toString());
 	}
 
-	public void update(DkTableSchemaModel model, String whereClause) throws Exception {
+	public void update(DkTableModel model, String whereClause) throws Exception {
 		List<String> names = new ArrayList<>();
 		List<Object> values = new ArrayList<>();
 
@@ -189,8 +190,8 @@ public abstract class DkTableManager<T extends DkTableSchemaModel> implements Dk
 			.findFields(this.modelClass, SerializedName.class, true, false);
 
 		for (Field field : fields) {
-			if (!field.isAnnotationPresent(DkColumnDescription.class) ||
-				!field.getAnnotation(DkColumnDescription.class).primaryKey()) {
+			if (!field.isAnnotationPresent(DkColumnInfo.class) ||
+				!field.getAnnotation(DkColumnInfo.class).primaryKey()) {
 				// update except primary key
 				names.add(field.getAnnotation(SerializedName.class).value());
 				values.add(field.get(model));

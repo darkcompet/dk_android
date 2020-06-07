@@ -21,9 +21,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target({ElementType.TYPE})
+@Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface DkTable {
-	String tableName();
-	Class modelType();
+public @interface DkColumnInfo {
+	boolean primaryKey() default false;
+	boolean notNull() default false;
+	boolean autoIncrement() default false;
 }
