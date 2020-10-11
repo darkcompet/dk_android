@@ -59,7 +59,7 @@ class BackStack {
 					}
 				}
 
-				DkLogs.log(this, "restore backstack keys to: " + msg.append("]").toString());
+				DkLogs.info(this, "restore backstack keys to: " + msg.append("]").toString());
 			}
 		}
 	}
@@ -80,7 +80,7 @@ class BackStack {
 				}
 			}
 
-			DkLogs.log(this, "save backstack keys: " + msg.append("]").toString());
+			DkLogs.info(this, "save backstack keys: " + msg.append("]").toString());
 		}
 
 		return out;

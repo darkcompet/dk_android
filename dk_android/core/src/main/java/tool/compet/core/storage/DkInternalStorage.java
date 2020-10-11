@@ -55,8 +55,8 @@ public class DkInternalStorage {
 		fileName = DkStrings.trimExtras(fileName, File.separatorChar);
 
 		if (DEBUG) {
-			DkLogs.log(this, "Internal getFilesDir().getPath(): %s", appContext.getFilesDir().getPath());
-			DkLogs.log(this, "Internal getDir().getPath()/folderName/fileName: " +
+			DkLogs.info(this, "Internal getFilesDir().getPath(): %s", appContext.getFilesDir().getPath());
+			DkLogs.info(this, "Internal getDir().getPath()/folderName/fileName: " +
 				DkStrings.join(File.separator, appContext.getDir(folderName, Context.MODE_PRIVATE).getPath(), fileName));
 		}
 

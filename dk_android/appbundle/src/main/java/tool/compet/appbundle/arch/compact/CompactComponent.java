@@ -1,13 +1,13 @@
-package tool.compet.appbundle.arch.vml;
+package tool.compet.appbundle.arch.compact;
 
-public class VmlComponent {
+public class CompactComponent {
    // Real component
    final Object obj;
 
    // Indicates all component-fields inside it is not yet initialized.
    boolean needInitialize;
 
-   VmlComponent(Object component) {
+   CompactComponent(Object component) {
       this.obj = component;
       this.needInitialize = true;
    }

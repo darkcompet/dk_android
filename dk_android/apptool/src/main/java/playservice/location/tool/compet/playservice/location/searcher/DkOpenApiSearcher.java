@@ -48,7 +48,7 @@ public class DkOpenApiSearcher {
 			return geocoder.getFromLocation(lat, lng, 3);
 		}
 		catch (Exception e) {
-			DkLogs.logex(this, e);
+			DkLogs.error(this, e);
 			return Collections.emptyList();
 		}
 	}
@@ -58,7 +58,7 @@ public class DkOpenApiSearcher {
 			return geocoder.getFromLocationName(name, 3);
 		}
 		catch (Exception e) {
-			DkLogs.logex(this, e);
+			DkLogs.error(this, e);
 			return Collections.emptyList();
 		}
 	}
@@ -111,7 +111,7 @@ public class DkOpenApiSearcher {
 				.response;
 		}
 		catch (Exception e) {
-			DkLogs.logex(DkOpenApiSearcher.class, e);
+			DkLogs.error(DkOpenApiSearcher.class, e);
 			data = "";
 		}
 
@@ -136,7 +136,7 @@ public class DkOpenApiSearcher {
 			}
 		}
 		catch (Exception e) {
-			DkLogs.logex(DkLocations.class, e);
+			DkLogs.error(DkLocations.class, e);
 		}
 		return res;
 	}

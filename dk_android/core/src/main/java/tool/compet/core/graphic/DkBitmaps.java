@@ -89,7 +89,7 @@ public final class DkBitmaps {
 	public static Bitmap load(Context context, int imgRes, BitmapFactory.Options opts) {
 		Bitmap res = BitmapFactory.decodeResource(context.getResources(), imgRes, opts);
 		if (DEBUG) {
-			DkLogs.log(DkBitmaps.class, "loaded bitmap size: %d", getSize(res));
+			DkLogs.info(DkBitmaps.class, "loaded bitmap size: %d", getSize(res));
 		}
 		return res;
 	}
@@ -103,7 +103,7 @@ public final class DkBitmaps {
 	public static Bitmap load(String filePath, BitmapFactory.Options opts) {
 		Bitmap res = BitmapFactory.decodeFile(filePath, opts);
 		if (DEBUG) {
-			DkLogs.log(DkBitmaps.class, "loaded bitmap size: %d", getSize(res));
+			DkLogs.info(DkBitmaps.class, "loaded bitmap size: %d", getSize(res));
 		}
 		return res;
 	}
@@ -121,7 +121,7 @@ public final class DkBitmaps {
 	public static Bitmap load(InputStream is, BitmapFactory.Options opts) {
 		Bitmap res = BitmapFactory.decodeStream(is, null, opts);
 		if (DEBUG) {
-			DkLogs.log(DkBitmaps.class, "Loaded bitmap size: %d", getSize(res));
+			DkLogs.info(DkBitmaps.class, "Loaded bitmap size: %d", getSize(res));
 		}
 		return res;
 	}

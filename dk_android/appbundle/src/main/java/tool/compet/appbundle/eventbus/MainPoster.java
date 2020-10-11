@@ -46,7 +46,7 @@ class MainPoster implements Handler.Callback {
 				if (!handler.sendMessageDelayed(Message.obtain(handler), 0)) {
 					// give a change to try again
 					isRunning = false;
-					DkLogs.logw(this, "Could not send handler message");
+					DkLogs.warn(this, "Could not send handler message");
 				}
 			}
 		}
@@ -81,7 +81,7 @@ class MainPoster implements Handler.Callback {
 				if (!handler.sendMessageDelayed(Message.obtain(handler), 0)) {
 					// give a change to try send message again
 					isRunning = false;
-					DkLogs.logw(this, "Could not send handler message again");
+					DkLogs.warn(this, "Could not send handler message again");
 				}
 				break;
 			}

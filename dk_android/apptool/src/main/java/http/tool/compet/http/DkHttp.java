@@ -223,7 +223,7 @@ public class DkHttp {
 		requester.addAllToHeader(headers);
 
 		if (DEBUG) {
-			DkLogs.log(this, "Network request in thread: %s", Thread.currentThread().toString());
+			DkLogs.info(this, "Network request in thread: %s", Thread.currentThread().toString());
 		}
 
 		return requester.request(url, responseClass);

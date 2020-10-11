@@ -104,7 +104,7 @@ public abstract class DkPreferenceFragment extends PreferenceFragmentCompat impl
 	@Override
 	public void onAttach(@NonNull Context context) {
 		if (DEBUG) {
-			DkLogs.log(this, "onAttach (context)");
+			DkLogs.info(this, "onAttach (context)");
 		}
 
 		this.context = context;
@@ -116,7 +116,7 @@ public abstract class DkPreferenceFragment extends PreferenceFragmentCompat impl
 	@SuppressWarnings("deprecation")
 	public void onAttach(@NonNull Activity activity) {
 		if (DEBUG) {
-			DkLogs.log(this, "onAttach (activity)");
+			DkLogs.info(this, "onAttach (activity)");
 		}
 
 		host = (FragmentActivity) activity;
@@ -127,7 +127,7 @@ public abstract class DkPreferenceFragment extends PreferenceFragmentCompat impl
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		if (DEBUG) {
-			DkLogs.log(this, "onCreate");
+			DkLogs.info(this, "onCreate");
 		}
 
 		super.onCreate(savedInstanceState);
@@ -139,7 +139,7 @@ public abstract class DkPreferenceFragment extends PreferenceFragmentCompat impl
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		if (DEBUG) {
-			DkLogs.log(this, "onCreateView");
+			DkLogs.info(this, "onCreateView");
 		}
 
 		// This is magic place, we can get preference view from super
@@ -166,7 +166,7 @@ public abstract class DkPreferenceFragment extends PreferenceFragmentCompat impl
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		if (DEBUG) {
-			DkLogs.log(this, "onViewCreated");
+			DkLogs.info(this, "onViewCreated");
 		}
 
 		super.onViewCreated(view, savedInstanceState);
@@ -175,7 +175,7 @@ public abstract class DkPreferenceFragment extends PreferenceFragmentCompat impl
 	@Override
 	public void onStart() {
 		if (DEBUG) {
-			DkLogs.log(this, "onStart");
+			DkLogs.info(this, "onStart");
 		}
 
 		androidDefaultPreference.registerOnSharedPreferenceChangeListener(this);
@@ -193,7 +193,7 @@ public abstract class DkPreferenceFragment extends PreferenceFragmentCompat impl
 	@Override
 	public void onActive(boolean isResume) {
 		if (DEBUG) {
-			DkLogs.log(this, isResume ? "onResume" : "onFront");
+			DkLogs.info(this, isResume ? "onResume" : "onFront");
 		}
 	}
 
@@ -206,14 +206,14 @@ public abstract class DkPreferenceFragment extends PreferenceFragmentCompat impl
 	@Override
 	public void onInactive(boolean isPause) {
 		if (DEBUG) {
-			DkLogs.log(this, isPause ? "onPause" : "onBehind");
+			DkLogs.info(this, isPause ? "onPause" : "onBehind");
 		}
 	}
 
 	@Override
 	public void onStop() {
 		if (DEBUG) {
-			DkLogs.log(this, "onStop");
+			DkLogs.info(this, "onStop");
 		}
 
 		androidDefaultPreference.unregisterOnSharedPreferenceChangeListener(this);
@@ -227,7 +227,7 @@ public abstract class DkPreferenceFragment extends PreferenceFragmentCompat impl
 	@Override
 	public void onDestroyView() {
 		if (DEBUG) {
-			DkLogs.log(this, "onDestroyView");
+			DkLogs.info(this, "onDestroyView");
 		}
 
 		super.onDestroyView();
@@ -237,7 +237,7 @@ public abstract class DkPreferenceFragment extends PreferenceFragmentCompat impl
 	@Override
 	public void onDestroy() {
 		if (DEBUG) {
-			DkLogs.log(this, "onDestroy");
+			DkLogs.info(this, "onDestroy");
 		}
 
 		super.onDestroy();
@@ -246,7 +246,7 @@ public abstract class DkPreferenceFragment extends PreferenceFragmentCompat impl
 	@Override
 	public void onDetach() {
 		if (DEBUG) {
-			DkLogs.log(this, "onDetach");
+			DkLogs.info(this, "onDetach");
 		}
 
 		host = null;
@@ -258,7 +258,7 @@ public abstract class DkPreferenceFragment extends PreferenceFragmentCompat impl
 	@Override
 	public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
 		if (DEBUG) {
-			DkLogs.log(this, "onViewStateRestored");
+			DkLogs.info(this, "onViewStateRestored");
 		}
 
 		super.onViewStateRestored(savedInstanceState);
@@ -267,7 +267,7 @@ public abstract class DkPreferenceFragment extends PreferenceFragmentCompat impl
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		if (DEBUG) {
-			DkLogs.log(this, "onSaveInstanceState");
+			DkLogs.info(this, "onSaveInstanceState");
 		}
 
 		super.onSaveInstanceState(outState);

@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import tool.compet.core.util.DkLogs;
 import tool.compet.core.util.DkStrings;
 import tool.compet.http.DkHttpRequester;
 import tool.compet.playservice.location.DkLocation;
@@ -33,8 +34,8 @@ import tool.compet.playservice.location.constant.DkPaidApi$;
 
 import static java.util.Locale.US;
 import static tool.compet.core.BuildConfig.DEBUG;
-import static tool.compet.core.util.DkLogs.log;
-import static tool.compet.core.util.DkLogs.logex;
+import static tool.compet.core.util.DkLogs.info;
+import static tool.compet.core.util.DkLogs.error;
 import static tool.compet.core.util.DkStrings.isWhite;
 
 public class DkPaidApiSearcher implements DkPaidApi$ {
@@ -133,7 +134,7 @@ public class DkPaidApiSearcher implements DkPaidApi$ {
 			}
 		}
 
-		if (DEBUG) log(DkLocations.class, "geo: %s\nplace: %s\ntext: %s\nauto: %s",
+		if (DEBUG) info(DkLocations.class, "geo: %s\nplace: %s\ntext: %s\nauto: %s",
 			geoLink, placeLink, textLink, autoLink);
 
 		return res;
@@ -145,7 +146,7 @@ public class DkPaidApiSearcher implements DkPaidApi$ {
 			return req.request(link, String.class).response;
 		}
 		catch (Exception e) {
-			logex(DkLocations.class, e);
+			DkLogs.error(DkLocations.class, e);
 			return "";
 		}
 	}
@@ -167,7 +168,7 @@ public class DkPaidApiSearcher implements DkPaidApi$ {
 				.request(link, String.class)
 				.response;
 		} catch (Exception e) {
-			logex(DkPaidApiSearcher.class, e);
+			DkLogs.error(DkPaidApiSearcher.class, e);
 			data = "";
 		}
 
@@ -190,7 +191,7 @@ public class DkPaidApiSearcher implements DkPaidApi$ {
 				res[i].resolution = resolution;
 			}
 		} catch (Exception e) {
-			logex(DkLocations.class, e);
+			DkLogs.error(DkLocations.class, e);
 		}
 		return res;
 	}

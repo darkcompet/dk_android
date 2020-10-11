@@ -63,7 +63,7 @@ public class ObserveOnObservable<T> extends DkObservable<T> {
 				scheduler.schedule(() -> child.onSubscribe(controllable), delay, timeUnit, isSerial);
 			}
 			catch (Exception e) {
-				DkLogs.logex(this, e);
+				DkLogs.error(this, e);
 			}
 		}
 
@@ -73,7 +73,7 @@ public class ObserveOnObservable<T> extends DkObservable<T> {
 				scheduler.schedule(() -> child.onNext(result), delay, timeUnit, isSerial);
 			}
 			catch (Exception e) {
-				DkLogs.logex(this, e);
+				DkLogs.error(this, e);
 			}
 		}
 
@@ -83,7 +83,7 @@ public class ObserveOnObservable<T> extends DkObservable<T> {
 				scheduler.scheduleNow(() -> child.onError(throwable), isSerial);
 			}
 			catch (Exception e) {
-				DkLogs.logex(this, e);
+				DkLogs.error(this, e);
 			}
 		}
 
@@ -93,7 +93,7 @@ public class ObserveOnObservable<T> extends DkObservable<T> {
 				scheduler.scheduleNow(child::onComplete, isSerial);
 			}
 			catch (Exception e) {
-				DkLogs.logex(this, e);
+				DkLogs.error(this, e);
 			}
 		}
 	}

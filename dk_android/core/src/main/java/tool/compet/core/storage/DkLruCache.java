@@ -53,7 +53,7 @@ public class DkLruCache {
 		cache = new TreeMap<>();
 
 		if (DEBUG) {
-			DkLogs.log(this, "Initial cache's maxSize: " + maxSize);
+			DkLogs.info(this, "Initial cache's maxSize: " + maxSize);
 		}
 	}
 
@@ -73,7 +73,7 @@ public class DkLruCache {
 			maxSize = 1;
 		}
 		if (DEBUG) {
-			DkLogs.log(this, "Set cache's maxSize: %d → %d", this.maxSize, maxSize);
+			DkLogs.info(this, "Set cache's maxSize: %d → %d", this.maxSize, maxSize);
 		}
 		this.maxSize = maxSize;
 		return this;
@@ -98,7 +98,7 @@ public class DkLruCache {
 			trimToSize(maxSize - more);
 		}
 		if (DEBUG) {
-			DkLogs.log(this, "Put to cache, size changed: %d → %d",
+			DkLogs.info(this, "Put to cache, size changed: %d → %d",
 				size, size + more);
 		}
 
@@ -111,7 +111,7 @@ public class DkLruCache {
 
 		if (snapshot != null) {
 			if (DEBUG) {
-				DkLogs.log(this, "Remove from cache, size changed: %d → %d",
+				DkLogs.info(this, "Remove from cache, size changed: %d → %d",
 					size, size - snapshot.size);
 			}
 			size -= snapshot.size;
@@ -156,7 +156,7 @@ public class DkLruCache {
 			}
 		}
 		if (DEBUG) {
-			DkLogs.log(this, "Trim cache, size changed: %d → %d", size, curSize);
+			DkLogs.info(this, "Trim cache, size changed: %d → %d", size, curSize);
 		}
 
 		size = curSize < 0 ? 0 : curSize;
@@ -184,7 +184,7 @@ public class DkLruCache {
 			}
 		}
 		if (DEBUG) {
-			DkLogs.log(this, "Remove expired objects, size changed: %d → %d",
+			DkLogs.info(this, "Remove expired objects, size changed: %d → %d",
 				size, curSize);
 		}
 

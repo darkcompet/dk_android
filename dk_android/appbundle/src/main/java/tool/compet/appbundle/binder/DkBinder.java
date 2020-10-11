@@ -48,7 +48,7 @@ public class DkBinder {
 					field.set(target, childView);
 				}
 				catch (Exception e) {
-					DkLogs.logex(DkBinder.class, e);
+					DkLogs.error(DkBinder.class, e);
 					DkLogs.complain(DkBinder.class, "Could not initialize field %s inside class %s",
 						field.getName(), target.getClass().getName());
 				}
@@ -73,7 +73,7 @@ public class DkBinder {
 						method.invoke(target);
 					}
 					catch (Exception e) {
-						DkLogs.logex(DkBinder.class, e);
+						DkLogs.error(DkBinder.class, e);
 						DkLogs.complain(DkBinder.class, "Could not invoke no-arg method %s inside class %s",
 							method.getName(), target.getClass().getName());
 					}

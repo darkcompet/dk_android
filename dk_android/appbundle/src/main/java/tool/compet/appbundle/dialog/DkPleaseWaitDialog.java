@@ -47,7 +47,7 @@ public final class DkPleaseWaitDialog extends DkDialog {
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		if (BuildConfig.DEBUG) {
-			DkLogs.log(this, "onCreateView");
+			DkLogs.info(this, "onCreateView");
 		}
 
 		View layout = View.inflate(context, R.layout.dk_dialog_please_wait, null);
@@ -71,7 +71,7 @@ public final class DkPleaseWaitDialog extends DkDialog {
 	@Override
 	public void onStart() {
 		if (BuildConfig.DEBUG) {
-			DkLogs.log(this, "onStart");
+			DkLogs.info(this, "onStart");
 		}
 		super.onStart();
 

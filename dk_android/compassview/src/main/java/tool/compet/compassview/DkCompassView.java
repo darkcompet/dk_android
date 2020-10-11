@@ -594,7 +594,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 
    private void fitCompassInsideBoard() {
       if (DEBUG) {
-         DkLogs.log(this, "fitCompassInsideBoard");
+         DkLogs.info(this, "fitCompassInsideBoard");
       }
       if (compass == null) {
          return;
@@ -746,7 +746,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
       cmpRadius += indicatorHeight;
 
       if (DEBUG) {
-         DkLogs.log(this, "compass radius: %f/%f, inner radius: %d", cmpRadius, cmpMaxRadius, boardInnerRadius);
+         DkLogs.info(this, "compass radius: %f/%f, inner radius: %d", cmpRadius, cmpMaxRadius, boardInnerRadius);
       }
       if (cmpRadius < boardInnerRadius) {
          cmpRadius = boardInnerRadius;

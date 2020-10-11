@@ -42,7 +42,7 @@ public class DkLeafObserver<T> implements DkObserver<T> {
 	@Override
 	public void onError(Throwable e) {
 		if (DEBUG) {
-			DkLogs.logex(this, e, "Stream error after %d (ms)",
+			DkLogs.error(this, e, "Stream error after %d (ms)",
 				System.currentTimeMillis() - startTime);
 		}
 	}
@@ -50,7 +50,7 @@ public class DkLeafObserver<T> implements DkObserver<T> {
 	@Override
 	public void onComplete() {
 		if (DEBUG) {
-			DkLogs.log(this, "Stream complete after %d (ms)",
+			DkLogs.info(this, "Stream complete after %d (ms)",
 				System.currentTimeMillis() - startTime);
 		}
 	}
@@ -58,11 +58,11 @@ public class DkLeafObserver<T> implements DkObserver<T> {
 	@Override
 	public void onFinal() {
 		if (DEBUG) {
-			DkLogs.log(this, "Stream final after %d (ms)",
+			DkLogs.info(this, "Stream final after %d (ms)",
 				System.currentTimeMillis() - startTime);
 		}
 		if (++__testFinalCount > 1) {
-			DkLogs.logw(this, "Wrong implementation of #onFinal. Please review code !");
+			DkLogs.warn(this, "Wrong implementation of #onFinal. Please review code !");
 		}
 	}
 }

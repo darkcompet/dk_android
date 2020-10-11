@@ -47,7 +47,7 @@ public class OnCompleteObservable<T> extends DkObservable<T> {
 				action.run();
 			}
 			catch (Exception e) {
-				DkLogs.logex(this, e);
+				DkLogs.error(this, e);
 			}
 			finally {
 				child.onComplete();

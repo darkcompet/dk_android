@@ -49,7 +49,7 @@ public class OnNextObservable<T> extends DkObservable<T> {
 				action.call(result);
 			}
 			catch (Exception e) {
-				DkLogs.logex(this, e);
+				DkLogs.error(this, e);
 			}
 			finally {
 				child.onNext(result);

@@ -133,7 +133,7 @@ public class DkMenuInflater<T extends DkMenuItemModel> {
 			mCache.put(menuRes, models);
 		}
 		catch (Exception e) {
-			DkLogs.logex(this, e);
+			DkLogs.error(this, e);
 		}
 
 		return models;

@@ -19,7 +19,6 @@ package tool.compet.core.stream.scheduler;
 import android.os.Handler;
 import android.os.Looper;
 
-import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -73,7 +72,7 @@ public class DkAndroidMainScheduler<T> implements DkScheduler<T> {
 				task.call();
 			}
 			catch (Exception e) {
-				DkLogs.logex(this, e);
+				DkLogs.error(this, e);
 			}
 			finally {
 				pendingCommands.remove(task);
@@ -91,7 +90,7 @@ public class DkAndroidMainScheduler<T> implements DkScheduler<T> {
 		Runnable command = pendingCommands.get(task);
 
 		if (DEBUG) {
-			DkLogs.log(this, "Cancelled task %s, result: %b",
+			DkLogs.info(this, "Cancelled task %s, result: %b",
 				task.toString(), command != null);
 		}
 

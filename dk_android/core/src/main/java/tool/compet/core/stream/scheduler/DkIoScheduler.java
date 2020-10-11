@@ -92,7 +92,7 @@ public class DkIoScheduler<T> implements DkScheduler<T> {
 		boolean ok = future.cancel(mayInterruptIfRunning);
 
 		if (DEBUG) {
-			DkLogs.log(this, "Cancelled task %s, result: %b",
+			DkLogs.info(this, "Cancelled task %s, result: %b",
 				task.toString(), ok);
 		}
 
@@ -135,8 +135,8 @@ public class DkIoScheduler<T> implements DkScheduler<T> {
 						active.call();
 					}
 					catch (Exception e) {
-						DkLogs.logw(this, "Error when run task on serial-executor for " + active);
-						DkLogs.logex(this, e);
+						DkLogs.warn(this, "Error when run task on serial-executor for " + active);
+						DkLogs.error(this, e);
 					}
 					finally {
 						// Cleanup for this task and schedule next

@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-package tool.compet.appbundle.arch.vml;
+package tool.compet.appbundle.arch.compact;
 
-import androidx.collection.SimpleArrayMap;
 import androidx.lifecycle.ViewModel;
 
-import java.util.List;
-
-public class VmlStore extends ViewModel {
-   List<DkVmlViewLogic> allViewLogics;
-   SimpleArrayMap<Class, Object> inViewFieldTypeToVmlObjectMap;
+public interface CompactView {
+   <M extends ViewModel> M getOwnViewModel(Class<M> modelType);
+   <M> M getHostTopic(Class<M> modelClass, boolean register);
 }

@@ -83,7 +83,7 @@ public class Dks {
 			return (int) clazz.getDeclaredField(resName).get(null);
 		}
 		catch (Exception e) {
-			DkLogs.logex(DkLogs.class, e);
+			DkLogs.error(DkLogs.class, e);
 		}
 		return -1;
 	}
@@ -100,7 +100,7 @@ public class Dks {
 			br.close();
 		}
 		catch (Exception e) {
-			DkLogs.logex(DkLogs.class, e);
+			DkLogs.error(DkLogs.class, e);
 		}
 
 		return lines;
@@ -111,7 +111,7 @@ public class Dks {
 			return stream2string(context.getAssets().open(fileName));
 		}
 		catch (IOException e) {
-			DkLogs.logex(DkLogs.class, e);
+			DkLogs.error(DkLogs.class, e);
 			return "";
 		}
 	}
@@ -127,7 +127,7 @@ public class Dks {
 			}
 		}
 		catch (Exception e) {
-			DkLogs.logex(DkLogs.class, e);
+			DkLogs.error(DkLogs.class, e);
 		}
 
 		return sb.toString();
@@ -181,7 +181,7 @@ public class Dks {
 			}
 		}
 		catch (Exception e) {
-			DkLogs.logex(DkLogs.class, e);
+			DkLogs.error(DkLogs.class, e);
 		}
 
 		return rotate;
@@ -239,7 +239,7 @@ public class Dks {
 			context.getPackageManager().getPackageInfo("com.facebook.katana", 0);
 		}
 		catch (Exception e) {
-			DkLogs.logex(DkLogs.class, e);
+			DkLogs.error(DkLogs.class, e);
 			return null;
 		}
 
@@ -247,7 +247,7 @@ public class Dks {
 			return new Intent(Intent.ACTION_VIEW, Uri.parse("fb://profile/" + userId));
 		}
 		catch (Exception e) {
-			DkLogs.logex(DkLogs.class, e);
+			DkLogs.error(DkLogs.class, e);
 			return new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.facebook.com/arkverse"));
 		}
 	}
@@ -291,7 +291,7 @@ public class Dks {
 			context.startActivity(goToMarket);
 		}
 		catch (Exception e) {
-			DkLogs.logex(DkLogs.class, e);
+			DkLogs.error(DkLogs.class, e);
 			context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google" + ".com/store/apps/details?id=" + context.getPackageName())));
 		}
 	}
@@ -312,7 +312,7 @@ public class Dks {
 			return intent.addFlags(flags);
 		}
 		catch (Exception e) {
-			DkLogs.logex(DkLogs.class, e);
+			DkLogs.error(DkLogs.class, e);
 			return new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/search?q=pub:" + developerName));
 		}
 	}

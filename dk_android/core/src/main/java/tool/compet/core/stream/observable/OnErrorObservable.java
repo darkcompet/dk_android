@@ -48,7 +48,7 @@ public class OnErrorObservable<T> extends DkObservable<T> {
 				action.call(throwable);
 			}
 			catch (Exception e) {
-				DkLogs.logex(this, e);
+				DkLogs.error(this, e);
 			}
 			finally {
 				child.onError(throwable);

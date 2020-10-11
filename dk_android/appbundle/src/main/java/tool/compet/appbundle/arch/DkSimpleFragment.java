@@ -106,7 +106,7 @@ public abstract class DkSimpleFragment extends Fragment implements DkFragment,
    @Override
    public void onAttach(@NonNull Context context) {
       if (BuildConfig.DEBUG) {
-         DkLogs.log(this, "onAttach (context)");
+         DkLogs.info(this, "onAttach (context)");
       }
 
       this.context = context;
@@ -118,7 +118,7 @@ public abstract class DkSimpleFragment extends Fragment implements DkFragment,
    @SuppressWarnings("deprecation")
    public void onAttach(@NonNull Activity activity) {
       if (BuildConfig.DEBUG) {
-         DkLogs.log(this, "onAttach (activity)");
+         DkLogs.info(this, "onAttach (activity)");
       }
 
       this.host = (FragmentActivity) activity;
@@ -129,7 +129,7 @@ public abstract class DkSimpleFragment extends Fragment implements DkFragment,
    @Override
    public void onCreate(@Nullable Bundle savedInstanceState) {
       if (BuildConfig.DEBUG) {
-         DkLogs.log(this, "onCreate");
+         DkLogs.info(this, "onCreate");
       }
       super.setRetainInstance(isRetainInstance());
       super.onCreate(savedInstanceState);
@@ -138,7 +138,7 @@ public abstract class DkSimpleFragment extends Fragment implements DkFragment,
    @Override
    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
       if (BuildConfig.DEBUG) {
-         DkLogs.log(this, "onCreateView");
+         DkLogs.info(this, "onCreateView");
       }
 
       int layoutId = layoutResourceId();
@@ -156,7 +156,7 @@ public abstract class DkSimpleFragment extends Fragment implements DkFragment,
    @Override
    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
       if (BuildConfig.DEBUG) {
-         DkLogs.log(this, "onViewCreated");
+         DkLogs.info(this, "onViewCreated");
       }
       super.onViewCreated(view, savedInstanceState);
    }
@@ -164,7 +164,7 @@ public abstract class DkSimpleFragment extends Fragment implements DkFragment,
    @Override
    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
       if (BuildConfig.DEBUG) {
-         DkLogs.log(this, "onActivityCreated");
+         DkLogs.info(this, "onActivityCreated");
       }
       if (navigator != null) {
          navigator.restoreState(savedInstanceState);
@@ -175,7 +175,7 @@ public abstract class DkSimpleFragment extends Fragment implements DkFragment,
    @Override
    public void onStart() {
       if (BuildConfig.DEBUG) {
-         DkLogs.log(this, "onStart");
+         DkLogs.info(this, "onStart");
       }
       super.onStart();
    }
@@ -189,7 +189,7 @@ public abstract class DkSimpleFragment extends Fragment implements DkFragment,
    @Override
    public void onActive(boolean isResume) {
       if (BuildConfig.DEBUG) {
-         DkLogs.log(this, isResume ? "onResume" : "onFront");
+         DkLogs.info(this, isResume ? "onResume" : "onFront");
       }
    }
 
@@ -202,14 +202,14 @@ public abstract class DkSimpleFragment extends Fragment implements DkFragment,
    @Override
    public void onInactive(boolean isPause) {
       if (BuildConfig.DEBUG) {
-         DkLogs.log(this, isPause ? "onPause" : "onBehind");
+         DkLogs.info(this, isPause ? "onPause" : "onBehind");
       }
    }
 
    @Override
    public void onStop() {
       if (BuildConfig.DEBUG) {
-         DkLogs.log(this, "onStop");
+         DkLogs.info(this, "onStop");
       }
       super.onStop();
    }
@@ -217,7 +217,7 @@ public abstract class DkSimpleFragment extends Fragment implements DkFragment,
    @Override
    public void onDestroyView() {
       if (BuildConfig.DEBUG) {
-         DkLogs.log(this, "onDestroyView");
+         DkLogs.info(this, "onDestroyView");
       }
       super.onDestroyView();
    }
@@ -225,7 +225,7 @@ public abstract class DkSimpleFragment extends Fragment implements DkFragment,
    @Override
    public void onDestroy() {
       if (BuildConfig.DEBUG) {
-         DkLogs.log(this, "onDestroy");
+         DkLogs.info(this, "onDestroy");
       }
       super.onDestroy();
    }
@@ -233,7 +233,7 @@ public abstract class DkSimpleFragment extends Fragment implements DkFragment,
    @Override
    public void onDetach() {
       if (BuildConfig.DEBUG) {
-         DkLogs.log(this, "onDetach");
+         DkLogs.info(this, "onDetach");
       }
 
       this.host = null;
@@ -245,7 +245,7 @@ public abstract class DkSimpleFragment extends Fragment implements DkFragment,
    @Override
    public void onActivityResult(int requestCode, int resultCode, Intent data) {
       if (BuildConfig.DEBUG) {
-         DkLogs.log(this, "onActivityResult");
+         DkLogs.info(this, "onActivityResult");
       }
       super.onActivityResult(requestCode, resultCode, data);
    }
@@ -253,7 +253,7 @@ public abstract class DkSimpleFragment extends Fragment implements DkFragment,
    @Override
    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
       if (BuildConfig.DEBUG) {
-         DkLogs.log(this, "onActivityResult");
+         DkLogs.info(this, "onActivityResult");
       }
       super.onRequestPermissionsResult(requestCode, permissions, grantResults);
    }
@@ -261,7 +261,7 @@ public abstract class DkSimpleFragment extends Fragment implements DkFragment,
    @Override
    public void onLowMemory() {
       if (BuildConfig.DEBUG) {
-         DkLogs.log(this, "onLowMemory");
+         DkLogs.info(this, "onLowMemory");
       }
       super.onLowMemory();
    }
@@ -269,7 +269,7 @@ public abstract class DkSimpleFragment extends Fragment implements DkFragment,
    @Override
    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
       if (BuildConfig.DEBUG) {
-         DkLogs.log(this, "onViewStateRestored");
+         DkLogs.info(this, "onViewStateRestored");
       }
       super.onViewStateRestored(savedInstanceState);
    }
@@ -277,7 +277,7 @@ public abstract class DkSimpleFragment extends Fragment implements DkFragment,
    @Override
    public void onSaveInstanceState(@NonNull Bundle outState) {
       if (BuildConfig.DEBUG) {
-         DkLogs.log(this, "onSaveInstanceState");
+         DkLogs.info(this, "onSaveInstanceState");
       }
       if (navigator != null) {
          navigator.saveState(outState);

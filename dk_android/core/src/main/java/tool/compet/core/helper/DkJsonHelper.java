@@ -49,7 +49,7 @@ public class DkJsonHelper {
 			return GSON.fromJson(json, classOfT);
 		}
 		catch (Exception e) {
-			DkLogs.logex(this, e);
+			DkLogs.error(this, e);
 		}
 		return null;
 	}

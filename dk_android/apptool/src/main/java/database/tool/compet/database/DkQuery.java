@@ -68,7 +68,7 @@ public class DkQuery implements DkSqliteKeyword {
 
       try {
          if (DEBUG) {
-            DkLogs.log(this, "rawQuery: " + sql);
+            DkLogs.info(this, "rawQuery: " + sql);
          }
          database.beginTransaction();
          cursor = database.rawQuery(sql, null);
@@ -105,7 +105,7 @@ public class DkQuery implements DkSqliteKeyword {
    public void exe() throws Exception {
       try {
          if (DEBUG) {
-            DkLogs.log(this, "exeQuery: " + builder.toString());
+            DkLogs.info(this, "exeQuery: " + builder.toString());
          }
          String sql = builder.toString();
          database.beginTransaction();
@@ -169,7 +169,7 @@ public class DkQuery implements DkSqliteKeyword {
             }
          }
          catch (Exception e) {
-            DkLogs.logex(this, e);
+            DkLogs.error(this, e);
          }
       }
       return model;

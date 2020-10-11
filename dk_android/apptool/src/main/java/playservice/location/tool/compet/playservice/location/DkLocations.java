@@ -77,7 +77,7 @@ public class DkLocations {
 			}
 			return res;
 		} catch (Exception e) {
-			DkLogs.logex(DkLocations.class, e);
+			DkLogs.error(DkLocations.class, e);
 			return null;
 		}
 	}
@@ -101,7 +101,7 @@ public class DkLocations {
 			return res;
 		}
 		catch (Exception e) {
-			DkLogs.logex(DkLocations.class, e);
+			DkLogs.error(DkLocations.class, e);
 			return null;
 		}
 	}

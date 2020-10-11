@@ -68,8 +68,8 @@ class AsyncPoster {
 					eventbus.invokeSubscriber(active);
 				}
 				catch (Exception e) {
-					DkLogs.logw(this, "Error occured when run task on serial-executor: " + active);
-					DkLogs.logex(this, e);
+					DkLogs.warn(this, "Error occured when run task on serial-executor: " + active);
+					DkLogs.error(this, e);
 				}
 				finally {
 					executeNext();

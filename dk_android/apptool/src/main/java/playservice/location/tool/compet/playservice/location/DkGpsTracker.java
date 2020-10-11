@@ -122,14 +122,14 @@ public class DkGpsTracker extends LocationCallback implements GoogleApiClient.Co
 	@Override
 	public void onConnectionSuspended(int i) {
 		if (DEBUG) {
-			DkLogs.log(this, "onConnectionSuspended: " + i);
+			DkLogs.info(this, "onConnectionSuspended: " + i);
 		}
 	}
 
 	@Override
 	public void onConnectionFailed(@NonNull ConnectionResult result) {
 		if (DEBUG) {
-			DkLogs.log(this, "onConnectionFailed !!");
+			DkLogs.info(this, "onConnectionFailed !!");
 		}
 	}
 
@@ -147,7 +147,7 @@ public class DkGpsTracker extends LocationCallback implements GoogleApiClient.Co
 
 	public void start() {
 		if (!Dks.checkPermission(host, ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION)) {
-			DkLogs.logw(this, "Could not start gps tracker since lack of permission");
+			DkLogs.warn(this, "Could not start gps tracker since lack of permission");
 			return;
 		}
 		providerClient.requestLocationUpdates(locationRequest, this, null);

@@ -68,10 +68,10 @@ public class Host extends ViewModel implements Client.Listener {
 		super.onCleared();
 
 		if (topicMap.size() > 0 || topicClientsMap.size() > 0) {
-			DkLogs.logw(this, "Host %s is cleared before Clients !!!", toString());
+			DkLogs.warn(this, "Host %s is cleared before Clients !!!", toString());
 		}
 		else if (DEBUG) {
-			DkLogs.log(this, "Host %s is cleared after Clients", toString());
+			DkLogs.info(this, "Host %s is cleared after Clients", toString());
 		}
 
 		topicMap.clear();
@@ -86,7 +86,7 @@ public class Host extends ViewModel implements Client.Listener {
 			listeningClients.remove(client);
 
 			if (DEBUG) {
-				DkLogs.log(this, "Client %s has left topic %s at host %s.",
+				DkLogs.info(this, "Client %s has left topic %s at host %s.",
 					client.toString(), topicClientsMap.keyAt(index), toString());
 			}
 
@@ -97,7 +97,7 @@ public class Host extends ViewModel implements Client.Listener {
 				topicClientsMap.removeAt(index);
 
 				if (DEBUG) {
-					DkLogs.log(this, "Topic %s was removed from host %s since no client listen.",
+					DkLogs.info(this, "Topic %s was removed from host %s since no client listen.",
 						topicId, toString());
 				}
 			}

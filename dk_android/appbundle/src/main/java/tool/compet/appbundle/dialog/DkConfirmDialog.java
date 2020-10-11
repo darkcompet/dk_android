@@ -87,7 +87,7 @@ public class DkConfirmDialog extends DkDialog<DkConfirmDialog> implements View.O
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle sis) {
 		if (BuildConfig.DEBUG) {
-			DkLogs.log(this, "onCreateView");
+			DkLogs.info(this, "onCreateView");
 		}
 		super.onCreateView(inflater, container, sis);
 
@@ -214,7 +214,7 @@ public class DkConfirmDialog extends DkDialog<DkConfirmDialog> implements View.O
 	@Override
 	public void onStart() {
 		if (BuildConfig.DEBUG) {
-			DkLogs.log(this, "onStart");
+			DkLogs.info(this, "onStart");
 		}
 		super.onStart();
 
@@ -233,7 +233,7 @@ public class DkConfirmDialog extends DkDialog<DkConfirmDialog> implements View.O
 	@Override
 	public void onDismiss(@NonNull DialogInterface dialog) {
 		if (BuildConfig.DEBUG) {
-			DkLogs.log(this, "onDismiss");
+			DkLogs.info(this, "onDismiss");
 		}
 		if (onDismissCallback != null) {
 			onDismissCallback.run();

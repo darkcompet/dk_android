@@ -67,7 +67,7 @@ public class DkBitmapProcessor {
 			return Bitmap.createBitmap(input, 0, 0, input.getWidth(), input.getHeight(), matrix, true);
 		}
 		catch (Exception e) {
-			DkLogs.logex(DkBitmaps.class, e);
+			DkLogs.error(DkBitmaps.class, e);
 			return input;
 		}
 	}

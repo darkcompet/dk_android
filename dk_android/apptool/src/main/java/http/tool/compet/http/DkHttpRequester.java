@@ -95,7 +95,7 @@ public class DkHttpRequester<T> {
 
 	public DkHttpResponse<T> request(String link, Class<T> responseClass) throws Exception {
 		if (DEBUG) {
-			DkLogs.log(this, "Start request, link: %s", link);
+			DkLogs.info(this, "Start request, link: %s", link);
 		}
 
 		DkHttpResponse httpResponse = new DkHttpResponse();
@@ -130,7 +130,7 @@ public class DkHttpRequester<T> {
 				int code = conn.getResponseCode();
 
 				if (code != 200) {
-					DkLogs.log(this, "Error code: %d, message: %s",
+					DkLogs.info(this, "Error code: %d, message: %s",
 						code, Dks.stream2string(conn.getErrorStream()));
 				}
 			}
@@ -146,7 +146,7 @@ public class DkHttpRequester<T> {
 			httpResponse.response = response;
 
 			if (DEBUG) {
-				DkLogs.log(this, "Got response, code: %d, message: %s, respose: " + response,
+				DkLogs.info(this, "Got response, code: %d, message: %s, respose: " + response,
 					httpResponse.code, httpResponse.message);
 			}
 		}
@@ -180,7 +180,7 @@ public class DkHttpRequester<T> {
 			String json = Dks.stream2string(inputStream);
 
 			if (DEBUG) {
-				DkLogs.log(this, "Got response, json: %s", json);
+				DkLogs.info(this, "Got response, json: %s", json);
 			}
 
 			response = DkJsonHelper.getIns().json2obj(json, responseClass);

@@ -37,7 +37,7 @@ public class DkBenchMarkObserver<T> extends Observer<T> {
 	@Override
 	public void onError(Throwable e) {
 		if (DEBUG) {
-			DkLogs.logex(this, e, "Stream error after %.3f s",
+			DkLogs.error(this, e, "Stream error after %.3f s",
 				(System.currentTimeMillis() - startTime) / 1000f);
 		}
 		super.onError(e);
@@ -46,7 +46,7 @@ public class DkBenchMarkObserver<T> extends Observer<T> {
 	@Override
 	public void onComplete() {
 		if (DEBUG) {
-			DkLogs.log(this, "Stream complete after %.3f s",
+			DkLogs.info(this, "Stream complete after %.3f s",
 				(System.currentTimeMillis() - startTime) / 1000f);
 		}
 		super.onComplete();
@@ -55,7 +55,7 @@ public class DkBenchMarkObserver<T> extends Observer<T> {
 	@Override
 	public void onFinal() {
 		if (DEBUG) {
-			DkLogs.log(this, "Stream final after %.3f s",
+			DkLogs.info(this, "Stream final after %.3f s",
 				(System.currentTimeMillis() - startTime) / 1000f);
 		}
 		super.onFinal();

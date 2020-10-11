@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package tool.compet.appbundle.arch.vml;
+package tool.compet.appbundle.arch.compact;
 
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -35,17 +35,17 @@ import tool.compet.appbundle.eventbus.DkEventBus;
  * <p> App side can extend this class to implement DVC design pattern which auto wireScriptersAndViewModels
  * View, Controller and Decorator for us.
  */
-public abstract class DkVmlActivity extends DkSimpleActivity implements VmlView {
-   private List<DkVmlViewLogic> vls;
+public abstract class DkCompactActivity extends DkSimpleActivity implements CompactView {
+   private List<DkCompactViewLogic> vls;
 
    @Override
    protected void onCreate(@Nullable Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
 
       // this must be run after #super.onCreate()
-      vls = new VmlInjector(this).start();
+      vls = new CompactInjector(this).start();
 
-      for (DkVmlViewLogic vl : vls) {
+      for (DkCompactViewLogic vl : vls) {
          vl.onCreate(this, savedInstanceState);
       }
    }
@@ -55,7 +55,7 @@ public abstract class DkVmlActivity extends DkSimpleActivity implements VmlView 
    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
       super.onPostCreate(savedInstanceState);
 
-      for (DkVmlViewLogic vl : vls) {
+      for (DkCompactViewLogic vl : vls) {
          vl.onPostCreate(this, savedInstanceState);
       }
    }
@@ -64,7 +64,7 @@ public abstract class DkVmlActivity extends DkSimpleActivity implements VmlView 
    protected void onStart() {
       super.onStart();
 
-      for (DkVmlViewLogic vl : vls) {
+      for (DkCompactViewLogic vl : vls) {
          vl.onStart(this);
 
          DkEventBus.getIns().register(vl);
@@ -75,7 +75,7 @@ public abstract class DkVmlActivity extends DkSimpleActivity implements VmlView 
    public void onActive(boolean isResume) {
       super.onActive(isResume);
 
-      for (DkVmlViewLogic vl : vls) {
+      for (DkCompactViewLogic vl : vls) {
          vl.onActive(this, isResume);
       }
    }
@@ -84,7 +84,7 @@ public abstract class DkVmlActivity extends DkSimpleActivity implements VmlView 
    public void onInactive(boolean isPause) {
       super.onInactive(isPause);
 
-      for (DkVmlViewLogic vl : vls) {
+      for (DkCompactViewLogic vl : vls) {
          vl.onInactive(this, isPause);
       }
    }
@@ -93,7 +93,7 @@ public abstract class DkVmlActivity extends DkSimpleActivity implements VmlView 
    protected void onStop() {
       super.onStop();
 
-      for (DkVmlViewLogic vl : vls) {
+      for (DkCompactViewLogic vl : vls) {
          vl.onRestart(this);
 
          DkEventBus.getIns().unregister(vl);
@@ -105,7 +105,7 @@ public abstract class DkVmlActivity extends DkSimpleActivity implements VmlView 
    protected void onRestart() {
       super.onRestart();
 
-      for (DkVmlViewLogic vl : vls) {
+      for (DkCompactViewLogic vl : vls) {
          vl.onRestart(this);
       }
    }
@@ -113,7 +113,7 @@ public abstract class DkVmlActivity extends DkSimpleActivity implements VmlView 
    @Override
    protected void onDestroy() {
       if (vls != null) {
-         for (DkVmlViewLogic vl : vls) {
+         for (DkCompactViewLogic vl : vls) {
             vl.onDestroy(this);
          }
          vls.clear();
@@ -125,7 +125,7 @@ public abstract class DkVmlActivity extends DkSimpleActivity implements VmlView 
    public void onLowMemory() {
       super.onLowMemory();
 
-      for (DkVmlViewLogic vl : vls) {
+      for (DkCompactViewLogic vl : vls) {
          vl.onLowMemory(this);
       }
    }
@@ -134,14 +134,14 @@ public abstract class DkVmlActivity extends DkSimpleActivity implements VmlView 
    public void onConfigurationChanged(Configuration newConfig) {
       super.onConfigurationChanged(newConfig);
 
-      for (DkVmlViewLogic vl : vls) {
+      for (DkCompactViewLogic vl : vls) {
          vl.onConfigurationChanged(this, newConfig);
       }
    }
 
    @Override
    protected void onSaveInstanceState(Bundle outState) {
-      for (DkVmlViewLogic vl : vls) {
+      for (DkCompactViewLogic vl : vls) {
          vl.onSaveInstanceState(this, outState);
       }
       super.onSaveInstanceState(outState);
@@ -149,7 +149,7 @@ public abstract class DkVmlActivity extends DkSimpleActivity implements VmlView 
 
    @Override
    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-      for (DkVmlViewLogic vl : vls) {
+      for (DkCompactViewLogic vl : vls) {
          vl.onRestoreInstanceState(this, savedInstanceState);
       }
       super.onRestoreInstanceState(savedInstanceState);
@@ -157,7 +157,7 @@ public abstract class DkVmlActivity extends DkSimpleActivity implements VmlView 
 
    @Override
    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-      for (DkVmlViewLogic vl : vls) {
+      for (DkCompactViewLogic vl : vls) {
          vl.onActivityResult(this, requestCode, resultCode, data);
       }
       super.onActivityResult(requestCode, resultCode, data);
@@ -165,7 +165,7 @@ public abstract class DkVmlActivity extends DkSimpleActivity implements VmlView 
 
    @Override
    public void onRequestPermissionsResult(int rc, @NonNull String[] perms, @NonNull int[] res) {
-      for (DkVmlViewLogic vl : vls) {
+      for (DkCompactViewLogic vl : vls) {
          vl.onRequestPermissionsResult(this, rc, perms, res);
       }
       super.onRequestPermissionsResult(rc, perms, res);

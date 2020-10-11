@@ -61,7 +61,7 @@ public class DkFieldCopier {
       final int N = srcFieldMap.size();
 
       if (N != dstFieldMap.size()) {
-         DkLogs.logw(this, "Different number of copy fields between %s(%d) vs %s(%d)",
+         DkLogs.warn(this, "Different number of copy fields between %s(%d) vs %s(%d)",
             src.getClass().getName(), srcFields.size(), dst.getClass().getName(), dstFields.size());
       }
 
@@ -83,7 +83,7 @@ public class DkFieldCopier {
                dstField.set(dst, srcField.get(src));
             }
             catch (Exception e) {
-               DkLogs.logex(this, e);
+               DkLogs.error(this, e);
                throw new RuntimeException(DkStrings.format("Could not copy: %s.%s -> %s.%s",
                   src.getClass().getName(), srcField.getName(), dst.getClass().getName(), dstField.getName()));
             }

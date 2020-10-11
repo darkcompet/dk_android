@@ -63,7 +63,7 @@ public class AppConfig {
 			return getPackageInfo(context).versionName;
 		}
 		catch (Exception e) {
-			DkLogs.logex(DkLogs.class, e);
+			DkLogs.error(DkLogs.class, e);
 			return "1.0.0";
 		}
 	}
@@ -76,7 +76,7 @@ public class AppConfig {
 			return getPackageInfo(context).versionCode;
 		}
 		catch (Exception e) {
-			DkLogs.logex(DkLogs.class, e);
+			DkLogs.error(DkLogs.class, e);
 			return 0;
 		}
 	}

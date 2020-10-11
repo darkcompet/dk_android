@@ -73,7 +73,7 @@ public abstract class DkDialog<T extends DkDialog> extends AppCompatDialogFragme
 	@Override
 	public void onAttach(@NonNull Context context) {
 		if (BuildConfig.DEBUG) {
-			DkLogs.log(this, "onAttach");
+			DkLogs.info(this, "onAttach");
 		}
 
 		notifyParentInactive();
@@ -86,7 +86,7 @@ public abstract class DkDialog<T extends DkDialog> extends AppCompatDialogFragme
 	@SuppressWarnings("deprecation")
 	public void onAttach(@NonNull Activity activity) {
 		if (BuildConfig.DEBUG) {
-			DkLogs.log(this, "onAttach");
+			DkLogs.info(this, "onAttach");
 		}
 		if (context == null) {
 			context = activity;
@@ -166,7 +166,7 @@ public abstract class DkDialog<T extends DkDialog> extends AppCompatDialogFragme
 	@Override
 	public void onDetach() {
 		if (BuildConfig.DEBUG) {
-			DkLogs.log(this, "onDetach");
+			DkLogs.info(this, "onDetach");
 		}
 
 		host = null;
@@ -207,7 +207,7 @@ public abstract class DkDialog<T extends DkDialog> extends AppCompatDialogFragme
 			fm.executePendingTransactions();
 		}
 		catch (Exception e) {
-			DkLogs.logex(this, e);
+			DkLogs.error(this, e);
 		}
 		// Perform show actual
 		finally {
@@ -216,7 +216,7 @@ public abstract class DkDialog<T extends DkDialog> extends AppCompatDialogFragme
 				super.show(fm, tag);
 			}
 			catch (Exception e) {
-				DkLogs.logex(this, e);
+				DkLogs.error(this, e);
 			}
 		}
 	}
@@ -232,7 +232,7 @@ public abstract class DkDialog<T extends DkDialog> extends AppCompatDialogFragme
 			}
 		}
 		catch (Exception e) {
-			DkLogs.logex(this, e);
+			DkLogs.error(this, e);
 		}
 		// Perform dismiss actual
 		finally {
@@ -240,7 +240,7 @@ public abstract class DkDialog<T extends DkDialog> extends AppCompatDialogFragme
 				super.dismiss();
 			}
 			catch (Exception e) {
-				DkLogs.logex(this, e);
+				DkLogs.error(this, e);
 			}
 		}
 	}

@@ -159,7 +159,7 @@ class ServiceMethod<T> {
 				body = URLEncoder.encode(__formData.toString(), "UTF-8").getBytes(Charset.forName("UTF-8"));
 			}
 			catch (Exception e) {
-				DkLogs.logex(this, e);
+				DkLogs.error(this, e);
 			}
 		}
 	}

@@ -37,7 +37,7 @@ public class TopicProvider {
          return host.getTopic(client, topicId, modelType, register);
       }
       catch (Exception e) {
-         DkLogs.logex(this, e);
+         DkLogs.error(this, e);
       }
 
       throw new RuntimeException("Could not instantiate topic: " + modelType.getName());

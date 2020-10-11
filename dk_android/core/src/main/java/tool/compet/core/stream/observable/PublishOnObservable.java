@@ -75,12 +75,12 @@ public class PublishOnObservable<T> extends DkObservable<T> {
 					}
 					catch (Exception e) {
 						child.onError(e);
-						DkLogs.logex(this, e);
+						DkLogs.error(this, e);
 					}
 				}, delay, unit, isSerial);
 			}
 			catch (Exception e) {
-				DkLogs.logex(this, e);
+				DkLogs.error(this, e);
 				child.onError(e);
 			}
 		}

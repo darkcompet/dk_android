@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package tool.compet.appbundle.arch.vml;
+package tool.compet.appbundle.arch.compact;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -35,13 +35,13 @@ import tool.compet.core.util.DkLogs;
 import static tool.compet.core.BuildConfig.DEBUG;
 
 /**
- * VML design pattern ViewLogic component. This will update View by access #view object or
+ * Compact design pattern ViewLogic component. This will update View by access #view object or
  * call #sendToView() to obtain non-null #view when does not know #view is null or not.
  * <p></p>
  * This ViewLogic object can overcome configuration change, so to communicate between Screens,
  * you should use #view.getHostTopic() to obtain scoped-topic for a group of screens you wanna share.
  */
-public abstract class DkVmlViewLogic<V extends VmlView> {
+public abstract class DkCompactViewLogic<V extends CompactView> {
    protected static final int STATE_CREATE = 1;
    protected static final int STATE_START = 2;
    protected static final int STATE_RESUME = 3;
@@ -117,7 +117,7 @@ public abstract class DkVmlViewLogic<V extends VmlView> {
    }
 
    @CallSuper
-   public void onPostCreate(DkVmlActivity host, Bundle savedInstanceState) {
+   public void onPostCreate(DkCompactActivity host, Bundle savedInstanceState) {
       if (isFragmentOwner) {
          DkLogs.complain(this, "Only ViewLogic of Activity can call this");
       }
@@ -154,7 +154,7 @@ public abstract class DkVmlViewLogic<V extends VmlView> {
             action.call(view);
          }
          if (DEBUG) {
-            DkLogs.log(this, "Executed %d pending actions", _pendingCommands.size());
+            DkLogs.info(this, "Executed %d pending actions", _pendingCommands.size());
          }
          _pendingCommands = null;
       }

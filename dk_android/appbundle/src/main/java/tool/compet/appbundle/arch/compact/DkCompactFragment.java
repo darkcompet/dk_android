@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package tool.compet.appbundle.arch.vml;
+package tool.compet.appbundle.arch.compact;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,26 +30,26 @@ import tool.compet.appbundle.eventbus.DkEventBus;
 /**
  * View component of VML design pattern.
  */
-public abstract class DkVmlFragment extends DkSimpleFragment implements VmlView {
-   private List<DkVmlViewLogic> vls;
+public abstract class DkCompactFragment extends DkSimpleFragment implements CompactView {
+   private List<DkCompactViewLogic> vls;
 
    @Override
    public void onCreate(@Nullable Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
 
       // this must be run after #super.onCreate()
-      vls = new VmlInjector(this).start();
+      vls = new CompactInjector(this).start();
 
-      for (DkVmlViewLogic vl : vls) {
+      for (DkCompactViewLogic vl : vls) {
          vl.onCreate(host, savedInstanceState);
       }
    }
 
    @Override
-   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+   public void onViewCreated(@NonNull android.view.View view, @Nullable Bundle savedInstanceState) {
       super.onViewCreated(view, savedInstanceState);
 
-      for (DkVmlViewLogic vl : vls) {
+      for (DkCompactViewLogic vl : vls) {
          vl.onViewCreated(host, savedInstanceState);
       }
    }
@@ -59,7 +58,7 @@ public abstract class DkVmlFragment extends DkSimpleFragment implements VmlView 
    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
       super.onActivityCreated(savedInstanceState);
 
-      for (DkVmlViewLogic vl : vls) {
+      for (DkCompactViewLogic vl : vls) {
          vl.onActivityCreated(host, savedInstanceState);
       }
    }
@@ -68,7 +67,7 @@ public abstract class DkVmlFragment extends DkSimpleFragment implements VmlView 
    public void onStart() {
       super.onStart();
 
-      for (DkVmlViewLogic vl : vls) {
+      for (DkCompactViewLogic vl : vls) {
          vl.onStart(host);
 
          DkEventBus.getIns().register(vl);
@@ -79,7 +78,7 @@ public abstract class DkVmlFragment extends DkSimpleFragment implements VmlView 
    public void onActive(boolean isResume) {
       super.onActive(isResume);
 
-      for (DkVmlViewLogic vl : vls) {
+      for (DkCompactViewLogic vl : vls) {
          vl.onActive(host, isResume);
       }
    }
@@ -88,14 +87,14 @@ public abstract class DkVmlFragment extends DkSimpleFragment implements VmlView 
    public void onInactive(boolean isPause) {
       super.onInactive(isPause);
 
-      for (DkVmlViewLogic vl : vls) {
+      for (DkCompactViewLogic vl : vls) {
          vl.onInactive(host, isPause);
       }
    }
 
    @Override
    public void onStop() {
-      for (DkVmlViewLogic vl : vls) {
+      for (DkCompactViewLogic vl : vls) {
          vl.onStop(host);
 
          DkEventBus.getIns().unregister(vl);
@@ -105,7 +104,7 @@ public abstract class DkVmlFragment extends DkSimpleFragment implements VmlView 
 
    @Override
    public void onDestroy() {
-      for (DkVmlViewLogic vl : vls) {
+      for (DkCompactViewLogic vl : vls) {
          vl.onDestroy(host);
       }
       super.onDestroy();
@@ -121,7 +120,7 @@ public abstract class DkVmlFragment extends DkSimpleFragment implements VmlView 
 
    @Override
    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-      for (DkVmlViewLogic vl : vls) {
+      for (DkCompactViewLogic vl : vls) {
          vl.onActivityResult(host, requestCode, resultCode, data);
       }
       super.onActivityResult(requestCode, resultCode, data);
@@ -129,7 +128,7 @@ public abstract class DkVmlFragment extends DkSimpleFragment implements VmlView 
 
    @Override
    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-      for (DkVmlViewLogic vl : vls) {
+      for (DkCompactViewLogic vl : vls) {
          vl.onRequestPermissionsResult(host, requestCode, permissions, grantResults);
       }
       super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -137,7 +136,7 @@ public abstract class DkVmlFragment extends DkSimpleFragment implements VmlView 
 
    @Override
    public void onLowMemory() {
-      for (DkVmlViewLogic vl : vls) {
+      for (DkCompactViewLogic vl : vls) {
          vl.onLowMemory(host);
       }
       super.onLowMemory();
@@ -145,7 +144,7 @@ public abstract class DkVmlFragment extends DkSimpleFragment implements VmlView 
 
    @Override
    public void onSaveInstanceState(@NonNull Bundle outState) {
-      for (DkVmlViewLogic vl : vls) {
+      for (DkCompactViewLogic vl : vls) {
          vl.onSaveInstanceState(host, outState);
       }
       super.onSaveInstanceState(outState);

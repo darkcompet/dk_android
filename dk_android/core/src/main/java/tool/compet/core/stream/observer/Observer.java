@@ -51,7 +51,7 @@ public class Observer<T> implements DkObserver<T> {
       child.onFinal();
 
       if (++__testFinalCount > 1) {
-         DkLogs.logw(this, "Wrong implementation of #onFinal. Please review code !");
+         DkLogs.warn(this, "Wrong implementation of #onFinal. Please review code !");
       }
    }
 }

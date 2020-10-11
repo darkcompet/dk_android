@@ -47,7 +47,7 @@ class Security {
 			return keyFactory.generatePublic(new X509EncodedKeySpec(decodedKey));
 		}
 		catch (Exception e) {
-			DkLogs.logex(Security.class, e);
+			DkLogs.error(Security.class, e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -69,7 +69,7 @@ class Security {
 			return signatureAlgorithm.verify(signatureBytes);
 		}
 		catch (Exception e) {
-			DkLogs.logex(Security.class, e);
+			DkLogs.error(Security.class, e);
 		}
 		
 		return false;

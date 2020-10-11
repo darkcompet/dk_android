@@ -16,6 +16,6 @@
 
 package tool.compet.core.config.swipeback;
 
-import tool.compet.appbundle.arch.vml.DkVmlFragment;
+import tool.compet.appbundle.arch.compact.DkCompactFragment;
 
-public abstract class DkSwipebackFragment extends DkVmlFragment {}
+public abstract class DkSwipebackFragment extends DkCompactFragment {}

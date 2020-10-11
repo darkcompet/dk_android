@@ -366,7 +366,7 @@ public class DkEventBus {
 				subscription.invoke(event);
 			}
 			catch (Exception e) {
-				DkLogs.logex(this, e);
+				DkLogs.error(this, e);
 			}
 		}
 	}

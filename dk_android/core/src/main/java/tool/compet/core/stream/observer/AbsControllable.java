@@ -94,7 +94,7 @@ public abstract class AbsControllable {
       }
 
       if (DEBUG) {
-         DkLogs.log(this, "Cancelled with mayInterruptThread %b inside parent with result %b",
+         DkLogs.info(this, "Cancelled with mayInterruptThread %b inside parent with result %b",
             mayInterruptThread, ok);
       }
 

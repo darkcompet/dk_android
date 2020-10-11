@@ -235,7 +235,7 @@ public class DkBillingManager implements PurchasesUpdatedListener {
 			revokedTokens = new HashSet<>();
 		}
 		if (revokedTokens.contains(purchaseToken)) {
-			DkLogs.logw(this, "Skip revoke item which has already revoked");
+			DkLogs.warn(this, "Skip revoke item which has already revoked");
 			return;
 		}
 
@@ -290,7 +290,7 @@ public class DkBillingManager implements PurchasesUpdatedListener {
 
 	private Purchase.PurchasesResult queryPurchaseHistories(String skuType) {
 		if (billingClient == null) {
-			DkLogs.logw(this, "Stop query purchase histories since billingClient is null");
+			DkLogs.warn(this, "Stop query purchase histories since billingClient is null");
 			return null;
 		}
 		return billingClient.queryPurchases(skuType);
@@ -301,7 +301,7 @@ public class DkBillingManager implements PurchasesUpdatedListener {
 			return Security.verifyPurchase(publicKey, purchase.getOriginalJson(), purchase.getSignature());
 		}
 		catch (Exception e) {
-			DkLogs.logex(this, e);
+			DkLogs.error(this, e);
 		}
 		return false;
 	}

@@ -66,7 +66,7 @@ public class DkFiles {
 
 			if (!parent.exists() && parent.mkdirs()) {
 				if (DEBUG) {
-					DkLogs.log(DkFiles.class, "Created new directory: " + parent.getPath());
+					DkLogs.info(DkFiles.class, "Created new directory: " + parent.getPath());
 				}
 			}
 			return file.createNewFile();
@@ -87,7 +87,7 @@ public class DkFiles {
 
 			if (!parent.exists() && parent.mkdirs()) {
 				if (DEBUG) {
-					DkLogs.log(DkFiles.class, "Created new directory: " + parent.getPath());
+					DkLogs.info(DkFiles.class, "Created new directory: " + parent.getPath());
 				}
 			}
 			return dir.mkdir();

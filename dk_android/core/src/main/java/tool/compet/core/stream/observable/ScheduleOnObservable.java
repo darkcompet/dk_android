@@ -100,7 +100,7 @@ public class ScheduleOnObservable<T> extends DkObservable<T> {
 			isCanceled = ok;
 
 			if (DEBUG) {
-				DkLogs.log(this, "Cancel task: " + task + ", ok: " + ok);
+				DkLogs.info(this, "Cancel task: " + task + ", ok: " + ok);
 			}
 
 			return ok;

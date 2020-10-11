@@ -49,7 +49,7 @@ public class OnSubscribeObservable<T> extends DkObservable<T> {
 				action.call(controllable);
 			}
 			catch (Exception e) {
-				DkLogs.logex(this, e);
+				DkLogs.error(this, e);
 			}
 			finally {
 				child.onSubscribe(controllable);

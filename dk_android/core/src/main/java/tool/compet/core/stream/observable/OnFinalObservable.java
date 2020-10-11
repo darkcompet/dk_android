@@ -47,7 +47,7 @@ public class OnFinalObservable<T> extends DkObservable<T> {
 				action.run();
 			}
 			catch (Exception e) {
-				DkLogs.logex(this, e);
+				DkLogs.error(this, e);
 			}
 			finally {
 				child.onFinal();

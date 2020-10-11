@@ -147,7 +147,7 @@ public class FloatingbarManager {
 			}
 		}
 
-		DkLogs.logw(this, "Not found record for callback: " + callback);
+		DkLogs.warn(this, "Not found record for callback: " + callback);
 
 		return null;
 	}

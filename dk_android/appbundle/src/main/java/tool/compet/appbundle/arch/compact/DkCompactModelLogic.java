@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 DarkCompet. All rights reserved.
+ * Copyright (c) 2018 DarkCompet. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package tool.compet.appbundle.arch.vml;
+package tool.compet.appbundle.arch.compact;
 
-import androidx.lifecycle.ViewModel;
-
-public interface VmlView {
-   <M extends ViewModel> M getOwnViewModel(Class<M> modelType);
-   <M> M getHostTopic(Class<M> modelClass, boolean register);
+/**
+ * VML design pattern ModelLogic component. This class can be considered as Logic of Model.
+ * Any change happened in this class will be sent to ViewLogic.
+ */
+public abstract class DkCompactModelLogic {
 }

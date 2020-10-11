@@ -74,7 +74,7 @@ public abstract class DkSimpleActivity extends AppCompatActivity implements DkAc
 	@Override
 	protected void onNewIntent(Intent intent) {
 		if (BuildConfig.DEBUG) {
-			DkLogs.log(this, "onNewIntent: " + intent);
+			DkLogs.info(this, "onNewIntent: " + intent);
 		}
 
 		setIntent(intent);
@@ -85,7 +85,7 @@ public abstract class DkSimpleActivity extends AppCompatActivity implements DkAc
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
 		if (BuildConfig.DEBUG) {
-			DkLogs.log(this, "onCreate");
+			DkLogs.info(this, "onCreate");
 		}
 
 		super.onCreate(savedInstanceState);
@@ -107,7 +107,7 @@ public abstract class DkSimpleActivity extends AppCompatActivity implements DkAc
 	@Override
 	protected void onPostCreate(@Nullable Bundle savedInstanceState) {
 		if (BuildConfig.DEBUG) {
-			DkLogs.log(this, "onPostCreate");
+			DkLogs.info(this, "onPostCreate");
 		}
 		super.onPostCreate(savedInstanceState);
 	}
@@ -115,7 +115,7 @@ public abstract class DkSimpleActivity extends AppCompatActivity implements DkAc
 	@Override
 	protected void onStart() {
 		if (BuildConfig.DEBUG) {
-			DkLogs.log(this, "onStart");
+			DkLogs.info(this, "onStart");
 		}
 		super.onStart();
 	}
@@ -129,7 +129,7 @@ public abstract class DkSimpleActivity extends AppCompatActivity implements DkAc
 	@Override
 	public void onActive(boolean isResume) {
 		if (BuildConfig.DEBUG) {
-			DkLogs.log(this, isResume ? "onResume" : "onFront");
+			DkLogs.info(this, isResume ? "onResume" : "onFront");
 		}
 	}
 
@@ -142,14 +142,14 @@ public abstract class DkSimpleActivity extends AppCompatActivity implements DkAc
 	@Override
 	public void onInactive(boolean isPause) {
 		if (BuildConfig.DEBUG) {
-			DkLogs.log(this, isPause ? "onPause" : "onBehind");
+			DkLogs.info(this, isPause ? "onPause" : "onBehind");
 		}
 	}
 
 	@Override
 	protected void onStop() {
 		if (BuildConfig.DEBUG) {
-			DkLogs.log(this, "onStop");
+			DkLogs.info(this, "onStop");
 		}
 		super.onStop();
 	}
@@ -158,7 +158,7 @@ public abstract class DkSimpleActivity extends AppCompatActivity implements DkAc
 	@Override
 	protected void onRestart() {
 		if (BuildConfig.DEBUG) {
-			DkLogs.log(this, "onRestart");
+			DkLogs.info(this, "onRestart");
 		}
 		super.onRestart();
 	}
@@ -166,7 +166,7 @@ public abstract class DkSimpleActivity extends AppCompatActivity implements DkAc
 	@Override
 	protected void onDestroy() {
 		if (BuildConfig.DEBUG) {
-			DkLogs.log(this, "onDestroy");
+			DkLogs.info(this, "onDestroy");
 		}
 		super.onDestroy();
 	}
@@ -174,7 +174,7 @@ public abstract class DkSimpleActivity extends AppCompatActivity implements DkAc
 	@Override
 	public void onLowMemory() {
 		if (BuildConfig.DEBUG) {
-			DkLogs.log(this, "onLowMemory");
+			DkLogs.info(this, "onLowMemory");
 		}
 		super.onLowMemory();
 	}
@@ -182,7 +182,7 @@ public abstract class DkSimpleActivity extends AppCompatActivity implements DkAc
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		if (BuildConfig.DEBUG) {
-			DkLogs.log(this, "onConfigurationChanged");
+			DkLogs.info(this, "onConfigurationChanged");
 		}
 		super.onConfigurationChanged(newConfig);
 	}
@@ -190,7 +190,7 @@ public abstract class DkSimpleActivity extends AppCompatActivity implements DkAc
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		if (BuildConfig.DEBUG) {
-			DkLogs.log(this, "onSaveInstanceState");
+			DkLogs.info(this, "onSaveInstanceState");
 		}
 		if (navigator != null) {
 			navigator.saveState(outState);
@@ -201,7 +201,7 @@ public abstract class DkSimpleActivity extends AppCompatActivity implements DkAc
 	@Override
 	protected void onRestoreInstanceState(Bundle savedInstanceState) {
 		if (BuildConfig.DEBUG) {
-			DkLogs.log(this, "onRestoreInstanceState");
+			DkLogs.info(this, "onRestoreInstanceState");
 		}
 		if (navigator != null) {
 			navigator.restoreState(savedInstanceState);
@@ -212,7 +212,7 @@ public abstract class DkSimpleActivity extends AppCompatActivity implements DkAc
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (BuildConfig.DEBUG) {
-			DkLogs.log(this, "onRestoreInstanceState");
+			DkLogs.info(this, "onRestoreInstanceState");
 		}
 		super.onActivityResult(requestCode, resultCode, data);
 	}
@@ -220,7 +220,7 @@ public abstract class DkSimpleActivity extends AppCompatActivity implements DkAc
 	@Override
 	public void onRequestPermissionsResult(int rc, @NonNull String[] perms, @NonNull int[] res) {
 		if (BuildConfig.DEBUG) {
-			DkLogs.log(this, "onRequestPermissionsResult");
+			DkLogs.info(this, "onRequestPermissionsResult");
 		}
 		super.onRequestPermissionsResult(rc, perms, res);
 	}
