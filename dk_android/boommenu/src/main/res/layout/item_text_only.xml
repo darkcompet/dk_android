@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<tool.compet.boommenu.item.DkTextOnlyItemView
+<!--
+  ~ Copyright (c) 2017-2020 DarkCompet. All rights reserved.
+  -->
+
+<tool.compet.boommenu.DkTextOnlyItemView
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:layout_width="wrap_content"
@@ -27,4 +31,4 @@
 		android:scrollHorizontally="true"
 		android:marqueeRepeatLimit="marquee_forever"/>
 
-</tool.compet.boommenu.item.DkTextOnlyItemView>
+</tool.compet.boommenu.DkTextOnlyItemView>

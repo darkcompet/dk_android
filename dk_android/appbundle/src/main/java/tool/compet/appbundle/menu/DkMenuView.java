@@ -1,17 +1,5 @@
 /*
- * Copyright (c) 2018 DarkCompet. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (c) 2017-2020 DarkCompet. All rights reserved.
  */
 
 package tool.compet.appbundle.menu;
@@ -43,193 +31,193 @@ import tool.compet.core.type.DkCallback;
  * setViewAdapter()、setModelCreator()を呼び出して、ビューとモデルともにカストマイズしてください。
  */
 public class DkMenuView<T extends DkMenuItemModel> extends ListView {
-	private Context mContext;
-	private int mCurMenuRes;
-	private ArrayAdapter<T> mAdapter;
-	private DKViewAdapter mViewAdapter;
-	private Callable<T> mModelCreator;
-	private DkCallback<T> mOnItemClickListener;
+    private Context mContext;
+    private int mCurMenuRes;
+    private ArrayAdapter<T> mAdapter;
+    private DKViewAdapter mViewAdapter;
+    private Callable<T> mModelCreator;
+    private DkCallback<T> mOnItemClickListener;
 
-	public interface DKViewAdapter<T extends DkMenuItemModel> {
-		View getView(Context context, int pos, @Nullable View view, @NonNull ViewGroup parent, T model);
-	}
+    public interface DKViewAdapter<T extends DkMenuItemModel> {
+        View getView(Context context, int pos, @Nullable View view, @NonNull ViewGroup parent, T model);
+    }
 
-	public DkMenuView(Context context) {
-		this(context, null);
-	}
+    public DkMenuView(Context context) {
+        this(context, null);
+    }
 
-	public DkMenuView(Context context, @Nullable AttributeSet attrs) {
-		this(context, attrs, 0);
-	}
+    public DkMenuView(Context context, @Nullable AttributeSet attrs) {
+        this(context, attrs, 0);
+    }
 
-	public DkMenuView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
-		super(context, attrs, defStyleAttr);
-		
-		mContext = getContext();
+    public DkMenuView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
 
-		mAdapter = new ArrayAdapter<T>(context, android.R.layout.simple_list_item_single_choice) {
-			@NonNull
-			@Override
-			@SuppressWarnings("unchecked")
-			public View getView(int position, @Nullable View view, @NonNull ViewGroup parent) {
-				return getViewAdapter().getView(context, position, view, parent, mAdapter.getItem(position));
-			}
-		};
+        mContext = getContext();
 
-		super.setAdapter(mAdapter);
-		super.setOnItemClickListener((parent, view, position, id) -> {
-			T model = mAdapter.getItem(position);
-			if (model == null) {
-				return;
-			}
-			boolean canForward = false;
-			if (model.hasChildMenu()) {
-				canForward = forwardMenu(model.getChildMenuRes());
-			}
-			if (!canForward && mOnItemClickListener != null) {
-				mOnItemClickListener.call(mAdapter.getItem(position));
-			}
-		});
-	}
+        mAdapter = new ArrayAdapter<T>(context, android.R.layout.simple_list_item_single_choice) {
+            @NonNull
+            @Override
+            @SuppressWarnings("unchecked")
+            public View getView(int position, @Nullable View view, @NonNull ViewGroup parent) {
+                return getViewAdapter().getView(context, position, view, parent, mAdapter.getItem(position));
+            }
+        };
 
-	public DkMenuView<T> setViewAdapter(DKViewAdapter<T> viewAdapter) {
-		mViewAdapter = viewAdapter;
-		return this;
-	}
+        super.setAdapter(mAdapter);
+        super.setOnItemClickListener((parent, view, position, id) -> {
+            T model = mAdapter.getItem(position);
+            if (model == null) {
+                return;
+            }
+            boolean canForward = false;
+            if (model.hasChildMenu()) {
+                canForward = forwardMenu(model.getChildMenuRes());
+            }
+            if (!canForward && mOnItemClickListener != null) {
+                mOnItemClickListener.call(mAdapter.getItem(position));
+            }
+        });
+    }
 
-	public DkMenuView setModelCreator(Callable<T> modelCreator) {
-		mModelCreator = modelCreator;
-		return this;
-	}
+    public DkMenuView<T> setViewAdapter(DKViewAdapter<T> viewAdapter) {
+        mViewAdapter = viewAdapter;
+        return this;
+    }
 
-	public DkMenuView setOnItemClickListener(DkCallback<T> onItemClickListener) {
-		mOnItemClickListener = onItemClickListener;
-		return this;
-	}
+    public DkMenuView setModelCreator(Callable<T> modelCreator) {
+        mModelCreator = modelCreator;
+        return this;
+    }
 
-	@SuppressWarnings("unchecked")
-	public DkMenuView<T> inflateMenu(int menuRes, boolean notifyDataSetChanged) {
-		if (menuRes <= 0) {
-			return this;
-		}
+    public DkMenuView setOnItemClickListener(DkCallback<T> onItemClickListener) {
+        mOnItemClickListener = onItemClickListener;
+        return this;
+    }
 
-		List<T> nextModels = DkMenuInflater.getIns()
-			.setModelCreator(mModelCreator)
-			.inflate(mContext, menuRes);
+    @SuppressWarnings("unchecked")
+    public DkMenuView<T> inflateMenu(int menuRes, boolean notifyDataSetChanged) {
+        if (menuRes <= 0) {
+            return this;
+        }
 
-		if (nextModels == null) {
-			return this;
-		}
+        List<T> nextModels = DkMenuInflater.getIns()
+            .setModelCreator(mModelCreator)
+            .inflate(mContext, menuRes);
 
-		mCurMenuRes = menuRes;
+        if (nextModels == null) {
+            return this;
+        }
 
-		mAdapter.clear();
-		mAdapter.addAll(nextModels);
-		if (notifyDataSetChanged) {
-			mAdapter.notifyDataSetChanged();
-		}
+        mCurMenuRes = menuRes;
 
-		return this;
-	}
+        mAdapter.clear();
+        mAdapter.addAll(nextModels);
+        if (notifyDataSetChanged) {
+            mAdapter.notifyDataSetChanged();
+        }
 
-	@SuppressWarnings("unchecked")
-	private boolean forwardMenu(int nextMenuRes) {
-		if (nextMenuRes <= 0) {
-			return false;
-		}
+        return this;
+    }
 
-		List<T> nextModels = DkMenuInflater.getIns()
-			.setModelCreator(mModelCreator)
-			.inflate(mContext, nextMenuRes);
+    @SuppressWarnings("unchecked")
+    private boolean forwardMenu(int nextMenuRes) {
+        if (nextMenuRes <= 0) {
+            return false;
+        }
 
-		if (nextModels == null) {
-			return false;
-		}
+        List<T> nextModels = DkMenuInflater.getIns()
+            .setModelCreator(mModelCreator)
+            .inflate(mContext, nextMenuRes);
 
-		List<T> curModels = DkMenuInflater.getIns()
-			.setModelCreator(mModelCreator)
-			.inflate(mContext, mCurMenuRes);
-		int parentMenuRes = curModels != null && curModels.size() > 0 ? nextModels.get(0).getParentMenuRes() : 0;
+        if (nextModels == null) {
+            return false;
+        }
 
-		if (parentMenuRes > 0) {
-			for (T nextModel : nextModels) {
-				nextModel.setParentMenuRes(parentMenuRes);
-			}
-		}
+        List<T> curModels = DkMenuInflater.getIns()
+            .setModelCreator(mModelCreator)
+            .inflate(mContext, mCurMenuRes);
+        int parentMenuRes = curModels != null && curModels.size() > 0 ? nextModels.get(0).getParentMenuRes() : 0;
 
-		inflateMenu(nextMenuRes, true);
+        if (parentMenuRes > 0) {
+            for (T nextModel : nextModels) {
+                nextModel.setParentMenuRes(parentMenuRes);
+            }
+        }
 
-		return true;
-	}
+        inflateMenu(nextMenuRes, true);
 
-	@SuppressWarnings("unchecked")
-	public boolean backMenu() {
-		List<T> curModels = DkMenuInflater.getIns()
-			.setModelCreator(mModelCreator)
-			.inflate(mContext, mCurMenuRes);
+        return true;
+    }
 
-		int parentMenuRes = curModels != null && curModels.size() > 0 ? curModels.get(0).getParentMenuRes() : 0;
+    @SuppressWarnings("unchecked")
+    public boolean backMenu() {
+        List<T> curModels = DkMenuInflater.getIns()
+            .setModelCreator(mModelCreator)
+            .inflate(mContext, mCurMenuRes);
 
-		if (parentMenuRes > 0) {
-			inflateMenu(parentMenuRes, true);
-			return true;
-		}
+        int parentMenuRes = curModels != null && curModels.size() > 0 ? curModels.get(0).getParentMenuRes() : 0;
 
-		return false;
-	}
+        if (parentMenuRes > 0) {
+            inflateMenu(parentMenuRes, true);
+            return true;
+        }
 
-	public DKViewAdapter getViewAdapter() {
-		if (mViewAdapter == null) {
-			mViewAdapter = new DefaultViewAdapter();
-		}
-		return mViewAdapter;
-	}
+        return false;
+    }
 
-	private static class DefaultViewAdapter implements DKViewAdapter {
-		@Override
-		public View getView(Context context, int pos, @Nullable View view,
-			@NonNull ViewGroup parent, DkMenuItemModel model) {
+    public DKViewAdapter getViewAdapter() {
+        if (mViewAdapter == null) {
+            mViewAdapter = new DefaultViewAdapter();
+        }
+        return mViewAdapter;
+    }
 
-			if (view == null) {
-				view = View.inflate(context, R.layout.dk_menu_item, null);
-			}
+    private static class DefaultViewAdapter implements DKViewAdapter {
+        @Override
+        public View getView(Context context, int pos, @Nullable View view,
+            @NonNull ViewGroup parent, DkMenuItemModel model) {
 
-			final ImageView ivTitle = view.findViewById(R.id.ivTitle);
-			if (model.hasIconTitleRes()) {
-				ivTitle.setImageResource(model.getIconTitleRes());
-			}
-			else {
-				ivTitle.setImageDrawable(null);
-			}
+            if (view == null) {
+                view = View.inflate(context, R.layout.dk_menu_item, null);
+            }
 
-			final TextView tvTitle = view.findViewById(R.id.tvTitle);
+            final ImageView ivTitle = view.findViewById(R.id.ivTitle);
+            if (model.hasIconTitleRes()) {
+                ivTitle.setImageResource(model.getIconTitleRes());
+            }
+            else {
+                ivTitle.setImageDrawable(null);
+            }
 
-			if (model.hasTitle()) {
-				tvTitle.setText(model.getTitle());
-			}
-			else {
-				tvTitle.setText("");
-			}
+            final TextView tvTitle = view.findViewById(R.id.tvTitle);
 
-			final ImageView ivStatus = view.findViewById(R.id.ivStatus);
-			boolean notNeedStatus = true;
+            if (model.hasTitle()) {
+                tvTitle.setText(model.getTitle());
+            }
+            else {
+                tvTitle.setText("");
+            }
 
-			if (model.hasSettingPreference()) {
-				String value = DkPreferenceStorage.getIns().loadSetting(model.getSettingPrefKey(), String.class);
+            final ImageView ivStatus = view.findViewById(R.id.ivStatus);
+            boolean notNeedStatus = true;
 
-				if (value != null && value.equals(model.getSettingPrefTagValue())) {
-					if (model.hasIconStatusRes()) {
-						notNeedStatus = false;
-						ivStatus.setImageResource(model.getIconStatusRes());
-					}
-				}
-			}
+            if (model.hasSettingPreference()) {
+                String value = DkPreferenceStorage.getInstalledIns().loadSetting(model.getSettingPrefKey(), String.class);
 
-			if (notNeedStatus) {
-				ivStatus.setImageDrawable(null);
-			}
+                if (value != null && value.equals(model.getSettingPrefTagValue())) {
+                    if (model.hasIconStatusRes()) {
+                        notNeedStatus = false;
+                        ivStatus.setImageResource(model.getIconStatusRes());
+                    }
+                }
+            }
 
-			return view;
-		}
-	}
+            if (notNeedStatus) {
+                ivStatus.setImageDrawable(null);
+            }
+
+            return view;
+        }
+    }
 }

@@ -1,3 +1,7 @@
+<!--
+  ~ Copyright (c) 2017-2020 DarkCompet. All rights reserved.
+  -->
+
 <resources>
 	<string name="msg_has_new_update">Có phiên bản cập nhật mới. Bạn được khuyến khích cập nhật lên phiên bản mới để đạt được độ tương thích và hiệu năng tốt hơn.</string>
 	<string name="msg_connect_failed">Kết nối thất bại</string>

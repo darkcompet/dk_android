@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017-2020 DarkCompet. All rights reserved.
+ */
+
 package tool.compet.core.annotation;
 
 import java.lang.annotation.Retention;
@@ -16,7 +20,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  *       public Decorator decorator;
  *    }
  * }</pre>
- *
+ * <p>
  * #refer: https://github.com/spring-projects/spring-framework/blob/master/spring-beans/src/main/java/org/springframework/beans/factory/annotation/Autowired.java}
  */
 @Target({PARAMETER, FIELD})

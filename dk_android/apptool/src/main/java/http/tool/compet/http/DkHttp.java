@@ -1,17 +1,5 @@
 /*
- * Copyright (c) 2018 DarkCompet. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (c) 2017-2020 DarkCompet. All rights reserved.
  */
 
 package tool.compet.http;
@@ -27,9 +15,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 import tool.compet.core.helper.DkJsonHelper;
-import tool.compet.core.stream.observable.DkObservable;
-import tool.compet.core.util.DkLogs;
-import tool.compet.core.util.Dks;
+import tool.compet.core.stream.DkObservable;
+import tool.compet.core.log.DkLogs;
+import tool.compet.core.util.DkUtils;
 
 import static tool.compet.core.BuildConfig.DEBUG;
 
@@ -56,7 +44,7 @@ public class DkHttp {
 	private int connectTimeoutMillis;
 	private int readTimeoutMillis;
 
-	private final SimpleArrayMap<Method, ServiceMethod<?>> serviceMethods;
+	private final SimpleArrayMap<Method, MyServiceMethod<?>> serviceMethods;
 
 	private DkHttp() {
 		serviceMethods = new ArrayMap<>();
@@ -72,7 +60,7 @@ public class DkHttp {
 	}
 
 	public DkHttp configWith(Context context, String filename) {
-		String json = Dks.asset2string(context, filename);
+		String json = DkUtils.asset2string(context, filename);
 		DkServer server = DkJsonHelper.getIns().json2obj(json, DkServer.class);
 
 		if (server == null) {
@@ -159,21 +147,21 @@ public class DkHttp {
 
 	private DkObservable<DkHttpResponse<?>> createReturnValue(Method method, Object[] args) {
 		// Create and cache service method
-		ServiceMethod<?> sm;
+		MyServiceMethod<?> sm;
 
 		synchronized (serviceMethods) {
 			sm = serviceMethods.get(method);
 		}
 
 		if (sm == null) {
-			sm = new ServiceMethod<>(baseUrl, method);
+			sm = new MyServiceMethod<>(baseUrl, method);
 
 			synchronized (serviceMethods) {
 				serviceMethods.put(method, sm);
 			}
 		}
 
-		final ServiceMethod<?> serviceMethod = sm;
+		final MyServiceMethod<?> serviceMethod = sm;
 
 		return DkObservable.fromExecution(() -> {
 			// Rebuild arguments of service method since args are dynamic

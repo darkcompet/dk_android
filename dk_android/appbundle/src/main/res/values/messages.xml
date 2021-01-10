@@ -1,3 +1,7 @@
+<!--
+  ~ Copyright (c) 2017-2020 DarkCompet. All rights reserved.
+  -->
+
 <resources>
 	<string name="msg_has_new_update">The new app version has been released. It is recommended to update to latest version for better compatibility and performance.</string>
 	<string name="msg_connect_failed">Connect failed</string>

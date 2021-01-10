@@ -1,17 +1,5 @@
 /*
- * Copyright (c) 2018 DarkCompet. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (c) 2017-2020 DarkCompet. All rights reserved.
  */
 
 package tool.compet.playservice.location;
@@ -25,10 +13,8 @@ import android.os.Bundle;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import tool.compet.core.util.Dks;
-
-import static tool.compet.core.constant.Dk$.ACCESS_COARSE_LOCATION;
-import static tool.compet.core.constant.Dk$.ACCESS_FINE_LOCATION;
+import tool.compet.core.constant.DkConst;
+import tool.compet.core.util.DkUtils;
 
 public class DKLocationTracker {
 	private long minTimePeriodUpdate = 1000;
@@ -66,7 +52,7 @@ public class DKLocationTracker {
 	}
 
 	public Location start(Context context) {
-		if (!Dks.checkPermission(context, ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION)) {
+		if (!DkUtils.checkPermission(context, DkConst.ACCESS_FINE_LOCATION, DkConst.ACCESS_COARSE_LOCATION)) {
 			return null;
 		}
 		String bestProviderName = locationManager.getBestProvider(criteria, true);

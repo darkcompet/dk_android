@@ -1,17 +1,5 @@
 /*
- * Copyright (c) 2018 DarkCompet. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (c) 2017-2020 DarkCompet. All rights reserved.
  */
 
 package tool.compet.playservice.location;
@@ -37,12 +25,11 @@ import com.google.android.gms.tasks.Task;
 import java.util.ArrayList;
 import java.util.List;
 
-import tool.compet.core.util.DkLogs;
-import tool.compet.core.util.Dks;
+import tool.compet.core.constant.DkConst;
+import tool.compet.core.log.DkLogs;
+import tool.compet.core.util.DkUtils;
 
 import static tool.compet.core.BuildConfig.DEBUG;
-import static tool.compet.core.constant.Dk$.ACCESS_COARSE_LOCATION;
-import static tool.compet.core.constant.Dk$.ACCESS_FINE_LOCATION;
 
 public class DkGpsTracker extends LocationCallback implements GoogleApiClient.ConnectionCallbacks,
 	GoogleApiClient.OnConnectionFailedListener, LocationListener {
@@ -146,7 +133,7 @@ public class DkGpsTracker extends LocationCallback implements GoogleApiClient.Co
 	}
 
 	public void start() {
-		if (!Dks.checkPermission(host, ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION)) {
+		if (!DkUtils.checkPermission(host, DkConst.ACCESS_FINE_LOCATION, DkConst.ACCESS_COARSE_LOCATION)) {
 			DkLogs.warn(this, "Could not start gps tracker since lack of permission");
 			return;
 		}
@@ -158,7 +145,7 @@ public class DkGpsTracker extends LocationCallback implements GoogleApiClient.Co
 	}
 
 	public void requestLastLocation() {
-		if (!Dks.checkPermission(host, ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION)) {
+		if (!DkUtils.checkPermission(host, DkConst.ACCESS_FINE_LOCATION, DkConst.ACCESS_COARSE_LOCATION)) {
 			return;
 		}
 		providerClient.getLastLocation().addOnCompleteListener(host, (Task<Location> task) -> {

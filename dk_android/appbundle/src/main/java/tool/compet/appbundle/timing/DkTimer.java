@@ -1,17 +1,5 @@
 /*
- * Copyright (c) 2018 DarkCompet. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (c) 2017-2020 DarkCompet. All rights reserved.
  */
 
 package tool.compet.appbundle.timing;
@@ -39,269 +27,273 @@ import static tool.compet.appbundle.timing.DkFrameCallbackProvider.FRAME_START;
  * 既に実行されている必要があります。
  */
 public class DkTimer implements DkFrameCallbackProvider.Callback {
-	private static final long DURATION_INFINITE = -1;
+    private static final long DURATION_INFINITE = -1;
 
-	private static final int STATE_STARTED = 1;
-	private static final int STATE_RUNNING = 2;
-	private static final int STATE_RESUMED = 3;
-	private static final int STATE_PAUSED = 4;
-	private static final int STATE_CANCELLED = 5;
-	private static final int STATE_ENDED = 6;
+    private static final int STATE_STARTED = 1;
+    private static final int STATE_RUNNING = 2;
+    private static final int STATE_RESUMED = 3;
+    private static final int STATE_PAUSED = 4;
+    private static final int STATE_CANCELLED = 5;
+    private static final int STATE_ENDED = 6;
 
-	private int timerState = STATE_ENDED;
+    private int timerState = STATE_ENDED;
 
-	private long startedTime;
-	private long duration = DURATION_INFINITE;
-	private long remainDuration = DURATION_INFINITE;
-	private DkFrameCallbackProvider provider;
-	private ArrayList<Listener> listeners;
-	private ArrayList<UpdateListener> updaterListeners;
+    private long startedTime;
+    private long duration = DURATION_INFINITE;
+    private long remainDuration = DURATION_INFINITE;
+    private DkFrameCallbackProvider provider;
+    private ArrayList<Listener> listeners;
+    private ArrayList<UpdateListener> updaterListeners;
 
-	public interface Listener {
-		void onStart(long uptimeMillis);
-		void onResume(long uptimeMillis);
-		void onPause(long uptimeMillis);
-		void onEnd(long uptimeMillis);
-		void onCancel(long uptimeMillis);
-	}
+    public interface Listener {
+        void onStart(long uptimeMillis);
 
-	public interface UpdateListener {
-		void onUpdate(long uptimeMillis);
-	}
+        void onResume(long uptimeMillis);
 
-	private DkTimer() {
-	}
+        void onPause(long uptimeMillis);
 
-	public static DkTimer newIns() {
-		return new DkTimer();
-	}
+        void onEnd(long uptimeMillis);
 
-	@Override
-	public void onFrame(long frameUptimeMillis) {
-		final int state = timerState;
+        void onCancel(long uptimeMillis);
+    }
 
-		// 取消、停止、終了の状態には、次のフレームを予約しない
-		if (state == STATE_CANCELLED || state == STATE_PAUSED || state == STATE_ENDED) {
-			return;
-		}
+    public interface UpdateListener {
+        void onUpdate(long uptimeMillis);
+    }
 
-		if (state != STATE_RUNNING) {
-			timerState = STATE_RUNNING;
-			// 開始から最初のフレームが来るまでの経過時間で引いて残り時間を更新
-			if (duration != DURATION_INFINITE) {
-				remainDuration -= frameUptimeMillis - startedTime;
-			}
-		}
+    private DkTimer() {
+    }
 
-		// リスナーに通知する
-		if (updaterListeners != null) {
-			for (UpdateListener listener : updaterListeners) {
-				listener.onUpdate(frameUptimeMillis);
-			}
-		}
+    public static DkTimer newIns() {
+        return new DkTimer();
+    }
 
-		// 次のフレームを予約してみる
-		if (duration == DURATION_INFINITE) {
-			getProvider().requestNextFrame(FRAME_DELAY, 0);
-		}
-		else {
-			// 残り時間を更新
-			remainDuration -= SystemClock.uptimeMillis() - frameUptimeMillis;
+    @Override
+    public void onFrame(long frameUptimeMillis) {
+        final int state = timerState;
 
-			if (remainDuration > 0) {
-				getProvider().requestNextFrame(FRAME_DELAY, 0);
-			}
-			else {
-				timerState = STATE_ENDED;
+        // 取消、停止、終了の状態には、次のフレームを予約しない
+        if (state == STATE_CANCELLED || state == STATE_PAUSED || state == STATE_ENDED) {
+            return;
+        }
 
-				if (listeners != null) {
-					for (Listener listener : listeners) {
-						listener.onEnd(frameUptimeMillis);
-					}
-				}
-			}
-		}
-	}
+        if (state != STATE_RUNNING) {
+            timerState = STATE_RUNNING;
+            // 開始から最初のフレームが来るまでの経過時間で引いて残り時間を更新
+            if (duration != DURATION_INFINITE) {
+                remainDuration -= frameUptimeMillis - startedTime;
+            }
+        }
 
-	public void start(long delayMillis) {
-		timerState = STATE_STARTED;
-		startedTime = SystemClock.uptimeMillis();
+        // リスナーに通知する
+        if (updaterListeners != null) {
+            for (UpdateListener listener : updaterListeners) {
+                listener.onUpdate(frameUptimeMillis);
+            }
+        }
 
-		remainDuration = duration;
+        // 次のフレームを予約してみる
+        if (duration == DURATION_INFINITE) {
+            getProvider().requestNextFrame(FRAME_DELAY, 0);
+        }
+        else {
+            // 残り時間を更新
+            remainDuration -= SystemClock.uptimeMillis() - frameUptimeMillis;
 
-		getProvider()
-			.setFrameCallback(this)
-			.requestNextFrame(FRAME_START, delayMillis);
-	}
+            if (remainDuration > 0) {
+                getProvider().requestNextFrame(FRAME_DELAY, 0);
+            }
+            else {
+                timerState = STATE_ENDED;
 
-	public void resume() {
-		if (timerState == STATE_PAUSED) {
-			timerState = STATE_RESUMED;
-			getProvider().requestNextFrame(FRAME_DELAY, 0);
-		}
-	}
+                if (listeners != null) {
+                    for (Listener listener : listeners) {
+                        listener.onEnd(frameUptimeMillis);
+                    }
+                }
+            }
+        }
+    }
 
-	public void pause() {
-		if (timerState == STATE_STARTED || timerState == STATE_RUNNING) {
-			timerState = STATE_PAUSED;
-		}
-	}
+    public void start(long delayMillis) {
+        timerState = STATE_STARTED;
+        startedTime = SystemClock.uptimeMillis();
 
-	public void cancel() {
-		if (timerState < STATE_CANCELLED) {
-			timerState = STATE_CANCELLED;
-		}
-	}
+        remainDuration = duration;
 
-	public DkTimer addListener(Listener listener) {
-		ArrayList<Listener> listeners = this.listeners;
-		if (listeners == null) {
-			this.listeners = listeners = new ArrayList<>();
-		}
-		if (!listeners.contains(listener)) {
-			listeners.add(listener);
-		}
-		return this;
-	}
+        getProvider()
+            .setFrameCallback(this)
+            .requestNextFrame(FRAME_START, delayMillis);
+    }
 
-	public void removeListener(Listener listener) {
-		if (listeners != null) {
-			listeners.remove(listener);
-		}
-	}
+    public void resume() {
+        if (timerState == STATE_PAUSED) {
+            timerState = STATE_RESUMED;
+            getProvider().requestNextFrame(FRAME_DELAY, 0);
+        }
+    }
 
-	public void removeAllListeners() {
-		if (listeners != null) {
-			listeners.clear();
-			listeners = null;
-		}
-	}
+    public void pause() {
+        if (timerState == STATE_STARTED || timerState == STATE_RUNNING) {
+            timerState = STATE_PAUSED;
+        }
+    }
 
-	public DkTimer addUpdateListener(UpdateListener listener) {
-		ArrayList<UpdateListener> updaterListeners = this.updaterListeners;
-		if (updaterListeners == null) {
-			this.updaterListeners = updaterListeners = new ArrayList<>();
-		}
-		if (!updaterListeners.contains(listener)) {
-			updaterListeners.add(listener);
-		}
-		return this;
-	}
+    public void cancel() {
+        if (timerState < STATE_CANCELLED) {
+            timerState = STATE_CANCELLED;
+        }
+    }
 
-	public void removeUpdateListener(UpdateListener listener) {
-		if (updaterListeners != null) {
-			updaterListeners.remove(listener);
-		}
-	}
+    public DkTimer addListener(Listener listener) {
+        ArrayList<Listener> listeners = this.listeners;
+        if (listeners == null) {
+            this.listeners = listeners = new ArrayList<>();
+        }
+        if (!listeners.contains(listener)) {
+            listeners.add(listener);
+        }
+        return this;
+    }
 
-	public void removeAllUpdateListeners() {
-		if (updaterListeners != null) {
-			updaterListeners.clear();
-			updaterListeners = null;
-		}
-	}
+    public void removeListener(Listener listener) {
+        if (listeners != null) {
+            listeners.remove(listener);
+        }
+    }
 
-	public DkFrameCallbackProvider getProvider() {
-		if (provider == null) {
-			provider = new MyProvider();
-		}
-		return provider;
-	}
+    public void removeAllListeners() {
+        if (listeners != null) {
+            listeners.clear();
+            listeners = null;
+        }
+    }
 
-	public DkTimer setProvider(DkFrameCallbackProvider provider) {
-		this.provider = provider;
-		return this;
-	}
+    public DkTimer addUpdateListener(UpdateListener listener) {
+        ArrayList<UpdateListener> updaterListeners = this.updaterListeners;
+        if (updaterListeners == null) {
+            this.updaterListeners = updaterListeners = new ArrayList<>();
+        }
+        if (!updaterListeners.contains(listener)) {
+            updaterListeners.add(listener);
+        }
+        return this;
+    }
 
-	public DkTimer setFrameDelay(long delayMillis) {
-		getProvider().setFrameDelay(delayMillis);
-		return this;
-	}
+    public void removeUpdateListener(UpdateListener listener) {
+        if (updaterListeners != null) {
+            updaterListeners.remove(listener);
+        }
+    }
 
-	public DkTimer setFrameDelay(long delay, TimeUnit timeUnit) {
-		getProvider().setFrameDelay(timeUnit.toMillis(delay));
-		return this;
-	}
+    public void removeAllUpdateListeners() {
+        if (updaterListeners != null) {
+            updaterListeners.clear();
+            updaterListeners = null;
+        }
+    }
 
-	public long getFrameDelay() {
-		return getProvider().getFrameDelay();
-	}
+    public DkFrameCallbackProvider getProvider() {
+        if (provider == null) {
+            provider = new MyProvider();
+        }
+        return provider;
+    }
 
-	public DkTimer setFps(int fps) {
-		getProvider().setFrameDelay(1000 / fps);
-		return this;
-	}
+    public DkTimer setProvider(DkFrameCallbackProvider provider) {
+        this.provider = provider;
+        return this;
+    }
 
-	public int getFps() {
-		return (int) (1000 / getProvider().getFrameDelay());
-	}
+    public DkTimer setFrameDelay(long delayMillis) {
+        getProvider().setFrameDelay(delayMillis);
+        return this;
+    }
 
-	public DkTimer setDuration(long duration, TimeUnit timeUnit) {
-		this.duration = timeUnit.toMillis(duration);
-		return this;
-	}
+    public DkTimer setFrameDelay(long delay, TimeUnit timeUnit) {
+        getProvider().setFrameDelay(timeUnit.toMillis(delay));
+        return this;
+    }
 
-	public DkTimer setDuration(long durationMillis) {
-		duration = durationMillis;
-		return this;
-	}
+    public long getFrameDelay() {
+        return getProvider().getFrameDelay();
+    }
 
-	public long getDuration() {
-		return duration;
-	}
+    public DkTimer setFps(int fps) {
+        getProvider().setFrameDelay(1000 / fps);
+        return this;
+    }
 
-	/**
-	 * フレームコールバックのカストマイズクラス
-	 */
-	private static class MyProvider extends Handler implements DkFrameCallbackProvider {
-		private long frameDelay = 10;
-		private DkFrameCallbackProvider.Callback frameCallback;
-		private long lastRequestTime;
+    public int getFps() {
+        return (int) (1000 / getProvider().getFrameDelay());
+    }
 
-		@Override
-		public DkFrameCallbackProvider setFrameDelay(long delayMillis) {
-			frameDelay = delayMillis;
-			return this;
-		}
+    public DkTimer setDuration(long duration, TimeUnit timeUnit) {
+        this.duration = timeUnit.toMillis(duration);
+        return this;
+    }
 
-		@Override
-		public long getFrameDelay() {
-			return frameDelay;
-		}
+    public DkTimer setDuration(long durationMillis) {
+        duration = durationMillis;
+        return this;
+    }
 
-		@Override
-		public MyProvider setFrameCallback(DkFrameCallbackProvider.Callback callback) {
-			this.frameCallback = callback;
-			return this;
-		}
+    public long getDuration() {
+        return duration;
+    }
 
-		@Override
-		public void requestNextFrame(int frameType, long delayMillis) {
-			long nextRequestTime = SystemClock.uptimeMillis() + delayMillis;
+    /**
+     * フレームコールバックのカストマイズクラス
+     */
+    private static class MyProvider extends Handler implements DkFrameCallbackProvider {
+        private long frameDelay = 10;
+        private DkFrameCallbackProvider.Callback frameCallback;
+        private long lastRequestTime;
 
-			if (frameType == FRAME_DELAY) {
-				long delta = frameDelay - (nextRequestTime - lastRequestTime);
+        @Override
+        public DkFrameCallbackProvider setFrameDelay(long delayMillis) {
+            frameDelay = delayMillis;
+            return this;
+        }
 
-				if (delta > 0) {
-					nextRequestTime += delta;
-				}
-			}
+        @Override
+        public long getFrameDelay() {
+            return frameDelay;
+        }
 
-			lastRequestTime = nextRequestTime;
-			sendMessageAtTime(Message.obtain(this, frameType), nextRequestTime);
-		}
+        @Override
+        public MyProvider setFrameCallback(DkFrameCallbackProvider.Callback callback) {
+            this.frameCallback = callback;
+            return this;
+        }
 
-		@Override
-		public void handleMessage(Message msg) {
-			switch (msg.what) {
-				case FRAME_START:
-				case FRAME_DELAY: {
-					if (frameCallback != null) {
-						frameCallback.onFrame(SystemClock.uptimeMillis());
-					}
-					break;
-				}
-			}
-		}
-	}
+        @Override
+        public void requestNextFrame(int frameType, long delayMillis) {
+            long nextRequestTime = SystemClock.uptimeMillis() + delayMillis;
+
+            if (frameType == FRAME_DELAY) {
+                long delta = frameDelay - (nextRequestTime - lastRequestTime);
+
+                if (delta > 0) {
+                    nextRequestTime += delta;
+                }
+            }
+
+            lastRequestTime = nextRequestTime;
+            sendMessageAtTime(Message.obtain(this, frameType), nextRequestTime);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case FRAME_START:
+                case FRAME_DELAY: {
+                    if (frameCallback != null) {
+                        frameCallback.onFrame(SystemClock.uptimeMillis());
+                    }
+                    break;
+                }
+            }
+        }
+    }
 }

@@ -1,17 +1,5 @@
 /*
- * Copyright (c) 2018 DarkCompet. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (c) 2017-2020 DarkCompet. All rights reserved.
  */
 
 package tool.compet.http;
@@ -28,8 +16,8 @@ import java.net.URL;
 
 import tool.compet.core.graphic.DkBitmaps;
 import tool.compet.core.helper.DkJsonHelper;
-import tool.compet.core.util.DkLogs;
-import tool.compet.core.util.Dks;
+import tool.compet.core.log.DkLogs;
+import tool.compet.core.util.DkUtils;
 
 import static tool.compet.core.BuildConfig.DEBUG;
 
@@ -50,7 +38,7 @@ import static tool.compet.core.BuildConfig.DEBUG;
  */
 @SuppressWarnings("unchecked")
 public class DkHttpRequester<T> {
-	private SimpleArrayMap<String, String> headers = new ArrayMap<>();
+	private final SimpleArrayMap<String, String> headers = new ArrayMap<>();
 	private String requestMethod = DkHttpConst.GET;
 	private byte[] body;
 	private int connectTimeout = 10000;
@@ -130,8 +118,7 @@ public class DkHttpRequester<T> {
 				int code = conn.getResponseCode();
 
 				if (code != 200) {
-					DkLogs.info(this, "Error code: %d, message: %s",
-						code, Dks.stream2string(conn.getErrorStream()));
+					DkLogs.info(this, "Error code: %d, message: %s", code, DkUtils.stream2string(conn.getErrorStream()));
 				}
 			}
 
@@ -146,8 +133,7 @@ public class DkHttpRequester<T> {
 			httpResponse.response = response;
 
 			if (DEBUG) {
-				DkLogs.info(this, "Got response, code: %d, message: %s, respose: " + response,
-					httpResponse.code, httpResponse.message);
+				DkLogs.info(this, "Got response, code: %d, message: %s, respose: " + response, httpResponse.code, httpResponse.message);
 			}
 		}
 		finally {
@@ -177,7 +163,7 @@ public class DkHttpRequester<T> {
 			response = (T) DkBitmaps.load(inputStream);
 		}
 		else {
-			String json = Dks.stream2string(inputStream);
+			String json = DkUtils.stream2string(inputStream);
 
 			if (DEBUG) {
 				DkLogs.info(this, "Got response, json: %s", json);

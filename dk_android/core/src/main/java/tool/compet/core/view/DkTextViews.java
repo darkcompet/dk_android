@@ -1,17 +1,5 @@
 /*
- * Copyright (c) 2018 DarkCompet. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (c) 2017-2020 DarkCompet. All rights reserved.
  */
 
 package tool.compet.core.view;
@@ -38,76 +26,76 @@ import tool.compet.core.type.DkCallback;
  * Utility class for text processing for TextView.
  */
 public class DkTextViews {
-	public static float calcTextSize(int fontSize) {
-		return fontSize * DkConfig.device.density;
-	}
+    public static float calcTextSize(int fontSize) {
+        return fontSize * DkConfig.device.density;
+    }
 
-	public static Spanned getSpannedText(String text, boolean hasColor, int color, boolean isBold, boolean hasUnderline) {
-		if (hasColor) {
-			String hexColor = String.format("#%06X", (0xFFFFFF & color));
-			text = "<font color=\"%s\">" + text + "</font>";
-			text = String.format(text, hexColor);
-		}
+    public static Spanned getSpannedText(String text, boolean hasColor, int color, boolean isBold, boolean hasUnderline) {
+        if (hasColor) {
+            String hexColor = String.format("#%06X", (0xFFFFFF & color));
+            text = "<font color=\"%s\">" + text + "</font>";
+            text = String.format(text, hexColor);
+        }
 
-		if (isBold) {
-			text = "<b>" + text + "</b>";
-		}
+        if (isBold) {
+            text = "<b>" + text + "</b>";
+        }
 
-		if (hasUnderline) {
-			text = "<u>" + text + "</u>";
-		}
+        if (hasUnderline) {
+            text = "<u>" + text + "</u>";
+        }
 
-		return Html.fromHtml(text);
-	}
+        return Html.fromHtml(text);
+    }
 
-	public static void makeUnderlineTagClickable(TextView textView, DkCallback<View> clickCb) {
-		makeUnderlineTagClickable(textView, textView.getText().toString(), clickCb);
-	}
+    public static void makeUnderlineTagClickable(TextView textView, DkCallback<View> clickCb) {
+        makeUnderlineTagClickable(textView, textView.getText().toString(), clickCb);
+    }
 
-	public static void makeUnderlineTagClickable(TextView textView, String textInHtml, DkCallback<View> clickCb) {
-		Spanned spanned = Html.fromHtml(textInHtml);
-		SpannableStringBuilder builder = new SpannableStringBuilder(spanned);
-		UnderlineSpan[] urls = builder.getSpans(0, spanned.length(), UnderlineSpan.class);
+    public static void makeUnderlineTagClickable(TextView textView, String textInHtml, DkCallback<View> clickCb) {
+        Spanned spanned = Html.fromHtml(textInHtml);
+        SpannableStringBuilder builder = new SpannableStringBuilder(spanned);
+        UnderlineSpan[] urls = builder.getSpans(0, spanned.length(), UnderlineSpan.class);
 
-		if (urls != null) {
-			for (UnderlineSpan span : urls) {
-				int start = builder.getSpanStart(span);
-				int end = builder.getSpanEnd(span);
-				int flags = builder.getSpanFlags(span);
+        if (urls != null) {
+            for (UnderlineSpan span : urls) {
+                int start = builder.getSpanStart(span);
+                int end = builder.getSpanEnd(span);
+                int flags = builder.getSpanFlags(span);
 
-				ClickableSpan clickable = new ClickableSpan() {
-					public void onClick(@NonNull View view) {
-						if (clickCb != null) {
-							clickCb.call(view);
-						}
-					}
-				};
+                ClickableSpan clickable = new ClickableSpan() {
+                    public void onClick(@NonNull View view) {
+                        if (clickCb != null) {
+                            clickCb.call(view);
+                        }
+                    }
+                };
 
-				builder.setSpan(clickable, start, end, flags);
-			}
-		}
+                builder.setSpan(clickable, start, end, flags);
+            }
+        }
 
-		textView.setText(builder);
-		textView.setLinksClickable(true);
-		textView.setMovementMethod(LinkMovementMethod.getInstance());
-	}
+        textView.setText(builder);
+        textView.setLinksClickable(true);
+        textView.setMovementMethod(LinkMovementMethod.getInstance());
+    }
 
-	public static void applyFont(Context context, TextView tv) {
-		tv.setTypeface(Typeface.createFromAsset(context.getAssets(), "fonts/customFont"));
-	}
+    public static void applyFont(Context context, TextView tv) {
+        tv.setTypeface(Typeface.createFromAsset(context.getAssets(), "fonts/customFont"));
+    }
 
-	public static float[] calcTextViewDrawPoint(Rect bounds, float cx, float cy) {
-		float halfWidth = (bounds.right - bounds.left) / 2f;
-		float halfHeight = (bounds.bottom - bounds.top) / 2f;
+    public static float[] calcTextViewDrawPoint(Rect bounds, float cx, float cy) {
+        float halfWidth = (bounds.right - bounds.left) / 2f;
+        float halfHeight = (bounds.bottom - bounds.top) / 2f;
 
-		return new float[] {cx - halfWidth - bounds.left, cy + halfHeight - bounds.bottom};
-	}
+        return new float[]{cx - halfWidth - bounds.left, cy + halfHeight - bounds.bottom};
+    }
 
-	public static float[] getTextViewDrawPoint(Rect bounds, float leftBottomX, float leftBottomY) {
-		return new float[] {leftBottomX - bounds.left, leftBottomY - bounds.bottom};
-	}
+    public static float[] getTextViewDrawPoint(Rect bounds, float leftBottomX, float leftBottomY) {
+        return new float[]{leftBottomX - bounds.left, leftBottomY - bounds.bottom};
+    }
 
-	public static void scaleTextSize(TextView tv, float factor) {
-		tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, tv.getTextSize() * factor);
-	}
+    public static void scaleTextSize(TextView tv, float factor) {
+        tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, tv.getTextSize() * factor);
+    }
 }

@@ -1,3 +1,7 @@
+<!--
+  ~ Copyright (c) 2017-2020 DarkCompet. All rights reserved.
+  -->
+
 <resources>
 	<string name="msg_has_new_update">アプリの新バージョンがリリースされました．交換性と効率性の向上のため，最新バージョンの更新をお勧めします．</string>
 	<string name="msg_connect_failed">通信に失敗しました</string>

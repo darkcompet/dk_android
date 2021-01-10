@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2017-2020 DarkCompet. All rights reserved.
+  -->
+
 <resources>
 	<string name="north">北</string>
 	<string name="west">西</string>

@@ -1,3 +1,7 @@
+<!--
+  ~ Copyright (c) 2017-2020 DarkCompet. All rights reserved.
+  -->
+
 <resources>
 	<dimen name="base_bkg_corner_radius_tiny">4dp</dimen>
 	<dimen name="base_bkg_corner_radius_small">8dp</dimen>

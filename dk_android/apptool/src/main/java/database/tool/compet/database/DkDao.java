@@ -1,17 +1,5 @@
 /*
- * Copyright (c) 2018 DarkCompet. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (c) 2017-2020 DarkCompet. All rights reserved.
  */
 
 package tool.compet.database;
@@ -19,20 +7,21 @@ package tool.compet.database;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.google.gson.annotations.SerializedName;
+import androidx.annotation.Nullable;
+import androidx.collection.ArrayMap;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
+import tool.compet.core.log.DkLogs;
 import tool.compet.core.reflection.DkReflectionFinder;
-import tool.compet.core.util.DkLogs;
 import tool.compet.core.util.DkStrings;
-import tool.compet.database.annotation.DkColumnInfo;
-import tool.compet.database.helper.DkSqliteSupportedTypes;
 
-import static tool.compet.database.DkExpress.eq;
+import static tool.compet.core.BuildConfig.DEBUG;
 
 /**
  * Data access object, you can execute commands to the table which be associated with this.
@@ -41,226 +30,238 @@ import static tool.compet.database.DkExpress.eq;
  * <p></p>
  * Override onCreate(), onUpgrade() to hear upgrading events.
  * <p></p>
- * This will use {@link DkQuery} to make a SQL sentence, but maybe you have to
+ * This will use {@link DkQueryBuilder} to make a SQL sentence, but maybe you have to
  * write a complex query manually.
  */
-public abstract class DkDao<T extends DkTableModel> implements DkTableSchema {
-	protected String tableName;
-	protected Class<T> modelClass;
+public abstract class DkDao<M extends DkEntity> implements MyConnection {
+    protected abstract String getTableName();
+    protected abstract Class<M> getModelClass();
+    public abstract SQLiteDatabase getReadableDatabase();
+    public abstract SQLiteDatabase getWritableDatabase();
 
-	protected abstract String getTableName();
-	protected abstract Class<T> getModelType();
+    protected final String tableName;
+    protected final Class<M> modelClass;
+    private final DkReflectionFinder reflectionFinder = DkReflectionFinder.getInstalledIns();
 
-	public abstract SQLiteDatabase getReadableDatabase();
-	public abstract SQLiteDatabase getWritableDatabase();
+    protected DkDao() {
+        this.tableName = getTableName();
+        this.modelClass = getModelClass();
+    }
 
-	protected DkDao() {
-		tableName = getTableName();
-		modelClass = getModelType();
-	}
+    /**
+     * Called when create new table.
+     */
+    public void onCreate(SQLiteDatabase db) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("create table if not exists ").append('`').append(tableName).append('`').append(" (");
 
-	protected DkQuery newReader() {
-		return DkQuery.newIns(getReadableDatabase());
-	}
+        List<String> definitions = new ArrayList<>();
+        DkReflectionFinder reflectionFinder = DkReflectionFinder.getInstalledIns();
+        List<Field> fields = reflectionFinder.findFields(modelClass, DkColumnInfo.class, true, false);
 
-	protected DkQuery newWriter() {
-		return DkQuery.newIns(getWritableDatabase());
-	}
+        for (Field field : fields) {
+            DkColumnInfo columnInfo = Objects.requireNonNull(field.getAnnotation(DkColumnInfo.class));
+            String definition = MyDaoHelper.calcColumnDefinition(columnInfo, field);
 
-	public void onCreate(SQLiteDatabase db) throws Exception {
-		StringBuilder creationScript = new StringBuilder();
-		DkSqliteSupportedTypes typeHelper = new DkSqliteSupportedTypes();
+            definitions.add(definition);
+        }
 
-		creationScript.append("CREATE TABLE IF NOT EXISTS ").append(tableName).append(" (");
+        builder.append(DkStrings.join(", ", definitions));
+        builder.append(")");
 
-		List<String> definitions = new ArrayList<>();
+        getWritableDatabase().execSQL(builder.toString());
+    }
 
-		List<Field> fields = DkReflectionFinder.getIns()
-			.findFields(modelClass, SerializedName.class, true, false);
+    /**
+     * Called when upgrade the table.
+     */
+    public void onUpgrade(SQLiteDatabase db) {
+    }
 
-		for (Field field : fields) {
-			String definition = field.getAnnotation(SerializedName.class).value();
+    protected DkQueryBuilder<M> newQuery() {
+        return new DkQueryBuilder<>(this, tableName, modelClass);
+    }
 
-			switch (typeHelper.getType(field.getType())) {
-				case DkSqliteSupportedTypes.TYPE_STRING: {
-					definition += " TEXT";
-					break;
-				}
-				case DkSqliteSupportedTypes.TYPE_REAL: {
-					definition += " REAL";
-					break;
-				}
-				case DkSqliteSupportedTypes.TYPE_INTEGER: {
-					definition += " INTEGER";
-					break;
-				}
-				default: {
-					throw new RuntimeException(DkStrings.format("Field %s.%s has type %s is not supported",
-						modelClass.getName(), field.getName(), field.getType().getName()));
-				}
-			}
+    protected <T> DkQueryBuilder<T> newQuery(Class<T> modelClass) {
+        return new DkQueryBuilder<>(this, tableName, modelClass);
+    }
 
-			if (field.isAnnotationPresent(DkColumnInfo.class)) {
-				DkColumnInfo descriptionInfo = field.getAnnotation(DkColumnInfo.class);
+    protected <T> DkQueryBuilder<T> newQuery(String tableName, Class<T> modelClass) {
+        return new DkQueryBuilder<>(this, tableName, modelClass);
+    }
 
-				if (descriptionInfo.primaryKey()) {
-					definition += " PRIMARY KEY";
-				}
-				if (descriptionInfo.notNull()) {
-					definition += " NOT NULL";
-				}
-				if (descriptionInfo.autoIncrement()) {
-					definition += " AUTOINCREMENT";
-				}
-			}
+    @Override
+    public Cursor rawQuery(String query) {
+        SQLiteDatabase database = this.getReadableDatabase();
+        Cursor cursor;
 
-			definitions.add(definition);
-		}
+        try {
+            if (DEBUG) {
+                DkLogs.info(this, "rawQuery: " + query);
+            }
+            database.beginTransaction();
+            cursor = database.rawQuery(query, null);
+            database.setTransactionSuccessful();
+        }
+        finally {
+            database.endTransaction();
+        }
 
-		creationScript.append(DkStrings.join(", ", definitions));
-		creationScript.append(")");
+        return cursor;
+    }
 
-		DkQuery.newIns(db).setSql(creationScript.toString()).exe();
-	}
+    @Override
+    public <M> List<M> rawQuery(String query, Class<M> modelClass) {
+        List<M> result = new ArrayList<>();
+        Cursor cursor = this.rawQuery(query);
 
-	public void onUpgrade(SQLiteDatabase db) throws Exception {
-	}
+        if (cursor == null) {
+            return result;
+        }
+        try {
+            if (cursor.moveToFirst()) {
+                do {
+                    result.add(MyDaoHelper.row2obj(cursor, modelClass));
+                }
+                while (cursor.moveToNext());
+            }
+        }
+        finally {
+            cursor.close();
+        }
 
-	public void dropTable() throws Exception {
-		newWriter().setSql("DROP TABLE IF EXISTS " + tableName).exe();
-	}
+        return result;
+    }
 
-	public boolean isEmpty() throws Exception {
-		return getRowCount() == 0;
-	}
+    @Override
+    public void executeQuery(String query) {
+        SQLiteDatabase database = this.getWritableDatabase();
+        try {
+            if (DEBUG) {
+                DkLogs.info(this, "execQuery: " + query);
+            }
+            database.beginTransaction();
+            database.execSQL(query);
+            database.setTransactionSuccessful();
+        }
+        finally {
+            database.endTransaction();
+        }
+    }
 
-	public void clear() throws Exception {
-		newWriter().deleteFrom(tableName).exe();
-	}
+    public boolean hasTable() {
+        String query = DkStrings.format("select * from sqlite_master where `name` = %s and `type` = 'table'", tableName);
+        Cursor cursor = rawQuery(query);
+        return cursor != null && cursor.getCount() > 0 && cursor.moveToFirst() && cursor.getInt(0) > 0;
+    }
 
-	public boolean isExists() throws Exception {
-		Cursor cursor = newReader()
-			.selectFrom("sqlite_master")
-			.where(DkExpress.and(
-				eq("name", tableName),
-				eq("type", "table")))
-			.raw();
+    public void drop() {
+        getWritableDatabase().execSQL(DkStrings.format("drop table if exists `%s`", tableName));
+    }
 
-		return cursor != null && cursor.getCount() > 0 && cursor.moveToFirst() && cursor.getInt(0) > 0;
-	}
+    public boolean isEmpty() {
+        return count() == 0;
+    }
 
-	public int getRowCount() throws Exception {
-		return getCount(newReader().selectCount(tableName, COL_ID).raw());
-	}
+    public void clear() {
+        newQuery().delete();
+    }
 
-	public List<T> query(String id) throws Exception {
-		return newReader()
-			.selectFrom(tableName)
-			.where(eq(COL_ID, id))
-			.raw(modelClass);
-	}
+    public long count() {
+        return newQuery().count();
+    }
 
-	public List<T> queryAll(DkExpress whereClause) throws Exception {
-		return newReader()
-			.selectFrom(tableName)
-			.where(whereClause)
-			.raw(modelClass);
-	}
+    public M first(long id) {
+        return newQuery().where("id", id).first();
+    }
 
-	public List<T> queryAll(String whereClause) throws Exception {
-		return newReader()
-				.selectFrom(tableName)
-				.where(whereClause)
-				.raw(modelClass);
-	}
+    public M first(String idColName, long id) {
+        return newQuery().where(idColName, id).first();
+    }
 
-	public List<T> queryAll() throws Exception {
-		return newReader().selectFrom(tableName).raw(modelClass);
-	}
+    public List<M> find(long id) {
+        return newQuery().where("id", id).get();
+    }
 
-	public void update(DkTableModel model) throws Exception {
-		update(model, eq(COL_ID, model.getId()).toString());
-	}
+    public List<M> find(String idColName, long id) {
+        return newQuery().where(idColName, id).get();
+    }
 
-	public void update(DkTableModel model, String whereClause) throws Exception {
-		List<String> names = new ArrayList<>();
-		List<Object> values = new ArrayList<>();
+    public void update(DkEntity model) {
+        update(model, null);
+    }
 
-		List<Field> fields = DkReflectionFinder.getIns()
-			.findFields(this.modelClass, SerializedName.class, true, false);
+    public void update(DkEntity model, @Nullable Set<String> excludeNames) {
+        List<Field> fields = reflectionFinder.findFields(this.modelClass, DkColumnInfo.class, true, false);
+        Map<String, Object> params = new ArrayMap<>();
 
-		for (Field field : fields) {
-			if (!field.isAnnotationPresent(DkColumnInfo.class) ||
-				!field.getAnnotation(DkColumnInfo.class).primaryKey()) {
-				// update except primary key
-				names.add(field.getAnnotation(SerializedName.class).value());
-				values.add(field.get(model));
-			}
-		}
+        for (Field field : fields) {
+            DkColumnInfo columnInfo = Objects.requireNonNull(field.getAnnotation(DkColumnInfo.class));
+            String name = columnInfo.name();
+            if (excludeNames != null && excludeNames.contains(name)) {
+                continue;
+            }
+            // Update except primary key
+            if (! columnInfo.primaryKey()) {
+                try {
+                    Object value = field.get(model);
+                    params.put(name, value);
+                }
+                catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
 
-		newWriter()
-			.update(tableName, names, values, whereClause)
-			.exe();
-	}
+        newQuery().where("id", model.id).update(params);
+    }
 
-	public void insert(T model) throws Exception {
-		if (model.getId() == null) {
-			DkLogs.complain(this, "Must issue ID first.");
-		}
+    public void insert(M model) {
+        Map<String, Object> params = new ArrayMap<>();
+        List<Field> fields = reflectionFinder.findFields(this.modelClass, DkColumnInfo.class, true, false);
 
-		List<String> names = new ArrayList<>();
-		List<Object> values = new ArrayList<>();
+        for (Field field : fields) {
+            String name = Objects.requireNonNull(field.getAnnotation(DkColumnInfo.class)).name();
+            Object value;
+            try {
+                value = field.get(model);
+            }
+            catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+            params.put(name, value);
+        }
 
-		List<Field> fields = DkReflectionFinder.getIns()
-			.findFields(this.modelClass, SerializedName.class, true, false);
+        newQuery().insert(params);
+    }
 
-		for (Field field : fields) {
-			names.add(field.getAnnotation(SerializedName.class).value());
-			values.add(field.get(model));
-		}
+    public void upsert(M model) {
+        Cursor cursor = rawQuery("select id from " + tableName + " where id = " + model.id);
+        if (count(cursor) > 0) {
+            update(model);
+        }
+        else {
+            insert(model);
+        }
+    }
 
-		newWriter()
-			.insertInto(tableName, names, values)
-			.exe();
-	}
+    private long count(Cursor cursor) {
+        long rowCnt = 0;
+        if (cursor != null) {
+            if (cursor.getCount() > 0 && cursor.moveToFirst()) {
+                rowCnt = cursor.getLong(0);
+            }
+            cursor.close();
+        }
 
-	public void upsert(T model) throws Exception {
-		Cursor cursor = newReader()
-			.selectCount(tableName, "*")
-			.where(eq(COL_ID, model.getId()))
-			.raw();
+        return rowCnt;
+    }
 
-		if (getCount(cursor) > 0) {
-			update(model);
-		}
-		else {
-			insert(model);
-		}
-	}
+    public void delete(long id) {
+        newQuery().where("id", id).delete();
+    }
 
-	public int getCount(Cursor cursor) {
-		int rowCnt = 0;
-
-		if (cursor != null) {
-			if (cursor.getCount() > 0 && cursor.moveToFirst()) {
-				rowCnt = cursor.getInt(0);
-			}
-			cursor.close();
-		}
-
-		return rowCnt;
-	}
-
-	public void deleteRows(String... ids) throws Exception {
-		deleteRows(Arrays.asList(ids));
-	}
-
-	public void deleteRows(List<String> ids) throws Exception {
-		if (ids != null && ids.size() > 0) {
-			newWriter()
-				.deleteFrom(tableName)
-				.where(DkExpress.in(COL_ID, ids))
-				.exe();
-		}
-	}
+    public void delete(String idColName, long id) {
+        newQuery().where(idColName, id).delete();
+    }
 }
