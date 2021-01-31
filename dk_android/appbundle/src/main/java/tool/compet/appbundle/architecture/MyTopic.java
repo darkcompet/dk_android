@@ -11,12 +11,12 @@ import androidx.collection.ArrayMap;
  */
 class MyTopic {
     // Unique id for each topic.
-    public final String id;
+    final String id;
 
     // Holds models for this topic.
     private final ArrayMap<Class, Object> models = new ArrayMap<>();
 
-    public MyTopic(String id) {
+    MyTopic(String id) {
         this.id = id;
     }
 
@@ -24,7 +24,7 @@ class MyTopic {
      * Get or Create new model instance which associate with given #modelClass.
      */
     @SuppressWarnings("unchecked")
-    public <M> M getModel(Class<M> modelType) throws Exception {
+    <M> M getOrCreateModel(Class<M> modelType) throws Exception {
         M model = (M) models.get(modelType);
 
         if (model == null) {

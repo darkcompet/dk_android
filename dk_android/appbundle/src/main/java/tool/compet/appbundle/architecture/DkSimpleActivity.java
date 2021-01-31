@@ -4,36 +4,32 @@
 
 package tool.compet.appbundle.architecture;
 
-import android.app.Activity;
 import android.app.Application;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.Bundle;
-import android.view.View;
 
-import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStoreOwner;
 
-import tool.compet.appbundle.binder.DkBinder;
 import tool.compet.appbundle.floatingbar.DkSnackbar;
 import tool.compet.appbundle.floatingbar.DkToastbar;
 import tool.compet.core.BuildConfig;
 import tool.compet.core.log.DkLogs;
 
 /**
- * All activities should subclass this to work with support of Dk library as possible.
+ * This extends `DkBaseActivity` and provides below simple features:
+ * - Navigator (we can forward, backward, dismiss... page easily)
+ * - ViewModel (overcome configuration-change)
+ * - Message display (snack, toast...)
+ * - Scoped topic (pass data between/under fragments, activities, app)
+ *
  * <p></p>
  * Be aware of lifecycle in Activity: if activity is not going to be destroyed and
  * returns to foreground after onStop(), then onRestart() -> onStart() will be called respectively.
  */
-public abstract class DkSimpleActivity extends AppCompatActivity implements DkActivity,
-    DkViewModelStore, DkFragmentNavigator.Callback {
-
+public abstract class DkSimpleActivity extends DkBaseActivity implements DkViewModelStore, DkFragmentNavigator.Callback {
     private DkFragmentNavigator navigator;
 
     /**
@@ -54,130 +50,22 @@ public abstract class DkSimpleActivity extends AppCompatActivity implements DkAc
         return navigator;
     }
 
-    /**
-     * Subclass should use getIntent() in onResume() instead since we called #setIntent() here
-     */
-    @Override
-    protected void onNewIntent(Intent intent) {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onNewIntent: " + intent);
-        }
-
-        setIntent(intent);
-
-        super.onNewIntent(intent);
-    }
-
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onCreate");
-        }
-
-        super.onCreate(savedInstanceState);
-
-        // Set content view
-        int layoutId = layoutResourceId();
-
-        if (layoutId <= 0) {
-            DkLogs.complain(this, "Invalid layoutId: %d", layoutId);
-        }
-
-        View layout = View.inflate(this, layoutId, null);
-        setContentView(layout);
-
-        DkBinder.bindViews(this, layout);
-    }
-
-    @CallSuper
-    @Override
-    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onPostCreate");
-        }
-        super.onPostCreate(savedInstanceState);
-    }
-
-    @Override
-    protected void onStart() {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onStart");
-        }
-        super.onStart();
-    }
-
-    @Override
-    protected void onResume() {
-        onActive(true);
-        super.onResume();
-    }
-
     @Override
     public void onActive(boolean isResume) {
         if (BuildConfig.DEBUG) {
-            DkLogs.info(this, isResume ? "onResume" : "onFront");
+            DkLogs.info(this, isResume ? "onResume" : "onActive");
         }
-    }
-
-    @Override
-    protected void onPause() {
-        onInactive(true);
-        super.onPause();
     }
 
     @Override
     public void onInactive(boolean isPause) {
         if (BuildConfig.DEBUG) {
-            DkLogs.info(this, isPause ? "onPause" : "onBehind");
+            DkLogs.info(this, isPause ? "onPause" : "onInactive");
         }
     }
 
     @Override
-    protected void onStop() {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onStop");
-        }
-        super.onStop();
-    }
-
-    // after onStop() is onCreate() or onDestroy()
-    @Override
-    protected void onRestart() {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onRestart");
-        }
-        super.onRestart();
-    }
-
-    @Override
-    protected void onDestroy() {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onDestroy");
-        }
-        super.onDestroy();
-    }
-
-    @Override
-    public void onLowMemory() {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onLowMemory");
-        }
-        super.onLowMemory();
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onConfigurationChanged");
-        }
-        super.onConfigurationChanged(newConfig);
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onSaveInstanceState");
-        }
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
         if (navigator != null) {
             navigator.saveState(outState);
         }
@@ -185,35 +73,11 @@ public abstract class DkSimpleActivity extends AppCompatActivity implements DkAc
     }
 
     @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onRestoreInstanceState");
-        }
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         if (navigator != null) {
             navigator.restoreState(savedInstanceState);
         }
         super.onRestoreInstanceState(savedInstanceState);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onRestoreInstanceState");
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int rc, @NonNull String[] perms, @NonNull int[] res) {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onRequestPermissionsResult");
-        }
-        super.onRequestPermissionsResult(rc, perms, res);
-    }
-
-    @Override
-    public Activity getActivity() {
-        return this;
     }
 
     /**
@@ -264,108 +128,107 @@ public abstract class DkSimpleActivity extends AppCompatActivity implements DkAc
         throw new RuntimeException("Not yet support");
     }
 
-    /**
-     * Join and Get shared ViewModel instance which be owned by this Activity.
-     *
-     * @param register true if you want this View register the topic, otherwise just preview.
-     */
     @Override
-    public <M> M getOwnTopic(Class<M> modelType, boolean register) {
-        return getTopic(this, modelType.getName(), modelType, register);
+    public <M> M ownTopic(Class<M> modelClass) {
+        return ownTopic(modelClass, true);
+    }
+
+    @Override
+    public <M> M ownTopic(Class<M> modelType, boolean listen) {
+        return ownTopic(modelType.getName(), modelType, listen);
+    }
+
+    @Override
+    public <M> M ownTopic(String topicId, Class<M> modelType) {
+        return ownTopic(topicId, modelType, true);
     }
 
     /**
-     * Join and Get shared model instance which be owned by this Activity.
-     *
-     * @param register true if you want this View register the topic, otherwise just preview.
+     * Get or Create shared model instance which be owned by this Activity.
      */
     @Override
-    public <M> M getOwnTopic(String topicId, Class<M> modelType, boolean register) {
-        return getTopic(this, topicId, modelType, register);
+    public <M> M ownTopic(String topicId, Class<M> modelType, boolean listen) {
+        return topic(this, topicId, modelType, listen);
+    }
+
+    @Override
+    public <M> M hostTopic(Class<M> modelClass) {
+        return hostTopic(modelClass, true);
+    }
+    
+    @Override
+    public <M> M hostTopic(Class<M> modelType, boolean listen) {
+        return hostTopic(modelType.getName(), modelType, listen);
+    }
+
+    @Override
+    public <M> M hostTopic(String topicId, Class<M> modelType) {
+        return hostTopic(topicId, modelType, true);
     }
 
     /**
-     * Same with #getAppTopic().
+     * Same with `appTopic()`.
      */
     @Override
-    public <M> M getHostTopic(Class<M> modelType, boolean register) {
-        return getAppTopic(modelType.getName(), modelType, register);
+    public <M> M hostTopic(String topicId, Class<M> modelType, boolean listen) {
+        return appTopic(topicId, modelType, listen);
+    }
+
+    @Override
+    public <M> M appTopic(Class<M> modelClass) {
+        return appTopic(modelClass, true);
+    }
+
+    @Override
+    public <M> M appTopic(Class<M> modelType, boolean listen) {
+        return appTopic(modelType.getName(), modelType, listen);
+    }
+
+    @Override
+    public <M> M appTopic(String topicId, Class<M> modelType) {
+        return appTopic(topicId, modelType, true);
     }
 
     /**
-     * Same with #getAppTopic().
+     * Get or Create shared model instance which be owned by current app.
      */
     @Override
-    public <M> M getHostTopic(String topicId, Class<M> modelType, boolean register) {
-        return getAppTopic(topicId, modelType, register);
-    }
-
-    /**
-     * Get shared model instance which be owned by current Application.
-     *
-     * @param register true if you want this View register the topic, otherwise just preview.
-     */
-    @Override
-    public <M> M getAppTopic(Class<M> modelType, boolean register) {
-        return getAppTopic(modelType.getName(), modelType, register);
-    }
-
-    /**
-     * Get shared model instance which be owned by current Application.
-     *
-     * @param register true if you want this View register the topic, otherwise just preview.
-     */
-    @Override
-    public <M> M getAppTopic(String topicId, Class<M> modelType, boolean register) {
+    public <M> M appTopic(String topicId, Class<M> modelType, boolean listen) {
         Application app = getApplication();
 
         if (app instanceof DkSimpleApp) {
-            return getTopic(((DkSimpleApp) app), topicId, modelType, register);
+            return topic(((DkSimpleApp) app), topicId, modelType, listen);
         }
 
-        throw new RuntimeException("Not yet support");
+        throw new RuntimeException("Not support");
     }
 
     /**
-     * Join and Get shared model instance which be owned by a owner (Application, Activity or Fragment...).
-     * The instance will be removed when no client observes the topic.
-     * Note that, you must call this method when host is in active state.
+     * Get or Create (new if not exists) shared model instance which be owned by a owner (Application, Activity, Fragment, ...).
+     * The topic will be removed when no client observes the topic or the owner's ViewModel was destroyed.
+     * Note that, you must call this method when host of this is in active state.
      *
-     * @param register true if you want this View register the topic, otherwise just preview.
+     * @param listen true if you also wanna listen the topic, that is, this view will
+     *               become listener of the topic. Otherwise just getOrCreate.
      */
     @Override
-    public <M> M getTopic(ViewModelStoreOwner owner, String topicId, Class<M> modelType, boolean register) {
-        return new MyTopicProvider(owner, this).getTopic(topicId, modelType, register);
-    }
-
-    @Override
-    public void dismiss() {
-        finish();
+    public <M> M topic(ViewModelStoreOwner owner, String topicId, Class<M> modelType, boolean listen) {
+        return new MyTopicProvider(owner, this).getOrCreateModelAtTopic(topicId, modelType, listen);
     }
 
     public void snack(int msgRes, int type) {
-        DkSnackbar.newIns(this)
-            .asType(type)
-            .setMessage(msgRes)
-            .show();
+        DkSnackbar.newIns(this).asType(type).setMessage(msgRes).show();
     }
 
     public void snack(String message, int type) {
-        DkSnackbar.newIns(this)
-            .asType(type)
-            .setMessage(message)
-            .show();
+        DkSnackbar.newIns(this).asType(type).setMessage(message).show();
     }
 
     public void toast(int msgRes) {
-        DkToastbar.newIns(this)
-            .setMessage(msgRes)
-            .show();
+        DkToastbar.newIns(this).setMessage(msgRes).show();
     }
 
     public void toast(String message) {
-        DkToastbar.newIns(this)
-            .setMessage(message)
-            .show();
+        DkToastbar.newIns(this).setMessage(message).show();
     }
 }

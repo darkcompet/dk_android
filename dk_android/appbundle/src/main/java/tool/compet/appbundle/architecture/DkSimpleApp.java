@@ -10,10 +10,6 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModelStore;
 
-import tool.compet.core.helper.DkExecutorService;
-import tool.compet.core.reflection.DkReflectionFinder;
-import tool.compet.core.storage.DkPreferenceStorage;
-
 public class DkSimpleApp extends Application implements DkApp {
     protected static Context appContext;
     protected ViewModelStore viewModelStore;
@@ -21,12 +17,7 @@ public class DkSimpleApp extends Application implements DkApp {
     @Override
     public void onCreate() {
         super.onCreate();
-
-        Context ctx = appContext = getApplicationContext();
-
-        DkExecutorService.install();
-        DkReflectionFinder.installWithCompetTool(ctx);
-        DkPreferenceStorage.install(ctx);
+        appContext = getApplicationContext();
     }
 
     /**

@@ -12,10 +12,8 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import tool.compet.appbundle.eventbus.DkEventBus;
-
 /**
- * View component of MVL design pattern.
+ * This is extended version of `DkSimpleActivity`, compact basic and needed features.
  */
 public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends DkSimpleActivity implements DkCompactView {
     // To instantiate ViewLogic, subclass should provide generic type of ViewLogic when extends the class
@@ -27,7 +25,7 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends D
         super.onCreate(savedInstanceState);
 
         // Must run after #super.onCreate()
-        viewLogic = new MyCompactInjector(this).start();
+        viewLogic = new MyCompactInjector(this).inject();
         if (viewLogic != null) {
             viewLogic.onCreate(this, savedInstanceState);
         }
@@ -47,7 +45,6 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends D
         super.onStart();
         if (viewLogic != null) {
             viewLogic.onStart(this);
-            DkEventBus.getIns().register(viewLogic);
         }
     }
 
@@ -72,7 +69,6 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends D
         super.onStop();
         if (viewLogic != null) {
             viewLogic.onRestart(this);
-            DkEventBus.getIns().unregister(viewLogic);
         }
     }
 
@@ -103,7 +99,7 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends D
     }
 
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         if (viewLogic != null) {
             viewLogic.onConfigurationChanged(this, newConfig);
@@ -111,7 +107,7 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends D
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
         if (viewLogic != null) {
             viewLogic.onSaveInstanceState(this, outState);
         }
@@ -119,7 +115,7 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends D
     }
 
     @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         if (viewLogic != null) {
             viewLogic.onRestoreInstanceState(this, savedInstanceState);
         }

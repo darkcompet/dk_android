@@ -21,7 +21,6 @@ import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
-import tool.compet.appbundle.eventbus.DkEventBus;
 import tool.compet.core.log.DkLogs;
 import tool.compet.core.util.DkUtils;
 
@@ -30,8 +29,8 @@ import static tool.compet.appbundle.BuildConfig.DEBUG;
 /**
  * Subclass must declare annotation #DkBindXml on top.
  */
-public abstract class DkPreferenceFragment extends PreferenceFragmentCompat implements DkFragment,
-    SharedPreferences.OnSharedPreferenceChangeListener, DkFragmentNavigator.Callback {
+public abstract class DkPreferenceFragment extends PreferenceFragmentCompat
+    implements DkFragment, SharedPreferences.OnSharedPreferenceChangeListener, DkFragmentNavigator.Callback {
     /**
      * Specify id of preference resource for this fragment.
      */
@@ -124,7 +123,7 @@ public abstract class DkPreferenceFragment extends PreferenceFragmentCompat impl
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (DEBUG) {
             DkLogs.info(this, "onCreateView");
         }
@@ -166,7 +165,6 @@ public abstract class DkPreferenceFragment extends PreferenceFragmentCompat impl
         }
 
         androidDefaultPreference.registerOnSharedPreferenceChangeListener(this);
-        DkEventBus.getIns().register(this);
 
         super.onStart();
     }
@@ -204,7 +202,6 @@ public abstract class DkPreferenceFragment extends PreferenceFragmentCompat impl
         }
 
         androidDefaultPreference.unregisterOnSharedPreferenceChangeListener(this);
-        DkEventBus.getIns().unregister(this);
 
         hideSoftKeyboard();
 
@@ -252,7 +249,7 @@ public abstract class DkPreferenceFragment extends PreferenceFragmentCompat impl
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         if (DEBUG) {
             DkLogs.info(this, "onSaveInstanceState");
         }
@@ -287,10 +284,7 @@ public abstract class DkPreferenceFragment extends PreferenceFragmentCompat impl
 
     @Override
     public void dismiss() {
-        getParentNavigator()
-            .beginTransaction()
-            .remove(this)
-            .commit();
+        getParentNavigator().beginTransaction().remove(this).commit();
     }
 
     public void hideSoftKeyboard() {

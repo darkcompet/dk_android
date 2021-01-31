@@ -9,7 +9,7 @@ import android.os.Parcelable;
 
 import java.util.ArrayList;
 
-public class MyBackStackState implements Parcelable {
+class MyBackStackState implements Parcelable {
     ArrayList<MyKeyState> keys;
 
     public MyBackStackState() {

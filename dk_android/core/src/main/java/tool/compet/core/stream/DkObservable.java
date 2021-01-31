@@ -130,13 +130,13 @@ public abstract class DkObservable<T> {
     }
 
     public DkObservable<T> observeOnMainThread() {
-        return observeOn(DkSchedulers.main(), 0L, TimeUnit.MILLISECONDS, true);
+        return observeOn(DkSchedulers.androidMain(), 0L, TimeUnit.MILLISECONDS, true);
     }
 
-    public DkObservable<T> scheduleInBackgroundAndObserveOnMainThread() {
+    public DkObservable<T> scheduleInBackgroundAndObserveOnAndroidMainThread() {
         return this
             .scheduleIn(DkSchedulers.io(), 0, TimeUnit.MILLISECONDS, false)
-            .observeOn(DkSchedulers.main(), 0L, TimeUnit.MILLISECONDS, true);
+            .observeOn(DkSchedulers.androidMain(), 0L, TimeUnit.MILLISECONDS, true);
     }
 
     public DkObservable<T> scheduleIn(DkScheduler<T> scheduler) {

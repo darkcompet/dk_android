@@ -18,7 +18,14 @@ public class DkContextWrapper extends ContextWrapper {
         super(base);
     }
 
-    public static DkContextWrapper wrap(Context context, String lang) {
+    /**
+     * Wraps (embed) locale into given context. By do it, caller can change language of the app.
+     *
+     * @param context Current context
+     * @param lang Next lnaguage
+     * @return Localed context
+     */
+    public static DkContextWrapper wrapLocale(Context context, String lang) {
         Configuration config = context.getResources().getConfiguration();
 
         Locale sysLocale;
@@ -31,7 +38,7 @@ public class DkContextWrapper extends ContextWrapper {
 
         DkConfig.device.locale = sysLocale;
 
-        if (!("").equals(lang) && !sysLocale.getLanguage().equals(lang)) {
+        if (! ("").equals(lang) && ! sysLocale.getLanguage().equals(lang)) {
             Locale locale = new Locale(lang);
             Locale.setDefault(locale);
 

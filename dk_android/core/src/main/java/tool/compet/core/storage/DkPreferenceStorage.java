@@ -9,12 +9,14 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import androidx.annotation.NonNull;
+
 import java.util.Set;
 
 import tool.compet.core.helper.DkJsonHelper;
 import tool.compet.core.helper.DkTypeHelper;
-import tool.compet.core.math.DkMaths;
 import tool.compet.core.log.DkLogs;
+import tool.compet.core.math.DkMaths;
 
 @SuppressLint("ApplySharedPref")
 @SuppressWarnings("unchecked")
@@ -23,14 +25,13 @@ public class DkPreferenceStorage {
 
     private final Context appContext;
     private final String defaultPrefName;
-    private SharedPreferences curPref;
     private final SharedPreferences settingPref;
+    private SharedPreferences curPref;
 
     private DkPreferenceStorage(Context appContext) {
         this.appContext = appContext;
         this.defaultPrefName = appContext.getPackageName().replace('.', '_') + "_dk_default_sp";
         this.settingPref = PreferenceManager.getDefaultSharedPreferences(appContext);
-
         this.curPref = appContext.getSharedPreferences(defaultPrefName, Context.MODE_PRIVATE);
     }
 
@@ -40,7 +41,7 @@ public class DkPreferenceStorage {
         }
     }
 
-    public static DkPreferenceStorage getInstalledIns() {
+    public static DkPreferenceStorage getIns() {
         if (INS == null) {
             DkLogs.complain(DkPreferenceStorage.class, "Must call install() first");
         }
@@ -74,12 +75,10 @@ public class DkPreferenceStorage {
     }
 
     public void delete(String key) {
-        curPref.edit()
-            .remove(key)
-            .commit();
+        curPref.edit().remove(key).commit();
     }
 
-    public void save(Object obj) {
+    public void save(@NonNull Object obj) {
         if (obj != null) {
             save(obj.getClass().getName(), obj);
         }
@@ -98,9 +97,7 @@ public class DkPreferenceStorage {
             json = DkJsonHelper.getIns().obj2json(value);
         }
 
-        curPref.edit()
-            .putString(key, json)
-            .commit();
+        curPref.edit().putString(key, json).commit();
     }
 
     public <T> boolean contains(Class<T> clazz) {
@@ -188,8 +185,8 @@ public class DkPreferenceStorage {
         return loadSetting(appContext.getString(key), resClass);
     }
 
-    public <T> T loadSetting(String key, Class<T> resClass) {
-        final int type = DkTypeHelper.getTypeMasked(resClass);
+    public <T> T loadSetting(String key, Class<T> valClass) {
+        final int type = DkTypeHelper.getTypeMasked(valClass);
 
         switch (type) {
             case DkTypeHelper.TYPE_STRING_MASKED: {
@@ -212,10 +209,10 @@ public class DkPreferenceStorage {
             }
         }
 
-        if (resClass.equals(Set.class)) {
+        if (valClass.equals(Set.class)) {
             return (T) settingPref.getStringSet(key, null);
         }
 
-        throw new RuntimeException("Not support load setting for class: " + resClass);
+        throw new RuntimeException("Not support load setting for class: " + valClass);
     }
 }

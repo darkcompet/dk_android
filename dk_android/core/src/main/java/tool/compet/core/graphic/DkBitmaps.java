@@ -40,13 +40,14 @@ public final class DkBitmaps {
     }
 
     /**
-     * https://developer.android.com/topic/performance/graphics/load-bitmap
+     * See more: https://developer.android.com/topic/performance/graphics/load-bitmap
      */
     public static int[] getDimension(File bitmapFile) {
         BitmapFactory.Options opts = new BitmapFactory.Options();
         opts.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(bitmapFile.getAbsolutePath(), opts);
-        return new int[]{opts.outWidth, opts.outHeight};
+        
+        return new int[] {opts.outWidth, opts.outHeight};
     }
 
     public static boolean save(Bitmap input, String filePath) throws IOException {
@@ -60,6 +61,7 @@ public final class DkBitmaps {
         OutputStream os = new FileOutputStream(file);
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, os);
         os.close();
+        
         return true;
     }
 
@@ -73,6 +75,7 @@ public final class DkBitmaps {
     public static Bitmap load(Context context, int imgRes) {
         BitmapFactory.Options opts = new BitmapFactory.Options();
         opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        
         return load(context, imgRes, opts);
     }
 
@@ -87,13 +90,14 @@ public final class DkBitmaps {
     public static Bitmap load(String filePath) {
         BitmapFactory.Options opts = new BitmapFactory.Options();
         opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        
         return load(filePath, opts);
     }
 
     public static Bitmap load(String filePath, BitmapFactory.Options opts) {
         Bitmap res = BitmapFactory.decodeFile(filePath, opts);
         if (DEBUG) {
-            DkLogs.info(DkBitmaps.class, "loaded bitmap size: %d", getSize(res));
+            DkLogs.info(DkBitmaps.class, "Loaded bitmap size: %d", getSize(res));
         }
         return res;
     }
@@ -105,6 +109,7 @@ public final class DkBitmaps {
     public static Bitmap load(InputStream is) {
         BitmapFactory.Options opts = new BitmapFactory.Options();
         opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        
         return load(is, opts);
     }
 
@@ -120,26 +125,23 @@ public final class DkBitmaps {
         return decodeRegion(is, left, top, right, bottom, null);
     }
 
-    public static Bitmap decodeRegion(InputStream is, int left, int top, int right, int bottom,
-                                      BitmapFactory.Options opts) throws IOException {
-
+    public static Bitmap decodeRegion(InputStream is, int left, int top, int right, int bottom, BitmapFactory.Options opts) throws IOException {
         BitmapRegionDecoder decoder = BitmapRegionDecoder.newInstance(is, false);
+        
         return decoder.decodeRegion(new Rect(left, top, right, bottom), opts);
     }
 
     public static byte[] toByteArray(Bitmap bitmap) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        
         return stream.toByteArray();
     }
 
     public static Bitmap rotate(Bitmap bitmap, int degrees) {
         Matrix matrix = new Matrix();
         matrix.postRotate(degrees);
-
-        return Bitmap.createBitmap(bitmap,
-            0, 0,
-            bitmap.getWidth(), bitmap.getHeight(),
-            matrix, true);
+        
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
     }
 }

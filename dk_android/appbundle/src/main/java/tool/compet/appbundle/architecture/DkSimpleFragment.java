@@ -4,47 +4,29 @@
 
 package tool.compet.appbundle.architecture;
 
-import android.app.Activity;
 import android.app.Application;
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStoreOwner;
 
-import tool.compet.appbundle.binder.DkBinder;
 import tool.compet.appbundle.floatingbar.DkSnackbar;
 import tool.compet.appbundle.floatingbar.DkToastbar;
-import tool.compet.appbundle.BuildConfig;
 import tool.compet.core.log.DkLogs;
 import tool.compet.core.util.DkUtils;
 
 /**
- * All fragments should subclass this to work with support of Dk library as possible.
- *
- * <ul>
- *    <li> In default, this use DkBinder to bind your views at #onCreateView(), you should provide
- *    layout resource by implement method {@link DkSimpleFragment#layoutResourceId()}.
- *    <li> This is simple, pure and does not serious implement own logic so you can freely customize as you want.
- *    <li> This supports Navigator which help you manage fragment transaction easier than use
- *    BackStack of Android in some cases.
- * </ul>
+ * This extends `DkBaseFragment` and provides some below simple features:
+ * - Navigator (we can forward, backward, dismiss... page easily)
+ * - ViewModel (overcome configuration-change)
+ * - Message display (snack, toast...)
+ * - Scoped topic (pass data between/under fragments, activities, app)
  */
-public abstract class DkSimpleFragment extends Fragment implements DkFragment, DkViewModelStore, DkFragmentNavigator.Callback {
-    // Read only fields
-    protected FragmentActivity host;
-    protected Context context;
-    protected ViewGroup layout;
-
+public abstract class DkSimpleFragment extends DkBaseFragment implements DkViewModelStore, DkFragmentNavigator.Callback {
     private DkFragmentNavigator navigator;
 
     /**
@@ -84,176 +66,7 @@ public abstract class DkSimpleFragment extends Fragment implements DkFragment, D
     }
 
     @Override
-    public void onAttach(@NonNull Context context) {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onAttach (context)");
-        }
-        this.context = context;
-        super.onAttach(context);
-    }
-
-    @Override
-    @SuppressWarnings("deprecation")
-    public void onAttach(@NonNull Activity activity) {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onAttach (activity)");
-        }
-        this.host = (FragmentActivity) activity;
-        super.onAttach(activity);
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onCreate");
-        }
-        super.setRetainInstance(isRetainInstance());
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onCreateView");
-        }
-
-        int layoutId = layoutResourceId();
-        if (layoutId <= 0) {
-            DkLogs.complain(this, "Invalid layoutId: %d", layoutId);
-        }
-
-        layout = (ViewGroup) inflater.inflate(layoutResourceId(), container, false);
-        DkBinder.bindViews(this, layout);
-
-        return layout;
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onViewCreated");
-        }
-        super.onViewCreated(view, savedInstanceState);
-    }
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onActivityCreated");
-        }
-        if (navigator != null) {
-            navigator.restoreState(savedInstanceState);
-        }
-        super.onActivityCreated(savedInstanceState);
-    }
-
-    @Override
-    public void onStart() {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onStart");
-        }
-        super.onStart();
-    }
-
-    @Override
-    public void onResume() {
-        onActive(true);
-        super.onResume();
-    }
-
-    @Override
-    public void onActive(boolean isResume) {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, isResume ? "onResume" : "onFront");
-        }
-    }
-
-    @Override
-    public void onPause() {
-        onInactive(true);
-        super.onPause();
-    }
-
-    @Override
-    public void onInactive(boolean isPause) {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, isPause ? "onPause" : "onBehind");
-        }
-    }
-
-    @Override
-    public void onStop() {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onStop");
-        }
-        super.onStop();
-    }
-
-    @Override
-    public void onDestroyView() {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onDestroyView");
-        }
-        super.onDestroyView();
-    }
-
-    @Override
-    public void onDestroy() {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onDestroy");
-        }
-        super.onDestroy();
-    }
-
-    @Override
-    public void onDetach() {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onDetach");
-        }
-
-        this.host = null;
-        this.context = null;
-
-        super.onDetach();
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onActivityResult");
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onActivityResult");
-        }
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
-
-    @Override
-    public void onLowMemory() {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onLowMemory");
-        }
-        super.onLowMemory();
-    }
-
-    @Override
-    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onViewStateRestored");
-        }
-        super.onViewStateRestored(savedInstanceState);
-    }
-
-    @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onSaveInstanceState");
-        }
         if (navigator != null) {
             navigator.saveState(outState);
         }
@@ -261,8 +74,11 @@ public abstract class DkSimpleFragment extends Fragment implements DkFragment, D
     }
 
     @Override
-    public Fragment getFragment() {
-        return this;
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        if (navigator != null) {
+            navigator.restoreState(savedInstanceState);
+        }
+        super.onViewStateRestored(savedInstanceState);
     }
 
     /**
@@ -279,10 +95,7 @@ public abstract class DkSimpleFragment extends Fragment implements DkFragment, D
      */
     @Override
     public void dismiss() {
-        getParentNavigator()
-            .beginTransaction()
-            .remove(this)
-            .commit();
+        getParentNavigator().beginTransaction().remove(this).commit();
     }
 
     /**
@@ -333,72 +146,92 @@ public abstract class DkSimpleFragment extends Fragment implements DkFragment, D
         throw new RuntimeException("App must be subclass of #DkApp");
     }
 
-    /**
-     * Get shared ViewModel instance which be owned by this Fragment.
-     *
-     * @param register true if you want this View register the topic, otherwise just preview.
-     */
     @Override
-    public <M> M getOwnTopic(Class<M> modelType, boolean register) {
-        return getTopic(this, modelType.getName(), modelType, register);
+    public <M> M ownTopic(Class<M> modelClass) {
+        return ownTopic(modelClass, true);
+    }
+
+    @Override
+    public <M> M ownTopic(Class<M> modelType, boolean listen) {
+        return ownTopic(modelType.getName(), modelType, listen);
+    }
+
+    @Override
+    public <M> M ownTopic(String topicId, Class<M> modelType) {
+        return ownTopic(topicId, modelType, true);
     }
 
     /**
-     * Get shared ViewModel instance which be owned by this Fragment.
-     *
-     * @param register true if you want this View register the topic, otherwise just preview.
+     * Get or Create shared ViewModel instance which be owned by this Fragment.
      */
     @Override
-    public <M> M getOwnTopic(String topicId, Class<M> modelType, boolean register) {
-        return getTopic(this, topicId, modelType, register);
+    public <M> M ownTopic(String topicId, Class<M> modelType, boolean listen) {
+        return topic(this, topicId, modelType, listen);
+    }
+
+    @Override
+    public <M> M hostTopic(Class<M> modelType) {
+        return hostTopic(modelType.getName(), modelType, true);
+    }
+
+    @Override
+    public <M> M hostTopic(Class<M> modelType, boolean listen) {
+        return hostTopic(modelType.getName(), modelType, listen);
+    }
+
+    @Override
+    public <M> M hostTopic(String topicId, Class<M> modelType) {
+        return hostTopic(topicId, modelType, true);
     }
 
     /**
-     * Get shared ViewModel instance which be owned by associated Activity.
-     *
-     * @param register true if you want this View register the topic, otherwise just preview.
+     * Get or Create shared ViewModel instance which be owned by current Activity.
      */
     @Override
-    public <M> M getHostTopic(Class<M> modelType, boolean register) {
-        return getTopic(host, modelType.getName(), modelType, register);
+    public <M> M hostTopic(String topicId, Class<M> modelType, boolean listen) {
+        return topic(host, topicId, modelType, listen);
+    }
+
+    @Override
+    public <M> M appTopic(Class<M> modelClass) {
+        return appTopic(modelClass, true);
+    }
+
+    @Override
+    public <M> M appTopic(Class<M> modelType, boolean listen) {
+        return appTopic(modelType.getName(), modelType, listen);
+    }
+
+    @Override
+    public <M> M appTopic(String topicId, Class<M> modelType) {
+        return appTopic(modelType.getName(), modelType, true);
     }
 
     /**
-     * Get shared ViewModel instance which be owned by associated Activity.
-     *
-     * @param register true if you want this View register the topic, otherwise just preview.
+     * Get or Create shared ViewModel instance which be owned by the current app.
      */
     @Override
-    public <M> M getHostTopic(String topicId, Class<M> modelType, boolean register) {
-        return getTopic(host, topicId, modelType, register);
-    }
-
-    @Override
-    public <M> M getAppTopic(Class<M> modelType, boolean register) {
-        return getAppTopic(modelType.getName(), modelType, register);
-    }
-
-    @Override
-    public <M> M getAppTopic(String topicId, Class<M> modelType, boolean register) {
+    public <M> M appTopic(String topicId, Class<M> modelType, boolean listen) {
         Application app = host.getApplication();
 
         if (app instanceof DkApp) {
-            return getTopic(((DkApp) app), topicId, modelType, register);
+            return topic(((DkApp) app), topicId, modelType, listen);
         }
 
         throw new RuntimeException("The app must implement #DkApp");
     }
 
     /**
-     * Get shared ViewModel instance which be owned by a owner (Application, Activity or Fragment...).
-     * The instance will be removed when no client observes the topic.
-     * Note that, you must call this method when host is in active state.
+     * Get or Create (new if not exists) shared model instance which be owned by a owner (Application, Activity, Fragment, ...).
+     * The topic will be removed when no client observes the topic or the owner's ViewModel was destroyed.
+     * Note that, you must call this method when host of this is in active state.
      *
-     * @param register true if you want this View register the topic, otherwise just preview.
+     * @param listen true if you also wanna listen the topic, that is, the view will
+     *               become listener of the topic. Otherwise just getOrCreate.
      */
     @Override
-    public <M> M getTopic(ViewModelStoreOwner owner, String topicName, Class<M> modelType, boolean register) {
-        return new MyTopicProvider(owner, this).getTopic(topicName, modelType, register);
+    public <M> M topic(ViewModelStoreOwner owner, String topicName, Class<M> modelType, boolean listen) {
+        return new MyTopicProvider(owner, this).getOrCreateModelAtTopic(topicName, modelType, listen);
     }
 
     public void hideSoftKeyboard() {

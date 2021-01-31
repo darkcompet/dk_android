@@ -5,7 +5,7 @@
 package tool.compet.core.util;
 
 class MyStringTrimmer {
-    static String trimExtras(String msg, char[] delimiters) {
+    static String trimMore(String msg, char[] delimiters) {
         if (msg == null || msg.length() == 0) {
             return msg;
         }
@@ -23,14 +23,9 @@ class MyStringTrimmer {
                 boolean stopCheck = true;
 
                 // Check whether character insides targets
-                if (shouldCheckTargets) {
-                    for (int i = delimiters.length - 1; i >= 0; --i) {
-                        if (current == delimiters[i]) {
-                            stopCheck = false;
-                            ++startIndex;
-                            break;
-                        }
-                    }
+                if (shouldCheckTargets && DkArrays.inArray(current, delimiters)) {
+                    stopCheck = false;
+                    ++startIndex;
                 }
                 // Stop checking whitespace since found this character in targets
                 if (stopCheck) {
@@ -48,14 +43,9 @@ class MyStringTrimmer {
                 boolean stopCheck = true;
 
                 // Check whether the character insides targets
-                if (shouldCheckTargets) {
-                    for (int i = delimiters.length - 1; i >= 0; --i) {
-                        if (current == delimiters[i]) {
-                            stopCheck = false;
-                            --endIndex;
-                            break;
-                        }
-                    }
+                if (shouldCheckTargets && DkArrays.inArray(current, delimiters)) {
+                    stopCheck = false;
+                    --endIndex;
                 }
                 // Stop checking whitespace since found this character in targets
                 if (stopCheck) {
@@ -87,12 +77,9 @@ class MyStringTrimmer {
                 char current = msg.charAt(startIndex);
                 boolean stopCheck = true;
                 // check whether current insides targets
-                for (int i = targets.length - 1; i >= 0; --i) {
-                    if (current == targets[i]) {
-                        stopCheck = false;
-                        ++startIndex;
-                        break;
-                    }
+                if (DkArrays.inArray(current, targets)) {
+                    stopCheck = false;
+                    ++startIndex;
                 }
                 if (stopCheck) {
                     fromLeft = false;
@@ -103,14 +90,10 @@ class MyStringTrimmer {
                 char current = msg.charAt(endIndex);
                 boolean stopCheck = true;
                 // check whether current insides targets
-                for (int i = targets.length - 1; i >= 0; --i) {
-                    if (current == targets[i]) {
-                        stopCheck = false;
-                        --endIndex;
-                        break;
-                    }
+                if (DkArrays.inArray(current, targets)) {
+                    stopCheck = false;
+                    --endIndex;
                 }
-
                 if (stopCheck) {
                     fromRight = false;
                 }

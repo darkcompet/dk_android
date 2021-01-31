@@ -7,7 +7,7 @@ package tool.compet.appbundle.architecture;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class MyKeyState implements Parcelable {
+class MyKeyState implements Parcelable {
     String tag;
 
     public MyKeyState(String tag) {

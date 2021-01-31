@@ -203,7 +203,7 @@ public class DkMenuView<T extends DkMenuItemModel> extends ListView {
             boolean notNeedStatus = true;
 
             if (model.hasSettingPreference()) {
-                String value = DkPreferenceStorage.getInstalledIns().loadSetting(model.getSettingPrefKey(), String.class);
+                String value = DkPreferenceStorage.getIns().loadSetting(model.getSettingPrefKey(), String.class);
 
                 if (value != null && value.equals(model.getSettingPrefTagValue())) {
                     if (model.hasIconStatusRes()) {

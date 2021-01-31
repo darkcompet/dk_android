@@ -39,8 +39,8 @@ public class DkInternalStorage {
     }
 
     private String makeFilePath(String folderName, String fileName) throws IOException {
-        folderName = DkStrings.trimExtras(folderName, File.separatorChar);
-        fileName = DkStrings.trimExtras(fileName, File.separatorChar);
+        folderName = DkStrings.trimMore(folderName, File.separatorChar);
+        fileName = DkStrings.trimMore(fileName, File.separatorChar);
 
         if (DEBUG) {
             DkLogs.info(this, "Internal getFilesDir().getPath(): %s", appContext.getFilesDir().getPath());

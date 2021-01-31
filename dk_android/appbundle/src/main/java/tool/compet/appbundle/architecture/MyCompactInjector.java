@@ -32,10 +32,10 @@ class MyCompactInjector {
      * <p></p>
      * Note that, this method must be called after #super.onCreate() inside subclass of View.
      */
-    <VL extends DkCompactViewLogic> VL start() {
+    <VL extends DkCompactViewLogic> VL inject() {
         MyCompactCache cache = view.getOwnViewModel(MyCompactCache.class);
 
-        List<Field> viewLogics = DkReflectionFinder.getInstalledIns().findFields(viewClass, MyInjectViewLogic.class, true, false);
+        List<Field> viewLogics = DkReflectionFinder.getIns().findFields(viewClass, MyInjectViewLogic.class, true, false);
         if (DkCollections.isEmpty(viewLogics)) {
             return null;
         }
@@ -62,7 +62,7 @@ class MyCompactInjector {
     }
 
     private <VL extends DkCompactViewLogic> VL initAndSetViewLogic(@NonNull Class<VL> viewLogicClass, Object owner, Field viewLogicField) {
-        if (!DkCompactViewLogic.class.isAssignableFrom(viewLogicClass)) {
+        if (! DkCompactViewLogic.class.isAssignableFrom(viewLogicClass)) {
             throw new RuntimeException("Invalid type of ViewLogic: " + viewLogicClass.toString());
         }
 

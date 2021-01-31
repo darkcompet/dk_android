@@ -547,7 +547,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
                 calcAttributes();
                 return buildCompassInternal(buildCompassRings);
             })
-            .scheduleInBackgroundAndObserveOnMainThread()
+            .scheduleInBackgroundAndObserveOnAndroidMainThread()
             .doOnNext(bitmap -> {
                 compass = bitmap;
                 isFitCompassInsideBoard = true;
@@ -750,7 +750,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
         Bitmap compass = Bitmap.createBitmap(cmpDiameter, cmpDiameter, Bitmap.Config.ALPHA_8);
         Canvas canvas = new Canvas(compass);
 
-        DkLogs.debug(this, "compass size: " + DkBitmaps.getSize(compass));
+        DkLogs.info(this, "compass size: " + DkBitmaps.getSize(compass));
 
         // obtain compass radius and center coordinate
         final int cmpSemiWidth = compass.getWidth() >> 1, cmpSemiHeight = compass.getHeight() >> 1;

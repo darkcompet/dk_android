@@ -4,8 +4,6 @@
 
 package tool.compet.core.reflection;
 
-import android.content.Context;
-
 import androidx.annotation.NonNull;
 import androidx.collection.ArrayMap;
 
@@ -38,16 +36,6 @@ public class DkReflectionFinder {
         this.methodCache = new ArrayMap<>();
     }
 
-    /**
-     * Use this will install with {@code searchPackages = {"tool.compet", context.getPackageName()}}.
-     */
-    public static void installWithCompetTool(Context context) {
-        install("tool.compet", context.getPackageName());
-    }
-
-    /**
-     * Should only call in one thread.
-     */
     public static void install(String... searchPackages) {
         if (INS == null) {
             synchronized (DkReflectionFinder.class) {
@@ -58,7 +46,7 @@ public class DkReflectionFinder {
         }
     }
 
-    public static DkReflectionFinder getInstalledIns() {
+    public static DkReflectionFinder getIns() {
         if (INS == null) {
             throw new RuntimeException("Must call install() first");
         }
@@ -92,6 +80,15 @@ public class DkReflectionFinder {
         List<Method> methods = methodsMap.get(key);
 
         return methods != null ? methods : Collections.emptyList();
+    }
+
+    /**
+     * Find fields which be annotated with given #annotation inside a class.
+     * By default, it also look up super class fields, and does not cache result.
+     */
+    @NonNull
+    public List<Field> findFields(Class clazz, Class<? extends Annotation> annotation) {
+        return findFields(clazz, annotation, true, false);
     }
 
     /**

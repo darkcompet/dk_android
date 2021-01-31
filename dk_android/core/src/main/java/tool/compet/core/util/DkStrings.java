@@ -20,31 +20,48 @@ public class DkStrings {
         return cs == null || cs.length() == 0;
     }
 
-    public static void requireNotEmpty(String data, String message) {
-        if (isEmpty(data)) {
-            throw new RuntimeException(message);
-        }
-    }
-
     /**
      * @return 0 (if equals), -1 (if a < b), 1 (if a > b).
      */
     public static int compare(CharSequence a, CharSequence b) {
-        return MyStrings.compare(a, b);
+        if (a == null) {
+            return b == null ? 0 : -1;
+        }
+        if (b == null) {
+            return 1;
+        }
+
+        final int M = a.length();
+        final int N = b.length();
+        final int C = Math.min(M, N);
+        char ch1, ch2;
+
+        for (int i = 0; i < C; ++i) {
+            ch1 = a.charAt(i);
+            ch2 = b.charAt(i);
+
+            if (ch1 < ch2) {
+                return -1;
+            }
+            if (ch1 > ch2) {
+                return 1;
+            }
+        }
+        return Integer.compare(M, N);
     }
 
     /**
-     * Remove start-leading and end-leading WHITESPACE characters and characters in `delimiters` from `msg`.
+     * Remove from given `msg` start-leading and end-leading characters which is WHITESPACE character or character in given `delimiters`.
      */
-    public static String trimExtras(String msg, char... delimiters) {
-        return MyStringTrimmer.trimExtras(msg, delimiters);
+    public static String trimMore(String msg, char... delimiters) {
+        return MyStringTrimmer.trimMore(msg, delimiters);
     }
 
     /**
-     * Remove start-leading and end-leading characters inside ONLY `targets` from `msg`.
+     * Remove from given `msg` start-leading and end-leading characters which is character in given `delimiters`.
      */
-    public static String trimExact(String msg, char... targets) {
-        return MyStringTrimmer.trimExact(msg, targets);
+    public static String trimExact(String msg, char... delimiters) {
+        return MyStringTrimmer.trimExact(msg, delimiters);
     }
 
     public static boolean isEquals(CharSequence a, CharSequence b) {

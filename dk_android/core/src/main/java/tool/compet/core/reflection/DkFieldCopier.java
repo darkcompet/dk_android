@@ -36,7 +36,7 @@ public class DkFieldCopier {
     public static void copy(Object src, Object dst, boolean upSuper, Collection<String> excludeFieldNames) {
         excludeFieldNames = new ArraySet<>(excludeFieldNames);
 
-        DkReflectionFinder finder = DkReflectionFinder.getInstalledIns();
+        DkReflectionFinder finder = DkReflectionFinder.getIns();
         List<Field> srcFields = finder.findFields(src.getClass(), SerializedName.class, upSuper, false);
         List<Field> dstFields = finder.findFields(dst.getClass(), SerializedName.class, upSuper, false);
 

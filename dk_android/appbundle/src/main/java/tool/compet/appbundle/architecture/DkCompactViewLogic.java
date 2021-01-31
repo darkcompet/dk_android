@@ -17,8 +17,8 @@ import androidx.fragment.app.FragmentActivity;
 
 import java.util.ArrayList;
 
-import tool.compet.core.type.DkCallback;
 import tool.compet.core.log.DkLogs;
+import tool.compet.core.type.DkCallback;
 
 import static tool.compet.core.BuildConfig.DEBUG;
 
@@ -28,44 +28,38 @@ import static tool.compet.core.BuildConfig.DEBUG;
  * <p></p>
  * This ViewLogic object can overcome configuration change, so to communicate between Screens,
  * you should use #view.getHostTopic() to obtain scoped-topic for a group of screens you wanna share.
+ * Note that, state of view maybe changed multiple times since lifecycle or configuration maybe
+ * often occured.
  */
 public abstract class DkCompactViewLogic<V extends DkCompactView> {
+    // Lifecycle state of the view
+    protected int lifeCycleState = STATE_INVALID;
+    // Lifecycle state value of `lifeCycleState`
+    protected static final int STATE_INVALID = 0;
     protected static final int STATE_CREATE = 1;
     protected static final int STATE_START = 2;
-    protected static final int STATE_RESUME = 3;
-    protected static final int STATE_PAUSE = 4;
-    protected static final int STATE_STOP = 5;
-    protected static final int STATE_DESTROY = 6;
+    protected static final int STATE_VIEW_CREATED = 3;
+    protected static final int STATE_ACTIVITY_CREATED = 4;
+    protected static final int STATE_ACTIVE = 5;
+    protected static final int STATE_RESUME = 6;
+    protected static final int STATE_PAUSE = 7;
+    protected static final int STATE_INACTIVE = 8;
+    protected static final int STATE_STOP = 9;
+    protected static final int STATE_DESTROY = 10;
 
     // Reference to the View, this field  will be attached and detached respectively at #onCreate(), #onDestroy().
     // Only use this field directly if you know the view is still available, otherwise lets use `sendToView()` instead.
-    @Nullable protected V view;
+    // @Nullable
+    protected V view;
 
     protected boolean isActivityOwner;
     protected boolean isFragmentOwner;
-    protected int lifeCycleState;
 
     // This object overcomes configuration change, useful for viewLogics.
     // Actions which sent to View when View was absent
     // We need optimize this field since 2 consequence commands maybe update
     // same part of View.
-    private ArrayList<DkCallback<V>> _pendingCommands;
-
-    // Indicates whether View has ever notified lifecycle-events to ViewLogic
-    // It is useful for checking whether events (#onCreate(), #onDestroy()...) of View
-    // is first time called or not, since lifecycle or configuration change maybe occured multiple times.
-    protected boolean isCalledOnCreate;
-    protected boolean isCalledOnActivityCreated;
-    protected boolean isCalledOnViewCreated;
-    protected boolean isCalledOnStart;
-    protected boolean isCalledOnActive;
-    protected boolean isCalledOnInactive;
-    protected boolean isCalledOnStop;
-    protected boolean isCalledOnDestroy;
-    protected boolean isCalledOnActivityResult;
-    protected boolean isCalledOnLowMemory;
-    protected boolean isCalledOnSaveInstanceState;
-    protected boolean isCalledOnRequestPermissionsResult;
+    private ArrayList<DkCallback<V>> pendingCommands;
 
     // Below fields are for ViewLogic of Activity
     protected boolean isCalledOnRestart;
@@ -95,13 +89,12 @@ public abstract class DkCompactViewLogic<V extends DkCompactView> {
             command.call(view);
         }
         else {
-            _addPendingCommand(command);
+            addPendingCommand(command);
         }
     }
 
     @CallSuper
     protected void onCreate(FragmentActivity host, @Nullable Bundle savedInstanceState) {
-        isCalledOnCreate = true;
         lifeCycleState = STATE_CREATE;
     }
 
@@ -117,50 +110,42 @@ public abstract class DkCompactViewLogic<V extends DkCompactView> {
 
     @CallSuper
     protected void onStart(FragmentActivity host) {
-        isCalledOnStart = true;
         lifeCycleState = STATE_START;
     }
 
     @CallSuper
     protected void onViewCreated(FragmentActivity host, @Nullable Bundle savedInstanceState) {
-        isCalledOnViewCreated = true;
+        lifeCycleState = STATE_VIEW_CREATED;
     }
 
     @CallSuper
     protected void onActivityCreated(FragmentActivity host, @Nullable Bundle savedInstanceState) {
-        isCalledOnActivityCreated = true;
+        lifeCycleState = STATE_ACTIVITY_CREATED;
     }
 
     @CallSuper
     protected void onActive(FragmentActivity host, boolean isResume) {
-        if (isResume) {
-            lifeCycleState = STATE_RESUME;
-        }
-        isCalledOnActive = true;
+        lifeCycleState = isResume ? STATE_RESUME : STATE_ACTIVE;
 
-        if (isResume && view != null && _pendingCommands != null) {
-            for (DkCallback<V> action : _pendingCommands) {
+        if (isResume && view != null && pendingCommands != null) {
+            for (DkCallback<V> action : pendingCommands) {
                 action.call(view);
             }
             if (DEBUG) {
-                DkLogs.info(this, "Executed %d pending actions", _pendingCommands.size());
+                DkLogs.info(this, "Executed %d pending actions", pendingCommands.size());
             }
-            _pendingCommands = null;
+            pendingCommands = null;
         }
     }
 
     @CallSuper
     protected void onInactive(FragmentActivity host, boolean isPause) {
-        if (isPause) {
-            lifeCycleState = STATE_PAUSE;
-        }
-        isCalledOnInactive = true;
+        lifeCycleState = isPause ? STATE_PAUSE : STATE_INACTIVE;
     }
 
     @CallSuper
     protected void onStop(FragmentActivity host) {
         lifeCycleState = STATE_STOP;
-        isCalledOnStop = true;
     }
 
     @CallSuper
@@ -176,15 +161,12 @@ public abstract class DkCompactViewLogic<V extends DkCompactView> {
     @CallSuper
     protected void onDestroy(FragmentActivity host) {
         lifeCycleState = STATE_DESTROY;
-        isCalledOnDestroy = true;
-
-        _pendingCommands = null;
+        pendingCommands = null;
         detachView();
     }
 
     @CallSuper
     protected void onLowMemory(FragmentActivity host) {
-        isCalledOnLowMemory = true;
     }
 
     @CallSuper
@@ -199,7 +181,6 @@ public abstract class DkCompactViewLogic<V extends DkCompactView> {
 
     @CallSuper
     protected void onSaveInstanceState(FragmentActivity host, @NonNull Bundle outState) {
-        isCalledOnSaveInstanceState = true;
     }
 
     @CallSuper
@@ -214,18 +195,16 @@ public abstract class DkCompactViewLogic<V extends DkCompactView> {
 
     @CallSuper
     protected void onActivityResult(FragmentActivity host, int requestCode, int resultCode, Intent data) {
-        isCalledOnActivityResult = true;
     }
 
     @CallSuper
     protected void onRequestPermissionsResult(FragmentActivity host, int rc, @NonNull String[] perms, @NonNull int[] res) {
-        isCalledOnRequestPermissionsResult = true;
     }
 
-    private void _addPendingCommand(DkCallback<V> command) {
-        if (_pendingCommands == null) {
-            _pendingCommands = new ArrayList<>();
+    private void addPendingCommand(DkCallback<V> command) {
+        if (pendingCommands == null) {
+            pendingCommands = new ArrayList<>();
         }
-        _pendingCommands.add(command);
+        pendingCommands.add(command);
     }
 }

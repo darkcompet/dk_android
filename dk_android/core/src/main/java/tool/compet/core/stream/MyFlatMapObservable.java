@@ -37,7 +37,7 @@ class MyFlatMapObservable<T, R> extends MyDownstreamObservable<T, R> {
                 }
 
                 // Run on same thread with upper node
-                nextObservable.subscribe(new DkBenchMarkObserver<>(child));
+                nextObservable.subscribe(new MyBenchMarkObserver<>(child));
             }
             catch (Exception e) {
                 child.onError(e);

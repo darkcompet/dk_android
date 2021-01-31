@@ -10,10 +10,9 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import tool.compet.appbundle.eventbus.DkEventBus;
-
 /**
- * View component of MVL design pattern.
+ * This extends `DkSimpleFragment`, and provides:
+ * - ViewLogic (like Controller for View)
  */
 public abstract class DkCompactFragment<VL extends DkCompactViewLogic> extends DkSimpleFragment implements DkCompactView {
     // To instantiate ViewLogic, subclass should provide generic type of ViewLogic when extends the class
@@ -25,7 +24,7 @@ public abstract class DkCompactFragment<VL extends DkCompactViewLogic> extends D
         super.onCreate(savedInstanceState);
 
         // Must run after #super.onCreate()
-        viewLogic = new MyCompactInjector(this).start();
+        viewLogic = new MyCompactInjector(this).inject();
         if (viewLogic != null) {
             viewLogic.onCreate(host, savedInstanceState);
         }
@@ -52,7 +51,6 @@ public abstract class DkCompactFragment<VL extends DkCompactViewLogic> extends D
         super.onStart();
         if (viewLogic != null) {
             viewLogic.onStart(host);
-            DkEventBus.getIns().register(viewLogic);
         }
     }
 
@@ -76,7 +74,6 @@ public abstract class DkCompactFragment<VL extends DkCompactViewLogic> extends D
     public void onStop() {
         if (viewLogic != null) {
             viewLogic.onStop(host);
-            DkEventBus.getIns().unregister(viewLogic);
         }
         super.onStop();
     }

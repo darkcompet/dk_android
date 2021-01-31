@@ -92,10 +92,10 @@ public class DkFiles {
      * so we will delete recursively folders on the path of this file.
      */
     public static boolean delete(File file) {
-        if (file == null || !file.exists()) {
+        if (file == null || ! file.exists()) {
             return true;
         }
-        if (!file.isDirectory()) {
+        if (! file.isDirectory()) {
             return file.delete();
         }
 

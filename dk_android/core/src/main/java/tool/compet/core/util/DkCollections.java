@@ -6,6 +6,7 @@ package tool.compet.core.util;
 
 import androidx.annotation.NonNull;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -13,8 +14,9 @@ import java.util.List;
  * This class, provides common basic operations on a collection.
  */
 public class DkCollections {
-    public static boolean isEmpty(List<?> list) {
-        return list == null || list.size() == 0;
+    // List, Set is subclass of Collection
+    public static boolean isEmpty(Collection<?> collection) {
+        return collection == null || collection.size() == 0;
     }
 
     public static <T> boolean contains(T target, Iterable<T> iterable) {

@@ -7,30 +7,32 @@ package tool.compet.core.stream;
 import tool.compet.core.helper.DkExecutorService;
 
 public class DkSchedulers {
-    private static DkScheduler IO;
-    private static DkScheduler MAIN;
+    private static DkScheduler IO_SCHEDULER;
+    private static DkScheduler ANDROID_MAIN_SCHEDULER;
 
+    // Background thread scheduler
     @SuppressWarnings("unchecked")
     public static <T> DkScheduler<T> io() {
-        if (IO == null) {
+        if (IO_SCHEDULER == null) {
             synchronized (DkSchedulers.class) {
-                if (IO == null) {
-                    IO = new DkIoScheduler<>(DkExecutorService.getIns());
+                if (IO_SCHEDULER == null) {
+                    IO_SCHEDULER = new MyIoScheduler<>(DkExecutorService.getIns());
                 }
             }
         }
-        return (DkScheduler<T>) IO;
+        return (DkScheduler<T>) IO_SCHEDULER;
     }
 
+    // Android main thread scheduler
     @SuppressWarnings("unchecked")
-    public static <T> DkScheduler<T> main() {
-        if (MAIN == null) {
+    public static <T> DkScheduler<T> androidMain() {
+        if (ANDROID_MAIN_SCHEDULER == null) {
             synchronized (DkSchedulers.class) {
-                if (MAIN == null) {
-                    MAIN = new DkAndroidMainScheduler<>();
+                if (ANDROID_MAIN_SCHEDULER == null) {
+                    ANDROID_MAIN_SCHEDULER = new MyAndroidMainScheduler<>();
                 }
             }
         }
-        return (DkScheduler<T>) MAIN;
+        return (DkScheduler<T>) ANDROID_MAIN_SCHEDULER;
     }
 }

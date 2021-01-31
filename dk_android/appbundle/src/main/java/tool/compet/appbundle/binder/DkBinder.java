@@ -22,7 +22,7 @@ public class DkBinder {
      * Init view-field for the target. Only DkBindView annotation is supported.
      */
     public static void bindViews(Object target, View rootView) {
-        List<Field> fields = DkReflectionFinder.getInstalledIns()
+        List<Field> fields = DkReflectionFinder.getIns()
             .findFields(target.getClass(), DkBindView.class, true, false);
 
         for (Field field : fields) {
@@ -46,7 +46,7 @@ public class DkBinder {
      * Binds views-click into methods of target. Only DkBindClick annotation is supported.
      */
     public static void bindClicks(Object target, View rootView) {
-        List<Method> methods = DkReflectionFinder.getInstalledIns()
+        List<Method> methods = DkReflectionFinder.getIns()
             .findMethods(target.getClass(), DkBindClick.class, true, false);
 
         for (Method method : methods) {

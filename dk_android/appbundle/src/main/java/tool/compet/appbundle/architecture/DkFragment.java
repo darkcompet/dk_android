@@ -16,6 +16,17 @@ public interface DkFragment {
     Fragment getFragment();
 
     /**
+     * Specify id of layout resource for this fragment.
+     */
+    int layoutResourceId();
+
+    /**
+     * Specify id of container inside the layout of this fragment. This id can be used in
+     * fragment transaction for other screens.
+     */
+    int fragmentContainerId();
+
+    /**
      * Each fragment should response #onBackPressed() from host activity.
      *
      * @return true if this fragment will handle this event, otherwise false.
@@ -31,17 +42,6 @@ public interface DkFragment {
      * Specify whether this fragment should be retained instance during configuration changed.
      */
     boolean isRetainInstance();
-
-    /**
-     * Specify id of layout resource for this fragment.
-     */
-    int layoutResourceId();
-
-    /**
-     * Specify id of container inside the layout of this fragment. This id can be used in
-     * fragment transaction for other screens.
-     */
-    int fragmentContainerId();
 
     /**
      * Be called from other fragments or itself.

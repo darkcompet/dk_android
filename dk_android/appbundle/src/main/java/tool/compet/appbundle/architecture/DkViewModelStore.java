@@ -23,17 +23,29 @@ public interface DkViewModelStore {
 
     <M extends ViewModel> M getAppViewModel(String key, Class<M> modelType);
 
-    <M> M getOwnTopic(Class<M> modelClass, boolean register);
+    <M> M ownTopic(Class<M> modelClass);
+    
+    <M> M ownTopic(Class<M> modelClass, boolean listen);
 
-    <M> M getOwnTopic(String topicId, Class<M> modelClass, boolean register);
+    <M> M ownTopic(String topicId, Class<M> modelClass);
 
-    <M> M getHostTopic(Class<M> modelClass, boolean register);
+    <M> M ownTopic(String topicId, Class<M> modelClass, boolean listen);
 
-    <M> M getHostTopic(String topicId, Class<M> modelClass, boolean register);
+    <M> M hostTopic(Class<M> modelClass);
+    
+    <M> M hostTopic(Class<M> modelClass, boolean listen);
 
-    <M> M getAppTopic(Class<M> modelClass, boolean register);
+    <M> M hostTopic(String topicId, Class<M> modelType);
 
-    <M> M getAppTopic(String topicId, Class<M> modelClass, boolean register);
+    <M> M hostTopic(String topicId, Class<M> modelClass, boolean listen);
 
-    <M> M getTopic(ViewModelStoreOwner owner, String topicName, Class<M> modelClass, boolean register);
+    <M> M appTopic(Class<M> modelClass);
+    
+    <M> M appTopic(Class<M> modelClass, boolean listen);
+
+    <M> M appTopic(String topicId, Class<M> modelClass);
+
+    <M> M appTopic(String topicId, Class<M> modelClass, boolean listen);
+
+    <M> M topic(ViewModelStoreOwner owner, String topicName, Class<M> modelClass, boolean listen);
 }
