@@ -2,13 +2,15 @@
  * Copyright (c) 2017-2021 DarkCompet. All rights reserved.
  */
 
-package tool.compet.appbundle.architecture;
+package tool.compet.appbundle.architecture.compact;
 
 import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import tool.compet.appbundle.architecture.simple.DkSimpleFragment;
 
 /**
  * This extends `DkSimpleFragment`, and provides:

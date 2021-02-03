@@ -2,20 +2,20 @@
  * Copyright (c) 2017-2021 DarkCompet. All rights reserved.
  */
 
-package tool.compet.appbundle.architecture;
+package tool.compet.appbundle.architecture.topic;
 
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStoreOwner;
 
 import tool.compet.core.log.DkLogs;
 
-class MyTopicProvider {
+public class DkTopicProvider {
     // Like app/activity
     private final ViewModelStoreOwner hostOwner;
     // Like activity/fragment
     private final ViewModelStoreOwner clientOwner;
 
-    MyTopicProvider(ViewModelStoreOwner hostOwner, ViewModelStoreOwner clientOwner) {
+    public DkTopicProvider(ViewModelStoreOwner hostOwner, ViewModelStoreOwner clientOwner) {
         if (hostOwner == null || clientOwner == null) {
             throw new RuntimeException("Host and Client must be present");
         }
@@ -23,7 +23,7 @@ class MyTopicProvider {
         this.clientOwner = clientOwner;
     }
 
-    <M> M getOrCreateModelAtTopic(String topicId, Class<M> modelType, boolean listen) {
+    public <M> M getOrCreateModelAtTopic(String topicId, Class<M> modelType, boolean listen) {
         try {
             // Normally, host is long-live than client
             TheHost host = new ViewModelProvider(hostOwner).get(TheHost.class);

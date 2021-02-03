@@ -24,6 +24,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 
+import tool.compet.appbundle.architecture.simple.DkSimpleActivity;
 import tool.compet.core.BuildConfig;
 import tool.compet.core.type.DkBiCallback;
 import tool.compet.core.type.DkCallback;

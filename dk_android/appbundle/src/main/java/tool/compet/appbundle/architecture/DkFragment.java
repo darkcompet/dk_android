@@ -6,6 +6,8 @@ package tool.compet.appbundle.architecture;
 
 import androidx.fragment.app.Fragment;
 
+import tool.compet.appbundle.architecture.navigator.DkFragmentNavigator;
+
 /**
  * Fragment interface for Dk library. Implements this to work with Dk library.
  */

@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import tool.compet.appbundle.R;
 import tool.compet.core.config.DkConfig;
+import tool.compet.core.log.DkLogs;
 import tool.compet.core.view.DkViews;
 
 /**
@@ -41,7 +42,7 @@ public class DkToastbar extends DkFloatingbar {
         parent = DkViews.findSuperFrameLayout(parent);
 
         if (parent == null) {
-            throw new RuntimeException("No suitable parent found");
+            throw new RuntimeException("No suitable parent was found");
         }
         // prepare required params for the constructor
         Context context = parent.getContext();

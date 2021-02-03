@@ -1,11 +1,10 @@
 /*
- * Copyright (c) 2017-2020 DarkCompet. All rights reserved.
+ * Copyright (c) 2017-2021 DarkCompet. All rights reserved.
  */
 
-package tool.compet.appbundle.architecture;
+package tool.compet.appbundle.architecture.simple;
 
 import android.app.Application;
-import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -13,6 +12,10 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStoreOwner;
 
+import tool.compet.appbundle.architecture.DkBaseActivity;
+import tool.compet.appbundle.architecture.DkViewModelStore;
+import tool.compet.appbundle.architecture.navigator.DkFragmentNavigator;
+import tool.compet.appbundle.architecture.topic.DkTopicProvider;
 import tool.compet.appbundle.floatingbar.DkSnackbar;
 import tool.compet.appbundle.floatingbar.DkToastbar;
 import tool.compet.core.BuildConfig;
@@ -41,7 +44,7 @@ public abstract class DkSimpleActivity extends DkBaseActivity implements DkViewM
             int containerId = fragmentContainerId();
 
             if (containerId <= 0) {
-                DkLogs.complain(this, "Invalid fragmentContainerId: " + containerId);
+                DkLogs.complain(this, "Must provide fragmentContainerId (%s)", containerId);
             }
 
             navigator = new DkFragmentNavigator(containerId, getSupportFragmentManager(), this);
@@ -196,11 +199,11 @@ public abstract class DkSimpleActivity extends DkBaseActivity implements DkViewM
     public <M> M appTopic(String topicId, Class<M> modelType, boolean listen) {
         Application app = getApplication();
 
-        if (app instanceof DkSimpleApp) {
-            return topic(((DkSimpleApp) app), topicId, modelType, listen);
+        if (app instanceof ViewModelStoreOwner) {
+            return topic(((ViewModelStoreOwner) app), topicId, modelType, listen);
         }
 
-        throw new RuntimeException("Not support");
+        throw new RuntimeException("App must be subclass of ViewModelStoreOwner");
     }
 
     /**
@@ -213,7 +216,7 @@ public abstract class DkSimpleActivity extends DkBaseActivity implements DkViewM
      */
     @Override
     public <M> M topic(ViewModelStoreOwner owner, String topicId, Class<M> modelType, boolean listen) {
-        return new MyTopicProvider(owner, this).getOrCreateModelAtTopic(topicId, modelType, listen);
+        return new DkTopicProvider(owner, this).getOrCreateModelAtTopic(topicId, modelType, listen);
     }
 
     public void snack(int msgRes, int type) {

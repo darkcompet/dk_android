@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2017-2020 DarkCompet. All rights reserved.
+ * Copyright (c) 2017-2021 DarkCompet. All rights reserved.
  */
 
-package tool.compet.appbundle.architecture;
+package tool.compet.appbundle.architecture.simple;
 
 import android.app.Application;
 import android.os.Bundle;
@@ -14,6 +14,11 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStoreOwner;
 
+import tool.compet.appbundle.architecture.DkBaseFragment;
+import tool.compet.appbundle.architecture.DkFragment;
+import tool.compet.appbundle.architecture.DkViewModelStore;
+import tool.compet.appbundle.architecture.navigator.DkFragmentNavigator;
+import tool.compet.appbundle.architecture.topic.DkTopicProvider;
 import tool.compet.appbundle.floatingbar.DkSnackbar;
 import tool.compet.appbundle.floatingbar.DkToastbar;
 import tool.compet.core.log.DkLogs;
@@ -36,10 +41,12 @@ public abstract class DkSimpleFragment extends DkBaseFragment implements DkViewM
     public DkFragmentNavigator getChildNavigator() {
         if (navigator == null) {
             int containerId = fragmentContainerId();
+
             if (containerId <= 0) {
-                DkLogs.complain(this, "Invalid fragmentContainerId: " + containerId);
+                DkLogs.complain(this, "Must provide fragmentContainerId (%d)", containerId);
             }
-            this.navigator = new DkFragmentNavigator(containerId, getChildFragmentManager(), this);
+
+            navigator = new DkFragmentNavigator(containerId, getChildFragmentManager(), this);
         }
         return navigator;
     }
@@ -82,16 +89,20 @@ public abstract class DkSimpleFragment extends DkBaseFragment implements DkViewM
     }
 
     /**
-     * This will try to send back-event to children first. If has no child here,
-     * then #dismiss() will be called in parent navigator.
+     * Called when user pressed to physical back button, this is normally passed from current activity.
+     * When this got an back-event, this send signal to children first, if no child was found,
+     *
+     * @return true to tell parent it handles event itself (so parent don't do anything). Otherwise parent will
+     * call `dismiss()` to finish this view.
      */
     @Override
     public boolean onBackPressed() {
-        return (navigator != null && navigator.childCount() != 0) && navigator.onBackPressed();
+        return navigator != null && navigator.onBackPressed();
     }
 
     /**
-     * This will actual dismiss the view even though children exists.
+     * Called from parent when `onBackPressed()` return false (this does not handle back-event).
+     * THat is, if `onBackPressed()` return true, then this method will not be called from parent.
      */
     @Override
     public void dismiss() {
@@ -139,11 +150,11 @@ public abstract class DkSimpleFragment extends DkBaseFragment implements DkViewM
     public <M extends ViewModel> M getAppViewModel(String key, Class<M> modelType) {
         Application app = host.getApplication();
 
-        if (app instanceof DkApp) {
-            return new ViewModelProvider((DkApp) app).get(key, modelType);
+        if (app instanceof ViewModelStoreOwner) {
+            return new ViewModelProvider((ViewModelStoreOwner) app).get(key, modelType);
         }
 
-        throw new RuntimeException("App must be subclass of #DkApp");
+        throw new RuntimeException("App must be subclass of ViewModelStoreOwner");
     }
 
     @Override
@@ -214,11 +225,11 @@ public abstract class DkSimpleFragment extends DkBaseFragment implements DkViewM
     public <M> M appTopic(String topicId, Class<M> modelType, boolean listen) {
         Application app = host.getApplication();
 
-        if (app instanceof DkApp) {
-            return topic(((DkApp) app), topicId, modelType, listen);
+        if (app instanceof ViewModelStoreOwner) {
+            return topic(((ViewModelStoreOwner) app), topicId, modelType, listen);
         }
 
-        throw new RuntimeException("The app must implement #DkApp");
+        throw new RuntimeException("The app must be subclass of ViewModelStoreOwner");
     }
 
     /**
@@ -231,7 +242,7 @@ public abstract class DkSimpleFragment extends DkBaseFragment implements DkViewM
      */
     @Override
     public <M> M topic(ViewModelStoreOwner owner, String topicName, Class<M> modelType, boolean listen) {
-        return new MyTopicProvider(owner, this).getOrCreateModelAtTopic(topicName, modelType, listen);
+        return new DkTopicProvider(owner, this).getOrCreateModelAtTopic(topicName, modelType, listen);
     }
 
     public void hideSoftKeyboard() {

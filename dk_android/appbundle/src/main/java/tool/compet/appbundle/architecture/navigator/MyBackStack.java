@@ -2,7 +2,7 @@
  * Copyright (c) 2017-2021 DarkCompet. All rights reserved.
  */
 
-package tool.compet.appbundle.architecture;
+package tool.compet.appbundle.architecture.navigator;
 
 import android.os.Parcelable;
 
@@ -23,7 +23,7 @@ class MyBackStack {
     private OnStackChangeListener listener;
 
     public MyBackStack(OnStackChangeListener listener) {
-        keys = new ArrayList<>();
+        this.keys = new ArrayList<>();
         this.listener = listener;
     }
 
@@ -114,7 +114,7 @@ class MyBackStack {
 
         keys.clear();
 
-        notifySizeChange(oldSize);
+        notifySizeChanged(oldSize);
     }
 
     public boolean contains(String tag) {
@@ -126,7 +126,7 @@ class MyBackStack {
 
         keys.add(key);
 
-        notifySizeChange(oldSize);
+        notifySizeChanged(oldSize);
     }
 
     public void remove(int index) {
@@ -135,7 +135,7 @@ class MyBackStack {
 
             keys.remove(index);
 
-            notifySizeChange(oldSize);
+            notifySizeChanged(oldSize);
         }
     }
 
@@ -143,7 +143,7 @@ class MyBackStack {
         final int oldSize = keys.size();
 
         if (keys.remove(key)) {
-            notifySizeChange(oldSize);
+            notifySizeChanged(oldSize);
         }
     }
 
@@ -155,7 +155,7 @@ class MyBackStack {
 
             MyKeyState keyState = keys.remove(index);
 
-            notifySizeChange(oldSize);
+            notifySizeChanged(oldSize);
 
             return keyState;
         }
@@ -172,7 +172,7 @@ class MyBackStack {
         }
     }
 
-    private void notifySizeChange(int oldSize) {
+    private void notifySizeChanged(int oldSize) {
         if (listener != null) {
             listener.onStackSizeChanged(oldSize, keys.size());
         }

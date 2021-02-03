@@ -84,6 +84,8 @@ public abstract class DkBaseFragment extends Fragment implements DkFragment {
         layout = (ViewGroup) inflater.inflate(layoutResourceId(), container, false);
         DkBinder.bindViews(this, layout);
 
+        DkLogs.debug(this, "create home view, layout: " + layout);
+
         return layout;
     }
 
@@ -169,6 +171,7 @@ public abstract class DkBaseFragment extends Fragment implements DkFragment {
 
         this.host = null;
         this.context = null;
+        this.layout = null;
 
         super.onDetach();
     }

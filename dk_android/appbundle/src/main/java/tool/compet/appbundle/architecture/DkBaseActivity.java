@@ -178,6 +178,9 @@ public abstract class DkBaseActivity extends AppCompatActivity implements DkActi
 
     @Override
     public void dismiss() {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "Finish activity %s", getClass().getName());
+        }
         finish();
     }
 }

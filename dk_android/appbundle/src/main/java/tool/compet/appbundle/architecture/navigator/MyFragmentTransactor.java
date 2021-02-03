@@ -2,12 +2,15 @@
  * Copyright (c) 2017-2021 DarkCompet. All rights reserved.
  */
 
-package tool.compet.appbundle.architecture;
+package tool.compet.appbundle.architecture.navigator;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+
+import tool.compet.appbundle.architecture.DkFragment;
+import tool.compet.core.log.DkLogs;
 
 public class MyFragmentTransactor {
     private final int containerId;
@@ -34,10 +37,10 @@ public class MyFragmentTransactor {
     }
 
     /**
-     * @param add      animation or animator resId for added action.
-     * @param remove   animation or animator resId for removed action.
+     * @param add animation or animator resId for added action.
+     * @param remove animation or animator resId for removed action.
      * @param reattach animation or animator resId for reattached action.
-     * @param detach   animation or animator resId for detached action.
+     * @param detach animation or animator resId for detached action.
      */
     public MyFragmentTransactor setAnims(int add, int remove, int reattach, int detach) {
         addAnim = add;
@@ -139,15 +142,13 @@ public class MyFragmentTransactor {
     public MyFragmentTransactor back() {
         int lastIndex = stack.size() - 1;
 
-        return lastIndex < 0 ? this :
-            performRemoveRange(lastIndex, lastIndex, true);
+        return lastIndex < 0 ? this : performRemoveRange(lastIndex, lastIndex, true);
     }
 
     public MyFragmentTransactor back(int times) {
         int lastIndex = stack.size() - 1;
 
-        return lastIndex < 0 ? this :
-            performRemoveRange(lastIndex - times + 1, lastIndex, true);
+        return lastIndex < 0 ? this : performRemoveRange(lastIndex - times + 1, lastIndex, true);
     }
 
     public MyFragmentTransactor remove(Class<? extends DkFragment> fClass) {
@@ -161,8 +162,7 @@ public class MyFragmentTransactor {
     public MyFragmentTransactor remove(String tag) {
         int index = stack.indexOf(tag);
 
-        return index < 0 ? this :
-            performRemoveRange(index, index, true);
+        return index < 0 ? this : performRemoveRange(index, index, true);
     }
 
     public MyFragmentTransactor removeRange(String fromTag, String toTag) {
@@ -180,8 +180,7 @@ public class MyFragmentTransactor {
     public MyFragmentTransactor removeAllAfter(String tag) {
         int index = stack.indexOf(tag);
 
-        return index < 0 ? this :
-            performRemoveRange(index + 1, stack.size() - 1, true);
+        return index < 0 ? this : performRemoveRange(index + 1, stack.size() - 1, true);
     }
 
     /**
@@ -197,7 +196,8 @@ public class MyFragmentTransactor {
 
         int index = stack.indexOf(tag);
 
-        return index < 0 ? performAdd(f, true) :
+        return index < 0 ?
+            performAdd(f, true) :
             performDetach(f).performReattach(f, index < stack.size() - 1);
     }
 
@@ -243,6 +243,7 @@ public class MyFragmentTransactor {
             Fragment f = findFragmentByTag(key.tag);
 
             if (f != null) {
+                DkLogs.debug(this, "remove fragment: " + f);
                 did = true;
                 stack.remove(key.tag);
                 ft.setCustomAnimations(removeAnim, 0);
@@ -256,6 +257,7 @@ public class MyFragmentTransactor {
 
             if (head != null) {
                 if (head.isDetached()) {
+                    DkLogs.debug(this, "re-attach fragment: " + head);
                     performReattach(head, false);
                 }
                 else if (notifyTopActive) {
@@ -293,7 +295,7 @@ public class MyFragmentTransactor {
 
     private Fragment instantiate(Class<? extends DkFragment> clazz) {
         try {
-            // we don't need security check here so don't use clazz.newInstance()
+            // we don't need check security here -> so not need use clazz.newInstance()
             return clazz.getConstructor().newInstance().getFragment();
         }
         catch (Exception e) {

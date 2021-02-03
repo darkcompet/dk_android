@@ -21,6 +21,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import tool.compet.appbundle.architecture.compact.DkCompactFragment;
+
 public class DkDialogFragment extends DkCompactFragment implements DialogInterface.OnCancelListener,
     DialogInterface.OnDismissListener {
 

@@ -10,6 +10,12 @@ import android.content.Intent;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
+
+import java.util.concurrent.ExecutionException;
+
+import tool.compet.core.stream.DkObservable;
 
 /**
  * Provide sign in with Google service. That is, user can use Gmail to login, logout...
@@ -31,7 +37,19 @@ public class DkGoogleLogInManager {
 	}
 
 	public void logOut() {
-		googleSignInClient.revokeAccess().getResult();
-		googleSignInClient.signOut().getResult();
+		DkObservable
+			.fromExecution(() -> {
+				Task<Void> revokeTask = googleSignInClient.revokeAccess();
+				Task<Void> signoutTask = googleSignInClient.signOut();
+
+				Tasks.await(revokeTask);
+				Tasks.await(signoutTask);
+
+				revokeTask.getResult();
+				signoutTask.getResult();
+				return true;
+			})
+			.scheduleInBackground()
+			.subscribe();
 	}
 }

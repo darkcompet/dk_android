@@ -21,6 +21,8 @@ import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
+import tool.compet.appbundle.architecture.navigator.DkFragmentNavigator;
+import tool.compet.appbundle.architecture.simple.DkSimpleActivity;
 import tool.compet.core.log.DkLogs;
 import tool.compet.core.util.DkUtils;
 
@@ -260,11 +262,9 @@ public abstract class DkPreferenceFragment extends PreferenceFragmentCompat
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         Preference pref = getPreferenceManager().findPreference(key);
-
         if (pref instanceof ListPreference) {
             pref.setSummary(((ListPreference) pref).getEntry());
         }
-
         onPreferenceChanged(key);
     }
 
@@ -274,12 +274,17 @@ public abstract class DkPreferenceFragment extends PreferenceFragmentCompat
     }
 
     /**
-     * @return true if this fragment handles this event itself, otherwise parent navigator should
-     * handle it. Note that, if you wanna handle this event, override and customize this method.
+     * Called when user pressed to physical back button, this is normally passed from current activity.
+     *
+     * When this got an back-event, this send signal to children first, if no child was found,
+     *
+     *
+     * @return true to tell parent it handles event itself (so parent don't do anything). Otherwise parent will
+     * run `dismiss()` to forcely pop-back this.
      */
     @Override
     public boolean onBackPressed() {
-        return (navigator != null && navigator.childCount() == 0) && navigator.onBackPressed();
+        return navigator != null && navigator.onBackPressed();
     }
 
     @Override

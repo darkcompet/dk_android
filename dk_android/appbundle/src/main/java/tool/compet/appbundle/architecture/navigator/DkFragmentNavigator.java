@@ -2,13 +2,14 @@
  * Copyright (c) 2017-2021 DarkCompet. All rights reserved.
  */
 
-package tool.compet.appbundle.architecture;
+package tool.compet.appbundle.architecture.navigator;
 
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import tool.compet.appbundle.architecture.DkFragment;
 import tool.compet.core.log.DkLogs;
 
 /**
@@ -16,13 +17,13 @@ import tool.compet.core.log.DkLogs;
  * we can re-arrange fragments in stack.
  */
 public class DkFragmentNavigator implements MyBackStack.OnStackChangeListener {
-    private static final String KEY_BACKSTACK_STATE = "DkFragmentNavigator.KEY_BACKSTACK_STATE";
-
     public interface Callback {
         void onActive(boolean isResume);
 
         void onInactive(boolean isPause);
     }
+
+    private static final String KEY_BACKSTACK_STATE = "DkFragmentNavigator.KEY_BACKSTACK_STATE";
 
     final int containerId;
     final FragmentManager fm;
@@ -55,41 +56,31 @@ public class DkFragmentNavigator implements MyBackStack.OnStackChangeListener {
         return new MyFragmentTransactor(this);
     }
 
-    public int childCount() {
-        return stack.size();
-    }
-
     /**
-     * Notify back-event to last added fragment.
+     * Dismiss child fragment.
      *
-     * @return false indicates the target fragment will handle this event later.
+     * @return false to tell the the fragment need handle the back-event. Otherwise this will dismiss child.
      */
     public boolean onBackPressed() {
         int lastIndex = stack.size() - 1;
-
         if (lastIndex < 0) {
-            // tell owner handle this event
             return false;
         }
 
-        // finish target fragment
         Fragment f = fm.findFragmentByTag(stack.get(lastIndex).tag);
-
         if (f == null) {
-            // tell owner handle this event
             return false;
         }
 
+        // Finish target fragment
         if (f instanceof DkFragment) {
-            DkFragment view = (DkFragment) f;
-
-            if (!view.onBackPressed()) {
-                view.dismiss();
+            DkFragment child = (DkFragment) f;
+            if (! child.onBackPressed()) {
+                child.dismiss();
             }
         }
         else {
-            DkLogs.complain(this, "Fragment %d must implement #DiFragment to work with %s",
-                f.getClass().getName(), getClass().getName());
+            DkLogs.complain(this, "Fragment %d must be subclass of `DkFragment`", f.getClass().getName());
         }
 
         return true;

@@ -2,7 +2,7 @@
  * Copyright (c) 2017-2021 DarkCompet. All rights reserved.
  */
 
-package tool.compet.appbundle.architecture;
+package tool.compet.appbundle.architecture.compact;
 
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -11,6 +11,8 @@ import android.os.Bundle;
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import tool.compet.appbundle.architecture.simple.DkSimpleActivity;
 
 /**
  * This is extended version of `DkSimpleActivity`, compact basic and needed features.

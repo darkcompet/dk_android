@@ -1,14 +1,16 @@
 /*
- * Copyright (c) 2017-2020 DarkCompet. All rights reserved.
+ * Copyright (c) 2017-2021 DarkCompet. All rights reserved.
  */
 
-package tool.compet.appbundle.architecture;
+package tool.compet.appbundle.architecture.simple;
 
 import android.app.Application;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModelStore;
+
+import tool.compet.appbundle.architecture.DkApp;
 
 public class DkSimpleApp extends Application implements DkApp {
     protected static Context appContext;
