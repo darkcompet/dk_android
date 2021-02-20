@@ -10,7 +10,7 @@ import androidx.lifecycle.ViewModelStoreOwner;
 /**
  * Support ViewModel instances which can survived in configuration change.
  */
-public interface DkViewModelStore {
+public interface DkViewModelStoreInf {
     <M extends ViewModel> M getOwnViewModel(Class<M> modelType);
 
     <M extends ViewModel> M getOwnViewModel(String key, Class<M> modelType);

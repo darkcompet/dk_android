@@ -12,8 +12,8 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStoreOwner;
 
-import tool.compet.appbundle.architecture.DkBaseActivity;
-import tool.compet.appbundle.architecture.DkViewModelStore;
+import tool.compet.appbundle.architecture.DkActivity;
+import tool.compet.appbundle.architecture.DkViewModelStoreInf;
 import tool.compet.appbundle.architecture.navigator.DkFragmentNavigator;
 import tool.compet.appbundle.architecture.topic.DkTopicProvider;
 import tool.compet.appbundle.floatingbar.DkSnackbar;
@@ -32,7 +32,7 @@ import tool.compet.core.log.DkLogs;
  * Be aware of lifecycle in Activity: if activity is not going to be destroyed and
  * returns to foreground after onStop(), then onRestart() -> onStart() will be called respectively.
  */
-public abstract class DkSimpleActivity extends DkBaseActivity implements DkViewModelStore, DkFragmentNavigator.Callback {
+public abstract class DkSimpleActivity extends DkActivity implements DkViewModelStoreInf, DkFragmentNavigator.Callback {
     private DkFragmentNavigator navigator;
 
     /**
@@ -228,10 +228,10 @@ public abstract class DkSimpleActivity extends DkBaseActivity implements DkViewM
     }
 
     public void toast(int msgRes) {
-        DkToastbar.newIns(this).setMessage(msgRes).show();
+        DkToastbar.newIns(this).message(msgRes).show();
     }
 
     public void toast(String message) {
-        DkToastbar.newIns(this).setMessage(message).show();
+        DkToastbar.newIns(this).message(message).show();
     }
 }

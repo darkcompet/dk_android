@@ -30,7 +30,9 @@ import tool.compet.core.type.DkCallback;
  * 基本的に、設定用SharedPreferenceと同期しますので、MenuItemViewをデコレーションしたい場合は、
  * setViewAdapter()、setModelCreator()を呼び出して、ビューとモデルともにカストマイズしてください。
  */
-public class DkMenuView<T extends DkMenuItemModel> extends ListView {
+public abstract class DkMenuView<T extends DkMenuItemModel> extends ListView {
+    protected abstract DkPreferenceStorage storage();
+
     private Context mContext;
     private int mCurMenuRes;
     private ArrayAdapter<T> mAdapter;
@@ -173,7 +175,7 @@ public class DkMenuView<T extends DkMenuItemModel> extends ListView {
         return mViewAdapter;
     }
 
-    private static class DefaultViewAdapter implements DKViewAdapter {
+    private class DefaultViewAdapter implements DKViewAdapter {
         @Override
         public View getView(Context context, int pos, @Nullable View view,
             @NonNull ViewGroup parent, DkMenuItemModel model) {
@@ -203,7 +205,7 @@ public class DkMenuView<T extends DkMenuItemModel> extends ListView {
             boolean notNeedStatus = true;
 
             if (model.hasSettingPreference()) {
-                String value = DkPreferenceStorage.getIns().loadSetting(model.getSettingPrefKey(), String.class);
+                String value = storage().loadString("" + model.getSettingPrefKey());
 
                 if (value != null && value.equals(model.getSettingPrefTagValue())) {
                     if (model.hasIconStatusRes()) {

@@ -89,27 +89,27 @@ public class DkToastbar extends DkFloatingbar {
         bar.setAlpha(alpha);
     }
 
-    public DkToastbar setMessage(int msgRes) {
+    public DkToastbar message(int msgRes) {
         tvMessage.setText(msgRes);
         return this;
     }
 
-    public DkToastbar setMessage(CharSequence msg) {
+    public DkToastbar message(CharSequence msg) {
         tvMessage.setText(msg);
         return this;
     }
 
-    public DkToastbar setDuration(long duration) {
+    public DkToastbar duration(long duration) {
         this.duration = duration;
         return this;
     }
 
-    public DkToastbar setOnShownCallback(Runnable onShownCallback) {
+    public DkToastbar onShownCallback(Runnable onShownCallback) {
         this.onShownCallback = onShownCallback;
         return this;
     }
 
-    public DkToastbar setOnDismissCallback(Runnable onDismissCallback) {
+    public DkToastbar onDismissCallback(Runnable onDismissCallback) {
         this.onDismissCallback = onDismissCallback;
         return this;
     }

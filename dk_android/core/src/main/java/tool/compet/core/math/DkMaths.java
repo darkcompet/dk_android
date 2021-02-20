@@ -4,67 +4,74 @@
 
 package tool.compet.core.math;
 
+import androidx.annotation.Nullable;
+
 /**
  * This class, provides common basic operations for math.
  */
 public final class DkMaths {
-    public static boolean parseBoolean(String s) {
-        return "1".equals(s) || "true".equalsIgnoreCase(s);
+    public static boolean parseBoolean(@Nullable String s) {
+        return "1".equals(s) || "true".equals(s);
     }
 
-    public static short parseShort(String s) {
+    public static short parseShort(@Nullable String s) {
         return (short) parseInt(s);
     }
 
-    public static int parseInt(String s) {
-        if (s == null) {
+    public static int parseInt(@Nullable String text) {
+        if (text == null) {
             return 0;
         }
-        int i = 0, res = 0, N = s.length();
 
-        while (i < N && s.charAt(i) == '-') {
-            ++i;
+        int result = 0;
+        int index = 0;
+        final int N = text.length();
+
+        while (index < N && text.charAt(index) == '-') {
+            ++index;
         }
-        boolean minus = ((i & 1) == 1);
+        boolean minus = ((index & 1) == 1);
         char ch;
 
-        while (i < N && '0' <= (ch = s.charAt(i++)) && ch <= '9') {
-            res = (res << 3) + (res << 1) + (ch - '0');
+        while (index < N && '0' <= (ch = text.charAt(index++)) && ch <= '9') {
+            result = (result << 3) + (result << 1) + (ch - '0');
         }
-        return minus ? -res : res;
+        return minus ? -result : result;
     }
 
-    public static long parseLong(String s) {
-        if (s == null) {
+    public static long parseLong(@Nullable String text) {
+        if (text == null) {
             return 0L;
         }
-        int i = 0, N = s.length();
-        long res = 0L;
 
-        while (i < N && s.charAt(i) == '-') {
-            ++i;
+        long result = 0L;
+        int index = 0;
+        final int N = text.length();
+
+        while (index < N && text.charAt(index) == '-') {
+            ++index;
         }
-        boolean minus = ((i & 1) == 1);
+        boolean minus = ((index & 1) == 1);
         char ch;
 
-        while (i < N && '0' <= (ch = s.charAt(i++)) && ch <= '9') {
-            res = (res << 3) + (res << 1) + (ch - '0');
+        while (index < N && '0' <= (ch = text.charAt(index++)) && ch <= '9') {
+            result = (result << 3) + (result << 1) + (ch - '0');
         }
-        return minus ? -res : res;
+        return minus ? -result : result;
     }
 
-    public static float parseFloat(String s) {
+    public static float parseFloat(String text) {
         try {
-            return Float.parseFloat(s);
+            return Float.parseFloat(text);
         }
         catch (Exception ignore) {
             return 0f;
         }
     }
 
-    public static double parseDouble(String s) {
+    public static double parseDouble(String text) {
         try {
-            return Double.parseDouble(s);
+            return Double.parseDouble(text);
         }
         catch (Exception ignore) {
             return 0.0;

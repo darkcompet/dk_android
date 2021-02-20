@@ -7,7 +7,7 @@ package tool.compet.appbundle.architecture;
 import androidx.lifecycle.ViewModelStoreOwner;
 
 /**
- * Application (single or multidex) should extend this to work with Dk libraries.
+ * Application interface, single or multidex app should extend this to work with Dk libraries.
  */
-public interface DkApp extends ViewModelStoreOwner {
+public interface DkAppInf extends ViewModelStoreOwner {
 }

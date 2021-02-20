@@ -25,14 +25,14 @@ import androidx.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 
+import tool.compet.core.color.DkColors;
 import tool.compet.core.config.DkConfig;
+import tool.compet.core.gesturedetector.DkDoubleFingerDetector;
 import tool.compet.core.graphic.DkBitmaps;
+import tool.compet.core.log.DkLogs;
 import tool.compet.core.math.DkMaths;
 import tool.compet.core.stream.DkObservable;
-import tool.compet.core.color.DkColors;
-import tool.compet.core.log.DkLogs;
 import tool.compet.core.view.DkTextViews;
-import tool.compet.core.gesturedetector.DkDoubleFingerDetector;
 
 import static tool.compet.core.BuildConfig.DEBUG;
 import static tool.compet.core.view.DkTextViews.getTextViewDrawPoint;
@@ -552,8 +552,12 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
                 compass = bitmap;
                 isFitCompassInsideBoard = true;
                 isBuildingCompass = false;
+
+                invalidate();
             })
-            .doOnError(th -> isBuildingCompass = false)
+            .doOnError(th -> {
+                isBuildingCompass = false;
+            })
             .subscribe();
     }
 

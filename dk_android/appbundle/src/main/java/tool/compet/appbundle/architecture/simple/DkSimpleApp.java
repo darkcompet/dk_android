@@ -10,9 +10,9 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModelStore;
 
-import tool.compet.appbundle.architecture.DkApp;
+import tool.compet.appbundle.architecture.DkAppInf;
 
-public class DkSimpleApp extends Application implements DkApp {
+public class DkSimpleApp extends Application implements DkAppInf {
     protected static Context appContext;
     protected ViewModelStore viewModelStore;
 

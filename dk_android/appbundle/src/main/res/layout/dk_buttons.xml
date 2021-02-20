@@ -43,7 +43,7 @@
 		android:gravity="center"
 		android:padding="0dp"
 		android:text="@string/reset"
-		android:visibility="visible" />
+		android:visibility="gone" />
 
 	<tool.compet.appbundle.view.DkOneClickButton
 		android:id="@+id/btnOk"

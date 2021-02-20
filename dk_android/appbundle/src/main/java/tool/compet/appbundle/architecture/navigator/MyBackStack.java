@@ -14,13 +14,15 @@ import tool.compet.core.util.DkStrings;
 
 import static tool.compet.core.BuildConfig.DEBUG;
 
+// This manages children fragment (list of child framgnet inside the parent).
 class MyBackStack {
     interface OnStackChangeListener {
         void onStackSizeChanged(int oldSize, int newSize);
     }
 
+    // List of tag of child fragment (since we can instantiate fragment from its tag)
     private ArrayList<MyKeyState> keys;
-    private OnStackChangeListener listener;
+    private final OnStackChangeListener listener;
 
     public MyBackStack(OnStackChangeListener listener) {
         this.keys = new ArrayList<>();

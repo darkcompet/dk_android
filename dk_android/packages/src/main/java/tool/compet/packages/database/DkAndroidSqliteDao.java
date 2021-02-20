@@ -98,8 +98,8 @@ public abstract class DkAndroidSqliteDao<M> extends TheDao<M> { // M: table mode
         for (Field field : fields) {
             try {
                 DkColumnInfo colInfo = Objects.requireNonNull(field.getAnnotation(DkColumnInfo.class));
-                // For pk: ignore
-                if (colInfo.primaryKey()) {
+                // Ignore columns: pk, not-fillable
+                if (colInfo.primaryKey() || ! colInfo.fillable()) {
                     continue;
                 }
                 String colName = colInfo.name();
@@ -124,9 +124,13 @@ public abstract class DkAndroidSqliteDao<M> extends TheDao<M> { // M: table mode
         for (Field field : fields) {
             try {
                 DkColumnInfo colInfo = Objects.requireNonNull(field.getAnnotation(DkColumnInfo.class));
-                // For pk: remember to build condition
+                // For pk: remember to build where condition later
                 if (colInfo.primaryKey()) {
                     pk_field.put(colInfo.name(), field);
+                    continue;
+                }
+                // Ignore upsert column which is not fillable
+                if (! colInfo.fillable()) {
                     continue;
                 }
                 String colName = colInfo.name();
@@ -163,6 +167,8 @@ public abstract class DkAndroidSqliteDao<M> extends TheDao<M> { // M: table mode
 //        INSERT INTO tmp (email, username) VALUES ('mail1', 'name1')
 //        ON CONFLICT (email, username)
 //        DO UPDATE SET email='kkkk3'
+
+        // TODO: 2/7/21 impl it
 
         String insertFields = "";
         String insertValues = "";

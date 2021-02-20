@@ -61,7 +61,7 @@ class MyCompactInjector {
         return viewLogic;
     }
 
-    private <VL extends DkCompactViewLogic> VL initAndSetViewLogic(@NonNull Class<VL> viewLogicClass, Object owner, Field viewLogicField) {
+    private <VL extends DkCompactViewLogic> VL initAndSetViewLogic(@NonNull Class<VL> viewLogicClass, DkCompactView view, Field viewLogicField) {
         if (! DkCompactViewLogic.class.isAssignableFrom(viewLogicClass)) {
             throw new RuntimeException("Invalid type of ViewLogic: " + viewLogicClass.toString());
         }
@@ -73,7 +73,7 @@ class MyCompactInjector {
         viewLogic.attachView(view);
 
         // init ViewLogic field inside View
-        setFieldValue(viewLogicField, owner, viewLogic);
+        setFieldValue(viewLogicField, view, viewLogic);
 
         return viewLogic;
     }

@@ -4,72 +4,216 @@
 
 package tool.compet.appbundle.architecture;
 
-import androidx.fragment.app.Fragment;
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
-import tool.compet.appbundle.architecture.navigator.DkFragmentNavigator;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+
+import tool.compet.appbundle.BuildConfig;
+import tool.compet.appbundle.binder.DkBinder;
+import tool.compet.core.log.DkLogs;
 
 /**
- * Fragment interface for Dk library. Implements this to work with Dk library.
+ * All fragments should be subclass of this to work with support of Dk library as possible.
+ * This provides below some basic features:
+ * - Obtain host (current activity), context, layout (bind with DkBinder) instance
+ * - Debug logs in lifecycle methods
  */
-public interface DkFragment {
-    /**
-     * Obtain fragment itself.
-     */
-    Fragment getFragment();
+public abstract class DkFragment extends Fragment implements DkFragmentInf {
+    protected FragmentActivity host;
+    protected Context context;
+    protected ViewGroup layout;
 
-    /**
-     * Specify id of layout resource for this fragment.
-     */
-    int layoutResourceId();
+    @Override
+    public void onAttach(@NonNull Context context) {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onAttach (context)");
+        }
+        if (this.host == null) {
+            this.host = getActivity();
+        }
+        this.context = context;
 
-    /**
-     * Specify id of container inside the layout of this fragment. This id can be used in
-     * fragment transaction for other screens.
-     */
-    int fragmentContainerId();
+        super.onAttach(context);
+    }
 
-    /**
-     * Each fragment should response #onBackPressed() from host activity.
-     *
-     * @return true if this fragment will handle this event, otherwise false.
-     */
-    boolean onBackPressed();
+    @Override
+    @SuppressWarnings("deprecation")
+    public void onAttach(@NonNull Activity activity) {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onAttach (activity)");
+        }
+        if (this.context == null) {
+            this.context = getContext();
+        }
+        this.host = (FragmentActivity) activity;
 
-    /**
-     * Dismiss itself, like #Activity.finish().
-     */
-    void dismiss();
+        super.onAttach(activity);
+    }
 
-    /**
-     * Specify whether this fragment should be retained instance during configuration changed.
-     */
-    boolean isRetainInstance();
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onCreate");
+        }
+        super.setRetainInstance(isRetainInstance());
+        super.onCreate(savedInstanceState);
+    }
 
-    /**
-     * Be called from other fragments or itself.
-     *
-     * @return children fragment navigator that the fragment owns
-     */
-    DkFragmentNavigator getChildNavigator();
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onCreateView");
+        }
 
-    /**
-     * Be called from other fragments or itself.
-     *
-     * @return parent fragment navigator that the fragment is owned
-     */
-    DkFragmentNavigator getParentNavigator();
+        int layoutId = layoutResourceId();
+        if (layoutId <= 0) {
+            DkLogs.complain(this, "Invalid layoutId: %d", layoutId);
+        }
 
-    /**
-     * Indicates the fragment is resumsed or come to front.
-     *
-     * @param isResume true if this fragment is in resume state, otherwise it is on front.
-     */
-    void onActive(boolean isResume);
+        layout = (ViewGroup) inflater.inflate(layoutResourceId(), container, false);
+        DkBinder.bindViews(this, layout);
 
-    /**
-     * Indicates the fragment is paused or go to behind.
-     *
-     * @param isPause true if this fragment is in pause state, otherwise it is in behind.
-     */
-    void onInactive(boolean isPause);
+        return layout;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onViewCreated");
+        }
+        super.onViewCreated(view, savedInstanceState);
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onActivityCreated");
+        }
+        super.onActivityCreated(savedInstanceState);
+    }
+
+    @Override
+    public void onStart() {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onStart");
+        }
+        super.onStart();
+    }
+
+    @Override
+    public void onResume() {
+        onActive(true);
+        super.onResume();
+    }
+
+    @Override
+    public void onActive(boolean isResume) {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, isResume ? "onResume" : "onFront");
+        }
+    }
+
+    @Override
+    public void onPause() {
+        onInactive(true);
+        super.onPause();
+    }
+
+    @Override
+    public void onInactive(boolean isPause) {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, isPause ? "onPause" : "onBehind");
+        }
+    }
+
+    @Override
+    public void onStop() {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onStop");
+        }
+        super.onStop();
+    }
+
+    @Override
+    public void onDestroyView() {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onDestroyView");
+        }
+        super.onDestroyView();
+    }
+
+    @Override
+    public void onDestroy() {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onDestroy");
+        }
+        super.onDestroy();
+    }
+
+    @Override
+    public void onDetach() {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onDetach");
+        }
+
+        this.host = null;
+        this.context = null;
+        this.layout = null;
+
+        super.onDetach();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onActivityResult");
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onActivityResult");
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    public void onLowMemory() {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onLowMemory");
+        }
+        super.onLowMemory();
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onViewStateRestored");
+        }
+        super.onViewStateRestored(savedInstanceState);
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onSaveInstanceState");
+        }
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public Fragment getFragment() {
+        return this;
+    }
 }

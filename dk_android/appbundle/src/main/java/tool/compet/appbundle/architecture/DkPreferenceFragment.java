@@ -23,6 +23,7 @@ import androidx.preference.PreferenceFragmentCompat;
 
 import tool.compet.appbundle.architecture.navigator.DkFragmentNavigator;
 import tool.compet.appbundle.architecture.simple.DkSimpleActivity;
+import tool.compet.appbundle.architecture.simple.DkSimpleFragment;
 import tool.compet.core.log.DkLogs;
 import tool.compet.core.util.DkUtils;
 
@@ -32,7 +33,7 @@ import static tool.compet.appbundle.BuildConfig.DEBUG;
  * Subclass must declare annotation #DkBindXml on top.
  */
 public abstract class DkPreferenceFragment extends PreferenceFragmentCompat
-    implements DkFragment, SharedPreferences.OnSharedPreferenceChangeListener, DkFragmentNavigator.Callback {
+    implements DkFragmentInf, SharedPreferences.OnSharedPreferenceChangeListener, DkFragmentNavigator.Callback {
     /**
      * Specify id of preference resource for this fragment.
      */
@@ -53,7 +54,6 @@ public abstract class DkPreferenceFragment extends PreferenceFragmentCompat
     // Android default preference
     private SharedPreferences androidDefaultPreference;
 
-    @Override
     public DkFragmentNavigator getChildNavigator() {
         if (navigator == null) {
             int containerId = fragmentContainerId();
@@ -67,7 +67,6 @@ public abstract class DkPreferenceFragment extends PreferenceFragmentCompat
         return navigator;
     }
 
-    @Override
     public DkFragmentNavigator getParentNavigator() {
         Fragment parent = getParentFragment();
         DkFragmentNavigator owner = null;
@@ -77,8 +76,8 @@ public abstract class DkPreferenceFragment extends PreferenceFragmentCompat
                 owner = ((DkSimpleActivity) host).getChildNavigator();
             }
         }
-        else if (parent instanceof DkFragment) {
-            owner = ((DkFragment) parent).getChildNavigator();
+        else if (parent instanceof DkSimpleFragment) {
+            owner = ((DkSimpleFragment) parent).getChildNavigator();
         }
 
         if (owner == null) {
@@ -275,21 +274,25 @@ public abstract class DkPreferenceFragment extends PreferenceFragmentCompat
 
     /**
      * Called when user pressed to physical back button, this is normally passed from current activity.
+     * When this view got an event, this send signal to children first, if no child was found, or
+     * child has handled the event successfully, then this will call `dismiss()` on it to finish itself.
      *
-     * When this got an back-event, this send signal to children first, if no child was found,
-     *
-     *
-     * @return true to tell parent it handles event itself (so parent don't do anything). Otherwise parent will
-     * run `dismiss()` to forcely pop-back this.
+     * @return true if this view has dismissed successfully, otherwise false.
      */
     @Override
     public boolean onBackPressed() {
-        return navigator != null && navigator.onBackPressed();
+        if (navigator == null || navigator.handleOnBackPressed()) {
+            return this.dismiss();
+        }
+        return false;
     }
 
+    /**
+     * Finish this view by tell parent remove this from navigator.
+     */
     @Override
-    public void dismiss() {
-        getParentNavigator().beginTransaction().remove(this).commit();
+    public boolean dismiss() {
+        return getParentNavigator().beginTransaction().remove(this).commit();
     }
 
     public void hideSoftKeyboard() {

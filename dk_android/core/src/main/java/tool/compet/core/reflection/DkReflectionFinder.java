@@ -25,22 +25,22 @@ public class DkReflectionFinder {
     private final Map<String, List<Method>> methodCache;
 
     // For reset search packages at runtime
-    private final String[] searchPackages;
+    private final String[] searchPrefixPackages;
 
-    private DkReflectionFinder(String... searchPackages) {
-        if (searchPackages == null) {
-            searchPackages = new String[] {"tool.compet"};
+    private DkReflectionFinder(String... searchPrefixPackages) {
+        if (searchPrefixPackages == null) {
+            searchPrefixPackages = new String[] {"tool.compet"};
         }
-        this.searchPackages = searchPackages;
+        this.searchPrefixPackages = searchPrefixPackages;
         this.fieldCache = new ArrayMap<>();
         this.methodCache = new ArrayMap<>();
     }
 
-    public static void install(String... searchPackages) {
+    public static void install(String... searchPrefixPackages) {
         if (INS == null) {
             synchronized (DkReflectionFinder.class) {
                 if (INS == null) {
-                    INS = new DkReflectionFinder(searchPackages);
+                    INS = new DkReflectionFinder(searchPrefixPackages);
                 }
             }
         }
@@ -106,7 +106,7 @@ public class DkReflectionFinder {
 
         // Not found in cache, start search and cache
         fields = new MyFinder()
-            .findFields(clazz, Collections.singletonList(annotation), upSuper, searchPackages)
+            .findFields(clazz, Collections.singletonList(annotation), upSuper, searchPrefixPackages)
             .get(annotation);
 
         if (fields == null) {
@@ -159,7 +159,7 @@ public class DkReflectionFinder {
 
         // Not found in cache, start search
         methods = new MyFinder()
-            .findMethods(clazz, Collections.singletonList(annotation), upSuper, searchPackages)
+            .findMethods(clazz, Collections.singletonList(annotation), upSuper, searchPrefixPackages)
             .get(annotation);
 
         if (methods == null) {

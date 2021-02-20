@@ -11,14 +11,13 @@ import java.io.File;
 import java.io.IOException;
 
 import tool.compet.core.graphic.DkBitmaps;
-import tool.compet.core.util.DkStrings;
 import tool.compet.core.log.DkLogs;
+import tool.compet.core.util.DkStrings;
 
 import static tool.compet.core.BuildConfig.DEBUG;
 
 public class DkInternalStorage {
     private static DkInternalStorage INS;
-
     private final Context appContext;
 
     private DkInternalStorage(Context appContext) {

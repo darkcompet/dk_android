@@ -14,13 +14,14 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStoreOwner;
 
-import tool.compet.appbundle.architecture.DkBaseFragment;
 import tool.compet.appbundle.architecture.DkFragment;
-import tool.compet.appbundle.architecture.DkViewModelStore;
+import tool.compet.appbundle.architecture.DkViewModelStoreInf;
 import tool.compet.appbundle.architecture.navigator.DkFragmentNavigator;
 import tool.compet.appbundle.architecture.topic.DkTopicProvider;
 import tool.compet.appbundle.floatingbar.DkSnackbar;
 import tool.compet.appbundle.floatingbar.DkToastbar;
+import tool.compet.appbundle.floatingbar.DkUrgentSnackbar;
+import tool.compet.appbundle.floatingbar.DkUrgentToastbar;
 import tool.compet.core.log.DkLogs;
 import tool.compet.core.util.DkUtils;
 
@@ -31,27 +32,26 @@ import tool.compet.core.util.DkUtils;
  * - Message display (snack, toast...)
  * - Scoped topic (pass data between/under fragments, activities, app)
  */
-public abstract class DkSimpleFragment extends DkBaseFragment implements DkViewModelStore, DkFragmentNavigator.Callback {
-    private DkFragmentNavigator navigator;
+public abstract class DkSimpleFragment extends DkFragment implements DkViewModelStoreInf, DkFragmentNavigator.Callback {
+    // Manages child fragments
+    protected DkFragmentNavigator childNavigator;
 
     /**
      * Must provide id of fragent container via {@link DkSimpleFragment#fragmentContainerId()}.
      */
-    @Override
     public DkFragmentNavigator getChildNavigator() {
-        if (navigator == null) {
+        if (childNavigator == null) {
             int containerId = fragmentContainerId();
 
             if (containerId <= 0) {
                 DkLogs.complain(this, "Must provide fragmentContainerId (%d)", containerId);
             }
 
-            navigator = new DkFragmentNavigator(containerId, getChildFragmentManager(), this);
+            childNavigator = new DkFragmentNavigator(containerId, getChildFragmentManager(), this);
         }
-        return navigator;
+        return childNavigator;
     }
 
-    @Override
     public DkFragmentNavigator getParentNavigator() {
         Fragment parent = getParentFragment();
         DkFragmentNavigator owner = null;
@@ -61,8 +61,8 @@ public abstract class DkSimpleFragment extends DkBaseFragment implements DkViewM
                 owner = ((DkSimpleActivity) host).getChildNavigator();
             }
         }
-        else if (parent instanceof DkFragment) {
-            owner = ((DkFragment) parent).getChildNavigator();
+        else if (parent instanceof DkSimpleFragment) {
+            owner = ((DkSimpleFragment) parent).getChildNavigator();
         }
 
         if (owner == null) {
@@ -74,39 +74,41 @@ public abstract class DkSimpleFragment extends DkBaseFragment implements DkViewM
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
-        if (navigator != null) {
-            navigator.saveState(outState);
+        if (childNavigator != null) {
+            childNavigator.saveState(outState);
         }
         super.onSaveInstanceState(outState);
     }
 
     @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-        if (navigator != null) {
-            navigator.restoreState(savedInstanceState);
+        if (childNavigator != null) {
+            childNavigator.restoreState(savedInstanceState);
         }
         super.onViewStateRestored(savedInstanceState);
     }
 
     /**
      * Called when user pressed to physical back button, this is normally passed from current activity.
-     * When this got an back-event, this send signal to children first, if no child was found,
+     * When this view got an event, this send signal to children first, if no child was found, or
+     * child has handled the event successfully, then this will call `dismiss()` on it to finish itself.
      *
-     * @return true to tell parent it handles event itself (so parent don't do anything). Otherwise parent will
-     * call `dismiss()` to finish this view.
+     * @return true if this view has dismissed successfully, otherwise false.
      */
     @Override
     public boolean onBackPressed() {
-        return navigator != null && navigator.onBackPressed();
+        if (childNavigator == null || childNavigator.handleOnBackPressed()) {
+            return this.dismiss();
+        }
+        return false;
     }
 
     /**
-     * Called from parent when `onBackPressed()` return false (this does not handle back-event).
-     * THat is, if `onBackPressed()` return true, then this method will not be called from parent.
+     * Finish this view by tell parent remove this from navigator.
      */
     @Override
-    public void dismiss() {
-        getParentNavigator().beginTransaction().remove(this).commit();
+    public boolean dismiss() {
+        return getParentNavigator().beginTransaction().remove(this).commit();
     }
 
     /**
@@ -246,24 +248,56 @@ public abstract class DkSimpleFragment extends DkBaseFragment implements DkViewM
     }
 
     public void hideSoftKeyboard() {
-        if (context != null) {
+        if (context != null && layout != null) {
             DkUtils.hideSoftKeyboard(context, layout);
         }
     }
 
+    public DkSnackbar snackbar() {
+        return DkSnackbar.newIns(layout);
+    }
+
+    public DkSnackbar urgentSnackbar() {
+        return DkUrgentSnackbar.newIns(layout);
+    }
+
     public void snack(int msgRes, int type) {
-        DkSnackbar.newIns(layout).asType(type).setMessage(msgRes).show();
+        snackbar().asType(type).setMessage(msgRes).show();
+    }
+
+    public void snackNow(int msgRes, int type) {
+        urgentSnackbar().asType(type).setMessage(msgRes).show();
     }
 
     public void snack(String message, int type) {
-        DkSnackbar.newIns(layout).asType(type).setMessage(message).show();
+        snackbar().asType(type).setMessage(message).show();
+    }
+
+    public void snackNow(String message, int type) {
+        urgentSnackbar().asType(type).setMessage(message).show();
+    }
+
+    public DkToastbar toastbar() {
+        return DkToastbar.newIns(layout);
+    }
+
+    public DkToastbar urgentToastbar() {
+        return DkUrgentToastbar.newIns(layout);
     }
 
     public void toast(int msgRes) {
-        DkToastbar.newIns(layout).setMessage(msgRes).show();
+        toastbar().message(msgRes).show();
+    }
+
+    public void toastNow(int msgRes) {
+        urgentToastbar().message(msgRes).show();
     }
 
     public void toast(String message) {
-        DkToastbar.newIns(layout).setMessage(message).show();
+        toastbar().message(message).show();
+    }
+
+    public void toastNow(String message) {
+        urgentToastbar().message(message).show();
     }
 }

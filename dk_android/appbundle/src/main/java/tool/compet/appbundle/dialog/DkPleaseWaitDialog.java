@@ -75,12 +75,12 @@ public final class DkPleaseWaitDialog extends DkDialog {
         }
     }
 
-    public DkPleaseWaitDialog setMessage(int msgRes) {
+    public DkPleaseWaitDialog message(int msgRes) {
         this.msgRes = msgRes;
         return this;
     }
 
-    public DkPleaseWaitDialog setMessage(CharSequence msg) {
+    public DkPleaseWaitDialog message(CharSequence msg) {
         this.msg = msg;
         return this;
     }

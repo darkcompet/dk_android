@@ -5,53 +5,182 @@
 package tool.compet.appbundle.architecture;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.content.res.Configuration;
+import android.os.Bundle;
+import android.view.View;
 
-import tool.compet.appbundle.architecture.navigator.DkFragmentNavigator;
+import androidx.annotation.CallSuper;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
+import tool.compet.appbundle.binder.DkBinder;
+import tool.compet.core.BuildConfig;
+import tool.compet.core.log.DkLogs;
 
 /**
- * Activity interface for Dk library. If a activity implements this interface,
- * then it can work where Dk library supports.
+ * All activities should be subclass of this to work with support of Dk library as possible.
+ * This provides below some basic features:
+ * - Binding layout with DkBinder
+ * - Basic lifecycle methods
+ * - Implements some DkActivity methods
+ *
+ * <p></p>
+ * Be aware of lifecycle in Activity: if activity is not going to be destroyed and
+ * returns to foreground after onStop(), then onRestart() -> onStart() will be called respectively.
  */
-public interface DkActivity {
+public abstract class DkActivity extends AppCompatActivity implements DkActivityInf {
     /**
-     * Obtain itself.
+     * Subclass should use getIntent() in onResume() instead since we called #setIntent() here
      */
-    Activity getActivity();
+    @Override
+    protected void onNewIntent(Intent intent) {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onNewIntent: " + intent);
+        }
 
-    /**
-     * Specify id of layout resource for this fragment.
-     */
-    int layoutResourceId();
+        setIntent(intent);
 
-    /**
-     * Specify id of container inside the layout of this fragment. This id can be used in
-     * fragment transaction for other screens.
-     */
-    int fragmentContainerId();
+        super.onNewIntent(intent);
+    }
 
-    /**
-     * Be called from other fragments or itself.
-     *
-     * @return children fragment navigator that the fragment owns
-     */
-    DkFragmentNavigator getChildNavigator();
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onCreate");
+        }
 
-    /**
-     * Dismiss itself.
-     */
-    void dismiss();
+        super.onCreate(savedInstanceState);
 
-    /**
-     * Indicates the activity is resumsed or come to front.
-     *
-     * @param isResume true if this activity is in resume state, otherwise it is on front.
-     */
-    void onActive(boolean isResume);
+        // Set content view
+        int layoutId = layoutResourceId();
+        if (layoutId <= 0) {
+            DkLogs.complain(this, "Invalid layoutId: %d", layoutId);
+        }
 
-    /**
-     * Indicates the activity is paused or go to behind.
-     *
-     * @param isPause true if this activity is in pause state, otherwise it is in behind.
-     */
-    void onInactive(boolean isPause);
+        View layout = View.inflate(this, layoutId, null);
+        setContentView(layout);
+
+        DkBinder.bindViews(this, layout);
+    }
+
+    @CallSuper
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onPostCreate");
+        }
+        super.onPostCreate(savedInstanceState);
+    }
+
+    @Override
+    protected void onStart() {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onStart");
+        }
+        super.onStart();
+    }
+
+    @Override
+    protected void onResume() {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onResume");
+        }
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onPause");
+        }
+        super.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onStop");
+        }
+        super.onStop();
+    }
+
+    // after onStop() is onCreate() or onDestroy()
+    @Override
+    protected void onRestart() {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onRestart");
+        }
+        super.onRestart();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onDestroy");
+        }
+        super.onDestroy();
+    }
+
+    @Override
+    public void onLowMemory() {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onLowMemory");
+        }
+        super.onLowMemory();
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onConfigurationChanged");
+        }
+        super.onConfigurationChanged(newConfig);
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onSaveInstanceState");
+        }
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onRestoreInstanceState");
+        }
+        super.onRestoreInstanceState(savedInstanceState);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onRestoreInstanceState");
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int rc, @NonNull String[] perms, @NonNull int[] res) {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onRequestPermissionsResult");
+        }
+        super.onRequestPermissionsResult(rc, perms, res);
+    }
+
+    @Override
+    public Activity getActivity() {
+        return this;
+    }
+
+    @Override
+    public void dismiss() {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "Finish activity %s", getClass().getName());
+        }
+        finish();
+    }
 }

@@ -31,7 +31,7 @@ public class DkDateTimes {
     }
 
     public static String formatCurrentTime() {
-        return formatTime(getCurrentTime(), DkDateTimeConst.DATE_FORMAT_US, Locale.US);
+        return formatTime(getCurrentTime(), DkDateTimeConst.DATETIME, Locale.US);
     }
 
     /**
@@ -39,7 +39,7 @@ public class DkDateTimes {
      * @return formatted datetime with normal format in US locale.
      */
     public static String formatTime(long millis) {
-        return formatTime(millis, DkDateTimeConst.DATE_FORMAT_US, Locale.US);
+        return formatTime(millis, DkDateTimeConst.DATETIME, Locale.US);
     }
 
     public static String formatTime(long millis, String pattern, Locale locale) {

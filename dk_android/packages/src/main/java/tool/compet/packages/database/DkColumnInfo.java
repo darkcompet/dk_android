@@ -15,9 +15,12 @@ import java.lang.annotation.Target;
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DkColumnInfo {
-    // db column name
+    // column name (can be real table column or virtual table column)
     String name();
 
     // primary key (unique)
     boolean primaryKey() default false;
+
+    // indicate this column can be updated
+    boolean fillable() default false;
 }

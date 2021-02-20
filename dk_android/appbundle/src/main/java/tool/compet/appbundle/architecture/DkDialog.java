@@ -178,8 +178,8 @@ public abstract class DkDialog<T extends DkDialog> extends AppCompatDialogFragme
             }
         }
         // otherwise parent is fragment
-        else if (parent instanceof DkFragment) {
-            ((DkFragment) parent).onActive(false);
+        else if (parent instanceof DkFragmentInf) {
+            ((DkFragmentInf) parent).onActive(false);
         }
 
         super.onDismiss(dialog);
@@ -247,8 +247,8 @@ public abstract class DkDialog<T extends DkDialog> extends AppCompatDialogFragme
             }
         }
         // otherwise parent is fragment
-        else if (parent instanceof DkFragment) {
-            ((DkFragment) parent).onInactive(false);
+        else if (parent instanceof DkFragmentInf) {
+            ((DkFragmentInf) parent).onInactive(false);
         }
     }
 

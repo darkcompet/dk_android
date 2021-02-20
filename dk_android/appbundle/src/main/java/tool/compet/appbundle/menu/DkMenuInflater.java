@@ -66,7 +66,7 @@ public class DkMenuInflater<T extends DkMenuItemModel> {
 
                     if (attrValue.startsWith("@")) {
                         isResourceValue = true;
-                        attrValue = attrValue.substring(1, attrValue.length());
+                        attrValue = attrValue.substring(1);
                     }
 
                     if ("id".equals(attrName)) {

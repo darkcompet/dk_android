@@ -6,11 +6,12 @@ package tool.compet.appbundle.architecture.navigator;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
-import tool.compet.appbundle.architecture.DkFragment;
-import tool.compet.core.log.DkLogs;
+import tool.compet.appbundle.architecture.DkFragmentInf;
+import tool.compet.core.util.DkStrings;
 
 /**
  * Differ with stack of Activities, the important feature of this navigator is,
@@ -27,28 +28,24 @@ public class DkFragmentNavigator implements MyBackStack.OnStackChangeListener {
 
     final int containerId;
     final FragmentManager fm;
-    final MyBackStack stack;
+    final MyBackStack backstack;
 
     private final Callback callback;
 
-    public DkFragmentNavigator(int containerId, FragmentManager fm, Callback cb) {
+    public DkFragmentNavigator(int containerId, FragmentManager fm, @NonNull Callback cb) {
         this.containerId = containerId;
         this.fm = fm;
         this.callback = cb;
-        this.stack = new MyBackStack(this);
+        this.backstack = new MyBackStack(this);
     }
 
     @Override
     public void onStackSizeChanged(int oldSize, int newSize) {
         if (newSize == 0) {
-            if (callback != null) {
-                callback.onActive(false);
-            }
+            callback.onActive(false);
         }
         else if (newSize == 1 && oldSize == 0) {
-            if (callback != null) {
-                callback.onInactive(false);
-            }
+            callback.onInactive(false);
         }
     }
 
@@ -57,33 +54,34 @@ public class DkFragmentNavigator implements MyBackStack.OnStackChangeListener {
     }
 
     /**
-     * Dismiss child fragment.
+     * Notify the event to last child fragment
      *
-     * @return false to tell the the fragment need handle the back-event. Otherwise this will dismiss child.
+     * @return true if child fragment not exist or has dismissed successfully, otherwise false.
      */
-    public boolean onBackPressed() {
-        int lastIndex = stack.size() - 1;
+    public boolean handleOnBackPressed() {
+        int lastIndex = backstack.size() - 1;
         if (lastIndex < 0) {
-            return false;
+            return true;
         }
 
-        Fragment f = fm.findFragmentByTag(stack.get(lastIndex).tag);
-        if (f == null) {
-            return false;
+        Fragment lastChild = fm.findFragmentByTag(backstack.get(lastIndex).tag);
+        if (lastChild == null) {
+            return true;
         }
 
-        // Finish target fragment
-        if (f instanceof DkFragment) {
-            DkFragment child = (DkFragment) f;
-            if (! child.onBackPressed()) {
-                child.dismiss();
-            }
-        }
-        else {
-            DkLogs.complain(this, "Fragment %d must be subclass of `DkFragment`", f.getClass().getName());
+        // Notify the event to last child fragment
+        if (lastChild instanceof DkFragmentInf) {
+            return ((DkFragmentInf) lastChild).onBackPressed();
         }
 
-        return true;
+        throw new RuntimeException(DkStrings.format("Fragment %s must be subclass of `DkFragment`", lastChild.getClass().getName()));
+    }
+
+    /**
+     * @return NUmber of fragment inside backstack of the view.
+     */
+    public int childCount() {
+        return backstack.size();
     }
 
     /**
@@ -92,7 +90,7 @@ public class DkFragmentNavigator implements MyBackStack.OnStackChangeListener {
     public void restoreState(Bundle in) {
         if (in != null) {
             MyBackStackState state = in.getParcelable(KEY_BACKSTACK_STATE);
-            stack.restoreStates(state);
+            backstack.restoreStates(state);
         }
     }
 
@@ -101,7 +99,7 @@ public class DkFragmentNavigator implements MyBackStack.OnStackChangeListener {
      */
     public void saveState(Bundle out) {
         if (out != null) {
-            out.putParcelable(KEY_BACKSTACK_STATE, stack.saveStates());
+            out.putParcelable(KEY_BACKSTACK_STATE, backstack.saveStates());
         }
     }
 }

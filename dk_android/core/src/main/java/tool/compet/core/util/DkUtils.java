@@ -337,7 +337,7 @@ public class DkUtils {
         return true;
     }
 
-    public static void requestPermissions(Activity host, int requestCode, String... permissions) {
+    public static void requestPermissions(Activity host, int requestCode, String[] permissions) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             host.requestPermissions(permissions, requestCode);
         }

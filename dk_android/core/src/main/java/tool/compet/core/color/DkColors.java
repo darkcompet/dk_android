@@ -70,4 +70,13 @@ public class DkColors {
     public static int getColor(Context context, int resId, int color) {
         return resId == 0 ? color : getColor(context, resId);
     }
+
+    public static int parseColor(String color, int defaultColor) {
+        try {
+            return Color.parseColor(color);
+        }
+        catch (Exception e) {
+            return defaultColor;
+        }
+    }
 }
