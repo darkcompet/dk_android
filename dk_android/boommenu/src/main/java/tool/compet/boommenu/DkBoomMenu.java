@@ -16,40 +16,33 @@ import android.view.ViewParent;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
-import tool.compet.core.type.DkCallback;
-import tool.compet.core.view.DkViews;
 import tool.compet.core.animation.DkAnimationConfiguration;
 import tool.compet.core.animation.DkInterpolatorProvider;
+import tool.compet.core.view.DkViews;
 
 /**
- * This class will show a menu with a lot of items (cluster), start from an anchor and end in somewhere in screen,
- * with variety shape or
+ * This class shows a menu with a lot of items (cluster), start from an anchor and end in
+ * somewhere in screen with various ending-shapes.
  * You can setup cluster via 2 fields: gravity and shape. Also you can set cluster margin
- * inside board via #setClusterMargin(). For detail, see below usage example:
+ * inside board via #setClusterMargin(). For detail, see below example:
  * <pre><code>
- *    DkBoomMenu menu = new DkBoomMenu(context, anchor);
- *    int[] icons;
- *    int[] texts;
- *    Runnable[] commands;
- *
- *    for (int i = 0; i < N; i++) {
- *       menu.addItemBuilder(new DkSingleTextItemBuilder()
- * 	      .setImage(icons[i])
- * 	      .setText(texts[i])
- * 	      .setCircleShape(true)
- * 	      .setDimensionRatio(true, 1f, 1f)
- * 	      .setStyle(DkSingleTextItemBuilder.STYLE_TEXT_INSIDE_ICON)
- * 	      .setMargin(4)
- * 	   );
- *    }
- *
- *    menu
- *       .setOnItemClickListener(id -> commands[id].run())
- * 	     .setGravity(DkGravity.ANCHOR_LEFT)
- * 	     .setClusterMargin(anchor.getWidth() >> 1, 0)
- * 	     .setShape(DkShape.HORIZONTAL_LINE);
- *
- * 	  menu.boom();
+ *    DkBoomMenu.newIns(context, anchor)
+ *        .addItemBuilder(new DkTextItemBuilder()
+ *            .setOnClickListener(v -> onFeedbackClick())
+ *            .setIcon(R.drawable.ic_feedback)
+ *            .setText(R.string.feedback)
+ *            .setStyle(DkTextItemBuilder.STYLE_TEXT_RIGHT_OUT_ICON)
+ *        )
+ *        .addItemBuilder(new DkTextItemBuilder()
+ *            .setOnClickListener(v -> onRateAppClick())
+ *            .setIcon(R.drawable.ic_star)
+ *            .setText(R.string.rate_app)
+ *            .setStyle(DkTextItemBuilder.STYLE_TEXT_RIGHT_OUT_ICON)
+ *        )
+ *        .setShape(DkShape.VERTICAL_LINE)
+ *        .setGravity(DkGravity.ANCHOR_BOTTOM_LEFT)
+ *        .setClusterMargin(anchor.getWidth(), 0)
+ *        .boom();
  * </code></pre>
  */
 public class DkBoomMenu {
@@ -66,6 +59,7 @@ public class DkBoomMenu {
     private boolean backgroundWholeScreen = true;
     private boolean dismissImmediate;
     private boolean dismissOnClickOutsideItem = true;
+    private boolean dismissOnBackPressed = true;
     private boolean cacheOptimization = true;
     private boolean bringAnchorToFront;
     private long animStartDelay;
@@ -73,9 +67,8 @@ public class DkBoomMenu {
     private long unboomDuration = DkAnimationConfiguration.ANIM_LARGE_COLLAPSE;
     private long emissionDelayBetweenItems = 50;
     private ValueAnimator animator;
-    private DkCallback<Integer> onItemClickListener;
 
-    private final MyClusterManager cluster = new MyClusterManager();
+    private final MyItemClusterManager itemClusterManager = new MyItemClusterManager();
     private boolean shouldRebuildItems = true;
     private MyBackgroundLayout background;
     private int backgroundWidth;
@@ -93,7 +86,7 @@ public class DkBoomMenu {
 
         @Override
         public boolean onTranslate(float dx, float dy) {
-            cluster.translateItems(dx, dy, backgroundWidth, backgroundHeight);
+            itemClusterManager.translateItems(dx, dy, backgroundWidth, backgroundHeight);
             return true;
         }
 
@@ -108,24 +101,23 @@ public class DkBoomMenu {
 
         @Override
         public boolean onKey(View v, int keyCode, KeyEvent event) {
-            if (keyCode == KeyEvent.KEYCODE_BACK
-                && event.getAction() == KeyEvent.ACTION_UP
-                && (animState == ANIM_STATE_WILL_ANIMATE_SOON || animState == ANIM_STATE_ANIMATED)) {
-                // dismiss menu with immediate flag
-                unboom(dismissImmediate);
+            if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
+                if (dismissOnBackPressed && (animState == ANIM_STATE_WILL_ANIMATE_SOON || animState == ANIM_STATE_ANIMATED)) {
+                    unboom(dismissImmediate);
+                }
                 return true;
             }
             return false;
         }
     };
 
-    public DkBoomMenu(Context context) {
-        this.context = context;
-    }
-
-    public DkBoomMenu(Context context, View anchor) {
+    private DkBoomMenu(Context context, View anchor) {
         this.context = context;
         this.anchor = new WeakReference<>(anchor);
+    }
+
+    public static DkBoomMenu newIns(Context context, View anchor) {
+        return new DkBoomMenu(context, anchor);
     }
 
     /**
@@ -145,7 +137,7 @@ public class DkBoomMenu {
 
             if (immediate) {
                 animState = ANIM_STATE_ANIMATED;
-                for (DkItem item : cluster.items) {
+                for (DkItem item : itemClusterManager.items) {
                     item.show();
                 }
                 showAndForcusBackground();
@@ -161,7 +153,7 @@ public class DkBoomMenu {
 
                     @Override
                     public void onAnimationCancel(Animator animation) {
-                        cleanupState();
+                        cancelAnimAndCleanupLayout();
                     }
 
                     @Override
@@ -185,13 +177,12 @@ public class DkBoomMenu {
      */
     public void unboom(boolean immediate) {
         if (animState == ANIM_STATE_WILL_ANIMATE_SOON) {
-            cancelAnimation();
-            cleanupState();
+            cancelAnimAndCleanupLayout();
             return;
         }
         if (animState == ANIM_STATE_ANIMATED) {
             if (immediate) {
-                cleanupState();
+                cancelAnimAndCleanupLayout();
                 return;
             }
             animState = ANIM_STATE_WILL_ANIMATE_SOON;
@@ -203,7 +194,7 @@ public class DkBoomMenu {
 
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    cleanupState();
+                    cancelAnimAndCleanupLayout();
                 }
             });
         }
@@ -215,22 +206,18 @@ public class DkBoomMenu {
         background.requestFocus();
     }
 
-    private void cancelAnimation() {
+    private void cancelAnimAndCleanupLayout() {
+        // Cancel animation
         if (animator != null) {
             animator.cancel();
             animator.removeAllListeners();
             animator.removeAllUpdateListeners();
         }
-    }
-
-    private void cleanupState() {
         animState = ANIM_STATE_NOT_YET;
+
+        // Cleanup view
         removeMenuItems();
         removeBackground();
-    }
-
-    public void addItemBuilder(DkItemBuilder itemBuilder) {
-        cluster.itemBuilders.add(itemBuilder);
     }
 
     /**
@@ -275,10 +262,10 @@ public class DkBoomMenu {
             throw new RuntimeException("You must provide anchor. Maybe call setAnchor().");
         }
         if (isShouldBuildItems()) {
-            cluster.buildItems(context, anchor, parent, new DkItemBuilder.Listener() {
+            itemClusterManager.buildItems(context, anchor, parent, new DkItemBuilder.Callback() {
                 @Override
                 public void onTranslate(DkItem item, float dx, float dy) {
-                    cluster.translateItems(dx, dy, backgroundWidth, backgroundHeight);
+                    itemClusterManager.translateItems(dx, dy, backgroundWidth, backgroundHeight);
                 }
 
                 @Override
@@ -286,16 +273,16 @@ public class DkBoomMenu {
                     if (item.dismissMenuOnClickItem) {
                         unboom(item.dismissMenuImmediate);
                     }
-                    if (onItemClickListener != null) {
-                        onItemClickListener.call(item.index);
+                    if (item.onClickLisener != null) {
+                        item.onClickLisener.onClick(item.view, item.index);
                     }
                 }
             });
         }
 
-        cluster.calcStartEndPositions(anchor, parent);
+        itemClusterManager.calcStartEndPositions(anchor, parent);
 
-        for (DkItem item : cluster.items) {
+        for (DkItem item : itemClusterManager.items) {
             item.hide();
             background.addView(item.view);
         }
@@ -306,11 +293,11 @@ public class DkBoomMenu {
             shouldRebuildItems = false;
             return true;
         }
-        return cluster.items.size() == 0;
+        return itemClusterManager.items.size() == 0;
     }
 
     private void startAnimation(AnimatorListenerAdapter listener) {
-        final ArrayList<DkItem> items = cluster.items;
+        final ArrayList<DkItem> items = itemClusterManager.items;
         final int itemCount = items.size();
         long totalDuration = boomDuration + emissionDelayBetweenItems * (itemCount - 1);
 
@@ -319,7 +306,7 @@ public class DkBoomMenu {
         }
 
         background.setupAnimation(animStartDelay, totalDuration, totalDuration);
-        cluster.setupAnimation(animStartDelay, emissionDelayBetweenItems, boomDuration, totalDuration);
+        itemClusterManager.setupAnimation(animStartDelay, emissionDelayBetweenItems, boomDuration, totalDuration);
 
         animator = ValueAnimator.ofInt(0, 1);
         animator.setInterpolator(DkInterpolatorProvider.newLinear());
@@ -339,7 +326,7 @@ public class DkBoomMenu {
     }
 
     private void reverseAnimation(AnimatorListenerAdapter listener) {
-        final ArrayList<DkItem> items = cluster.items;
+        final ArrayList<DkItem> items = itemClusterManager.items;
         final int itemCount = items.size();
         long totalDuration = unboomDuration + emissionDelayBetweenItems * (itemCount - 1);
 
@@ -348,7 +335,7 @@ public class DkBoomMenu {
         }
 
         background.setupAnimation(animStartDelay, totalDuration, totalDuration);
-        cluster.setupAnimation(animStartDelay, emissionDelayBetweenItems, unboomDuration, totalDuration);
+        itemClusterManager.setupAnimation(animStartDelay, emissionDelayBetweenItems, unboomDuration, totalDuration);
 
         animator.removeAllListeners();
         animator.removeAllUpdateListeners();
@@ -371,8 +358,8 @@ public class DkBoomMenu {
             background.removeAllViews();
         }
 
-        if (!cacheOptimization) {
-            cluster.items.clear();
+        if (! cacheOptimization) {
+            itemClusterManager.items.clear();
         }
     }
 
@@ -387,7 +374,7 @@ public class DkBoomMenu {
             }
         }
 
-        if (!cacheOptimization) {
+        if (! cacheOptimization) {
             this.background = null;
         }
     }
@@ -405,6 +392,15 @@ public class DkBoomMenu {
         return parent instanceof ViewGroup ? (ViewGroup) parent : null;
     }
 
+    //
+    // Setup region
+    //
+
+    public DkBoomMenu addItemBuilder(DkItemBuilder itemBuilder) {
+        itemClusterManager.itemBuilders.add(itemBuilder);
+        return this;
+    }
+
     public DkBoomMenu setBackgroundDimColor(int dimColor) {
         background.dimColor = dimColor;
         return this;
@@ -417,6 +413,22 @@ public class DkBoomMenu {
 
     public DkBoomMenu setDismissOnClickOutsideItem(boolean dismiss, boolean dismissImmediate) {
         this.dismissOnClickOutsideItem = dismiss;
+        this.dismissImmediate = dismissImmediate;
+        return this;
+    }
+
+    public DkBoomMenu setDismissOnBackPressed(boolean dismiss, boolean dismissImmediate) {
+        this.dismissOnBackPressed = dismiss;
+        this.dismissImmediate = dismissImmediate;
+        return this;
+    }
+
+    public DkBoomMenu setDismissOnBackPressed(boolean dismiss) {
+        this.dismissOnBackPressed = dismiss;
+        return this;
+    }
+
+    public DkBoomMenu setDismissImmediate(boolean dismissImmediate) {
         this.dismissImmediate = dismissImmediate;
         return this;
     }
@@ -442,18 +454,18 @@ public class DkBoomMenu {
     }
 
     public DkBoomMenu setClusterMargin(int horizontalMargin, int verticalMargin) {
-        cluster.horizontalOffset = horizontalMargin;
-        cluster.verticalOffset = verticalMargin;
+        itemClusterManager.horizontalOffset = horizontalMargin;
+        itemClusterManager.verticalOffset = verticalMargin;
         return this;
     }
 
     public DkBoomMenu setGravity(DkGravity gravity) {
-        cluster.gravity = gravity;
+        itemClusterManager.gravity = gravity;
         return this;
     }
 
     public DkBoomMenu setShape(DkShape shape) {
-        cluster.shape = shape;
+        itemClusterManager.shape = shape;
         return this;
     }
 
@@ -463,7 +475,7 @@ public class DkBoomMenu {
     }
 
     public DkBoomMenu setItemsEmissionOrder(DkEmissionOrder order) {
-        cluster.emissionOrder = order;
+        itemClusterManager.emissionOrder = order;
         return this;
     }
 
@@ -473,37 +485,61 @@ public class DkBoomMenu {
     }
 
     public DkBoomMenu setItemsPositionCalculator(DkPositionCalculator calculator) {
-        cluster.calculator = calculator;
+        itemClusterManager.calculator = calculator;
         return this;
     }
 
     public DkBoomMenu setRandomItemsStartPosition(boolean randomStartPosition) {
-        cluster.randomStartPosition = randomStartPosition;
+        itemClusterManager.randomStartPosition = randomStartPosition;
         return this;
     }
 
     public DkBoomMenu setAutoScaleClusterIfOversize(boolean autoScale) {
-        cluster.autoScaleIfOversize = autoScale;
+        itemClusterManager.autoScaleIfOversize = autoScale;
         return this;
     }
 
     public DkBoomMenu setAllowClusterOutsideBoard(boolean allow) {
-        cluster.allowOutsideBoard = allow;
-        return this;
-    }
-
-    public DkBoomMenu setOnItemClickListener(DkCallback<Integer> onItemClickListener) {
-        this.onItemClickListener = onItemClickListener;
+        itemClusterManager.allowOutsideBoard = allow;
         return this;
     }
 
     public DkBoomMenu setAutoUnisize(boolean autoUnisize) {
-        cluster.autoUnisize = autoUnisize;
+        itemClusterManager.autoUnisize = autoUnisize;
         return this;
     }
 
     public DkBoomMenu setCacheOptimization(boolean cacheOptimization) {
         this.cacheOptimization = cacheOptimization;
+        return this;
+    }
+
+    //
+    // Setting for all items
+    //
+
+    public DkBoomMenu setOnItemClickListener(DkOnItemClickListener onItemClickListener) {
+        itemClusterManager.onItemClickListener = onItemClickListener;
+        return this;
+    }
+
+    public DkBoomMenu setItemDismissOnBackPressed(boolean dismiss) {
+        itemClusterManager.itemDismissOnBackPressed = dismiss;
+        return this;
+    }
+
+    public DkBoomMenu setItemDismissImmediate(boolean immediate) {
+        itemClusterManager.itemDismissImmediate = immediate;
+        return this;
+    }
+
+    public DkBoomMenu enableItemRotation(boolean enable) {
+        itemClusterManager.itemEnableRotation = enable;
+        return this;
+    }
+
+    public DkBoomMenu setItemMargin(int dp) {
+        itemClusterManager.itemMargin = dp;
         return this;
     }
 }

@@ -10,7 +10,7 @@ import java.util.List;
 
 import tool.compet.core.BuildConfig;
 import tool.compet.core.log.DkLogs;
-import tool.compet.core.type.DkCallback;
+import tool.compet.core.type.DkCallback1;
 import tool.compet.core.util.DkStrings;
 
 /**
@@ -20,10 +20,10 @@ public class DkAndroidSqliteSchema extends TheSchema {
     /**
      * Create new table.
      */
-    public static void create(SQLiteDatabase db, String tableName, DkCallback<TheSqliteColumnBuilder> builderCb) {
+    public static void create(SQLiteDatabase db, String tableName, DkCallback1<TheSqliteColumnBuilder> builderCb) {
         // Get table definition from caller
         TheSqliteColumnBuilder builder = new TheSqliteColumnBuilder();
-        builderCb.call(builder);
+        builderCb.run(builder);
 
         // Build table definition
         List<String> colsDef = builder.compile();
@@ -44,10 +44,10 @@ public class DkAndroidSqliteSchema extends TheSchema {
     /**
      * Modifies table attributes like: index (add, drop), column (add, drop)...
      */
-    public static void table(SQLiteDatabase db, String tableName, DkCallback<TheSqliteTableModifier> modifierCb) {
+    public static void table(SQLiteDatabase db, String tableName, DkCallback1<TheSqliteTableModifier> modifierCb) {
         // Get commands from caller
         TheSqliteTableModifier modifier = new TheSqliteTableModifier(tableName);
-        modifierCb.call(modifier);
+        modifierCb.run(modifier);
 
         // Build and Run sql collection
         for (String query : modifier.compile()) {

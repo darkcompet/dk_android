@@ -10,7 +10,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import tool.compet.core.type.DkFunction;
+import tool.compet.core.type.DkFunction1;
 
 /**
  * This class, provides common basic operations on a collection.
@@ -72,9 +72,9 @@ public class DkCollections {
         }
     }
 
-    public static int findIndex(List<?> list, DkFunction<Object, Boolean> condition) {
+    public static int findIndex(List<?> list, DkFunction1<Object, Boolean> condition) {
         for (int index = list.size() - 1; index >= 0; --index) {
-            if (condition.apply(list.get(index))) {
+            if (condition.call(list.get(index))) {
                 return index;
             }
         }

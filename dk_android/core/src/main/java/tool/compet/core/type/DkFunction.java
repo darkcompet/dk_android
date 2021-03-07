@@ -5,8 +5,13 @@
 package tool.compet.core.type;
 
 /**
- * Like Java Function, It accepts 1 param, returns output to caller.
+ * It computes output without input.
+ * Note: it is like with `DkCallable`, but take care when call since no exception is declared.
  */
-public interface DkFunction<I, O> {
-    O apply(I input);
+public interface DkFunction<R> {
+    /**
+     * Computes result from an input without exception thrown.
+     * @return Result without exception declared.
+     */
+    R call();
 }

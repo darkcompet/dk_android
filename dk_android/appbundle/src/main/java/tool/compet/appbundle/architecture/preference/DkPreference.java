@@ -6,32 +6,40 @@ package tool.compet.appbundle.architecture.preference;
 
 import android.content.Context;
 import android.view.View;
+import android.view.ViewGroup;
 
-import tool.compet.core.storage.DkPreferenceStorage;
+import tool.compet.core.storage.DkStorageInf;
 
 @SuppressWarnings("unchecked")
 public abstract class DkPreference<P> {
-    protected abstract View createView(Context context);
+    protected abstract View createView(Context context, ViewGroup parent);
     protected abstract void decorateView(View view);
 
-    protected Context context;
-    protected DkPreferenceStorage storage;
     protected String key; // preference key in storage
-    protected MyPreferenceListener listener;
+    protected Context context; // to get resource value
+    protected DkStorageInf storage; // to store preference
+    protected MyPreferenceListener listener; // to callback when something changed
 
-    public DkPreference(Context context, DkPreferenceStorage storage, MyPreferenceListener listener) {
+    public DkPreference(String key) {
+        this.key = key;
+    }
+
+    protected void init(Context context, DkStorageInf storage, MyPreferenceListener listener) {
         this.context = context;
         this.storage = storage;
         this.listener = listener;
     }
 
-    public DkPreference(Context context, DkPreferenceStorage storage, String key, MyPreferenceListener listener) {
-        this(context, storage, listener);
-        this.key = key;
-    }
-
     public P key(String key) {
         this.key = key;
         return (P) this;
+    }
+
+    /**
+     * Call this to update item view when some data changed.
+     */
+    protected void notifyDataChanged() {
+        // For now, just update all items
+        listener.notifyDataSetChanged();
     }
 }

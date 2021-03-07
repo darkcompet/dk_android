@@ -5,6 +5,8 @@
 package tool.compet.appbundle.architecture.compact;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelStoreOwner;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -12,7 +14,6 @@ import java.util.List;
 import tool.compet.core.log.DkLogs;
 import tool.compet.core.reflection.DkReflectionFinder;
 import tool.compet.core.reflection.DkReflections;
-import tool.compet.core.util.DkCollections;
 import tool.compet.core.util.DkStrings;
 import tool.compet.core.util.DkUtils;
 
@@ -33,10 +34,10 @@ class MyCompactInjector {
      * Note that, this method must be called after #super.onCreate() inside subclass of View.
      */
     <VL extends DkCompactViewLogic> VL inject() {
-        MyCompactCache cache = view.getOwnViewModel(MyCompactCache.class);
+        MyCompactCache cache = new ViewModelProvider(view).get(MyCompactCache.class.getName(), MyCompactCache.class);
 
-        List<Field> viewLogics = DkReflectionFinder.getIns().findFields(viewClass, MyInjectViewLogic.class, true, false);
-        if (DkCollections.isEmpty(viewLogics)) {
+        List<Field> viewLogics = DkReflectionFinder.getIns().findFields(viewClass, MyInjectViewLogic.class);
+        if (viewLogics.size() == 0) {
             return null;
         }
         if (viewLogics.size() > 1) {
@@ -61,7 +62,7 @@ class MyCompactInjector {
         return viewLogic;
     }
 
-    private <VL extends DkCompactViewLogic> VL initAndSetViewLogic(@NonNull Class<VL> viewLogicClass, DkCompactView view, Field viewLogicField) {
+    private <VL extends DkCompactViewLogic> VL initAndSetViewLogic(@NonNull Class<VL> viewLogicClass, ViewModelStoreOwner view, Field viewLogicField) {
         if (! DkCompactViewLogic.class.isAssignableFrom(viewLogicClass)) {
             throw new RuntimeException("Invalid type of ViewLogic: " + viewLogicClass.toString());
         }

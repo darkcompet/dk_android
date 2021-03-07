@@ -56,8 +56,8 @@ public class DkReflections {
     /**
      * At subclass, this get generic-class of super class.
      *
-     * @return for eg, given class as {@code HomeFragment extends BaseFragment<ViewLogic>}, then
-     * return class will be {@code ViewLogic.class}.
+     * @return for eg, class is {@code HomeFragment extends BaseFragment<ViewLogic>}, then
+     * this will return {@code ViewLogic.class}.
      */
     @SuppressWarnings("unchecked")
     public static <T> Class<T> getGenericOfSuperClass(Class subClass) {

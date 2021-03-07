@@ -6,14 +6,17 @@
 <FrameLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:id="@+id/dk_background"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
+	android:layout_gravity="center"
+
 	android:clickable="true"
 	android:focusable="true">
 
 	<androidx.cardview.widget.CardView
-		android:id="@+id/vgBounds"
-		android:layout_width="wrap_content"
+		android:id="@+id/dk_foreground"
+		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center"
 		android:padding="0dp"
@@ -22,12 +25,13 @@
 		app:cardBackgroundColor="?attr/dk_color_layout_bkg">
 
 		<androidx.constraintlayout.widget.ConstraintLayout
-			android:id="@+id/vgMain"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent">
 
+			<!-- Header -->
+
 			<LinearLayout
-				android:id="@+id/vgHeader"
+				android:id="@+id/dk_header"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:orientation="vertical"
@@ -35,107 +39,119 @@
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintEnd_toEndOf="parent"
 				app:layout_constraintTop_toTopOf="parent"
-				app:layout_constraintBottom_toTopOf="@id/vgContent"
-				android:paddingLeft="8dp"
-				android:paddingTop="12dp"
-				android:paddingBottom="12dp"
-				android:paddingRight="8dp">
+				app:layout_constraintBottom_toTopOf="@id/dk_body"
+				android:padding="8dp">
 
 				<TextView
-					android:id="@+id/tvTitle"
+					android:id="@+id/dk_title"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:textColor="@color/white"
 					android:textStyle="bold"
 					android:gravity="left|center_vertical"
-					android:visibility="gone" />
+					android:visibility="visible"
+					android:text="Title"/>
 
 				<TextView
-					android:id="@+id/tvSubTitle"
+					android:id="@+id/dk_subtitle"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:background="?attr/colorPrimaryDark"
+					android:background="?attr/colorPrimary"
 					android:textColor="@color/white"
 					android:gravity="left|center_vertical"
-					android:visibility="gone" />
+					android:paddingTop="8dp"
+					android:visibility="visible"
+					android:text="Sub title"/>
 
 			</LinearLayout>
 
+			<!-- Body -->
+
 			<FrameLayout
-				android:id="@+id/vgContent"
+				android:id="@+id/dk_body"
 				android:layout_width="match_parent"
-				android:layout_height="0dp"
+				android:layout_height="wrap_content"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintEnd_toEndOf="parent"
-				app:layout_constraintTop_toBottomOf="@id/vgHeader"
-				app:layout_constraintBottom_toTopOf="@id/vgFooter">
+				app:layout_constraintTop_toBottomOf="@id/dk_header"
+				app:layout_constraintBottom_toTopOf="@id/dk_footer"
+				android:padding="8dp">
 
 				<TextView
-					android:id="@+id/tvMsg"
+					android:id="@+id/dk_message"
 					android:layout_width="match_parent"
 					android:layout_height="match_parent"
 					android:gravity="left|top"
 					android:layout_gravity="center"
 					android:minLines="5"
-					android:padding="8dp"
-					android:visibility="gone" />
+					android:text="Message"
+					android:visibility="visible" />
 
 			</FrameLayout>
 
-			<LinearLayout
-				android:id="@+id/vgFooter"
+			<!-- Footer (buttons) -->
+
+			<androidx.constraintlayout.widget.ConstraintLayout
+				android:id="@+id/dk_footer"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:orientation="horizontal"
-				android:gravity="center_vertical"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintEnd_toEndOf="parent"
-				app:layout_constraintTop_toBottomOf="@id/vgContent"
+				app:layout_constraintTop_toBottomOf="@id/dk_body"
 				app:layout_constraintBottom_toBottomOf="parent">
 
-				<Button
+				<TextView
+					android:id="@+id/dk_cancel"
 					android:layout_width="0dp"
-					android:layout_height="wrap_content"
-					android:layout_weight="1"
-					android:visibility="invisible"/>
-
-				<Button
-					style="@style/Widget.AppCompat.Button.Borderless"
-					android:id="@+id/btnCancel"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
+					android:layout_height="match_parent"
+					app:layout_constraintHorizontal_weight="1"
+					app:layout_constraintStart_toStartOf="parent"
+					app:layout_constraintEnd_toStartOf="@id/dk_reset"
+					app:layout_constraintTop_toTopOf="parent"
+					app:layout_constraintBottom_toBottomOf="parent"
+					android:gravity="center"
+					android:padding="8dp"
 					android:layout_margin="0dp"
+					android:background="@color/material_green_300"
 					android:text="@string/cancel"
-					android:gravity="center"
-					android:textColor="?attr/colorPrimary"
-					android:textStyle="bold"
-					android:visibility="gone" />
+					android:textColor="?attr/colorPrimaryDark"
+					android:visibility="visible"/>
 
-				<Button
-					style="@style/Widget.AppCompat.Button.Borderless"
-					android:id="@+id/btnReset"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
+				<TextView
+					android:id="@+id/dk_reset"
+					android:layout_width="0dp"
+					android:layout_height="match_parent"
+					app:layout_constraintHorizontal_weight="1"
+					app:layout_constraintStart_toEndOf="@id/dk_cancel"
+					app:layout_constraintEnd_toStartOf="@id/dk_ok"
+					app:layout_constraintTop_toTopOf="parent"
+					app:layout_constraintBottom_toBottomOf="parent"
 					android:layout_margin="0dp"
+					android:gravity="center"
+					android:padding="8dp"
+					android:background="@color/material_green_300"
 					android:text="@string/reset"
-					android:gravity="center"
-					android:textColor="?attr/colorPrimary"
-					android:textStyle="bold"
-					android:visibility="gone" />
+					android:textColor="?attr/colorPrimaryDark"
+					android:visibility="visible" />
 
-				<Button
-					style="@style/Widget.AppCompat.Button.Borderless"
-					android:id="@+id/btnOk"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
+				<TextView
+					android:id="@+id/dk_ok"
+					android:layout_width="0dp"
+					android:layout_height="match_parent"
+					app:layout_constraintHorizontal_weight="1"
+					app:layout_constraintStart_toEndOf="@id/dk_reset"
+					app:layout_constraintEnd_toEndOf="parent"
+					app:layout_constraintTop_toTopOf="parent"
+					app:layout_constraintBottom_toBottomOf="parent"
 					android:layout_margin="0dp"
-					android:text="@string/ok"
 					android:gravity="center"
-					android:textColor="?attr/colorPrimary"
-					android:textStyle="bold"
-					android:visibility="gone" />
+					android:padding="8dp"
+					android:background="@color/material_green_300"
+					android:text="@string/ok"
+					android:textColor="?attr/colorPrimaryDark"
+					android:visibility="visible"/>
 
-			</LinearLayout>
+			</androidx.constraintlayout.widget.ConstraintLayout>
 
 		</androidx.constraintlayout.widget.ConstraintLayout>
 

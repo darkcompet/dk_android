@@ -27,7 +27,7 @@ public class DkTextItemBuilder extends DkItemBuilder<DkTextItemBuilder> {
     @Override
     protected DkBaseItemView getView(Context context) {
         int layoutRes;
-        DkTextItemView v;
+        DkTextItemView itemView;
 
         if (style == STYLE_TEXT_INSIDE_ICON) {
             layoutRes = R.layout.item_text_inside;
@@ -48,16 +48,16 @@ public class DkTextItemBuilder extends DkItemBuilder<DkTextItemBuilder> {
             throw new RuntimeException("Invalid style");
         }
 
-        v = super.prepareView(context, layoutRes);
+        itemView = super.prepareView(context, layoutRes);
 
         if (iconRes > 0) {
-            v.ivIcon.setImageResource(iconRes);
+            itemView.ivIcon.setImageResource(iconRes);
         }
         if (textRes > 0) {
-            v.tvText.setText(textRes);
+            itemView.tvText.setText(textRes);
         }
 
-        return v;
+        return itemView;
     }
 
     public DkTextItemBuilder setStyle(int style) {

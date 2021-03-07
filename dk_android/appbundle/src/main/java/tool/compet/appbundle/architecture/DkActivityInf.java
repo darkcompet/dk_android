@@ -36,9 +36,11 @@ public interface DkActivityInf {
     DkFragmentNavigator getChildNavigator();
 
     /**
-     * Dismiss itself.
+     * Dismiss (finish) itself.
+     *
+     * @return true if finish succeed, otherwise falied.
      */
-    void dismiss();
+    boolean close();
 
     /**
      * Indicates the activity is resumsed or come to front.

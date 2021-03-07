@@ -35,7 +35,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.ViewCompat;
 
-import tool.compet.core.type.DkCallback;
+import tool.compet.core.type.DkCallback1;
 
 /**
  * Utility class for View.
@@ -47,7 +47,7 @@ public class DkViews {
      * @param view     target view.
      * @param callback dimension callback with {width, height}.
      */
-    public static void getViewDimension(View view, DkCallback<int[]> callback) {
+    public static void getViewDimension(View view, DkCallback1<int[]> callback) {
         view.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
@@ -59,7 +59,7 @@ public class DkViews {
                 }
 
                 if (callback != null) {
-                    callback.call(new int[]{view.getMeasuredWidth(), view.getMeasuredHeight()});
+                    callback.run(new int[]{view.getMeasuredWidth(), view.getMeasuredHeight()});
                 }
             }
         });
@@ -291,17 +291,17 @@ public class DkViews {
         return false;
     }
 
+    /**
+     * Check whether the `event` is touched inside the `view`.
+     * @param event Touch event.
+     * @param view Target view.
+     */
     public static boolean isInsideView(MotionEvent event, View view) {
         float x = event.getX();
         float y = event.getY();
-        int w = view.getWidth();
-        int h = view.getHeight();
 
-        return x >= 0 && y >= 0 && x <= w && y <= h;
-    }
-
-    public static boolean isInsideView(float localX, float localY, int w, int h) {
-        return localX >= 0 && localY >= 0 && localX <= w && localY <= h;
+        return x >= view.getLeft() && x <= view.getRight()
+            && y >= view.getTop() && y <= view.getBottom();
     }
 
     /**

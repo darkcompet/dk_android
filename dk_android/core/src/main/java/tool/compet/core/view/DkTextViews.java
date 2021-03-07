@@ -20,7 +20,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 
 import tool.compet.core.config.DkConfig;
-import tool.compet.core.type.DkCallback;
+import tool.compet.core.type.DkCallback1;
 
 /**
  * Utility class for text processing for TextView.
@@ -48,11 +48,11 @@ public class DkTextViews {
         return Html.fromHtml(text);
     }
 
-    public static void makeUnderlineTagClickable(TextView textView, DkCallback<View> clickCb) {
+    public static void makeUnderlineTagClickable(TextView textView, DkCallback1<View> clickCb) {
         makeUnderlineTagClickable(textView, textView.getText().toString(), clickCb);
     }
 
-    public static void makeUnderlineTagClickable(TextView textView, String textInHtml, DkCallback<View> clickCb) {
+    public static void makeUnderlineTagClickable(TextView textView, String textInHtml, DkCallback1<View> clickCb) {
         Spanned spanned = Html.fromHtml(textInHtml);
         SpannableStringBuilder builder = new SpannableStringBuilder(spanned);
         UnderlineSpan[] urls = builder.getSpans(0, spanned.length(), UnderlineSpan.class);
@@ -66,7 +66,7 @@ public class DkTextViews {
                 ClickableSpan clickable = new ClickableSpan() {
                     public void onClick(@NonNull View view) {
                         if (clickCb != null) {
-                            clickCb.call(view);
+                            clickCb.run(view);
                         }
                     }
                 };

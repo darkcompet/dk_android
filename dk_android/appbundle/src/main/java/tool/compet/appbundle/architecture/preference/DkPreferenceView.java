@@ -17,7 +17,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-public abstract class DkPreferenceView extends RecyclerView implements DkPreferenceInterface {
+/**
+ * Subclass can extend this to implement preference via View.
+ */
+public abstract class DkPreferenceView extends RecyclerView implements DkPreferenceInf {
     private ThePreferenceManager preferenceManager;
     private MyAdapter adapter;
     private final MyPreferenceListener listener = new MyPreferenceListener() {
@@ -51,14 +54,14 @@ public abstract class DkPreferenceView extends RecyclerView implements DkPrefere
         this.preferenceManager = new ThePreferenceManager(context, storage(), listener);
         this.adapter = new MyAdapter(preferenceManager.getPreferences());
 
-        onSetupRecyclerView(context);
+        onSetupPreferenceView(context);
         onCreatePreferences(preferenceManager);
     }
 
     /**
-     * Subclass can override this to setup preference view (RecyclerView, ListView...)
+     * Subclass can override this to setup preference view (RecyclerView)
      */
-    protected void onSetupRecyclerView(Context context) {
+    protected void onSetupPreferenceView(Context context) {
         this.setAdapter(adapter);
         this.setHasFixedSize(true);
         this.setLayoutManager(new LinearLayoutManager(context));
@@ -92,7 +95,7 @@ public abstract class DkPreferenceView extends RecyclerView implements DkPrefere
         public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             // At below method `getItemViewType()`, we has set viewType as position of the preference in list
             DkPreference preference = preferences.get(viewType);
-            return new MyViewHolder(preference.createView(parent.getContext()));
+            return new MyViewHolder(preference.createView(parent.getContext(), parent));
         }
 
         @Override

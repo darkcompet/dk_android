@@ -8,7 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import tool.compet.core.type.DkCallback;
+import tool.compet.core.type.DkCallback1;
 
 /**
  * Example of usage:
@@ -28,19 +28,19 @@ import tool.compet.core.type.DkCallback;
  * </pre>
  */
 public class DkNetworkChangeReceiver extends BroadcastReceiver {
-	private DkCallback<Integer> listener;
+	private DkCallback1<Integer> listener;
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		if (listener != null) {
-			listener.call(DkNetworks.getConnectionStatus(context));
+			listener.run(DkNetworks.getConnectionStatus(context));
 		}
 	}
 
 	/**
 	 * @param statusListener will callback status of network, #see DkNetworkStatus.XXX
 	 */
-	public void setNetworkChangeListener(DkCallback<Integer> statusListener) {
+	public void setNetworkChangeListener(DkCallback1<Integer> statusListener) {
 		this.listener = statusListener;
 	}
 }

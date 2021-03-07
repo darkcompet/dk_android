@@ -32,7 +32,7 @@ import static tool.compet.appbundle.BuildConfig.DEBUG;
 /**
  * Subclass must declare annotation #DkBindXml on top.
  */
-public abstract class DkPreferenceFragment extends PreferenceFragmentCompat
+public abstract class DkPreferenceFragment_BK extends PreferenceFragmentCompat
     implements DkFragmentInf, SharedPreferences.OnSharedPreferenceChangeListener, DkFragmentNavigator.Callback {
     /**
      * Specify id of preference resource for this fragment.
@@ -282,7 +282,7 @@ public abstract class DkPreferenceFragment extends PreferenceFragmentCompat
     @Override
     public boolean onBackPressed() {
         if (navigator == null || navigator.handleOnBackPressed()) {
-            return this.dismiss();
+            return this.close();
         }
         return false;
     }
@@ -291,7 +291,7 @@ public abstract class DkPreferenceFragment extends PreferenceFragmentCompat
      * Finish this view by tell parent remove this from navigator.
      */
     @Override
-    public boolean dismiss() {
+    public boolean close() {
         return getParentNavigator().beginTransaction().remove(this).commit();
     }
 

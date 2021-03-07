@@ -9,11 +9,7 @@ import android.content.Context;
 public class DkImageOnlyItemBuilder extends DkItemBuilder<DkImageOnlyItemBuilder> {
     private int iconRes;
 
-    private DkImageOnlyItemBuilder() {
-    }
-
-    public static DkImageOnlyItemBuilder newIns() {
-        return new DkImageOnlyItemBuilder();
+    public DkImageOnlyItemBuilder() {
     }
 
     @Override

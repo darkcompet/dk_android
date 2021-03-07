@@ -18,14 +18,17 @@ import java.util.List;
 
 import tool.compet.appbundle.architecture.simple.DkSimpleFragment;
 
-public abstract class DkPreferenceFragment extends DkSimpleFragment implements DkPreferenceInterface {
+/**
+ * Subclass can extend this to implement preference via Fragment.
+ */
+public abstract class DkPreferenceFragment extends DkSimpleFragment implements DkPreferenceInf {
     /**
-     * Caller must provide preference view id (id of list view, recycler view...)
+     * Caller must provide preference view id (id of recycler view)
      */
     protected abstract int preferenceViewId();
 
-    private ThePreferenceManager preferenceManager;
-    private MyAdapter adapter;
+    protected ThePreferenceManager preferenceManager;
+    protected MyAdapter adapter;
     private final MyPreferenceListener listener = new MyPreferenceListener() {
         @Override
         public void onPreferenceChanged(String key) {
@@ -55,25 +58,19 @@ public abstract class DkPreferenceFragment extends DkSimpleFragment implements D
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        View prefView = layout.findViewById(preferenceViewId());
+        RecyclerView prefView = layout.findViewById(preferenceViewId());
         onSetupPreferenceView(prefView);
         onCreatePreferences(preferenceManager);
     }
 
     /**
-     * Subclass can override this to setup preference view (RecyclerView, ListView...)
+     * Subclass can override this to setup preference view (RecyclerView)
      */
-    protected void onSetupPreferenceView(View prefView) {
-        if (prefView instanceof RecyclerView) {
-            RecyclerView rv = (RecyclerView) prefView;
-            rv.setAdapter(adapter);
-            rv.setHasFixedSize(true);
-            rv.setLayoutManager(new LinearLayoutManager(context));
-            rv.addItemDecoration(new DividerItemDecoration(context, LinearLayoutManager.VERTICAL));
-        }
-        else {
-            throw new RuntimeException("Must setup preference");
-        }
+    protected void onSetupPreferenceView(RecyclerView prefView) {
+        prefView.setAdapter(adapter);
+        prefView.setHasFixedSize(true);
+        prefView.setLayoutManager(new LinearLayoutManager(context));
+        prefView.addItemDecoration(new DividerItemDecoration(context, LinearLayoutManager.VERTICAL));
     }
 
     @Override
@@ -103,7 +100,7 @@ public abstract class DkPreferenceFragment extends DkSimpleFragment implements D
         public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             // At below method `getItemViewType()`, we has set viewType as position of the preference in list
             DkPreference preference = preferences.get(viewType);
-            return new MyViewHolder(preference.createView(parent.getContext()));
+            return new MyViewHolder(preference.createView(parent.getContext(), parent));
         }
 
         @Override

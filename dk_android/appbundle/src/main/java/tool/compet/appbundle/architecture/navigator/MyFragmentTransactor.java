@@ -29,25 +29,25 @@ public class MyFragmentTransactor {
         this.backstack = navigator.backstack;
     }
 
-    public MyFragmentTransactor setAnims(int add, int remove) {
-        addAnim = add;
-        removeAnim = remove;
+    public MyFragmentTransactor setAnims(int enterAnim) {
+        return setAnims(enterAnim, 0, 0, 0);
+    }
 
-        return this;
+    public MyFragmentTransactor setAnims(int enterAnim, int exitAnim) {
+        return setAnims(enterAnim, exitAnim, 0, 0);
     }
 
     /**
-     * @param add animation or animator resId for added action.
-     * @param remove animation or animator resId for removed action.
-     * @param reattach animation or animator resId for reattached action.
-     * @param detach animation or animator resId for detached action.
+     * @param addAnim animation or animator resId for added action.
+     * @param removeAnim animation or animator resId for removed action.
+     * @param reattachAnim animation or animator resId for reattached action.
+     * @param detachAnim animation or animator resId for detached action.
      */
-    public MyFragmentTransactor setAnims(int add, int remove, int reattach, int detach) {
-        addAnim = add;
-        removeAnim = remove;
-        reattachAnim = reattach;
-        detachAnim = detach;
-
+    public MyFragmentTransactor setAnims(int addAnim, int removeAnim, int reattachAnim, int detachAnim) {
+        this.addAnim = addAnim;
+        this.removeAnim = removeAnim;
+        this.reattachAnim = reattachAnim;
+        this.detachAnim = detachAnim;
         return this;
     }
 
@@ -91,11 +91,11 @@ public class MyFragmentTransactor {
      * change backstack structure.
      */
     public MyFragmentTransactor detachAllThenAdd(DkFragmentInf f) {
-        for (int i = backstack.size(); i > 0; --i) {
-            Fragment fi = findFragmentByIndex(i);
+        for (int index = backstack.size(); index > 0; --index) {
+            Fragment targetFrag = findFragmentByIndex(index);
 
-            if (fi != null) {
-                performDetach(fi);
+            if (targetFrag != null) {
+                performDetach(targetFrag);
             }
         }
 

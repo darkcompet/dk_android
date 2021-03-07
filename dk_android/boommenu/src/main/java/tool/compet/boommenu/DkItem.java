@@ -9,10 +9,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Interpolator;
 
+/**
+ * Contains item info after build.
+ */
 public class DkItem {
     // Basic
     protected int index;
     protected View view;
+    protected DkOnItemClickListener onClickLisener;
     protected int width;
     protected int height;
     protected int margin;

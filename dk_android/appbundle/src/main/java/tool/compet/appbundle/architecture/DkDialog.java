@@ -4,70 +4,47 @@
 
 package tool.compet.appbundle.architecture;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.view.animation.Interpolator;
+import android.view.ViewGroup;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDialogFragment;
-import androidx.core.view.animation.PathInterpolatorCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
 
-import tool.compet.appbundle.architecture.simple.DkSimpleActivity;
 import tool.compet.core.BuildConfig;
-import tool.compet.core.type.DkBiCallback;
-import tool.compet.core.type.DkCallback;
 import tool.compet.core.log.DkLogs;
-import tool.compet.core.animation.DkAnimationConfiguration;
-import tool.compet.core.animation.DkInterpolatorProvider;
 
-@SuppressWarnings("unchecked")
-public abstract class DkDialog<T extends DkDialog> extends AppCompatDialogFragment {
+/**
+ * Dialog which extends DialogFragment to live with lifecycle of the app.
+ */
+public abstract class DkDialog<T extends DkDialog> extends AppCompatDialogFragment implements DkFragmentInf {
     public static final String TAG = DkDialog.class.getName();
 
-    public static final int ANIM_ZOOM_IN = 1;
-    public static final int ANIM_SWIPE_DOWN = 2;
-
-    protected FragmentActivity host;
-    protected Context context;
-
-    protected boolean isDismissOnTouchOutside = true;
-    protected boolean isCancellable = true; // like when back button pressed...
-
-    private static Interpolator animZoomInInterpolator;
-    private static Interpolator animSwipeDownInterpolator;
-
-    // Animations
-    private ValueAnimator animator;
-    private boolean hasShowAnim = true;
-    private int showAnimType = ANIM_ZOOM_IN;
-    private boolean hasDismissAnim;
-    private int dismissAnimType = -1;
-    private Interpolator animInterpolator;
-    private DkBiCallback<ValueAnimator, View> animUpdater;
-    private DkCallback<Dialog> onShowListener;
-    private DkCallback<Dialog> onDismissListener;
+    protected FragmentActivity host; // host at `onAttach()`
+    protected Context context; // context at `onAttach()`
+    protected View layout; // view at `onViewCreate()`
 
     @Override
     public void onAttach(@NonNull Context context) {
         if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onAttach");
+            DkLogs.info(this, "onAttach (context)");
+        }
+        if (this.context == null) {
+            this.context = context;
+        }
+        if (this.host == null) {
+            this.host = getActivity();
         }
 
-        notifyParentInactive();
-
-        this.context = context;
         super.onAttach(context);
     }
 
@@ -75,80 +52,129 @@ public abstract class DkDialog<T extends DkDialog> extends AppCompatDialogFragme
     @SuppressWarnings("deprecation")
     public void onAttach(@NonNull Activity activity) {
         if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onAttach");
+            DkLogs.info(this, "onAttach (activity)");
         }
-        if (context == null) {
-            context = activity;
+        if (this.context == null) {
+            this.context = activity;
         }
-        host = (FragmentActivity) activity;
+        if (this.host == null) {
+            host = (FragmentActivity) activity;
+        }
 
         super.onAttach(activity);
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        final Dialog dialog = getDialog();
-
-        if (dialog != null) {
-            dialog.setCancelable(isCancellable);
-
-            dialog.setOnShowListener(dlg -> {
-                if (hasShowAnim) {
-                    if (onShowListener != null) {
-                        onShowListener.call(dialog);
-                    }
-                }
-                else {
-                    animator = ValueAnimator.ofFloat(0f, 1f);
-                    requireAnimationUpdater();
-                    requireAnimationInterpolator();
-
-                    animator.setDuration(DkAnimationConfiguration.ANIM_LARGE_EXPAND);
-                    animator.setInterpolator(animInterpolator);
-                    animator.addUpdateListener(anim -> {
-                        animUpdater.call(anim, view);
-                    });
-                    animator.addListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            if (onShowListener != null) {
-                                onShowListener.call(dialog);
-                            }
-                        }
-                    });
-                    animator.start();
-                }
-            });
-
-            dialog.setOnDismissListener(dlg -> {
-                if (hasDismissAnim) {
-                    if (animator == null) {
-                        return;
-                    }
-                    requireAnimationUpdater();
-                    requireAnimationInterpolator();
-                    animator.removeAllListeners();
-                    animator.setDuration(DkAnimationConfiguration.ANIM_LARGE_COLLAPSE);
-                    animator.addListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            if (onDismissListener != null) {
-                                onDismissListener.call(dialog);
-                            }
-                            super.onAnimationEnd(animation);
-                        }
-                    });
-                    animator.reverse();
-                }
-                else {
-                    if (onDismissListener != null) {
-                        onDismissListener.call(dialog);
-                    }
-                }
-            });
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onCreate");
         }
+        super.setRetainInstance(isRetainInstance());
+        super.onCreate(savedInstanceState);
+    }
+
+    // onCreate() -> onCreateDialog() -> onCreateView()
+    @NonNull
+    @Override
+    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onCreateDialog");
+        }
+        return super.onCreateDialog(savedInstanceState);
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onCreateView");
+        }
+        return super.onCreateView(inflater, container, savedInstanceState);
+    }
+
+    // onCreateView() -> onActivityCreated() -> onViewStateRestored()
+    // By default, dialog will set view which be created at onCreateView() at this time
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onActivityCreated");
+        }
+        super.onActivityCreated(savedInstanceState);
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onViewStateRestored");
+        }
+        super.onViewStateRestored(savedInstanceState);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onViewCreated");
+        }
+        this.layout = view;
+        super.onViewCreated(view, savedInstanceState);
+    }
+
+    @Override
+    public void onStart() {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onStart");
+        }
+        super.onStart();
+    }
+
+    @Override
+    public void onResume() {
+        onActive(true);
+        super.onResume();
+    }
+
+    @Override
+    public void onActive(boolean isResume) {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, isResume ? "onResume" : "onFront");
+        }
+    }
+
+    @Override
+    public void onPause() {
+        onInactive(true);
+        super.onPause();
+    }
+
+    @Override
+    public void onInactive(boolean isPause) {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, isPause ? "onPause" : "onBehind");
+        }
+    }
+
+    @Override
+    public void onStop() {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onStop");
+        }
+        super.onStop();
+    }
+
+    @Override
+    public void onDestroyView() {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onDestroyView");
+        }
+        super.onDestroyView();
+    }
+
+    @Override
+    public void onDestroy() {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onDestroy");
+        }
+        super.onDestroy();
     }
 
     @CallSuper
@@ -158,183 +184,47 @@ public abstract class DkDialog<T extends DkDialog> extends AppCompatDialogFragme
             DkLogs.info(this, "onDetach");
         }
 
-        host = null;
-        context = null;
+        this.host = null;
+        this.context = null;
+        this.layout = null;
 
         super.onDetach();
     }
 
     @Override
-    public void onDismiss(@NonNull DialogInterface dialog) {
-        // Notify inactive for parent fragment
-        Fragment parent = getParentFragment();
-
-        // when null, parent is activity
-        if (parent == null) {
-            FragmentActivity activity = getActivity();
-
-            if (activity instanceof DkSimpleActivity) {
-                ((DkSimpleActivity) activity).onActive(false);
-            }
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onActivityResult");
         }
-        // otherwise parent is fragment
-        else if (parent instanceof DkFragmentInf) {
-            ((DkFragmentInf) parent).onActive(false);
-        }
-
-        super.onDismiss(dialog);
-    }
-
-    public void show(FragmentManager fm) {
-        show(fm, TAG);
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
-    public void show(@NonNull FragmentManager fm, String tag) {
-        // Execute all pending transactions first
-        try {
-            fm.executePendingTransactions();
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onActivityResult");
         }
-        catch (Exception e) {
-            DkLogs.error(this, e);
-        }
-        // Perform show actual
-        finally {
-            try {
-                // perform transaction inside parent FM
-                super.show(fm, tag);
-            }
-            catch (Exception e) {
-                DkLogs.error(this, e);
-            }
-        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Override
-    public void dismiss() {
-        // Execute all pending transactions first
-        try {
-            FragmentManager fm = getFragmentManager();
-
-            if (fm != null) {
-                fm.executePendingTransactions();
-            }
+    public void onLowMemory() {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onLowMemory");
         }
-        catch (Exception e) {
-            DkLogs.error(this, e);
+        super.onLowMemory();
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        if (BuildConfig.DEBUG) {
+            DkLogs.info(this, "onSaveInstanceState");
         }
-        // Perform dismiss actual
-        finally {
-            try {
-                super.dismiss();
-            }
-            catch (Exception e) {
-                DkLogs.error(this, e);
-            }
-        }
+        super.onSaveInstanceState(outState);
     }
 
-    private void notifyParentInactive() {
-        // Notify inactive for parent fragment
-        Fragment parent = getParentFragment();
-
-        // when null, parent is activity
-        if (parent == null) {
-            FragmentActivity host = getActivity();
-
-            if (host instanceof DkSimpleActivity) {
-                ((DkSimpleActivity) host).onInactive(false);
-            }
-        }
-        // otherwise parent is fragment
-        else if (parent instanceof DkFragmentInf) {
-            ((DkFragmentInf) parent).onInactive(false);
-        }
-    }
-
-    private void requireAnimationInterpolator() {
-        if (animInterpolator == null) {
-            switch (showAnimType) {
-                case ANIM_ZOOM_IN: {
-                    if (animZoomInInterpolator == null) {
-                        animZoomInInterpolator = PathInterpolatorCompat.create(
-                            0.78f, 1.27f,
-                            0.87f, 1.06f);
-                    }
-                    animInterpolator = animZoomInInterpolator;
-                    break;
-                }
-                case ANIM_SWIPE_DOWN: {
-                    if (animSwipeDownInterpolator == null) {
-                        animSwipeDownInterpolator = DkInterpolatorProvider.newElasticOut(true);
-                    }
-                    animInterpolator = animSwipeDownInterpolator;
-                    break;
-                }
-                default: {
-                    throw new RuntimeException("Invalid animType");
-                }
-            }
-        }
-    }
-
-    private void requireAnimationUpdater() {
-        if (animUpdater == null) {
-            switch (showAnimType) {
-                case ANIM_ZOOM_IN: {
-                    animUpdater = (va, view) -> {
-                        float sf = va.getAnimatedFraction();
-                        view.setScaleX(sf);
-                        view.setScaleY(sf);
-                    };
-                    break;
-                }
-                case ANIM_SWIPE_DOWN: {
-                    animUpdater = (va, view) -> {
-                        view.setY((va.getAnimatedFraction() - 1) * view.getHeight() / 2);
-                    };
-                    break;
-                }
-                default: {
-                    throw new RuntimeException("Invalid animType");
-                }
-            }
-        }
-    }
-
-    public T setAnimationType(int animType) {
-        this.showAnimType = animType;
-        return (T) this;
-    }
-
-    public T setAnimation(Interpolator animInterpolator, DkBiCallback<ValueAnimator, View> animUpdateCb) {
-        this.animInterpolator = animInterpolator;
-        this.animUpdater = animUpdateCb;
-        return (T) this;
-    }
-
-    public T setOnShowListener(DkCallback<Dialog> showListener) {
-        this.onShowListener = showListener;
-        return (T) this;
-    }
-
-    public T setOnDismissListener(DkCallback<Dialog> dismissListener) {
-        this.onDismissListener = dismissListener;
-        return (T) this;
-    }
-
-    public T setDismissOnTouchOutside(boolean dismissOnTouchOutside) {
-        isDismissOnTouchOutside = dismissOnTouchOutside;
-        return (T) this;
-    }
-
-    public T setCancellable(boolean cancellable) {
-        isCancellable = cancellable;
-        return (T) this;
-    }
-
-    public T setHasShowAnim(boolean hasShowAnim) {
-        this.hasShowAnim = hasShowAnim;
-        return (T) this;
+    @Override
+    public Fragment getFragment() {
+        return this;
     }
 }

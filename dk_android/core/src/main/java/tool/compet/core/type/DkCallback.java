@@ -5,9 +5,12 @@
 package tool.compet.core.type;
 
 /**
- * Callbacked with a generic type. It is an support version along with Runnable or Callable.
- * If you want a callback that can return a value, use #DkFunction.
+ * Don't pass any param to caller without care of exception.
+ * Note: this is like with `DkRunnable`, but take care when run since no exception is declared.
  */
-public interface DkCallback<T> {
-    void call(T input);
+public interface DkCallback {
+    /**
+     * Don't pass (callback) any param to caller.
+     */
+    void run();
 }

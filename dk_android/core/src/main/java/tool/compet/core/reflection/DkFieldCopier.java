@@ -22,7 +22,7 @@ public class DkFieldCopier {
     }
 
     public static void copy(Object src, Object dst, boolean upSuper) {
-        copy(src, dst, upSuper, new ArraySet<>());
+        copy(src, dst, upSuper, null);
     }
 
     /**
@@ -34,11 +34,11 @@ public class DkFieldCopier {
      * @param excludeFieldNames Fields should not be copied from src to dst.
      */
     public static void copy(Object src, Object dst, boolean upSuper, Collection<String> excludeFieldNames) {
-        excludeFieldNames = new ArraySet<>(excludeFieldNames);
+        excludeFieldNames = excludeFieldNames != null ? new ArraySet<>(excludeFieldNames) : null;
 
         DkReflectionFinder finder = DkReflectionFinder.getIns();
-        List<Field> srcFields = finder.findFields(src.getClass(), SerializedName.class, upSuper, false);
-        List<Field> dstFields = finder.findFields(dst.getClass(), SerializedName.class, upSuper, false);
+        List<Field> srcFields = finder.findFields(src.getClass(), SerializedName.class, upSuper);
+        List<Field> dstFields = finder.findFields(dst.getClass(), SerializedName.class, upSuper);
 
         ArrayMap<String, Field> srcFieldMap = new ArrayMap<>();
         ArrayMap<String, Field> dstFieldMap = new ArrayMap<>();
@@ -60,7 +60,7 @@ public class DkFieldCopier {
         for (int index = N - 1; index >= 0; --index) {
             String fieldName = srcFieldMap.keyAt(index);
 
-            if (excludeFieldNames.contains(fieldName)) {
+            if (excludeFieldNames != null && excludeFieldNames.contains(fieldName)) {
                 continue;
             }
 
@@ -76,7 +76,7 @@ public class DkFieldCopier {
                 }
                 catch (Exception e) {
                     DkLogs.error(DkFieldCopier.class, e);
-                    throw new RuntimeException(DkStrings.format("Could not copy: %s.%s -> %s.%s",
+                    throw new RuntimeException(DkStrings.format("Could not copy field: %s.%s -> %s.%s",
                         src.getClass().getName(), srcField.getName(), dst.getClass().getName(), dstField.getName()));
                 }
             }

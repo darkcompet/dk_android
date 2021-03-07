@@ -4,8 +4,7 @@
 
 package tool.compet.appbundle.architecture.compact;
 
-import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelStoreOwner;
 
-public interface DkCompactView {
-    <M extends ViewModel> M getOwnViewModel(Class<M> modelType);
+public interface DkCompactView extends ViewModelStoreOwner {
 }

@@ -13,9 +13,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStoreOwner;
 
 import tool.compet.appbundle.architecture.DkActivity;
-import tool.compet.appbundle.architecture.DkViewModelStoreInf;
 import tool.compet.appbundle.architecture.navigator.DkFragmentNavigator;
-import tool.compet.appbundle.architecture.topic.DkTopicProvider;
 import tool.compet.appbundle.floatingbar.DkSnackbar;
 import tool.compet.appbundle.floatingbar.DkToastbar;
 import tool.compet.core.BuildConfig;
@@ -32,7 +30,7 @@ import tool.compet.core.log.DkLogs;
  * Be aware of lifecycle in Activity: if activity is not going to be destroyed and
  * returns to foreground after onStop(), then onRestart() -> onStart() will be called respectively.
  */
-public abstract class DkSimpleActivity extends DkActivity implements DkViewModelStoreInf, DkFragmentNavigator.Callback {
+public abstract class DkSimpleActivity extends DkActivity implements DkFragmentNavigator.Callback {
     private DkFragmentNavigator navigator;
 
     /**
@@ -83,141 +81,43 @@ public abstract class DkSimpleActivity extends DkActivity implements DkViewModel
         super.onRestoreInstanceState(savedInstanceState);
     }
 
-    /**
-     * Get or Create new ViewModel instance which be owned by this Fragment.
-     */
-    @Override
-    public <M extends ViewModel> M getOwnViewModel(Class<M> modelType) {
-        return new ViewModelProvider(this).get(modelType);
-    }
+    //
+    // ViewModel region
+    //
 
-    /**
-     * Get or Create new ViewModel instance which be owned by this Fragment.
-     */
-    @Override
+    // Get or Create new ViewModel instance which be owned by this activity.
     public <M extends ViewModel> M getOwnViewModel(String key, Class<M> modelType) {
         return new ViewModelProvider(this).get(key, modelType);
     }
 
-    /**
-     * Same with getAppViewModel().
-     */
-    @Override
-    public <M extends ViewModel> M getHostViewModel(Class<M> modelType) {
-        return getAppViewModel(modelType.getName(), modelType);
-    }
-
-    /**
-     * Same with getAppViewModel().
-     */
-    @Override
-    public <M extends ViewModel> M getHostViewModel(String key, Class<M> modelType) {
-        return getAppViewModel(key, modelType);
-    }
-
-    @Override
-    public <M extends ViewModel> M getAppViewModel(Class<M> modelType) {
-        return getAppViewModel(modelType.getName(), modelType);
-    }
-
-    @Override
+    // Get or Create new ViewModel instance which be owned by current app.
     public <M extends ViewModel> M getAppViewModel(String key, Class<M> modelType) {
         Application app = getApplication();
 
-        if (app instanceof DkSimpleApp) {
-            return new ViewModelProvider((DkSimpleApp) app).get(key, modelType);
-        }
-
-        throw new RuntimeException("Not yet support");
-    }
-
-    @Override
-    public <M> M ownTopic(Class<M> modelClass) {
-        return ownTopic(modelClass, true);
-    }
-
-    @Override
-    public <M> M ownTopic(Class<M> modelType, boolean listen) {
-        return ownTopic(modelType.getName(), modelType, listen);
-    }
-
-    @Override
-    public <M> M ownTopic(String topicId, Class<M> modelType) {
-        return ownTopic(topicId, modelType, true);
-    }
-
-    /**
-     * Get or Create shared model instance which be owned by this Activity.
-     */
-    @Override
-    public <M> M ownTopic(String topicId, Class<M> modelType, boolean listen) {
-        return topic(this, topicId, modelType, listen);
-    }
-
-    @Override
-    public <M> M hostTopic(Class<M> modelClass) {
-        return hostTopic(modelClass, true);
-    }
-    
-    @Override
-    public <M> M hostTopic(Class<M> modelType, boolean listen) {
-        return hostTopic(modelType.getName(), modelType, listen);
-    }
-
-    @Override
-    public <M> M hostTopic(String topicId, Class<M> modelType) {
-        return hostTopic(topicId, modelType, true);
-    }
-
-    /**
-     * Same with `appTopic()`.
-     */
-    @Override
-    public <M> M hostTopic(String topicId, Class<M> modelType, boolean listen) {
-        return appTopic(topicId, modelType, listen);
-    }
-
-    @Override
-    public <M> M appTopic(Class<M> modelClass) {
-        return appTopic(modelClass, true);
-    }
-
-    @Override
-    public <M> M appTopic(Class<M> modelType, boolean listen) {
-        return appTopic(modelType.getName(), modelType, listen);
-    }
-
-    @Override
-    public <M> M appTopic(String topicId, Class<M> modelType) {
-        return appTopic(topicId, modelType, true);
-    }
-
-    /**
-     * Get or Create shared model instance which be owned by current app.
-     */
-    @Override
-    public <M> M appTopic(String topicId, Class<M> modelType, boolean listen) {
-        Application app = getApplication();
-
         if (app instanceof ViewModelStoreOwner) {
-            return topic(((ViewModelStoreOwner) app), topicId, modelType, listen);
+            return new ViewModelProvider((ViewModelStoreOwner) app).get(key, modelType);
         }
 
-        throw new RuntimeException("App must be subclass of ViewModelStoreOwner");
+        throw new RuntimeException("App must be subclass of `ViewModelStoreOwner`");
     }
 
-    /**
-     * Get or Create (new if not exists) shared model instance which be owned by a owner (Application, Activity, Fragment, ...).
-     * The topic will be removed when no client observes the topic or the owner's ViewModel was destroyed.
-     * Note that, you must call this method when host of this is in active state.
-     *
-     * @param listen true if you also wanna listen the topic, that is, this view will
-     *               become listener of the topic. Otherwise just getOrCreate.
-     */
-    @Override
-    public <M> M topic(ViewModelStoreOwner owner, String topicId, Class<M> modelType, boolean listen) {
-        return new DkTopicProvider(owner, this).getOrCreateModelAtTopic(topicId, modelType, listen);
+    //
+    // Scoped topic region
+    //
+
+    // Obtain and Listen a topic in hostOwner
+    public TheActivityTopicRegistry joinTopic(String topicId) {
+        return new TheActivityTopicRegistry(topicId, this, this);
     }
+
+    // Leave from a topic, and remove topic from hostOwner if no client listening
+    public void leaveTopic(String topicId) {
+        new TheActivityTopicRegistry(topicId, this, this).unregisterClient();
+    }
+
+    //
+    // Utility region
+    //
 
     public void snack(int msgRes, int type) {
         DkSnackbar.newIns(this).asType(type).setMessage(msgRes).show();

@@ -36,13 +36,9 @@ public class DkReflectionFinder {
         this.methodCache = new ArrayMap<>();
     }
 
-    public static void install(String... searchPrefixPackages) {
+    public static void install(String... prefixSearchPackages) {
         if (INS == null) {
-            synchronized (DkReflectionFinder.class) {
-                if (INS == null) {
-                    INS = new DkReflectionFinder(searchPrefixPackages);
-                }
-            }
+            INS = new DkReflectionFinder(prefixSearchPackages);
         }
     }
 
@@ -51,35 +47,6 @@ public class DkReflectionFinder {
             throw new RuntimeException("Must call install() first");
         }
         return INS;
-    }
-
-    /**
-     * Calculate cache-key for a annotation of given class.
-     */
-    private static String keyOf(Class clazz, Class<? extends Annotation> annotation) {
-        return clazz.getName() + "_" + annotation.getName();
-    }
-
-    /**
-     * From #fieldsMap of #clazz, get field-list of #annotation.
-     */
-    @NonNull
-    public static List<Field> extractFields(Class<? extends Annotation> annotation, Class clazz, ArrayMap<String, List<Field>> fieldsMap) {
-        String key = keyOf(clazz, annotation);
-        List<Field> fields = fieldsMap.get(key);
-
-        return fields != null ? fields : Collections.emptyList();
-    }
-
-    /**
-     * From #methodsMap of #clazz, get method-list of #annotation.
-     */
-    @NonNull
-    public static List<Method> extractMethods(Class<? extends Annotation> annotation, Class clazz, ArrayMap<String, List<Method>> methodsMap) {
-        String key = keyOf(clazz, annotation);
-        List<Method> methods = methodsMap.get(key);
-
-        return methods != null ? methods : Collections.emptyList();
     }
 
     /**
@@ -93,6 +60,15 @@ public class DkReflectionFinder {
 
     /**
      * Find fields which be annotated with given #annotation inside a class.
+     * By default, it does not cache result.
+     */
+    @NonNull
+    public List<Field> findFields(Class clazz, Class<? extends Annotation> annotation, boolean upSuper) {
+        return findFields(clazz, annotation, upSuper, false);
+    }
+
+    /**
+     * Find fields which be annotated with given #annotation inside a class.
      */
     @NonNull
     public List<Field> findFields(Class clazz, Class<? extends Annotation> annotation, boolean upSuper, boolean cache) {
@@ -100,6 +76,7 @@ public class DkReflectionFinder {
         String key = keyOf(clazz, annotation);
         List<Field> fields = fieldCache.get(key);
 
+        // Since result of this method is not null -> just check existence by != null
         if (fields != null) {
             return fields;
         }
@@ -120,28 +97,21 @@ public class DkReflectionFinder {
     }
 
     /**
-     * @return map which {@code key} is {@link DkReflectionFinder#keyOf(Class, Class)} and
-     * {@code value} is field list of that annoClass. To get fields of a annoClass, consider use
-     * {@link DkReflectionFinder#extractFields(Class, Class, ArrayMap)}.
+     * Find methods which be annotated with given #annotation inside a class.
+     * By default, it also look up super class fields, and does not cache result.
      */
     @NonNull
-    public ArrayMap<String, List<Field>> findFields(Class clazz, Iterable<Class<? extends Annotation>> annotations, boolean upSuper, boolean cache) {
-        ArrayMap<String, List<Field>> result = new ArrayMap<>();
+    public List<Method> findMethods(Class clazz, Class<? extends Annotation> annotation) {
+        return findMethods(clazz, annotation, true, false);
+    }
 
-        for (Class<? extends Annotation> annoClass : annotations) {
-            // Lookup cache for this annotation first
-            String key = keyOf(clazz, annoClass);
-            List<Field> fields = fieldCache.get(key);
-
-            // Not found cache, start find
-            if (fields == null) {
-                fields = findFields(clazz, annoClass, upSuper, cache);
-            }
-
-            result.put(key, fields);
-        }
-
-        return result;
+    /**
+     * Find methods which be annotated with given #annotation inside a class.
+     * By default, it does not cache result.
+     */
+    @NonNull
+    public List<Method> findMethods(Class clazz, Class<? extends Annotation> annotation, boolean upSuper) {
+        return findMethods(clazz, annotation, upSuper, false);
     }
 
     /**
@@ -153,6 +123,7 @@ public class DkReflectionFinder {
         String key = keyOf(clazz, annotation);
         List<Method> methods = methodCache.get(key);
 
+        // Since result of this method is not null -> just check existence by != null
         if (methods != null) {
             return methods;
         }
@@ -172,28 +143,14 @@ public class DkReflectionFinder {
         return methods;
     }
 
+    //
+    // Private region
+    //
+
     /**
-     * @return map which {@code key} is {@link DkReflectionFinder#keyOf(Class, Class)} and
-     * {@code value} is field list of that annoClass. To get methods of a annoClass, consider use
-     * {@link DkReflectionFinder#extractMethods(Class, Class, ArrayMap)}.
+     * Calculate cache-key for a annotation of given class.
      */
-    @NonNull
-    public ArrayMap<String, List<Method>> findMethods(Class clazz, Iterable<Class<? extends Annotation>> annotations, boolean upSuper, boolean cache) {
-        ArrayMap<String, List<Method>> result = new ArrayMap<>();
-
-        for (Class<? extends Annotation> annoClass : annotations) {
-            // Lookup cache for this annotation
-            String key = keyOf(clazz, annoClass);
-            List<Method> methods = methodCache.get(key);
-
-            // Not found cache, start find
-            if (methods == null) {
-                methods = findMethods(clazz, annoClass, upSuper, cache);
-            }
-
-            result.put(key, methods);
-        }
-
-        return result;
+    private static String keyOf(Class clazz, Class<? extends Annotation> annotation) {
+        return clazz.getName() + "_" + annotation.getName();
     }
 }

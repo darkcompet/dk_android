@@ -9,11 +9,7 @@ import android.content.Context;
 public class DkTextOnlyItemBuilder extends DkItemBuilder<DkTextOnlyItemBuilder> {
     private int textRes;
 
-    private DkTextOnlyItemBuilder() {
-    }
-
-    public static DkTextOnlyItemBuilder newIns() {
-        return new DkTextOnlyItemBuilder();
+    public DkTextOnlyItemBuilder() {
     }
 
     @Override

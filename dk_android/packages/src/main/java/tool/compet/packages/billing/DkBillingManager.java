@@ -26,7 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import tool.compet.core.log.DkLogs;
-import tool.compet.core.type.DkBiFunction;
+import tool.compet.core.type.DkCallback2;
 
 public class DkBillingManager implements PurchasesUpdatedListener {
 	/**
@@ -213,7 +213,7 @@ public class DkBillingManager implements PurchasesUpdatedListener {
 	 * @param skuList List of sku which you want to know.
 	 * @param callback Even though success or fail, callback will return NonNull list of SkuDetail
 	 */
-	public void querySkuDetailsAsync(String skuType, List<String> skuList, DkBiFunction<BillingResult, List<SkuDetails>, Void> callback) {
+	public void querySkuDetailsAsync(String skuType, List<String> skuList, DkCallback2<BillingResult, List<SkuDetails>> callback) {
 		SkuDetailsParams params = SkuDetailsParams.newBuilder()
 			.setSkusList(skuList)
 			.setType(skuType)
@@ -221,7 +221,7 @@ public class DkBillingManager implements PurchasesUpdatedListener {
 
 		billingClient.querySkuDetailsAsync(params, (billingResult, skuDetailsList) -> {
 			if (callback != null) {
-				callback.apply(billingResult, skuDetailsList);
+				callback.run(billingResult, skuDetailsList);
 			}
 		});
 	}

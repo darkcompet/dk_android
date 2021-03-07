@@ -9,13 +9,10 @@ import android.util.AttributeSet;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import tool.compet.boommenu.DkBaseItemView;
-import tool.compet.boommenu.R;
-
 public class DkDualTextItemView extends DkBaseItemView {
     ImageView ivIcon;
-    TextView tvText;
-    TextView tvSubText;
+    TextView tvTitle;
+    TextView tvSummary;
 
     public DkDualTextItemView(Context context) {
         super(context);
@@ -32,11 +29,12 @@ public class DkDualTextItemView extends DkBaseItemView {
     @Override
     protected void onFinishInflate() {
         ivIcon = findViewById(R.id.ivIcon);
-        tvText = findViewById(R.id.tvText);
-        tvSubText = findViewById(R.id.tvSubText);
+        tvTitle = findViewById(R.id.tvText);
+        tvSummary = findViewById(R.id.tvSubText);
 
-        tvText.setSelected(true);
-        tvSubText.setSelected(true);
+        // Run marquee for long text
+        tvTitle.setSelected(true);
+        tvSummary.setSelected(true);
 
         super.onFinishInflate();
     }

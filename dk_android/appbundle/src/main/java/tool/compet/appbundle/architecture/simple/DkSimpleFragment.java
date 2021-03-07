@@ -15,9 +15,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStoreOwner;
 
 import tool.compet.appbundle.architecture.DkFragment;
-import tool.compet.appbundle.architecture.DkViewModelStoreInf;
 import tool.compet.appbundle.architecture.navigator.DkFragmentNavigator;
-import tool.compet.appbundle.architecture.topic.DkTopicProvider;
 import tool.compet.appbundle.floatingbar.DkSnackbar;
 import tool.compet.appbundle.floatingbar.DkToastbar;
 import tool.compet.appbundle.floatingbar.DkUrgentSnackbar;
@@ -32,7 +30,7 @@ import tool.compet.core.util.DkUtils;
  * - Message display (snack, toast...)
  * - Scoped topic (pass data between/under fragments, activities, app)
  */
-public abstract class DkSimpleFragment extends DkFragment implements DkViewModelStoreInf, DkFragmentNavigator.Callback {
+public abstract class DkSimpleFragment extends DkFragment implements DkFragmentNavigator.Callback {
     // Manages child fragments
     protected DkFragmentNavigator childNavigator;
 
@@ -90,66 +88,43 @@ public abstract class DkSimpleFragment extends DkFragment implements DkViewModel
 
     /**
      * Called when user pressed to physical back button, this is normally passed from current activity.
-     * When this view got an event, this send signal to children first, if no child was found, or
-     * child has handled the event successfully, then this will call `dismiss()` on it to finish itself.
+     * When this view got an event, this send signal to children first, if no child was found,
+     * then this will call `close()` on it to dismiss itself.
      *
-     * @return true if this view has dismissed successfully, otherwise false.
+     * @return true if this view or child of it has dismissed successfully, otherwise false.
      */
     @Override
     public boolean onBackPressed() {
-        if (childNavigator == null || childNavigator.handleOnBackPressed()) {
-            return this.dismiss();
+        if (childNavigator == null || childNavigator.childCount() == 0) {
+            return this.close();
         }
-        return false;
+        return childNavigator.handleOnBackPressed();
     }
 
     /**
      * Finish this view by tell parent remove this from navigator.
      */
     @Override
-    public boolean dismiss() {
+    public boolean close() {
         return getParentNavigator().beginTransaction().remove(this).commit();
     }
 
-    /**
-     * Get or Create new ViewModel instance which be owned by this Fragment.
-     */
-    @Override
-    public <M extends ViewModel> M getOwnViewModel(Class<M> modelType) {
-        return new ViewModelProvider(this).get(modelType);
-    }
+    //
+    // ViewModel region
+    //
 
-    /**
-     * Get or Create new ViewModel instance which be owned by this Fragment.
-     */
-    @Override
-    public <M extends ViewModel> M getOwnViewModel(String key, Class<M> modelType) {
+    // Get or Create new ViewModel instance which be owned by this Fragment.
+    public <M extends ViewModel> M obtainOwnViewModel(String key, Class<M> modelType) {
         return new ViewModelProvider(this).get(key, modelType);
     }
 
-    /**
-     * Get or Create new ViewModel instance which be owned by Activity which this contains this Fragment.
-     */
-    @Override
-    public <M extends ViewModel> M getHostViewModel(Class<M> modelType) {
-        return new ViewModelProvider(host).get(modelType);
-    }
-
-    /**
-     * Get or Create new ViewModel instance which be owned by Activity which this contains this Fragment.
-     */
-    @Override
-    public <M extends ViewModel> M getHostViewModel(String key, Class<M> modelType) {
+    // Get or Create new ViewModel instance which be owned by Activity which this contains this Fragment.
+    public <M extends ViewModel> M obtainHostViewModel(String key, Class<M> modelType) {
         return new ViewModelProvider(host).get(key, modelType);
     }
 
-    @Override
-    public <M extends ViewModel> M getAppViewModel(Class<M> modelType) {
-        return getAppViewModel(modelType.getName(), modelType);
-    }
-
-    @Override
-    public <M extends ViewModel> M getAppViewModel(String key, Class<M> modelType) {
+    // Get or Create new ViewModel instance which be owned by current app.
+    public <M extends ViewModel> M obtainAppViewModel(String key, Class<M> modelType) {
         Application app = host.getApplication();
 
         if (app instanceof ViewModelStoreOwner) {
@@ -159,93 +134,23 @@ public abstract class DkSimpleFragment extends DkFragment implements DkViewModel
         throw new RuntimeException("App must be subclass of ViewModelStoreOwner");
     }
 
-    @Override
-    public <M> M ownTopic(Class<M> modelClass) {
-        return ownTopic(modelClass, true);
+    //
+    // Scoped topic region
+    //
+
+    // Obtain and Listen a topic in hostOwner
+    public TheFragmentTopicRegistry joinTopic(String topicId) {
+        return new TheFragmentTopicRegistry(topicId, host, this);
     }
 
-    @Override
-    public <M> M ownTopic(Class<M> modelType, boolean listen) {
-        return ownTopic(modelType.getName(), modelType, listen);
+    // Leave from a topic, and remove topic from hostOwner if no client listening
+    public void leaveTopic(String topicId) {
+        new TheFragmentTopicRegistry(topicId, host, this).unregisterClient();
     }
 
-    @Override
-    public <M> M ownTopic(String topicId, Class<M> modelType) {
-        return ownTopic(topicId, modelType, true);
-    }
-
-    /**
-     * Get or Create shared ViewModel instance which be owned by this Fragment.
-     */
-    @Override
-    public <M> M ownTopic(String topicId, Class<M> modelType, boolean listen) {
-        return topic(this, topicId, modelType, listen);
-    }
-
-    @Override
-    public <M> M hostTopic(Class<M> modelType) {
-        return hostTopic(modelType.getName(), modelType, true);
-    }
-
-    @Override
-    public <M> M hostTopic(Class<M> modelType, boolean listen) {
-        return hostTopic(modelType.getName(), modelType, listen);
-    }
-
-    @Override
-    public <M> M hostTopic(String topicId, Class<M> modelType) {
-        return hostTopic(topicId, modelType, true);
-    }
-
-    /**
-     * Get or Create shared ViewModel instance which be owned by current Activity.
-     */
-    @Override
-    public <M> M hostTopic(String topicId, Class<M> modelType, boolean listen) {
-        return topic(host, topicId, modelType, listen);
-    }
-
-    @Override
-    public <M> M appTopic(Class<M> modelClass) {
-        return appTopic(modelClass, true);
-    }
-
-    @Override
-    public <M> M appTopic(Class<M> modelType, boolean listen) {
-        return appTopic(modelType.getName(), modelType, listen);
-    }
-
-    @Override
-    public <M> M appTopic(String topicId, Class<M> modelType) {
-        return appTopic(modelType.getName(), modelType, true);
-    }
-
-    /**
-     * Get or Create shared ViewModel instance which be owned by the current app.
-     */
-    @Override
-    public <M> M appTopic(String topicId, Class<M> modelType, boolean listen) {
-        Application app = host.getApplication();
-
-        if (app instanceof ViewModelStoreOwner) {
-            return topic(((ViewModelStoreOwner) app), topicId, modelType, listen);
-        }
-
-        throw new RuntimeException("The app must be subclass of ViewModelStoreOwner");
-    }
-
-    /**
-     * Get or Create (new if not exists) shared model instance which be owned by a owner (Application, Activity, Fragment, ...).
-     * The topic will be removed when no client observes the topic or the owner's ViewModel was destroyed.
-     * Note that, you must call this method when host of this is in active state.
-     *
-     * @param listen true if you also wanna listen the topic, that is, the view will
-     *               become listener of the topic. Otherwise just getOrCreate.
-     */
-    @Override
-    public <M> M topic(ViewModelStoreOwner owner, String topicName, Class<M> modelType, boolean listen) {
-        return new DkTopicProvider(owner, this).getOrCreateModelAtTopic(topicName, modelType, listen);
-    }
+    //
+    // Utility region
+    //
 
     public void hideSoftKeyboard() {
         if (context != null && layout != null) {

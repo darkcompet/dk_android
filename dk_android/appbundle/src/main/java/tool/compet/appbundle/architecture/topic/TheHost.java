@@ -7,9 +7,6 @@ package tool.compet.appbundle.architecture.topic;
 import androidx.collection.ArrayMap;
 import androidx.lifecycle.ViewModel;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import tool.compet.core.log.DkLogs;
 
 import static tool.compet.appbundle.BuildConfig.DEBUG;
@@ -27,84 +24,100 @@ import static tool.compet.appbundle.BuildConfig.DEBUG;
  * <p>
  */
 public class TheHost extends ViewModel implements TheClient.Listener {
-    // All topics
-    private final ArrayMap<String, MyTopic> topics = new ArrayMap<>();
-
-    // Topic with Clients which listening that topic
-    private final ArrayMap<String, List<TheClient>> topic2clients = new ArrayMap<>();
+    // All topics (topicId vs topic)
+    private final ArrayMap<String, MyTopic> allTopics = new ArrayMap<>();
 
     /**
-     * It does: get or create topic -> get or create model of topic -> make client listen the topic.
-     * Note that, each topic contains multiple models which have different type each other.
+     * Register client to the topic, this will create new topic if not exists.
      *
-     * @param topicId topic unique id
-     * @param modelClass model type which be held in the topic
-     * @param client for eg,. activity or fragment...
-     * @param listen true if make client listen the topic, otherwise just get model from topic
-     * @return model object inside the topic
+     * @param topicId Topic unique id
+     * @param modelKey Model name to separate models in the topic.
+     * @param modelType Model type which be held in the topic
+     * @param client For eg,. activity or fragment...
+     * @return Model object inside the topic
      */
-    <M> M getOrCreateModelAtTopic(String topicId, Class<M> modelClass, TheClient client, boolean listen) throws Exception {
-        // Register topic in the host
-        MyTopic topic = topics.get(topicId);
+
+    <M> M register(TheClient client, String topicId, String modelKey, Class<M> modelType) throws Exception {
+        // Add topic into host
+        MyTopic topic = allTopics.get(topicId);
         if (topic == null) {
             topic = new MyTopic(topicId);
-            topics.put(topicId, topic);
+            allTopics.put(topicId, topic);
         }
 
-        if (listen) {
-            // Listen un-register event from this client (for eg,. onCleared() was called)
-            client.addListener(this);
+        // Listen onCleared() event from this client
+        client.addListener(this);
 
-            // Register this client in this topic
-            List<TheClient> clientsListenTopic = topic2clients.get(topicId);
-            if (clientsListenTopic == null) {
-                clientsListenTopic = new ArrayList<>();
-                topic2clients.put(topicId, clientsListenTopic);
-            }
-            if (! clientsListenTopic.contains(client)) {
-                clientsListenTopic.add(client);
-            }
-        }
+        // Add client to topic
+        topic.registerClient(client);
 
         // Get or Create model from topic
-        return topic.getOrCreateModel(modelClass);
+        return topic.getOrCreateModel(modelKey, modelType);
     }
 
+    /**
+     * Remove the client from topic. If no client listening the topic,
+     * then host will remove the topic from itself.
+     */
+    void unregister(TheClient client, String topicId) {
+        MyTopic topic = allTopics.get(topicId);
+
+        if (topic != null) {
+            boolean removed = topic.removeClient(client);
+            if (DEBUG) {
+                DkLogs.info(this, "Unregistered (%b) client `%s` from topic `%s`", removed, client.getClass().getSimpleName(), topicId);
+            }
+            if (topic.clientCount() == 0) {
+                topic.clear();
+                allTopics.remove(topic);
+
+                if (DEBUG) {
+                    DkLogs.info(this, "Removed topic `%s` since no client listening", topicId);
+                }
+            }
+        }
+    }
+
+    // Called when this host was destroyed completely
     @Override
     protected void onCleared() {
         super.onCleared();
 
-        if (topics.size() > 0 || topic2clients.size() > 0) {
-            DkLogs.warn(this, "Host %s is cleared before Clients !!!", toString());
+        if (allTopics.size() > 0) {
+            DkLogs.warn(this, "NG, host `%s` is cleared while still have %d clients", getClass().getSimpleName(), allTopics.size());
         }
         else if (DEBUG) {
-            DkLogs.info(this, "Host %s is cleared after Clients", toString());
+            DkLogs.info(this, "OK, host `%s` is cleared when no client connect", getClass().getSimpleName());
         }
 
-        topics.clear();
-        topic2clients.clear();
+        // Cleanup all topics
+        for (int index = allTopics.size() - 1; index >= 0; --index) {
+            allTopics.valueAt(index).clear();
+        }
+        allTopics.clear();
     }
 
+    // Called when a client was destroyed completely (so it will disconnect host)
     @Override
     public void onClientDisconnect(TheClient client) {
-        for (int index = topic2clients.size() - 1; index >= 0; --index) {
-            List<TheClient> listeningClients = topic2clients.valueAt(index);
+        for (int index = allTopics.size() - 1; index >= 0; --index) {
+            String topicId = allTopics.keyAt(index);
+            MyTopic topic = allTopics.valueAt(index);
 
-            listeningClients.remove(client);
+            // Try to remove client from this topic
+            topic.unregisterClient(client);
 
             if (DEBUG) {
-                DkLogs.info(this, "Client %s has left topic %s under host %s.",
-                    client.toString(), topic2clients.keyAt(index), toString());
+                DkLogs.info(this, "Client `%s` has left topic `%s` under host `%s`.", client.getClass().getSimpleName(), topicId, getClass().getSimpleName());
             }
 
-            // delete topic which is no more listened by clients.
-            if (listeningClients.size() == 0) {
-                String topicId = topic2clients.keyAt(index);
-                topics.remove(topicId);
-                topic2clients.removeAt(index);
+            // Cleanup and Delete topic which is no more listened by client
+            if (topic.clientCount() == 0) {
+                topic.clear();
+                allTopics.removeAt(index);
 
                 if (DEBUG) {
-                    DkLogs.info(this, "Topic %s was removed from host %s since no client listen.", topicId, toString());
+                    DkLogs.info(this, "Topic `%s` was cleanuped and removed from host `%s` since no client listen.", topicId, getClass().getSimpleName());
                 }
             }
         }

@@ -16,11 +16,7 @@ public class DkCustomItemBuilder extends DkItemBuilder<DkCustomItemBuilder> {
     private int layoutRes;
     private DkBaseItemView view;
 
-    private DkCustomItemBuilder() {
-    }
-
-    public static DkCustomItemBuilder newIns() {
-        return new DkCustomItemBuilder();
+    public DkCustomItemBuilder() {
     }
 
     @Override

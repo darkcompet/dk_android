@@ -12,14 +12,10 @@ public class DkDualTextItemBuilder extends DkItemBuilder<DkDualTextItemBuilder> 
 
     private int style = STYLE_TEXT_RIGHT;
     private int iconRes;
-    private int textRes;
-    private int subTextRes;
+    private int titleRes;
+    private int summaryRes;
 
-    private DkDualTextItemBuilder() {
-    }
-
-    public static DkDualTextItemBuilder newIns() {
-        return new DkDualTextItemBuilder();
+    public DkDualTextItemBuilder() {
     }
 
     @Override
@@ -36,19 +32,19 @@ public class DkDualTextItemBuilder extends DkItemBuilder<DkDualTextItemBuilder> 
             throw new RuntimeException("Invalid style");
         }
 
-        DkDualTextItemView v = super.prepareView(context, layoutRes);
+        DkDualTextItemView itemView = super.prepareView(context, layoutRes);
 
         if (iconRes > 0) {
-            v.ivIcon.setImageResource(iconRes);
+            itemView.ivIcon.setImageResource(iconRes);
         }
-        if (textRes > 0) {
-            v.tvText.setText(textRes);
+        if (titleRes > 0) {
+            itemView.tvTitle.setText(titleRes);
         }
-        if (subTextRes > 0) {
-            v.tvSubText.setText(subTextRes);
+        if (summaryRes > 0) {
+            itemView.tvSummary.setText(summaryRes);
         }
 
-        return v;
+        return itemView;
     }
 
     public DkDualTextItemBuilder setStyle(int style) {
@@ -61,13 +57,13 @@ public class DkDualTextItemBuilder extends DkItemBuilder<DkDualTextItemBuilder> 
         return this;
     }
 
-    public DkDualTextItemBuilder setText(int textRes) {
-        this.textRes = textRes;
+    public DkDualTextItemBuilder setTitle(int titleRes) {
+        this.titleRes = titleRes;
         return this;
     }
 
-    public DkDualTextItemBuilder setSubText(int subTextRes) {
-        this.subTextRes = subTextRes;
+    public DkDualTextItemBuilder setSummary(int subTextRes) {
+        this.summaryRes = subTextRes;
         return this;
     }
 }

@@ -20,7 +20,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import tool.compet.core.type.DkCallback;
+import tool.compet.core.type.DkCallback1;
 
 /**
  * Google map fragment.
@@ -157,15 +157,15 @@ public abstract class DkGmapFragment extends SupportMapFragment implements OnMap
             .visible(true));
     }
 
-    public void getSnapshot(final DkCallback<Bitmap> callback) {
+    public void getSnapshot(final DkCallback1<Bitmap> callback) {
         if (callback == null) {
             return;
         }
         if (map == null) {
-            callback.call(null);
+            callback.run(null);
         }
         else {
-            map.snapshot(callback::call);
+            map.snapshot(callback::run);
         }
     }
 

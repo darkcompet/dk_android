@@ -19,7 +19,7 @@
 		android:contentDescription="@null"/>
 
 	<TextView
-		android:id="@+id/tvTitle"
+		android:id="@+id/dk_dialog_tv_title"
 		android:layout_width="0dp"
 		android:layout_weight="1"
 		android:layout_height="wrap_content"

@@ -30,7 +30,7 @@ public class DkSnackbar extends DkFloatingbar {
         duration = DURATION_NORMAL;
 
         bar.setBackgroundColor(TYPE_NORMAL);
-        tvMessage = bar.findViewById(R.id.tvMessage);
+        tvMessage = bar.findViewById(R.id.dk_tv_message);
         btnAction = bar.findViewById(R.id.btnAction);
     }
 

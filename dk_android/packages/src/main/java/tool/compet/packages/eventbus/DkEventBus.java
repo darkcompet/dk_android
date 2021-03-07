@@ -15,8 +15,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import tool.compet.core.reflection.DkReflectionFinder;
 import tool.compet.core.log.DkLogs;
+import tool.compet.core.reflection.DkReflectionFinder;
 
 /**
  * This library supports communication between objects (for eg,. Android Activity/Fragment).
@@ -87,7 +87,7 @@ public class DkEventBus {
         }
 
         if (subscriptionMethods == null) {
-            List<Method> methods = DkReflectionFinder.getIns().findMethods(clazz, DkSubscribe.class, false, false);
+            List<Method> methods = DkReflectionFinder.getIns().findMethods(clazz, DkSubscribe.class);
 
             if (methods.size() > 0) {
                 subscriptionMethods = new ArrayList<>();
@@ -97,7 +97,7 @@ public class DkEventBus {
                 }
 
                 synchronized (this.subscriptionMethodCache) {
-                    if (!methodCache.containsKey(clazz)) {
+                    if (! methodCache.containsKey(clazz)) {
                         methodCache.put(clazz, subscriptionMethods);
                     }
                 }

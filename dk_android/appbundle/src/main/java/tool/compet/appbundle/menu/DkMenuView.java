@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import tool.compet.appbundle.R;
-import tool.compet.core.storage.DkPreferenceStorage;
-import tool.compet.core.type.DkCallback;
+import tool.compet.core.storage.DkPreferenceStorageCompat;
+import tool.compet.core.type.DkCallback1;
 
 /**
  * 本クラス、メニューアイテムを表すToolbar、DrawerLayout、BottomView等のようなビューで使われる
@@ -31,14 +31,14 @@ import tool.compet.core.type.DkCallback;
  * setViewAdapter()、setModelCreator()を呼び出して、ビューとモデルともにカストマイズしてください。
  */
 public abstract class DkMenuView<T extends DkMenuItemModel> extends ListView {
-    protected abstract DkPreferenceStorage storage();
+    protected abstract DkPreferenceStorageCompat storage();
 
     private Context mContext;
     private int mCurMenuRes;
     private ArrayAdapter<T> mAdapter;
     private DKViewAdapter mViewAdapter;
     private Callable<T> mModelCreator;
-    private DkCallback<T> mOnItemClickListener;
+    private DkCallback1<T> mOnItemClickListener;
 
     public interface DKViewAdapter<T extends DkMenuItemModel> {
         View getView(Context context, int pos, @Nullable View view, @NonNull ViewGroup parent, T model);
@@ -77,7 +77,7 @@ public abstract class DkMenuView<T extends DkMenuItemModel> extends ListView {
                 canForward = forwardMenu(model.getChildMenuRes());
             }
             if (!canForward && mOnItemClickListener != null) {
-                mOnItemClickListener.call(mAdapter.getItem(position));
+                mOnItemClickListener.run(mAdapter.getItem(position));
             }
         });
     }
@@ -92,7 +92,7 @@ public abstract class DkMenuView<T extends DkMenuItemModel> extends ListView {
         return this;
     }
 
-    public DkMenuView setOnItemClickListener(DkCallback<T> onItemClickListener) {
+    public DkMenuView setOnItemClickListener(DkCallback1<T> onItemClickListener) {
         mOnItemClickListener = onItemClickListener;
         return this;
     }
@@ -192,7 +192,7 @@ public abstract class DkMenuView<T extends DkMenuItemModel> extends ListView {
                 ivTitle.setImageDrawable(null);
             }
 
-            final TextView tvTitle = view.findViewById(R.id.tvTitle);
+            final TextView tvTitle = view.findViewById(R.id.dk_dialog_tv_title);
 
             if (model.hasTitle()) {
                 tvTitle.setText(model.getTitle());
@@ -205,7 +205,7 @@ public abstract class DkMenuView<T extends DkMenuItemModel> extends ListView {
             boolean notNeedStatus = true;
 
             if (model.hasSettingPreference()) {
-                String value = storage().loadString("" + model.getSettingPrefKey());
+                String value = storage().getString("" + model.getSettingPrefKey());
 
                 if (value != null && value.equals(model.getSettingPrefTagValue())) {
                     if (model.hasIconStatusRes()) {

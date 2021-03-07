@@ -17,9 +17,8 @@ import tool.compet.core.config.DkConfig;
 public abstract class DkItemBuilder<T extends DkItemBuilder> {
     protected abstract DkBaseItemView getView(Context context);
 
-    public interface Listener {
+    interface Callback {
         void onTranslate(DkItem item, float dx, float dy);
-
         void onClick(DkItem item, float x, float y);
     }
 
@@ -29,13 +28,13 @@ public abstract class DkItemBuilder<T extends DkItemBuilder> {
     protected int height;
     protected int margin = Integer.MIN_VALUE;
     protected long animStartDelay;
-    protected boolean enableRotation = true;
-    protected boolean enable3DAnimation;
-    protected boolean enableScale = true;
+    protected Boolean enableRotation = null;
+    protected Boolean enable3DAnimation = null;
+    protected Boolean enableScale = null;
     protected Interpolator movingInterpolator;
     protected DkMovingShape movingShape = DkMovingShape.LINE;
-    protected boolean dismissMenuOnClickItem = true;
-    protected boolean dismissMenuImmediate;
+    protected Boolean dismissMenuOnClickItem = null;
+    protected Boolean dismissMenuImmediate = null;
     // extra basic info for view
     protected boolean isCircleShape;
     protected float cornerRadius = Integer.MIN_VALUE;
@@ -63,15 +62,15 @@ public abstract class DkItemBuilder<T extends DkItemBuilder> {
     int anchorHeight;
     int boardWidth;
     int boardHeight;
-    Listener internalListener;
+    DkOnItemClickListener onClickListener;
 
-    private MyColorGenerator colorGenerator = new MyColorGenerator();
+    private static final MyColorGenerator colorGenerator = new MyColorGenerator();
 
-    protected DkItem build(Context context) {
+    protected DkItem build(Context context, Callback callback) {
         DkItem item = new DkItem();
         DkBaseItemView view = getView(context);
 
-        //** Validate or initialize
+        // Validate and initialize
         if (view == null) {
             throw new RuntimeException("Must provide view");
         }
@@ -82,16 +81,14 @@ public abstract class DkItemBuilder<T extends DkItemBuilder> {
                 0.91f,
                 1.06f);
         }
-        if (margin == Integer.MIN_VALUE) {
-            margin = DkConfig.device.dp2px(8);
-        }
         if (isCircleShape) { // auto-fix ratio if its shape is circle
             widthRatio = heightRatio = 1f;
         }
 
-        //** Just assign info to item first, we maybe need re-assign after
+        // Just assign info to item first, we maybe need re-assign after
         item.index = index;
         item.view = view;
+        item.onClickLisener = onClickListener;
         item.margin = margin;
         item.animStartDelay = animStartDelay;
         item.enableRotation = enableRotation;
@@ -106,26 +103,25 @@ public abstract class DkItemBuilder<T extends DkItemBuilder> {
         item.dismissMenuOnClickItem = dismissMenuOnClickItem;
         item.dismissMenuImmediate = dismissMenuImmediate;
 
-        //** Setup internal detector listener
+        // Setup internal detector listener
         view.detector.setListener(new MyGestureDetector.Listener() {
             @Override
             public boolean onTranslate(float dx, float dy) {
-                if (internalListener != null) {
-                    internalListener.onTranslate(item, dx, dy);
-                }
+                callback.onTranslate(item, dx, dy);
                 return false;
             }
 
             @Override
             public boolean onClick(float rawX, float rawY) {
-                if (internalListener != null) {
-                    internalListener.onClick(item, rawX, rawY);
-                }
+                callback.onClick(item, rawX, rawY);
                 return false;
             }
         });
 
-        //** Update dimension
+        //
+        // Update dimension
+        //
+
         if (width <= 0 || height <= 0) { // Measure view dimension if unspecific
             view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
             width = view.getMeasuredWidth();
@@ -174,7 +170,7 @@ public abstract class DkItemBuilder<T extends DkItemBuilder> {
     }
 
     /**
-     * This method is should called inside subclasses.
+     * This method should be called inside subclass.
      */
     protected <V extends DkBaseItemView> V prepareView(Context context, int layoutRes) {
         DkBaseItemView view = (DkBaseItemView) View.inflate(context, layoutRes, null);
@@ -202,7 +198,14 @@ public abstract class DkItemBuilder<T extends DkItemBuilder> {
         return (V) view;
     }
 
-    //region GetSet
+    //
+    // Setup region
+    //
+
+    public T setOnClickListener(DkOnItemClickListener onClickListener) {
+        this.onClickListener = onClickListener;
+        return (T) this;
+    }
 
     public T setDimension(int width, int height) {
         this.width = width;
@@ -306,11 +309,13 @@ public abstract class DkItemBuilder<T extends DkItemBuilder> {
         return (T) this;
     }
 
-    public T setDismissMenuOnClickItem(boolean dismissMenu, boolean dismissImmediate) {
+    public T setDismissMenuOnClickItem(boolean dismissMenu) {
         this.dismissMenuOnClickItem = dismissMenu;
-        this.dismissMenuImmediate = dismissImmediate;
         return (T) this;
     }
 
-    //endregion GetSet
+    public T setDismissMenuImmediate(boolean dismissImmediate) {
+        this.dismissMenuImmediate = dismissImmediate;
+        return (T) this;
+    }
 }

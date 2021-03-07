@@ -14,11 +14,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.ViewModelStoreOwner;
 
 import java.util.ArrayList;
 
 import tool.compet.core.log.DkLogs;
-import tool.compet.core.type.DkCallback;
+import tool.compet.core.type.DkCallback1;
 
 import static tool.compet.core.BuildConfig.DEBUG;
 
@@ -31,7 +32,7 @@ import static tool.compet.core.BuildConfig.DEBUG;
  * Note that, state of view maybe changed multiple times since lifecycle or configuration maybe
  * often occured.
  */
-public abstract class DkCompactViewLogic<V extends DkCompactView> {
+public abstract class DkCompactViewLogic<V extends ViewModelStoreOwner> {
     // Lifecycle state of the view
     protected int lifeCycleState = STATE_INVALID;
     // Lifecycle state value of `lifeCycleState`
@@ -59,7 +60,7 @@ public abstract class DkCompactViewLogic<V extends DkCompactView> {
     // Actions which sent to View when View was absent
     // We need optimize this field since 2 consequence commands maybe update
     // same part of View.
-    private ArrayList<DkCallback<V>> pendingCommands;
+    private ArrayList<DkCallback1<V>> pendingCommands;
 
     // Below fields are for ViewLogic of Activity
     protected boolean isCalledOnRestart;
@@ -84,9 +85,9 @@ public abstract class DkCompactViewLogic<V extends DkCompactView> {
      * also preversed when View is destroyed since configuration changed, the View will receive
      * the action at next coming time (maybe at #onResume()).
      */
-    protected void sendToView(DkCallback<V> command) {
+    protected void sendToView(DkCallback1<V> command) {
         if (view != null && lifeCycleState >= STATE_VIEW_CREATED) {
-            command.call(view);
+            command.run(view);
         }
         else {
             addPendingCommand(command);
@@ -128,8 +129,8 @@ public abstract class DkCompactViewLogic<V extends DkCompactView> {
         lifeCycleState = isResume ? STATE_RESUME : STATE_ACTIVE;
 
         if (isResume && view != null && pendingCommands != null) {
-            for (DkCallback<V> action : pendingCommands) {
-                action.call(view);
+            for (DkCallback1<V> action : pendingCommands) {
+                action.run(view);
             }
             if (DEBUG) {
                 DkLogs.info(this, "Executed %d pending actions", pendingCommands.size());
@@ -201,7 +202,7 @@ public abstract class DkCompactViewLogic<V extends DkCompactView> {
     protected void onRequestPermissionsResult(FragmentActivity host, int rc, @NonNull String[] perms, @NonNull int[] res) {
     }
 
-    private void addPendingCommand(DkCallback<V> command) {
+    private void addPendingCommand(DkCallback1<V> command) {
         if (pendingCommands == null) {
             pendingCommands = new ArrayList<>();
         }

@@ -4,9 +4,9 @@
 
 package tool.compet.appbundle.architecture.preference;
 
-import tool.compet.core.storage.DkPreferenceStorage;
+import tool.compet.core.storage.DkStorageInf;
 
-public interface DkPreferenceInterface {
+public interface DkPreferenceInf {
     /**
      * Which manages preference list.
      */
@@ -15,12 +15,12 @@ public interface DkPreferenceInterface {
     /**
      * Subclass must provide which storage to store preference
      */
-    DkPreferenceStorage storage();
+    DkStorageInf storage();
 
     /**
      * Subclass must manually define content (item list) of preference
      */
-    void onCreatePreferences(ThePreferenceManager pm);
+    void onCreatePreferences(ThePreferenceManager preferenceManager);
 
     /**
      * Called when some preference was stored (changed)

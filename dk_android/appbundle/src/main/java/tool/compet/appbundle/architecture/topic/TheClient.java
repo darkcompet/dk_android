@@ -4,10 +4,10 @@
 
 package tool.compet.appbundle.architecture.topic;
 
+import androidx.collection.ArraySet;
 import androidx.lifecycle.ViewModel;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 
 /**
  * Client is an instance of ViewModel got from a store of client View (Activity, Fragment...),
@@ -24,7 +24,7 @@ public class TheClient extends ViewModel {
         void onClientDisconnect(TheClient client);
     }
 
-    private final List<Listener> listeners = new ArrayList<>();
+    private final Set<Listener> listeners = new ArraySet<>();
 
     @Override
     protected void onCleared() {
@@ -38,8 +38,6 @@ public class TheClient extends ViewModel {
     }
 
     void addListener(Listener listener) {
-        if (! listeners.contains(listener)) {
-            listeners.add(listener);
-        }
+        listeners.add(listener);
     }
 }

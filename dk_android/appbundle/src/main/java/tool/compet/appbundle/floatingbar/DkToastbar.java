@@ -14,7 +14,6 @@ import android.widget.TextView;
 
 import tool.compet.appbundle.R;
 import tool.compet.core.config.DkConfig;
-import tool.compet.core.log.DkLogs;
 import tool.compet.core.view.DkViews;
 
 /**
@@ -34,7 +33,7 @@ public class DkToastbar extends DkFloatingbar {
 
         duration = DURATION_NORMAL;
 
-        tvMessage = bar.findViewById(R.id.tvMessage);
+        tvMessage = bar.findViewById(R.id.dk_tv_message);
         DkViews.changeBackgroundColor(bar, "#80000000", 16, DkConfig.device.density);
     }
 

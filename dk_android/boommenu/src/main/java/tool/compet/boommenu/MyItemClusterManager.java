@@ -18,8 +18,8 @@ import tool.compet.core.log.DkLogs;
 /**
  * This class, manages for cluster (items).
  */
-class MyClusterManager {
-    private static final Random rnd = new Random();
+class MyItemClusterManager {
+    private static final Random random = new Random();
 
     // Emission order for each item
     DkEmissionOrder emissionOrder = DkEmissionOrder.RANDOM;
@@ -56,7 +56,20 @@ class MyClusterManager {
     // Bounds of cluster in board
     private RectF bounds;
 
-    void buildItems(Context context, View anchor, ViewGroup board, DkItemBuilder.Listener listener) {
+    //
+    // From here, apply to all items if not set
+    //
+    DkOnItemClickListener onItemClickListener; // on click to each item
+    boolean itemEnableRotation; // rotate while animating
+    boolean itemEnable3DAnimation; // 3D animation while animating
+    boolean itemEnableScale = true; // scale while animating
+    boolean itemDismissMenuOnClickItem = true; // dismiss boom menu when click item itself
+    boolean itemDismissMenuImmediate; // true: dismiss boom menu immediate, false: animate unboom
+    public int itemMargin = 8; // 8dp (just call item.setMargin() to convert to pixel)
+    boolean itemDismissOnBackPressed = true;
+    boolean itemDismissImmediate;
+
+    void buildItems(Context context, View anchor, ViewGroup board, DkItemBuilder.Callback callback) {
         int anchorWidth = anchor.getWidth();
         int anchorHeight = anchor.getHeight();
         int boardWidth = board.getWidth();
@@ -72,16 +85,38 @@ class MyClusterManager {
         int maxWidth = -1;
         int maxHeight = -1;
 
+        // Build each item from global setting
         for (int index = 0; index < N; ++index) {
-            DkItemBuilder builder = itemBuilders.get(index);
-            builder.index = index;
-            builder.anchorWidth = anchorWidth;
-            builder.anchorHeight = anchorHeight;
-            builder.boardWidth = boardWidth;
-            builder.boardHeight = boardHeight;
-            builder.internalListener = listener;
+            DkItemBuilder itemBuilder = itemBuilders.get(index);
+            itemBuilder.index = index;
+            itemBuilder.anchorWidth = anchorWidth;
+            itemBuilder.anchorHeight = anchorHeight;
+            itemBuilder.boardWidth = boardWidth;
+            itemBuilder.boardHeight = boardHeight;
+            // Assign global setting if not set
+            if (itemBuilder.onClickListener == null) {
+                itemBuilder.setOnClickListener(onItemClickListener);
+            }
+            if (itemBuilder.enableRotation == null) {
+                itemBuilder.setEnableRotationAnimation(itemEnableRotation);
+            }
+            if (itemBuilder.enable3DAnimation == null) {
+                itemBuilder.setEnable3DAnimation(itemEnable3DAnimation);
+            }
+            if (itemBuilder.enableScale == null) {
+                itemBuilder.setEnableScaleAnimation(itemEnableScale);
+            }
+            if (itemBuilder.dismissMenuOnClickItem == null) {
+                itemBuilder.setDismissMenuOnClickItem(itemDismissMenuOnClickItem);
+            }
+            if (itemBuilder.dismissMenuImmediate == null) {
+                itemBuilder.setDismissMenuImmediate(itemDismissMenuImmediate);
+            }
+            if (itemBuilder.margin == Integer.MIN_VALUE) {
+                itemBuilder.setMargin(itemMargin);
+            }
 
-            DkItem item = builder.build(context);
+            DkItem item = itemBuilder.build(context, callback);
 
             items.add(item);
 
@@ -132,7 +167,7 @@ class MyClusterManager {
                 }
 
                 for (int index = 0, cnt = N; index < N; ++index) {
-                    int nextIndex = rnd.nextInt(cnt);
+                    int nextIndex = random.nextInt(cnt);
                     int itemIndex = indices[nextIndex];
 
                     indices[nextIndex] = indices[--cnt];

@@ -34,11 +34,11 @@ public interface DkFragmentInf {
     boolean onBackPressed();
 
     /**
-     * Dismiss itself, like #Activity.finish().
+     * Dismiss (finish) itself.
      *
      * @return true if finish succeed, otherwise falied.
      */
-    boolean dismiss();
+    boolean close();
 
     /**
      * Specify whether this fragment should be retained instance during configuration changed.

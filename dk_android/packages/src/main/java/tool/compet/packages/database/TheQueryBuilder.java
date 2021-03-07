@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import tool.compet.core.type.DkCallback;
+import tool.compet.core.type.DkCallback1;
 import tool.compet.core.util.DkMaps;
 import tool.compet.core.util.DkStrings;
 
@@ -158,22 +158,22 @@ public abstract class TheQueryBuilder<M> { // M: model
         return registerSingleJoin(K_INNER, joinTable, first, operator, second);
     }
 
-    public TheQueryBuilder<M> leftJoin(String joinTable, DkCallback<DkJoiner> joinerCallback) {
+    public TheQueryBuilder<M> leftJoin(String joinTable, DkCallback1<DkJoiner> joinerCallback) {
         return registerMultipleJoin(K_LEFT, joinTable, joinerCallback);
     }
 
-    public TheQueryBuilder<M> rightJoin(String joinTable, DkCallback<DkJoiner> joinerCallback) {
+    public TheQueryBuilder<M> rightJoin(String joinTable, DkCallback1<DkJoiner> joinerCallback) {
         return registerMultipleJoin(K_RIGHT, joinTable, joinerCallback);
     }
 
-    public TheQueryBuilder<M> join(String joinTable, DkCallback<DkJoiner> joinerCallback) {
+    public TheQueryBuilder<M> join(String joinTable, DkCallback1<DkJoiner> joinerCallback) {
         return registerMultipleJoin(K_INNER, joinTable, joinerCallback);
     }
 
-    private TheQueryBuilder<M> registerMultipleJoin(String joinType, String joinTable, DkCallback<DkJoiner> joinerCallback) {
+    private TheQueryBuilder<M> registerMultipleJoin(String joinType, String joinTable, DkCallback1<DkJoiner> joinerCallback) {
         // Send joiner to callback and receive condition from callbacker
         DkJoiner joiner = new DkJoiner(grammar);
-        joinerCallback.call(joiner);
+        joinerCallback.run(joiner);
 
         joins().add(new MyJoin(grammar, joinType, joinTable, joiner));
 

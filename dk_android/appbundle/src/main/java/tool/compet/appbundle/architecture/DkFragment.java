@@ -24,7 +24,8 @@ import tool.compet.core.log.DkLogs;
 /**
  * All fragments should be subclass of this to work with support of Dk library as possible.
  * This provides below some basic features:
- * - Obtain host (current activity), context, layout (bind with DkBinder) instance
+ * - Obtain host, context
+ * - Bind layout with DkBinder
  * - Debug logs in lifecycle methods
  */
 public abstract class DkFragment extends Fragment implements DkFragmentInf {
@@ -40,7 +41,9 @@ public abstract class DkFragment extends Fragment implements DkFragmentInf {
         if (this.host == null) {
             this.host = getActivity();
         }
-        this.context = context;
+        if (this.context == null) {
+            this.context = context;
+        }
 
         super.onAttach(context);
     }
@@ -54,7 +57,9 @@ public abstract class DkFragment extends Fragment implements DkFragmentInf {
         if (this.context == null) {
             this.context = getContext();
         }
-        this.host = (FragmentActivity) activity;
+        if (this.host == null) {
+            this.host = (FragmentActivity) activity;
+        }
 
         super.onAttach(activity);
     }
@@ -64,7 +69,7 @@ public abstract class DkFragment extends Fragment implements DkFragmentInf {
         if (BuildConfig.DEBUG) {
             DkLogs.info(this, "onCreate");
         }
-        super.setRetainInstance(isRetainInstance());
+        super.setRetainInstance(isRetainInstance()); // retain instance while configuration changes
         super.onCreate(savedInstanceState);
     }
 
