@@ -15,8 +15,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({TYPE, FIELD, METHOD})
 @Retention(RUNTIME)
 public @interface DkBindView {
-    /**
-     * @return id of view.
-     */
-    int value();
+	/**
+	 * @return id of view.
+	 */
+	int value();
 }

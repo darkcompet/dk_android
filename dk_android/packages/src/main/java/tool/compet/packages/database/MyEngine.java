@@ -5,7 +5,7 @@
 package tool.compet.packages.database;
 
 abstract class MyEngine {
-    abstract MyDatabaseConnection connection();
+	abstract MyDatabaseConnection connection();
 
-    abstract MyGrammar grammar();
+	abstract MyGrammar grammar();
 }

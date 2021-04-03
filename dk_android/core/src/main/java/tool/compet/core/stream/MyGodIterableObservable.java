@@ -4,58 +4,60 @@
 
 package tool.compet.core.stream;
 
+import tool.compet.core.DkLogs;
+
 /**
  * God observable node.
  */
 class MyGodIterableObservable<T> extends DkObservable<T> {
-    private final Iterable<T> items;
+	private final Iterable<T> items;
 
-    MyGodIterableObservable(Iterable<T> items) {
-        this.items = items;
-    }
+	MyGodIterableObservable(Iterable<T> items) {
+		this.items = items;
+	}
 
-    @Override
-    protected void performSubscribe(DkObserver<T> child) {
-        DkIterableObserver<T> wrapper = new DkIterableObserver<>(child);
-        wrapper.start(items);
-    }
+	@Override
+	protected void subscribeActual(DkObserver<T> child) {
+		DkIterableObserver<T> wrapper = new DkIterableObserver<>(child);
+		wrapper.start(items);
+	}
 
-    static class DkIterableObserver<T> extends DkControllable<T> implements DkObserver<T> {
-        DkIterableObserver(DkObserver<T> child) {
-            super(child);
-        }
+	static class DkIterableObserver<T> extends DkControllable<T> implements DkObserver<T> {
+		DkIterableObserver(DkObserver<T> child) {
+			super(child);
+		}
 
-        void start(Iterable<T> items) {
-            try {
-                child.onSubscribe(this);
+		void start(Iterable<T> items) {
+			try {
+				onSubscribe(this);
 
-                if (isCancel) {
-                    isCanceled = true;
-                    return;
-                }
+				if (isCancel) {
+					isCanceled = true;
+					return;
+				}
 
-                for (T item : items) {
-                    if (isCancel) {
-                        isCanceled = true;
-                        break;
-                    }
-                    child.onNext(item);
-                }
+				for (T item : items) {
+					if (isCancel) {
+						isCanceled = true;
+						break;
+					}
+					onNext(item);
+				}
 
-                child.onComplete();
-            }
-            catch (Exception e) {
-                onError(e);
-            }
-            finally {
-                onFinal();
-            }
-        }
+				onComplete();
+			}
+			catch (Exception e) {
+				onError(e);
+			}
+			finally {
+				DkLogs.debug(this, "call final at God node");
+				onFinal();
+			}
+		}
 
-        @Override
-        public void onSubscribe(DkControllable controllable) {
-            parent = null;
-            child.onSubscribe(controllable);
-        }
-    }
+		@Override
+		public void onSubscribe(DkControllable controllable) throws Exception {
+			child.onSubscribe(controllable);
+		}
+	}
 }

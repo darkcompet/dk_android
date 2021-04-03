@@ -4,35 +4,35 @@
 
 package tool.compet.core.stream;
 
-class MyMapObservable<T, R> extends MyDownstreamObservable<T, R> {
-    private final DkThrowableFunction<T, R> converter;
+import tool.compet.core.DkCallable1;
 
-    MyMapObservable(DkObservable<T> parent, DkThrowableFunction<T, R> converter) {
-        super(parent);
-        this.converter = converter;
-    }
+class MyMapObservable<T, R> extends DkObservable<R> {
+	private final DkObservable<T> parent;
+	private final DkCallable1<T, R> converter;
 
-    @Override
-    protected void performSubscribe(DkObserver<R> observer) {
-        parent.subscribe(new MapObserver<>(observer, converter));
-    }
+	MyMapObservable(DkObservable<T> parent, DkCallable1<T, R> converter) {
+		this.parent = parent;
+		this.converter = converter;
+	}
 
-    static class MapObserver<T, R> extends MyAbsMapObserver<T, R> {
-        final DkThrowableFunction<T, R> converter;
+	@Override
+	protected void subscribeActual(DkObserver<R> observer) {
+		parent.subscribe(new MapObserver<>(observer, converter));
+	}
 
-        MapObserver(DkObserver<R> child, DkThrowableFunction<T, R> converter) {
-            super(child);
-            this.converter = converter;
-        }
+	static class MapObserver<T, R> extends MyMapObserver<T, R> {
+		final DkObserver<R> child;
+		final DkCallable1<T, R> converter;
 
-        @Override
-        public void onNext(T result) {
-            try {
-                child.onNext(converter.apply(result));
-            }
-            catch (Exception e) {
-                onError(e);
-            }
-        }
-    }
+		MapObserver(DkObserver<R> child, DkCallable1<T, R> converter) {
+			super(child);
+			this.child = child;
+			this.converter = converter;
+		}
+
+		@Override
+		public void onNext(T result) throws Exception {
+			child.onNext(converter.call(result));
+		}
+	}
 }

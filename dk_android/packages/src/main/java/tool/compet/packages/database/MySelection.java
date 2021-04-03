@@ -8,34 +8,34 @@ package tool.compet.packages.database;
  * Manage selection clause.
  */
 class MySelection {
-    private final MyGrammar grammar;
+	private final MyGrammar grammar;
 
-    // Common
-    String type; // basic, raw
+	// Common
+	String type; // basic, raw
 
-    // A. For basic column select
-    String name; // columns, alias, ...
+	// A. For basic column select
+	String name; // columns, alias, ...
 
-    // B. For raw select (sub query, function...)
-    String raw; // function, sub query, ...
-    String alias; // user_id, user_name, ...
+	// B. For raw select (sub query, function...)
+	String raw; // function, sub query, ...
+	String alias; // user_id, user_name, ...
 
-    // A
-    MySelection(MyGrammar grammar, String type, String name) {
-        this.grammar = grammar;
-        this.type = type;
-        this.name = name;
-    }
+	// A
+	MySelection(MyGrammar grammar, String type, String name) {
+		this.grammar = grammar;
+		this.type = type;
+		this.name = name;
+	}
 
-    // B
-    MySelection(MyGrammar grammar, String type, String raw, String alias) {
-        this.grammar = grammar;
-        this.type = type;
-        this.raw = raw;
-        this.alias = alias;
-    }
+	// B
+	MySelection(MyGrammar grammar, String type, String raw, String alias) {
+		this.grammar = grammar;
+		this.type = type;
+		this.raw = raw;
+		this.alias = alias;
+	}
 
-    String compile() {
-        return grammar.compileSelect(this);
-    }
+	String compile() {
+		return grammar.compileSelect(this);
+	}
 }

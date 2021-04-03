@@ -1,10 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (c) 2017-2020 DarkCompet. All rights reserved.
   -->
 
-<androidx.constraintlayout.widget.ConstraintLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content">
@@ -21,7 +19,7 @@
 		android:paddingLeft="8dp"
 		android:paddingTop="8dp"
 		android:gravity="start|center_vertical"
-		android:text="This is title"/>
+		android:text="This is title" />
 
 	<TextView
 		android:visibility="gone"
@@ -35,7 +33,7 @@
 		android:gravity="start|center_vertical"
 		android:paddingLeft="8dp"
 		android:paddingTop="8dp"
-		android:text="This is summary"/>
+		android:text="This is summary" />
 
 	<TextView
 		android:id="@+id/dk_display_name"
@@ -49,6 +47,6 @@
 		android:paddingLeft="8dp"
 		android:paddingTop="8dp"
 		android:paddingBottom="8dp"
-		android:text="This is selector"/>
+		android:text="This is selector" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

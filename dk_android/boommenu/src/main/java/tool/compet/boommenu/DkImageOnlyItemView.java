@@ -12,24 +12,24 @@ import tool.compet.boommenu.DkBaseItemView;
 import tool.compet.boommenu.R;
 
 public class DkImageOnlyItemView extends DkBaseItemView {
-    ImageView ivIcon;
+	ImageView ivIcon;
 
-    public DkImageOnlyItemView(Context context) {
-        super(context);
-    }
+	public DkImageOnlyItemView(Context context) {
+		super(context);
+	}
 
-    public DkImageOnlyItemView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
+	public DkImageOnlyItemView(Context context, AttributeSet attrs) {
+		super(context, attrs);
+	}
 
-    public DkImageOnlyItemView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-    }
+	public DkImageOnlyItemView(Context context, AttributeSet attrs, int defStyleAttr) {
+		super(context, attrs, defStyleAttr);
+	}
 
-    @Override
-    protected void onFinishInflate() {
-        ivIcon = findViewById(R.id.ivIcon);
+	@Override
+	protected void onFinishInflate() {
+		ivIcon = findViewById(R.id.ivIcon);
 
-        super.onFinishInflate();
-    }
+		super.onFinishInflate();
+	}
 }

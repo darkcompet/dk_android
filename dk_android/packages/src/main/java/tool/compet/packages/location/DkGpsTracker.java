@@ -25,9 +25,9 @@ import com.google.android.gms.tasks.Task;
 import java.util.ArrayList;
 import java.util.List;
 
-import tool.compet.core.constant.DkConst;
-import tool.compet.core.log.DkLogs;
-import tool.compet.core.util.DkUtils;
+import tool.compet.core.DkConst;
+import tool.compet.core.DkLogs;
+import tool.compet.core.DkUtils;
 
 import static tool.compet.core.BuildConfig.DEBUG;
 
@@ -40,8 +40,11 @@ public class DkGpsTracker extends LocationCallback implements
 
 	public interface Listener {
 		void onGoogleServiceConnected();
+
 		void onLastLocationUpdated(Location location);
+
 		void onLocationResult(@NonNull List<Location> locations);
+
 		void onLocationChanged(Location location);
 	}
 
@@ -125,7 +128,7 @@ public class DkGpsTracker extends LocationCallback implements
 	}
 
 	public DkGpsTracker register(Listener listener) {
-		if (! listeners.contains(listener)) {
+		if (!listeners.contains(listener)) {
 			listeners.add(listener);
 		}
 		return this;
@@ -137,8 +140,8 @@ public class DkGpsTracker extends LocationCallback implements
 	}
 
 	public void start() {
-		if (! DkUtils.checkPermission(host, DkConst.ACCESS_FINE_LOCATION, DkConst.ACCESS_COARSE_LOCATION)) {
-			DkLogs.warn(this, "Could not start gps tracker since lack of permission");
+		if (!DkUtils.checkPermission(host, DkConst.ACCESS_FINE_LOCATION, DkConst.ACCESS_COARSE_LOCATION)) {
+			DkLogs.warning(this, "Could not start gps tracker since lack of permission");
 			return;
 		}
 		providerClient.requestLocationUpdates(locationRequest, this, null);
@@ -149,7 +152,7 @@ public class DkGpsTracker extends LocationCallback implements
 	}
 
 	public void requestLastLocation() {
-		if (! DkUtils.checkPermission(host, DkConst.ACCESS_FINE_LOCATION, DkConst.ACCESS_COARSE_LOCATION)) {
+		if (!DkUtils.checkPermission(host, DkConst.ACCESS_FINE_LOCATION, DkConst.ACCESS_COARSE_LOCATION)) {
 			return;
 		}
 		providerClient.getLastLocation().addOnCompleteListener(host, (Task<Location> task) -> {

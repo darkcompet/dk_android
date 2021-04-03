@@ -16,7 +16,9 @@
 package net.grandcentrix.thirtyinch.test;
 
 import android.support.annotation.NonNull;
+
 import java.util.concurrent.Executor;
+
 import net.grandcentrix.thirtyinch.TiPresenter;
 import net.grandcentrix.thirtyinch.TiView;
 import net.grandcentrix.thirtyinch.ViewAction;
@@ -66,72 +68,72 @@ import net.grandcentrix.thirtyinch.ViewAction;
  */
 public class TiTestPresenter<V extends TiView> {
 
-    private TiPresenter<V> mPresenter;
+	private TiPresenter<V> mPresenter;
 
-    public TiTestPresenter(final TiPresenter<V> presenter) {
-        mPresenter = presenter;
-    }
+	public TiTestPresenter(final TiPresenter<V> presenter) {
+		mPresenter = presenter;
+	}
 
-    /**
-     * attaches the new view and takes care for removing the old view when one is attached
-     *
-     * @see TiPresenter#onAttachView(TiView)
-     */
-    public V attachView(final V view) {
-        detachView();
+	/**
+	 * attaches the new view and takes care for removing the old view when one is attached
+	 *
+	 * @see TiPresenter#onAttachView(TiView)
+	 */
+	public V attachView(final V view) {
+		detachView();
 
-        // execute actions immediately on the same thread
-        mPresenter.setUiThreadExecutor(new Executor() {
-            @Override
-            public void execute(@NonNull final Runnable action) {
-                action.run();
-            }
-        });
-        mPresenter.attachView(view);
-        return view;
-    }
+		// execute actions immediately on the same thread
+		mPresenter.setUiThreadExecutor(new Executor() {
+			@Override
+			public void execute(@NonNull final Runnable action) {
+				action.run();
+			}
+		});
+		mPresenter.attachView(view);
+		return view;
+	}
 
-    /**
-     * initialize the presenter
-     *
-     * @see TiPresenter#onCreate()
-     */
-    public void create() {
-        mPresenter.create();
-    }
+	/**
+	 * initialize the presenter
+	 *
+	 * @see TiPresenter#onCreate()
+	 */
+	public void create() {
+		mPresenter.create();
+	}
 
-    /**
-     * destroys the presenter, last lifecycle method
-     *
-     * @see TiPresenter#onDestroy()
-     */
-    public void destroy() {
-        detachView();
-        mPresenter.destroy();
-    }
+	/**
+	 * destroys the presenter, last lifecycle method
+	 *
+	 * @see TiPresenter#onDestroy()
+	 */
+	public void destroy() {
+		detachView();
+		mPresenter.destroy();
+	}
 
-    /**
-     * moves the presenter into state {@link TiPresenter.State#VIEW_DETACHED}
-     * from every state
-     *
-     * @see TiPresenter#onDetachView()
-     */
-    public void detachView() {
-        final TiPresenter.State state = mPresenter.getState();
-        switch (state) {
-            case INITIALIZED:
-                mPresenter.create();
-                break;
-            case VIEW_DETACHED:
-                // already there
-                break;
-            case VIEW_ATTACHED:
-                mPresenter.detachView();
-                mPresenter.setUiThreadExecutor(null);
-                break;
-            case DESTROYED:
-                throw new IllegalStateException(
-                        "Presenter is already destroyed, further lifecycle changes aren't allowed");
-        }
-    }
+	/**
+	 * moves the presenter into state {@link TiPresenter.State#VIEW_DETACHED}
+	 * from every state
+	 *
+	 * @see TiPresenter#onDetachView()
+	 */
+	public void detachView() {
+		final TiPresenter.State state = mPresenter.getState();
+		switch (state) {
+			case INITIALIZED:
+				mPresenter.create();
+				break;
+			case VIEW_DETACHED:
+				// already there
+				break;
+			case VIEW_ATTACHED:
+				mPresenter.detachView();
+				mPresenter.setUiThreadExecutor(null);
+				break;
+			case DESTROYED:
+				throw new IllegalStateException(
+					"Presenter is already destroyed, further lifecycle changes aren't allowed");
+		}
+	}
 }

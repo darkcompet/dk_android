@@ -5,5 +5,5 @@
 package tool.compet.core.view;
 
 public class DkViewConfiguration {
-    public static final int CLICK_SLOP = 100;
+	public static final int CLICK_SLOP = 100;
 }

@@ -12,26 +12,26 @@ import tool.compet.boommenu.DkBaseItemView;
 import tool.compet.boommenu.R;
 
 public class DkTextOnlyItemView extends DkBaseItemView {
-    TextView tvText;
+	TextView tvText;
 
-    public DkTextOnlyItemView(Context context) {
-        super(context);
-    }
+	public DkTextOnlyItemView(Context context) {
+		super(context);
+	}
 
-    public DkTextOnlyItemView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
+	public DkTextOnlyItemView(Context context, AttributeSet attrs) {
+		super(context, attrs);
+	}
 
-    public DkTextOnlyItemView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-    }
+	public DkTextOnlyItemView(Context context, AttributeSet attrs, int defStyleAttr) {
+		super(context, attrs, defStyleAttr);
+	}
 
-    @Override
-    protected void onFinishInflate() {
-        tvText = findViewById(R.id.tvText);
+	@Override
+	protected void onFinishInflate() {
+		tvText = findViewById(R.id.tvText);
 
-        tvText.setSelected(true);
+		tvText.setSelected(true);
 
-        super.onFinishInflate();
-    }
+		super.onFinishInflate();
+	}
 }

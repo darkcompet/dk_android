@@ -20,6 +20,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
 import net.grandcentrix.thirtyinch.TiView;
 
 /**
@@ -33,8 +34,8 @@ import net.grandcentrix.thirtyinch.TiView;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DistinctUntilChanged {
 
-    Class<? extends DistinctComparator> comparator() default HashComparator.class;
+	Class<? extends DistinctComparator> comparator() default HashComparator.class;
 
-    boolean logDropped() default false;
+	boolean logDropped() default false;
 
 }

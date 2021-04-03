@@ -18,6 +18,7 @@ package net.grandcentrix.thirtyinch.internal;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+
 import java.util.concurrent.Executor;
 
 /**
@@ -27,17 +28,18 @@ import java.util.concurrent.Executor;
  */
 public class UiThreadExecutor implements Executor {
 
-    private final Handler mHandler = new Handler(Looper.getMainLooper());
+	private final Handler mHandler = new Handler(Looper.getMainLooper());
 
-    private Thread mUiThread = Looper.getMainLooper().getThread();
+	private Thread mUiThread = Looper.getMainLooper().getThread();
 
-    @Override
-    public void execute(@NonNull Runnable command) {
-        if (Thread.currentThread() == mUiThread) {
-            // already on main thread, simply execute
-            command.run();
-        } else {
-            mHandler.post(command);
-        }
-    }
+	@Override
+	public void execute(@NonNull Runnable command) {
+		if (Thread.currentThread() == mUiThread) {
+			// already on main thread, simply execute
+			command.run();
+		}
+		else {
+			mHandler.post(command);
+		}
+	}
 }

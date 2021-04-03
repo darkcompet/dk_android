@@ -11,7 +11,7 @@ import com.google.android.gms.location.places.Place;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import tool.compet.core.log.DkLogs;
+import tool.compet.core.DkLogs;
 
 public class DkLocations {
 	public static DkLocation[] jsonAutoComplete2myLocation(String jsonAuto) {

@@ -25,15 +25,15 @@ package net.grandcentrix.thirtyinch;
  */
 public interface Removable {
 
-    /**
-     * Indicates whether the added Object is still added
-     *
-     * @return {@code true} if the added Object is currently added, {@code false} otherwise
-     */
-    boolean isRemoved();
+	/**
+	 * Indicates whether the added Object is still added
+	 *
+	 * @return {@code true} if the added Object is currently added, {@code false} otherwise
+	 */
+	boolean isRemoved();
 
-    /**
-     * Removes the Object which got previously added
-     */
-    void remove();
+	/**
+	 * Removes the Object which got previously added
+	 */
+	void remove();
 }

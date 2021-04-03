@@ -5,6 +5,7 @@
 package tool.compet.appbundle.architecture.preference;
 
 public interface MyPreferenceListener {
-    void onPreferenceChanged(String key);
-    void notifyDataSetChanged();
+	void onPreferenceChanged(String key);
+
+	void notifyDataSetChanged();
 }

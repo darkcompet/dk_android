@@ -8,7 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import tool.compet.core.type.DkCallback1;
+import tool.compet.core.DkRunner1;
 
 /**
  * Example of usage:
@@ -20,7 +20,7 @@ import tool.compet.core.type.DkCallback1;
  *    IntentFilter networkChangeIntentFilter = new IntentFilter();
  *    networkChangeIntentFilter.addAction(Dk$.INTENT_CONNECTIVITY_CHANGE);
  * </pre>
- *
+ * <p>
  * And register/unregister listener at cycle-pair like #onResume()/#onPause():
  * <pre>
  *    host.registerReceiver(networkChangeReceiver, networkChangeIntentFilter);
@@ -28,7 +28,7 @@ import tool.compet.core.type.DkCallback1;
  * </pre>
  */
 public class DkNetworkChangeReceiver extends BroadcastReceiver {
-	private DkCallback1<Integer> listener;
+	private DkRunner1<Integer> listener;
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
@@ -40,7 +40,7 @@ public class DkNetworkChangeReceiver extends BroadcastReceiver {
 	/**
 	 * @param statusListener will callback status of network, #see DkNetworkStatus.XXX
 	 */
-	public void setNetworkChangeListener(DkCallback1<Integer> statusListener) {
+	public void setNetworkChangeListener(DkRunner1<Integer> statusListener) {
 		this.listener = statusListener;
 	}
 }

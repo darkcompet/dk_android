@@ -25,15 +25,15 @@ import java.util.Arrays;
  */
 public class HashComparator implements DistinctComparator {
 
-    private int mLastParametersHash = 0;
+	private int mLastParametersHash = 0;
 
-    @Override
-    public boolean compareWith(final Object[] newParameters) {
-        final int hash = Arrays.hashCode(newParameters);
-        if (hash == mLastParametersHash) {
-            return true;
-        }
-        mLastParametersHash = hash;
-        return false;
-    }
+	@Override
+	public boolean compareWith(final Object[] newParameters) {
+		final int hash = Arrays.hashCode(newParameters);
+		if (hash == mLastParametersHash) {
+			return true;
+		}
+		mLastParametersHash = hash;
+		return false;
+	}
 }

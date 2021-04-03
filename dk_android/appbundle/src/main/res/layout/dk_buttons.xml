@@ -1,10 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (c) 2017-2020 DarkCompet. All rights reserved.
   -->
 
-<androidx.constraintlayout.widget.ConstraintLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:id="@+id/dk_buttons"
 	android:layout_width="match_parent"
@@ -29,7 +27,7 @@
 		android:layout_margin="0dp"
 		android:gravity="center"
 		android:padding="8dp"
-		android:text="@string/cancel"/>
+		android:text="@string/cancel" />
 
 	<tool.compet.appbundle.view.DkOneClickButton
 		android:id="@+id/dk_btn_reset"

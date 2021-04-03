@@ -6,20 +6,20 @@ package tool.compet.boommenu;
 
 import android.view.animation.Interpolator;
 
-import tool.compet.core.animation.DkInterpolatorProvider;
+import tool.compet.core.view.animation.DkInterpolatorProvider;
 
 class MyScaleEvaluator {
-    private final float startValue;
-    private final float endValue;
-    private final Interpolator scaleInterpolator;
+	private final float startValue;
+	private final float endValue;
+	private final Interpolator scaleInterpolator;
 
-    public MyScaleEvaluator(float startValue, float endValue) {
-        this.startValue = startValue;
-        this.endValue = endValue;
-        this.scaleInterpolator = DkInterpolatorProvider.newCubicOut(true);
-    }
+	public MyScaleEvaluator(float startValue, float endValue) {
+		this.startValue = startValue;
+		this.endValue = endValue;
+		this.scaleInterpolator = DkInterpolatorProvider.newCubicOut(true);
+	}
 
-    public float getAnimatedValue(float fraction) {
-        return startValue + scaleInterpolator.getInterpolation(fraction) * (endValue - startValue);
-    }
+	public float getAnimatedValue(float fraction) {
+		return startValue + scaleInterpolator.getInterpolation(fraction) * (endValue - startValue);
+	}
 }

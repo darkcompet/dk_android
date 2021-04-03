@@ -16,6 +16,7 @@
 package net.grandcentrix.thirtyinch.internal;
 
 import java.util.concurrent.Executor;
+
 import net.grandcentrix.thirtyinch.TiLifecycleObserver;
 import net.grandcentrix.thirtyinch.TiPresenter;
 
@@ -24,27 +25,27 @@ import net.grandcentrix.thirtyinch.TiPresenter;
  */
 public class UiThreadExecutorAutoBinder implements TiLifecycleObserver {
 
-    private final TiPresenter mPresenter;
+	private final TiPresenter mPresenter;
 
-    private final Executor mUiThreadExecutor;
+	private final Executor mUiThreadExecutor;
 
-    public UiThreadExecutorAutoBinder(final TiPresenter presenter,
-            final Executor uiThreadExecutor) {
-        mPresenter = presenter;
-        mUiThreadExecutor = uiThreadExecutor;
-    }
+	public UiThreadExecutorAutoBinder(final TiPresenter presenter,
+		final Executor uiThreadExecutor) {
+		mPresenter = presenter;
+		mUiThreadExecutor = uiThreadExecutor;
+	}
 
-    @Override
-    public void onChange(final TiPresenter.State state,
-            final boolean hasLifecycleMethodBeenCalled) {
+	@Override
+	public void onChange(final TiPresenter.State state,
+		final boolean hasLifecycleMethodBeenCalled) {
 
-        if (state == TiPresenter.State.VIEW_ATTACHED && !hasLifecycleMethodBeenCalled) {
-            // before super.onAttachView(view)
-            mPresenter.setUiThreadExecutor(mUiThreadExecutor);
-        }
-        if (state == TiPresenter.State.VIEW_DETACHED && hasLifecycleMethodBeenCalled) {
-            // after super.onDetachView()
-            mPresenter.setUiThreadExecutor(null);
-        }
-    }
+		if (state == TiPresenter.State.VIEW_ATTACHED && !hasLifecycleMethodBeenCalled) {
+			// before super.onAttachView(view)
+			mPresenter.setUiThreadExecutor(mUiThreadExecutor);
+		}
+		if (state == TiPresenter.State.VIEW_DETACHED && hasLifecycleMethodBeenCalled) {
+			// after super.onDetachView()
+			mPresenter.setUiThreadExecutor(null);
+		}
+	}
 }

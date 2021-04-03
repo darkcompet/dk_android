@@ -20,5 +20,5 @@ package net.grandcentrix.thirtyinch;
  */
 public interface ViewAction<V extends TiView> {
 
-    void call(V v);
+	void call(V v);
 }

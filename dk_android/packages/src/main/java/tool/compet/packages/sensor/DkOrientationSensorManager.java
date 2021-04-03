@@ -65,9 +65,9 @@ public class DkOrientationSensorManager implements SensorEventListener {
 		void onSensorAccuracyChanged(int accuracy);
 
 		/**
-		 * @param azimuth rotation around z-axis, diff angle (in radian) with earth's north pole.
-		 * @param pitch rotation around x-axis (east pole) in radian.
-		 * @param roll rotation around y-axis (north pole) in radian.
+		 * @param azimuth     rotation around z-axis, diff angle (in radian) with earth's north pole.
+		 * @param pitch       rotation around x-axis (east pole) in radian.
+		 * @param roll        rotation around y-axis (north pole) in radian.
 		 * @param inclination diff with true north, see #GeomagneticField
 		 */
 		void onSensorOrientationChanged(double azimuth, double pitch, double roll, double inclination);
@@ -224,7 +224,7 @@ public class DkOrientationSensorManager implements SensorEventListener {
 			okAcc = sensorManager.registerListener(this, graSensor, sensorDelay);
 		}
 
-		return new boolean[] {okAcc, okMag};
+		return new boolean[]{okAcc, okMag};
 	}
 
 	public void stop() {

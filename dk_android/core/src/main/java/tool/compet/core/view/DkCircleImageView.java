@@ -15,43 +15,43 @@ import tool.compet.core.graphic.DkShadowDrawable;
 
 // https://github.com/hdodenhof/CircleImageView/blob/master/circleimageview/src/main/java/de/hdodenhof/circleimageview/CircleImageView.java
 public class DkCircleImageView extends AppCompatImageView {
-    private int radius;
-    private Path circlePath;
-    private DkShadowDrawable shadowDrawable;
-    private int cx;
-    private int cy;
+	private int radius;
+	private Path circlePath;
+	private DkShadowDrawable shadowDrawable;
+	private int cx;
+	private int cy;
 
-    public DkCircleImageView(Context context) {
-        this(context, null, 0);
-    }
+	public DkCircleImageView(Context context) {
+		this(context, null, 0);
+	}
 
-    public DkCircleImageView(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
-    }
+	public DkCircleImageView(Context context, AttributeSet attrs) {
+		this(context, attrs, 0);
+	}
 
-    public DkCircleImageView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        init(context);
-    }
+	public DkCircleImageView(Context context, AttributeSet attrs, int defStyleAttr) {
+		super(context, attrs, defStyleAttr);
+		init(context);
+	}
 
-    private void init(Context context) {
-        circlePath = new Path();
-    }
+	private void init(Context context) {
+		circlePath = new Path();
+	}
 
-    @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        cx = w >> 1;
-        cy = h >> 1;
+	@Override
+	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+		cx = w >> 1;
+		cy = h >> 1;
 
-        circlePath.addCircle(cx, cy, radius, Path.Direction.CCW);
+		circlePath.addCircle(cx, cy, radius, Path.Direction.CCW);
 
-        super.onSizeChanged(w, h, oldw, oldh);
-    }
+		super.onSizeChanged(w, h, oldw, oldh);
+	}
 
-    @Override
-    protected void onDraw(Canvas canvas) {
-        canvas.clipPath(circlePath);
+	@Override
+	protected void onDraw(Canvas canvas) {
+		canvas.clipPath(circlePath);
 
-        super.onDraw(canvas);
-    }
+		super.onDraw(canvas);
+	}
 }

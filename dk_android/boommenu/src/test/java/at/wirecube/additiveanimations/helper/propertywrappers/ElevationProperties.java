@@ -23,17 +23,17 @@ import at.wirecube.additiveanimations.helper.FloatProperty;
 
 public class ElevationProperties {
 
-    @SuppressWarnings("NewApi")
-    public static Property<View, Float> ELEVATION = new FloatProperty<View>("ELEVATION") {
-        @Override
-        public Float get(View object) {
-            return Float.valueOf(object.getElevation());
-        }
+	@SuppressWarnings("NewApi")
+	public static Property<View, Float> ELEVATION = new FloatProperty<View>("ELEVATION") {
+		@Override
+		public Float get(View object) {
+			return Float.valueOf(object.getElevation());
+		}
 
-        @Override
-        public void set(View object, Float value) {
-            object.setElevation(value);
-        }
-    };
+		@Override
+		public void set(View object, Float value) {
+			object.setElevation(value);
+		}
+	};
 
 }

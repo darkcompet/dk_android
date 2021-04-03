@@ -20,7 +20,9 @@ import static net.grandcentrix.thirtyinch.util.AnnotationUtil.hasObjectMethodWit
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+
 import java.lang.reflect.Proxy;
+
 import net.grandcentrix.thirtyinch.BindViewInterceptor;
 import net.grandcentrix.thirtyinch.TiLog;
 import net.grandcentrix.thirtyinch.TiView;
@@ -28,55 +30,56 @@ import net.grandcentrix.thirtyinch.internal.InterceptableViewBinder;
 
 public class DistinctUntilChangedInterceptor implements BindViewInterceptor {
 
-    private static final String TAG = DistinctUntilChangedInterceptor.class.getSimpleName();
+	private static final String TAG = DistinctUntilChangedInterceptor.class.getSimpleName();
 
-    @SuppressWarnings("unchecked")
-    @Nullable
-    public static DistinctUntilChangedInvocationHandler<TiView> unwrap(@NonNull final TiView view) {
-        try {
-            return (DistinctUntilChangedInvocationHandler) Proxy.getInvocationHandler(view);
-        } catch (ClassCastException e) {
-            return null;
-        }
-    }
+	@SuppressWarnings("unchecked")
+	@Nullable
+	public static DistinctUntilChangedInvocationHandler<TiView> unwrap(@NonNull final TiView view) {
+		try {
+			return (DistinctUntilChangedInvocationHandler) Proxy.getInvocationHandler(view);
+		}
+		catch (ClassCastException e) {
+			return null;
+		}
+	}
 
-    public <V extends TiView> void clearCache(final InterceptableViewBinder<V> interceptable) {
-        final TiView wrappedView = interceptable.getInterceptedViewOf(this);
-        if (wrappedView != null) {
-            final DistinctUntilChangedInvocationHandler<TiView> view
-                    = DistinctUntilChangedInterceptor.unwrap(wrappedView);
-            if (view != null) {
-                view.clearCache();
-                TiLog.v(TAG, "cleared the distinctUntilChanged cache of " + view);
-            }
-        }
-    }
+	public <V extends TiView> void clearCache(final InterceptableViewBinder<V> interceptable) {
+		final TiView wrappedView = interceptable.getInterceptedViewOf(this);
+		if (wrappedView != null) {
+			final DistinctUntilChangedInvocationHandler<TiView> view
+				= DistinctUntilChangedInterceptor.unwrap(wrappedView);
+			if (view != null) {
+				view.clearCache();
+				TiLog.v(TAG, "cleared the distinctUntilChanged cache of " + view);
+			}
+		}
+	}
 
-    @Override
-    public <V extends TiView> V intercept(final V view) {
-        final V wrapped = wrap(view);
-        TiLog.v(TAG, "wrapping View " + view + " in " + wrapped);
-        return wrapped;
-    }
+	@Override
+	public <V extends TiView> V intercept(final V view) {
+		final V wrapped = wrap(view);
+		TiLog.v(TAG, "wrapping View " + view + " in " + wrapped);
+		return wrapped;
+	}
 
-    @SuppressWarnings("unchecked")
-    @NonNull
-    public <V extends TiView> V wrap(@NonNull final V view) {
+	@SuppressWarnings("unchecked")
+	@NonNull
+	public <V extends TiView> V wrap(@NonNull final V view) {
 
-        Class<?> foundInterfaceClass =
-                getInterfaceOfClassExtendingGivenInterface(view.getClass(), TiView.class);
-        if (foundInterfaceClass == null) {
-            throw new IllegalStateException("the interface extending View could not be found");
-        }
+		Class<?> foundInterfaceClass =
+			getInterfaceOfClassExtendingGivenInterface(view.getClass(), TiView.class);
+		if (foundInterfaceClass == null) {
+			throw new IllegalStateException("the interface extending View could not be found");
+		}
 
-        if (!hasObjectMethodWithAnnotation(view, DistinctUntilChanged.class)) {
-            // not method has the annotation, returning original view
-            // not creating a proxy
-            return view;
-        }
+		if (!hasObjectMethodWithAnnotation(view, DistinctUntilChanged.class)) {
+			// not method has the annotation, returning original view
+			// not creating a proxy
+			return view;
+		}
 
-        return (V) Proxy.newProxyInstance(
-                foundInterfaceClass.getClassLoader(), new Class<?>[]{foundInterfaceClass},
-                new DistinctUntilChangedInvocationHandler<>(view));
-    }
+		return (V) Proxy.newProxyInstance(
+			foundInterfaceClass.getClassLoader(), new Class<?>[]{foundInterfaceClass},
+			new DistinctUntilChangedInvocationHandler<>(view));
+	}
 }

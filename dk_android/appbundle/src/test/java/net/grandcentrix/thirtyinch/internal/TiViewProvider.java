@@ -16,6 +16,7 @@
 package net.grandcentrix.thirtyinch.internal;
 
 import android.support.annotation.NonNull;
+
 import net.grandcentrix.thirtyinch.TiActivity;
 import net.grandcentrix.thirtyinch.TiView;
 
@@ -26,9 +27,9 @@ import net.grandcentrix.thirtyinch.TiView;
  */
 public interface TiViewProvider<V extends TiView> {
 
-    /**
-     * @return the {@link TiView} for the {@link net.grandcentrix.thirtyinch.TiPresenter}
-     */
-    @NonNull
-    V provideView();
+	/**
+	 * @return the {@link TiView} for the {@link net.grandcentrix.thirtyinch.TiPresenter}
+	 */
+	@NonNull
+	V provideView();
 }

@@ -15,7 +15,6 @@
 
 package net.grandcentrix.thirtyinch.internal;
 
-
 import net.grandcentrix.thirtyinch.TiPresenter;
 import net.grandcentrix.thirtyinch.TiView;
 
@@ -24,9 +23,9 @@ import net.grandcentrix.thirtyinch.TiView;
  */
 public interface PresenterAccessor<P extends TiPresenter<V>, V extends TiView> {
 
-    /**
-     * @return the attached presenter
-     */
-    P getPresenter();
+	/**
+	 * @return the attached presenter
+	 */
+	P getPresenter();
 
 }

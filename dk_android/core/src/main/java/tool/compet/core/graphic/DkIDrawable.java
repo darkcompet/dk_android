@@ -19,22 +19,22 @@ import java.io.IOException;
  * All custom drawables (starts with Dk) should implement this interface.
  */
 public interface DkIDrawable {
-    // from api 21+
-    void setHotspot(float x, float y);
+	// from api 21+
+	void setHotspot(float x, float y);
 
-    // from api 21+
-    void setHotspotBounds(int left, int top, int right, int bottom);
+	// from api 21+
+	void setHotspotBounds(int left, int top, int right, int bottom);
 
-    // from api 21+
-    void getHotspotBounds(@NonNull Rect outRect);
+	// from api 21+
+	void getHotspotBounds(@NonNull Rect outRect);
 
-    // from api 21+
-    void applyTheme(Resources.Theme t);
+	// from api 21+
+	void applyTheme(Resources.Theme t);
 
-    // from api 21+
-    void inflate(Resources r, XmlPullParser parser, AttributeSet attrs, Resources.Theme theme)
-        throws XmlPullParserException, IOException;
+	// from api 21+
+	void inflate(Resources r, XmlPullParser parser, AttributeSet attrs, Resources.Theme theme)
+		throws XmlPullParserException, IOException;
 
-    // from api 21+
-    boolean canApplyTheme();
+	// from api 21+
+	boolean canApplyTheme();
 }

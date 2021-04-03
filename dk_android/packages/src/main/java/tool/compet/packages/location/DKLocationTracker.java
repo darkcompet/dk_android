@@ -13,8 +13,8 @@ import android.os.Bundle;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import tool.compet.core.constant.DkConst;
-import tool.compet.core.util.DkUtils;
+import tool.compet.core.DkConst;
+import tool.compet.core.DkUtils;
 
 /**
  * This is location tracker which uses `LocationManager` of framework.
@@ -22,8 +22,11 @@ import tool.compet.core.util.DkUtils;
 public class DKLocationTracker {
 	public interface Listener {
 		void onStatusChanged(String provider, int status, Bundle extras);
+
 		void onProviderEnabled(String provider);
+
 		void onProviderDisabled(String provider);
+
 		void onLocationChanged(Location location);
 	}
 
@@ -58,7 +61,7 @@ public class DKLocationTracker {
 	 * Note: before call this, should check 2 permissions: DkConst.ACCESS_FINE_LOCATION, DkConst.ACCESS_COARSE_LOCATION.
 	 */
 	public Location start(Context context) {
-		if (! DkUtils.checkPermission(context, DkConst.ACCESS_FINE_LOCATION, DkConst.ACCESS_COARSE_LOCATION)) {
+		if (!DkUtils.checkPermission(context, DkConst.ACCESS_FINE_LOCATION, DkConst.ACCESS_COARSE_LOCATION)) {
 			return null;
 		}
 		String bestProviderName = locationManager.getBestProvider(criteria, true);
@@ -118,18 +121,21 @@ public class DKLocationTracker {
 				listener.onStatusChanged(provider, status, extras);
 			}
 		}
+
 		@Override
 		public void onProviderEnabled(String provider) {
 			if (listener != null) {
 				listener.onProviderEnabled(provider);
 			}
 		}
+
 		@Override
 		public void onProviderDisabled(String provider) {
 			if (listener != null) {
 				listener.onProviderDisabled(provider);
 			}
 		}
+
 		@Override
 		public void onLocationChanged(Location location) {
 			synchronized (this) {

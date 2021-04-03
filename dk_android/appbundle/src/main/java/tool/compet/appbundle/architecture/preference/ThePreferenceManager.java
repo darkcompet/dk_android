@@ -9,53 +9,52 @@ import android.content.Context;
 import java.util.ArrayList;
 import java.util.List;
 
-import tool.compet.core.storage.DkStorageInf;
-import tool.compet.core.util.DkCollections;
-import tool.compet.core.util.DkStrings;
+import tool.compet.core.DkCollections;
+import tool.compet.core.DkStrings;
 
 public class ThePreferenceManager {
-    private final Context context;
-    private final List<DkPreference> preferences = new ArrayList<>();
-    private final DkStorageInf storage;
-    private final MyPreferenceListener listener;
+	private final Context context;
+	private final List<DkPreference> preferences = new ArrayList<>();
+	private final DkPreferenceStorage storage;
+	private final MyPreferenceListener listener;
 
-    ThePreferenceManager(Context context, DkStorageInf storage, MyPreferenceListener listener) {
-        this.context = context;
-        this.storage = storage;
-        this.listener = listener;
-    }
+	ThePreferenceManager(Context context, DkPreferenceStorage storage, MyPreferenceListener listener) {
+		this.context = context;
+		this.storage = storage;
+		this.listener = listener;
+	}
 
-    public void notifyDataSetChanged() {
-        listener.notifyDataSetChanged();
-    }
+	public void notifyDataSetChanged() {
+		listener.notifyDataSetChanged();
+	}
 
-    public int count() {
-        return preferences.size();
-    }
+	public int count() {
+		return preferences.size();
+	}
 
-    public void clear() {
-        preferences.clear();
-    }
+	public void clear() {
+		preferences.clear();
+	}
 
-    public DkPreference getPreference(String key) {
-        int index = DkCollections.findIndex(preferences, pref -> DkStrings.isEquals(key, ((DkPreference) pref).key));
-        return index < 0 ? null : preferences.get(index);
-    }
+	public DkPreference getPreference(String key) {
+		int index = DkCollections.findIndex(preferences, pref -> DkStrings.isEquals(key, ((DkPreference) pref).key));
+		return index < 0 ? null : preferences.get(index);
+	}
 
-    public List<DkPreference> getPreferences() {
-        return preferences;
-    }
+	public List<DkPreference> getPreferences() {
+		return preferences;
+	}
 
-    public ThePreferenceManager addPreference(DkPreference preference) {
-        preference.init(context, storage, listener);
-        preferences.add(preference);
-        return this;
-    }
+	public ThePreferenceManager addPreference(DkPreference preference) {
+		preference.init(context, storage, listener);
+		preferences.add(preference);
+		return this;
+	}
 
-    public void removePreference(String key) {
-        int index = DkCollections.findIndex(preferences, pref -> DkStrings.isEquals(key, ((DkPreference) pref).key));
-        if (index >= 0) {
-            preferences.remove(index);
-        }
-    }
+	public void removePreference(String key) {
+		int index = DkCollections.findIndex(preferences, pref -> DkStrings.isEquals(key, ((DkPreference) pref).key));
+		if (index >= 0) {
+			preferences.remove(index);
+		}
+	}
 }

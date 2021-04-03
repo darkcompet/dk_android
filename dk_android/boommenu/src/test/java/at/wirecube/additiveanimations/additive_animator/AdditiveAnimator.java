@@ -24,63 +24,66 @@ import java.util.List;
  * Use this class to additively animate a lot of properties of Views.
  * If you want to extend the animatable properties, you should extend `SubclassableAdditiveViewAnimator`.
  * Additive animations are nicely explained here: http://ronnqvi.st/multiple-animations/
-*/
+ */
 public final class AdditiveAnimator extends SubclassableAdditiveViewAnimator<AdditiveAnimator> {
 
-    /**
-     * This is just a convenience method when you need to animate a single view.
-     * No state is kept in individual AdditiveAnimator instances, so you don't need to keep a reference to it.
-     * @param view The view to animate.
-     * @return A new instance of AdditiveAnimator with `target` set to `view`.
-     */
-    public static AdditiveAnimator animate(View view) {
-        return new AdditiveAnimator(view);
-    }
+	/**
+	 * This is just a convenience method when you need to animate a single view.
+	 * No state is kept in individual AdditiveAnimator instances, so you don't need to keep a reference to it.
+	 *
+	 * @param view The view to animate.
+	 * @return A new instance of AdditiveAnimator with `target` set to `view`.
+	 */
+	public static AdditiveAnimator animate(View view) {
+		return new AdditiveAnimator(view);
+	}
 
-    public static AdditiveAnimator animate(View... views) {
-        return new AdditiveAnimator().targets(views);
-    }
+	public static AdditiveAnimator animate(View... views) {
+		return new AdditiveAnimator().targets(views);
+	}
 
-    public static AdditiveAnimator animate(List<View> views, long stagger) {
-        return new AdditiveAnimator().targets(views, stagger);
-    }
+	public static AdditiveAnimator animate(List<View> views, long stagger) {
+		return new AdditiveAnimator().targets(views, stagger);
+	}
 
-    public static AdditiveAnimator animate(List<View> views, long duration, long stagger) {
-        return new AdditiveAnimator(duration).targets(views, stagger);
-    }
+	public static AdditiveAnimator animate(List<View> views, long duration, long stagger) {
+		return new AdditiveAnimator(duration).targets(views, stagger);
+	}
 
-    /**
-     * This is just a convenience method when you need to animate a single view.
-     * No state is kept in individual AdditiveAnimator instances, so you don't need to keep a reference to it.
-     * @param view The view to animate.
-     * @param duration The animation duration.
-     * @return A new instance of AdditiveAnimator with the animation target set to `view` and the animationDuration set to `duration`.
-     */
-    public static AdditiveAnimator animate(View view, long duration) {
-        return new AdditiveAnimator(view).setDuration(duration);
-    }
+	/**
+	 * This is just a convenience method when you need to animate a single view.
+	 * No state is kept in individual AdditiveAnimator instances, so you don't need to keep a reference to it.
+	 *
+	 * @param view     The view to animate.
+	 * @param duration The animation duration.
+	 * @return A new instance of AdditiveAnimator with the animation target set to `view` and the animationDuration set to `duration`.
+	 */
+	public static AdditiveAnimator animate(View view, long duration) {
+		return new AdditiveAnimator(view).setDuration(duration);
+	}
 
-    @Override
-    protected AdditiveAnimator newInstance() {
-        return new AdditiveAnimator();
-    }
+	@Override
+	protected AdditiveAnimator newInstance() {
+		return new AdditiveAnimator();
+	}
 
-    protected AdditiveAnimator(View view) {
-        target(view);
-    }
+	protected AdditiveAnimator(View view) {
+		target(view);
+	}
 
-    /**
-     * Creates a new AdditiveAnimator instance without a target view.
-     * You **must** call `target(View v)` before calling one of the animation methods.
-     */
-    public AdditiveAnimator() {}
+	/**
+	 * Creates a new AdditiveAnimator instance without a target view.
+	 * You **must** call `target(View v)` before calling one of the animation methods.
+	 */
+	public AdditiveAnimator() {
+	}
 
-    /**
-     * Creates a new AdditiveAnimator instance with the specified animation duration for more convenience.
-     * You **must** call `target(View v)` before calling one of the animation methods.
-     */
-    public AdditiveAnimator(long duration) {
-        setDuration(duration);
-    }
+	/**
+	 * Creates a new AdditiveAnimator instance with the specified animation duration for more convenience.
+	 * You **must** call `target(View v)` before calling one of the animation methods.
+	 */
+	public AdditiveAnimator(long duration) {
+		setDuration(duration);
+	}
 
 }

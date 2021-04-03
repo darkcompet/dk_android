@@ -5,11 +5,11 @@
 package tool.compet.core.stream;
 
 /**
- * This class is developed since some cases you wanna full-customize logic of emitting events,
+ * This class is helpful for some cases you wanna full-customize logic of emitting events,
  * so we just invoke {@link DkEmitter#call(DkObserver)} without try/catch block to give you full-control.
  * Note for the implementation time:
  * <p></p>
- * You must handle all event-methods
+ * You must handle all below event-methods
  * {@link DkObserver#onSubscribe(DkControllable)},
  * {@link DkObserver#onNext(Object)},
  * {@link DkObserver#onError(Throwable)},
@@ -18,5 +18,5 @@ package tool.compet.core.stream;
  * Normally, just use try-catch with finally statement to notify child observer.
  */
 public interface DkEmitter<T> {
-    void call(DkObserver<T> observer);
+	void call(DkObserver<T> observer);
 }

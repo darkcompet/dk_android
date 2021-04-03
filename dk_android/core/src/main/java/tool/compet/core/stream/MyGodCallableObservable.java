@@ -4,56 +4,58 @@
 
 package tool.compet.core.stream;
 
-import java.util.concurrent.Callable;
+import tool.compet.core.DkLogs;
+import tool.compet.core.DkCallable;
 
 /**
  * God observable node.
+ * When start, this run callable and then handle next events.
  */
 class MyGodCallableObservable<T> extends DkObservable<T> {
-    private final Callable<T> execution;
+	private final DkCallable<T> execution;
 
-    MyGodCallableObservable(Callable<T> execution) {
-        this.execution = execution;
-    }
+	MyGodCallableObservable(DkCallable<T> execution) {
+		this.execution = execution;
+	}
 
-    @Override
-    protected void performSubscribe(DkObserver<T> child) {
-        CallableObserver<T> wrapper = new CallableObserver<>(child, execution);
-        wrapper.start();
-    }
+	@Override
+	protected void subscribeActual(DkObserver<T> child) throws Exception {
+		CallableObserver<T> wrapper = new CallableObserver<>(child, execution);
+		wrapper.start();
+	}
 
-    static class CallableObserver<T> extends DkControllable<T> {
-        final Callable<T> execution;
+	static class CallableObserver<T> extends DkControllable<T> {
+		final DkCallable<T> callable;
 
-        CallableObserver(DkObserver<T> child, Callable<T> execution) {
-            super(child);
-            this.execution = execution;
-        }
+		CallableObserver(DkObserver<T> child, DkCallable<T> callable) {
+			super(child);
+			this.callable = callable;
+		}
 
-        void start() {
-            try {
-                onSubscribe(this);
+		void start() {
+			try {
+				onSubscribe(this);
 
-                if (isCancel) {
-                    isCanceled = true;
-                    return;
-                }
+				if (isCancel) {
+					isCanceled = true;
+					return;
+				}
 
-                onNext(execution.call());
-                onComplete();
-            }
-            catch (Exception e) {
-                onError(e);
-            }
-            finally {
-                onFinal();
-            }
-        }
+				onNext(callable.call());
+				onComplete();
+			}
+			catch (Exception e) {
+				onError(e);
+			}
+			finally {
+				DkLogs.debug(this, "call final at God node");
+				onFinal();
+			}
+		}
 
-        @Override
-        public void onSubscribe(DkControllable controllable) {
-            parent = null;
-            child.onSubscribe(controllable);
-        }
-    }
+		@Override
+		public void onSubscribe(DkControllable controllable) throws Exception {
+			child.onSubscribe(controllable);
+		}
+	}
 }

@@ -24,51 +24,51 @@ import at.wirecube.additiveanimations.helper.FloatProperty;
 
 public class MarginProperties {
 
-    public static Property<View, Float> MARGIN_LEFT = new FloatProperty<View>("MARGIN_LEFT") {
-        @Override
-        public Float get(View object) {
-            return Float.valueOf(((ViewGroup.MarginLayoutParams)object.getLayoutParams()).leftMargin);
-        }
+	public static Property<View, Float> MARGIN_LEFT = new FloatProperty<View>("MARGIN_LEFT") {
+		@Override
+		public Float get(View object) {
+			return Float.valueOf(((ViewGroup.MarginLayoutParams) object.getLayoutParams()).leftMargin);
+		}
 
-        @Override
-        public void set(View object, Float value) {
-            ((ViewGroup.MarginLayoutParams)object.getLayoutParams()).leftMargin = value.intValue();
-        }
-    };
+		@Override
+		public void set(View object, Float value) {
+			((ViewGroup.MarginLayoutParams) object.getLayoutParams()).leftMargin = value.intValue();
+		}
+	};
 
-    public static Property<View, Float> MARGIN_RIGHT = new FloatProperty<View>("MARGIN_RIGHT") {
-        @Override
-        public Float get(View object) {
-            return Float.valueOf(((ViewGroup.MarginLayoutParams)object.getLayoutParams()).rightMargin);
-        }
+	public static Property<View, Float> MARGIN_RIGHT = new FloatProperty<View>("MARGIN_RIGHT") {
+		@Override
+		public Float get(View object) {
+			return Float.valueOf(((ViewGroup.MarginLayoutParams) object.getLayoutParams()).rightMargin);
+		}
 
-        @Override
-        public void set(View object, Float value) {
-            ((ViewGroup.MarginLayoutParams)object.getLayoutParams()).rightMargin = value.intValue();
-        }
-    };
+		@Override
+		public void set(View object, Float value) {
+			((ViewGroup.MarginLayoutParams) object.getLayoutParams()).rightMargin = value.intValue();
+		}
+	};
 
-    public static Property<View, Float> MARGIN_TOP = new FloatProperty<View>("MARGIN_TOP") {
-        @Override
-        public Float get(View object) {
-            return Float.valueOf(((ViewGroup.MarginLayoutParams)object.getLayoutParams()).topMargin);
-        }
+	public static Property<View, Float> MARGIN_TOP = new FloatProperty<View>("MARGIN_TOP") {
+		@Override
+		public Float get(View object) {
+			return Float.valueOf(((ViewGroup.MarginLayoutParams) object.getLayoutParams()).topMargin);
+		}
 
-        @Override
-        public void set(View object, Float value) {
-            ((ViewGroup.MarginLayoutParams)object.getLayoutParams()).topMargin = value.intValue();
-        }
-    };
+		@Override
+		public void set(View object, Float value) {
+			((ViewGroup.MarginLayoutParams) object.getLayoutParams()).topMargin = value.intValue();
+		}
+	};
 
-    public static Property<View, Float> MARGIN_BOTTOM = new FloatProperty<View>("MARGIN_BOTTOM") {
-        @Override
-        public Float get(View object) {
-            return Float.valueOf(((ViewGroup.MarginLayoutParams)object.getLayoutParams()).bottomMargin);
-        }
+	public static Property<View, Float> MARGIN_BOTTOM = new FloatProperty<View>("MARGIN_BOTTOM") {
+		@Override
+		public Float get(View object) {
+			return Float.valueOf(((ViewGroup.MarginLayoutParams) object.getLayoutParams()).bottomMargin);
+		}
 
-        @Override
-        public void set(View object, Float value) {
-            ((ViewGroup.MarginLayoutParams)object.getLayoutParams()).bottomMargin = value.intValue();
-        }
-    };
+		@Override
+		public void set(View object, Float value) {
+			((ViewGroup.MarginLayoutParams) object.getLayoutParams()).bottomMargin = value.intValue();
+		}
+	};
 }

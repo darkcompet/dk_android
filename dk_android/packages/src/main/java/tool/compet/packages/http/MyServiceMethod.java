@@ -14,11 +14,11 @@ import java.lang.reflect.Method;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 
-import tool.compet.core.graphic.DkBitmaps;
-import tool.compet.core.helper.DkJsonHelper;
-import tool.compet.core.log.DkLogs;
+import tool.compet.core.DkBitmaps;
+import tool.compet.packages.json.DkJsonHelper;
+import tool.compet.core.DkLogs;
 import tool.compet.core.reflection.DkReflections;
-import tool.compet.core.util.DkStrings;
+import tool.compet.core.DkStrings;
 
 class MyServiceMethod<T> {
 	// Header key-value pairs
@@ -26,13 +26,13 @@ class MyServiceMethod<T> {
 
 	// Response class: Bitmap, String, Object...
 	final Class<T> responseClass;
-	
+
 	// Request method: GET, POST...
 	String requestMethod;
-	
+
 	// Completely url
 	String url;
-	
+
 	// Post body
 	byte[] body;
 
@@ -40,7 +40,7 @@ class MyServiceMethod<T> {
 	private String tmpBaseUrl;
 	private String tmpRelativeUrl;
 	private StringBuilder tmpFormData;
-	
+
 	MyServiceMethod(String baseUrl, Method method) {
 		this.tmpBaseUrl = baseUrl;
 		this.headers = new ArrayMap<>();

@@ -14,10 +14,10 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
-import tool.compet.core.helper.DkJsonHelper;
-import tool.compet.core.log.DkLogs;
+import tool.compet.packages.json.DkJsonHelper;
+import tool.compet.core.DkLogs;
 import tool.compet.core.stream.DkObservable;
-import tool.compet.core.util.DkUtils;
+import tool.compet.core.DkUtils;
 
 import static tool.compet.core.BuildConfig.DEBUG;
 
@@ -71,8 +71,8 @@ public class DkHttp {
 		if (server.baseUrl != null) {
 			baseUrl = server.baseUrl;
 		}
-		if (server.username != null || server.password != null) {
-			setBasicCredential(server.username, server.password);
+		if (server.basicAuthUsername != null || server.basicAuthPassword != null) {
+			setBasicCredential(server.basicAuthUsername, server.basicAuthPassword);
 		}
 		if (server.connectTimeoutMillis != -1) {
 			connectTimeoutMillis = server.connectTimeoutMillis;
@@ -147,21 +147,21 @@ public class DkHttp {
 
 	private DkObservable<DkHttpResponse<?>> createReturnValue(Method method, Object[] args) {
 		// Create and cache service method
-		MyServiceMethod<?> sm;
+		MyServiceMethod<?> serviceMethod;
 
 		synchronized (serviceMethods) {
-			sm = serviceMethods.get(method);
+			serviceMethod = serviceMethods.get(method);
 		}
 
-		if (sm == null) {
-			sm = new MyServiceMethod<>(baseUrl, method);
+		if (serviceMethod == null) {
+			serviceMethod = new MyServiceMethod<>(baseUrl, method);
 
 			synchronized (serviceMethods) {
-				serviceMethods.put(method, sm);
+				serviceMethods.put(method, serviceMethod);
 			}
 		}
 
-		final MyServiceMethod<?> serviceMethod = sm;
+		final MyServiceMethod<?> finalServiceMethod = serviceMethod;
 
 		return DkObservable.fromExecution(() -> {
 			// Rebuild arguments of service method since args are dynamic
@@ -171,14 +171,14 @@ public class DkHttp {
 			String url;
 			Class<?> responseClass;
 
-			synchronized (serviceMethod) {
-				serviceMethod.build(method, args);
+			synchronized (finalServiceMethod) {
+				finalServiceMethod.build(method, args);
 
-				requestMethod = serviceMethod.requestMethod;
-				body = serviceMethod.body;
-				headers.putAll(serviceMethod.headers);
-				url = serviceMethod.url;
-				responseClass = serviceMethod.responseClass;
+				requestMethod = finalServiceMethod.requestMethod;
+				body = finalServiceMethod.body;
+				headers.putAll(finalServiceMethod.headers);
+				url = finalServiceMethod.url;
+				responseClass = finalServiceMethod.responseClass;
 			}
 
 			// Start request to server with parsed info
@@ -198,7 +198,7 @@ public class DkHttp {
 	private <R> DkHttpResponse<R> startRequest(String requestMethod, byte[] body,
 		SimpleArrayMap<String, String> headers, String url, Class<R> responseClass) throws Exception {
 
-		DkHttpRequester<R> requester = DkHttpRequester.<R>newIns()
+		DkHttpRequester<R> requester = new DkHttpRequester<R>()
 			.setReadTimeout(readTimeoutMillis)
 			.setConnectTimeout(connectTimeoutMillis)
 			.setRequestMethod(requestMethod)
@@ -211,7 +211,7 @@ public class DkHttp {
 		requester.addAllToHeader(headers);
 
 		if (DEBUG) {
-			DkLogs.info(this, "Network request in thread: %s", Thread.currentThread().toString());
+			DkLogs.info(this, "Network request in thread `%s`", Thread.currentThread().toString());
 		}
 
 		return requester.request(url, responseClass);

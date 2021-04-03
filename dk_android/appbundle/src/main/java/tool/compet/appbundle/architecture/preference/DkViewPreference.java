@@ -20,40 +20,40 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
  * Just show view (this is used for decoration purposed).
  */
 public class DkViewPreference extends DkPreference<DkViewPreference> {
-    private int layoutResId;
-    private View view;
+	private int layoutResId;
+	private View view;
 
-    public DkViewPreference(String key) {
-        super(key);
-    }
+	public DkViewPreference(String key) {
+		super(key);
+	}
 
-    @Override
-    protected View createView(Context context, ViewGroup parent) {
-        View itemView = view;
-        if (itemView == null) {
-            if (layoutResId <= 0) {
-                layoutResId = R.layout.dk_preference_default_custom_view;
-            }
-            itemView = LayoutInflater.from(context).inflate(layoutResId, parent, false);
-        }
+	@Override
+	protected View createView(Context context, ViewGroup parent) {
+		View itemView = view;
+		if (itemView == null) {
+			if (layoutResId <= 0) {
+				layoutResId = R.layout.dk_preference_default_custom_view;
+			}
+			itemView = LayoutInflater.from(context).inflate(layoutResId, parent, false);
+		}
 
-        RecyclerView.LayoutParams params = new RecyclerView.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
-        itemView.setLayoutParams(params);
+		RecyclerView.LayoutParams params = new RecyclerView.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
+		itemView.setLayoutParams(params);
 
-        return itemView;
-    }
+		return itemView;
+	}
 
-    @Override
-    protected void decorateView(View view) {
-    }
+	@Override
+	protected void decorateView(View view) {
+	}
 
-    public DkViewPreference view(int layoutResId) {
-        this.layoutResId = layoutResId;
-        return this;
-    }
+	public DkViewPreference view(int layoutResId) {
+		this.layoutResId = layoutResId;
+		return this;
+	}
 
-    public DkViewPreference view(View view) {
-        this.view = view;
-        return this;
-    }
+	public DkViewPreference view(View view) {
+		this.view = view;
+		return this;
+	}
 }

@@ -12,15 +12,15 @@ import java.util.Set;
  * Base grammar for making sql sentence.
  */
 public class MySqliteGrammar extends MyGrammar {
-    // SQLite available operators
-    private final Set<String> availableOperators = new HashSet<>(Arrays.asList(
-        "=", "<", ">", "<=", ">=", "<>", "!=",
-        "like", "not like", "ilike",
-        "&", "|", "<<", ">>"
-    ));
+	// SQLite available operators
+	private final Set<String> availableOperators = new HashSet<>(Arrays.asList(
+		"=", "<", ">", "<=", ">=", "<>", "!=",
+		"like", "not like", "ilike",
+		"&", "|", "<<", ">>"
+	));
 
-    @Override
-    protected Set<String> availableOperators() {
-        return availableOperators;
-    }
+	@Override
+	protected Set<String> availableOperators() {
+		return availableOperators;
+	}
 }

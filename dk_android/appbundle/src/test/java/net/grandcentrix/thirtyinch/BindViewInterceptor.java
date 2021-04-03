@@ -25,6 +25,6 @@ import net.grandcentrix.thirtyinch.distinctuntilchanged.DistinctUntilChanged;
  */
 public interface BindViewInterceptor {
 
-    <V extends TiView> V intercept(final V view);
+	<V extends TiView> V intercept(final V view);
 
 }

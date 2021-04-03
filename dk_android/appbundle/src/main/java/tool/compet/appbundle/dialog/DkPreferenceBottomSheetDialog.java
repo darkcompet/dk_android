@@ -20,30 +20,30 @@ import tool.compet.appbundle.R;
 import tool.compet.appbundle.architecture.DkDialog;
 
 public abstract class DkPreferenceBottomSheetDialog extends DkDialog {
-    protected abstract Fragment newPreferenceFragment();
+	protected abstract Fragment newPreferenceFragment();
 
-    @Override
-    @NonNull
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        return new BottomSheetDialog(context, getTheme());
-    }
+	@Override
+	@NonNull
+	public Dialog onCreateDialog(Bundle savedInstanceState) {
+		return new BottomSheetDialog(context, getTheme());
+	}
 
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup vg, @Nullable Bundle savedInsState) {
-        return inflater.inflate(R.layout.dk_frag_container, vg, false);
-    }
+	@Nullable
+	@Override
+	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup vg, @Nullable Bundle savedInsState) {
+		return inflater.inflate(R.layout.dk_frag_container, vg, false);
+	}
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
 
-        // add preference fragment as child
-        if (savedInstanceState == null) {
-            getChildFragmentManager()
-                .beginTransaction()
-                .add(R.id.dk_container, newPreferenceFragment())
-                .commit();
-        }
-    }
+		// add preference fragment as child
+		if (savedInstanceState == null) {
+			getChildFragmentManager()
+				.beginTransaction()
+				.add(R.id.dk_container, newPreferenceFragment())
+				.commit();
+		}
+	}
 }

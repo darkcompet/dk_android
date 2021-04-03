@@ -5,9 +5,9 @@
 package tool.compet.boommenu;
 
 public enum DkItemType {
-    CIRCLE,
-    CIRCLE_TEXT_INSIDE,
-    CIRCLE_TEXT_OUTSIDE,
-    RECT,
-    ROUND_RECT
+	CIRCLE,
+	CIRCLE_TEXT_INSIDE,
+	CIRCLE_TEXT_OUTSIDE,
+	RECT,
+	ROUND_RECT
 }

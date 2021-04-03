@@ -10,74 +10,74 @@ import android.view.View;
 import android.view.ViewConfiguration;
 
 class MyGestureDetector {
-    public interface Listener {
-        boolean onTranslate(float dx, float dy);
+	public interface Listener {
+		boolean onTranslate(float dx, float dy);
 
-        boolean onClick(float rawX, float rawY);
-    }
+		boolean onClick(float rawX, float rawY);
+	}
 
-    private float downX;
-    private float downY;
-    private float lastX;
-    private float lastY;
-    private Listener listener;
+	private float downX;
+	private float downY;
+	private float lastX;
+	private float lastY;
+	private Listener listener;
 
-    private final int touchSlop2;
-    private boolean clickable;
-    private boolean movable;
+	private final int touchSlop2;
+	private boolean clickable;
+	private boolean movable;
 
-    public MyGestureDetector(Context context) {
-        int touchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
-        touchSlop2 = touchSlop * touchSlop;
-    }
+	public MyGestureDetector(Context context) {
+		int touchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
+		touchSlop2 = touchSlop * touchSlop;
+	}
 
-    public void setListener(Listener listener) {
-        this.listener = listener;
-    }
+	public void setListener(Listener listener) {
+		this.listener = listener;
+	}
 
-    public boolean onTouchEvent(View v, MotionEvent event) {
-        float rawX = event.getRawX();
-        float rawY = event.getRawY();
-        boolean eatEvent = false;
+	public boolean onTouchEvent(View v, MotionEvent event) {
+		float rawX = event.getRawX();
+		float rawY = event.getRawY();
+		boolean eatEvent = false;
 
-        switch (event.getActionMasked()) {
-            case MotionEvent.ACTION_DOWN: {
-                clickable = true;
-                movable = false;
-                downX = lastX = rawX;
-                downY = lastY = rawY;
-                eatEvent = true;
-                break;
-            }
-            case MotionEvent.ACTION_MOVE: {
-                if (movable) {
-                    if (listener != null) {
-                        eatEvent = listener.onTranslate(rawX - lastX, rawY - lastY);
-                    }
-                    lastX = rawX;
-                    lastY = rawY;
-                }
-                else {
-                    float dx = rawX - downX;
-                    float dy = rawY - downY;
+		switch (event.getActionMasked()) {
+			case MotionEvent.ACTION_DOWN: {
+				clickable = true;
+				movable = false;
+				downX = lastX = rawX;
+				downY = lastY = rawY;
+				eatEvent = true;
+				break;
+			}
+			case MotionEvent.ACTION_MOVE: {
+				if (movable) {
+					if (listener != null) {
+						eatEvent = listener.onTranslate(rawX - lastX, rawY - lastY);
+					}
+					lastX = rawX;
+					lastY = rawY;
+				}
+				else {
+					float dx = rawX - downX;
+					float dy = rawY - downY;
 
-                    if (dx * dx + dy * dy >= touchSlop2) {
-                        movable = true;
-                        clickable = false;
-                        lastX = rawX;
-                        lastY = rawY;
-                    }
-                }
-                break;
-            }
-            case MotionEvent.ACTION_UP: {
-                if (clickable && listener != null) {
-                    eatEvent = listener.onClick(rawX, rawY);
-                }
-                break;
-            }
-        }
+					if (dx * dx + dy * dy >= touchSlop2) {
+						movable = true;
+						clickable = false;
+						lastX = rawX;
+						lastY = rawY;
+					}
+				}
+				break;
+			}
+			case MotionEvent.ACTION_UP: {
+				if (clickable && listener != null) {
+					eatEvent = listener.onClick(rawX, rawY);
+				}
+				break;
+			}
+		}
 
-        return eatEvent;
-    }
+		return eatEvent;
+	}
 }

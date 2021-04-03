@@ -8,35 +8,35 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 class MyKeyState implements Parcelable {
-    String tag;
+	String tag;
 
-    public MyKeyState(String tag) {
-        this.tag = tag;
-    }
+	public MyKeyState(String tag) {
+		this.tag = tag;
+	}
 
-    public MyKeyState(Parcel in) {
-        tag = in.readString();
-    }
+	public MyKeyState(Parcel in) {
+		tag = in.readString();
+	}
 
-    public static final Creator<MyKeyState> CREATOR = new Creator<MyKeyState>() {
-        @Override
-        public MyKeyState createFromParcel(Parcel in) {
-            return new MyKeyState(in);
-        }
+	public static final Creator<MyKeyState> CREATOR = new Creator<MyKeyState>() {
+		@Override
+		public MyKeyState createFromParcel(Parcel in) {
+			return new MyKeyState(in);
+		}
 
-        @Override
-        public MyKeyState[] newArray(int size) {
-            return new MyKeyState[size];
-        }
-    };
+		@Override
+		public MyKeyState[] newArray(int size) {
+			return new MyKeyState[size];
+		}
+	};
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
+	@Override
+	public int describeContents() {
+		return 0;
+	}
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(tag);
-    }
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeString(tag);
+	}
 }

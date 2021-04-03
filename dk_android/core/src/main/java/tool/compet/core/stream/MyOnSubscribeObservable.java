@@ -4,40 +4,34 @@
 
 package tool.compet.core.stream;
 
-import tool.compet.core.log.DkLogs;
+import tool.compet.core.DkRunnable1;
 
 class MyOnSubscribeObservable<T> extends DkObservable<T> {
-    private final DkThrowableCallback<DkControllable> action;
+	private final DkRunnable1<DkControllable> action;
 
-    MyOnSubscribeObservable(DkObservable<T> parent, DkThrowableCallback<DkControllable> action) {
-        super(parent);
-        this.action = action;
-    }
+	MyOnSubscribeObservable(DkObservable<T> parent, DkRunnable1<DkControllable> action) {
+		super(parent);
+		this.action = action;
+	}
 
-    @Override
-    protected void performSubscribe(DkObserver<T> observer) {
-        parent.subscribe(new OnSubscribeObserver<>(observer, action));
-    }
+	@Override
+	protected void subscribeActual(DkObserver<T> observer) {
+		parent.subscribe(new OnSubscribeObserver<>(observer, action));
+	}
 
-    static class OnSubscribeObserver<T> extends MyObserver<T> {
-        final DkThrowableCallback<DkControllable> action;
+	static class OnSubscribeObserver<T> extends MyObserver<T> {
+		final DkRunnable1<DkControllable> action;
 
-        OnSubscribeObserver(DkObserver<T> child, DkThrowableCallback<DkControllable> action) {
-            super(child);
-            this.action = action;
-        }
+		OnSubscribeObserver(DkObserver<T> child, DkRunnable1<DkControllable> action) {
+			super(child);
+			this.action = action;
+		}
 
-        @Override
-        public void onSubscribe(DkControllable controllable) {
-            try {
-                action.call(controllable);
-            }
-            catch (Exception e) {
-                DkLogs.error(this, e);
-            }
-            finally {
-                child.onSubscribe(controllable);
-            }
-        }
-    }
+		@Override
+		public void onSubscribe(DkControllable controllable) throws Exception {
+			// Run incoming task and pass controllable to child node
+			action.run(controllable);
+			child.onSubscribe(controllable);
+		}
+	}
 }

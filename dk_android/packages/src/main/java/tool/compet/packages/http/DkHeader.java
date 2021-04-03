@@ -13,8 +13,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * Value assigned to this annotation will be added to header.
- * Note that, if you use this in a parameter of a method, then value will be content of parameter,
- * so content of #value() will be ignored.
+ * If caller use this annotation in a parameter of the method,
+ * then value will be content of parameter, and content of `value()` will be ignored.
  */
 @Target({METHOD, PARAMETER})
 @Retention(RUNTIME)

@@ -19,38 +19,39 @@ import static net.grandcentrix.thirtyinch.util.AnnotationUtil.getInterfaceOfClas
 import static net.grandcentrix.thirtyinch.util.AnnotationUtil.hasObjectMethodWithAnnotation;
 
 import java.lang.reflect.Proxy;
+
 import net.grandcentrix.thirtyinch.BindViewInterceptor;
 import net.grandcentrix.thirtyinch.TiLog;
 import net.grandcentrix.thirtyinch.TiView;
 
 public class CallOnMainThreadInterceptor implements BindViewInterceptor {
 
-    private static final String TAG = CallOnMainThreadInterceptor.class.getSimpleName();
+	private static final String TAG = CallOnMainThreadInterceptor.class.getSimpleName();
 
-    @Override
-    public <V extends TiView> V intercept(final V view) {
-        final V wrapped = wrap(view);
-        TiLog.v(TAG, "wrapping View " + view + " in " + wrapped);
-        return wrapped;
-    }
+	@Override
+	public <V extends TiView> V intercept(final V view) {
+		final V wrapped = wrap(view);
+		TiLog.v(TAG, "wrapping View " + view + " in " + wrapped);
+		return wrapped;
+	}
 
-    @SuppressWarnings("unchecked")
-    private <V extends TiView> V wrap(final V view) {
+	@SuppressWarnings("unchecked")
+	private <V extends TiView> V wrap(final V view) {
 
-        Class<?> foundInterfaceClass = getInterfaceOfClassExtendingGivenInterface(
-                view.getClass(), TiView.class);
-        if (foundInterfaceClass == null) {
-            throw new IllegalStateException("the interface extending View could not be found");
-        }
+		Class<?> foundInterfaceClass = getInterfaceOfClassExtendingGivenInterface(
+			view.getClass(), TiView.class);
+		if (foundInterfaceClass == null) {
+			throw new IllegalStateException("the interface extending View could not be found");
+		}
 
-        if (!hasObjectMethodWithAnnotation(view, CallOnMainThread.class)) {
-            // not method has the annotation, returning original view
-            // not creating a proxy
-            return view;
-        }
+		if (!hasObjectMethodWithAnnotation(view, CallOnMainThread.class)) {
+			// not method has the annotation, returning original view
+			// not creating a proxy
+			return view;
+		}
 
-        return (V) Proxy.newProxyInstance(
-                foundInterfaceClass.getClassLoader(), new Class<?>[]{foundInterfaceClass},
-                new CallOnMainThreadInvocationHandler<>(view));
-    }
+		return (V) Proxy.newProxyInstance(
+			foundInterfaceClass.getClassLoader(), new Class<?>[]{foundInterfaceClass},
+			new CallOnMainThreadInvocationHandler<>(view));
+	}
 }

@@ -16,13 +16,13 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({METHOD})
 @Retention(RUNTIME)
 public @interface DkSubscribe {
-    int id();
+	int id();
 
-    int priority() default DkPriority.MIN;
+	int priority() default DkPriority.MIN;
 
-    boolean sticky() default false;
+	boolean sticky() default false;
 
-    int threadMode() default DkThreadMode.MAIN;
+	int threadMode() default DkThreadMode.ANDROID_MAIN;
 
-    boolean allowNullParam() default true;
+	boolean allowNullParam() default true;
 }

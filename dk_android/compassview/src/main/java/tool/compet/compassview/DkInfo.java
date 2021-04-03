@@ -11,34 +11,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DkInfo {
-    @Expose
-    @SerializedName("key")
-    public String key; // for eg,. degrees
+	@Expose
+	@SerializedName("key")
+	public String key; // for eg,. degrees
 
-    @Expose
-    @SerializedName("value")
-    public String value; // for eg,. 180
+	@Expose
+	@SerializedName("value")
+	public String value; // for eg,. 180
 
-    @Expose
-    @SerializedName("list")
-    public List<DkInfo> children = new ArrayList<>();
+	@Expose
+	@SerializedName("list")
+	public List<DkInfo> children = new ArrayList<>();
 
-    public DkInfo() {
-    }
+	public DkInfo() {
+	}
 
-    public DkInfo(String key) {
-        this.key = key;
-    }
+	public DkInfo(String key) {
+		this.key = key;
+	}
 
-    public DkInfo(String key, String value) {
-        this.key = key;
-        this.value = value;
-    }
+	public DkInfo(String key, String value) {
+		this.key = key;
+		this.value = value;
+	}
 
-    public DkInfo addChild(DkInfo child) {
-        if (child != null) {
-            children.add(child);
-        }
-        return this;
-    }
+	public DkInfo addChild(DkInfo child) {
+		if (child != null) {
+			children.add(child);
+		}
+		return this;
+	}
 }

@@ -17,82 +17,88 @@ package net.grandcentrix.thirtyinch.callonmainthread;
 
 import android.os.Handler;
 import android.os.Looper;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+
 import net.grandcentrix.thirtyinch.TiView;
 import net.grandcentrix.thirtyinch.util.AbstractInvocationHandler;
 
 final class CallOnMainThreadInvocationHandler<V> extends AbstractInvocationHandler {
 
-    private final Handler handler = new Handler(Looper.getMainLooper());
+	private final Handler handler = new Handler(Looper.getMainLooper());
 
-    private final V mView;
+	private final V mView;
 
-    public CallOnMainThreadInvocationHandler(V view) {
-        mView = view;
-    }
+	public CallOnMainThreadInvocationHandler(V view) {
+		mView = view;
+	}
 
-    @Override
-    public String toString() {
-        return "MainThreadProxy@" + Integer.toHexString(this.hashCode()) + "-" + mView.toString();
-    }
+	@Override
+	public String toString() {
+		return "MainThreadProxy@" + Integer.toHexString(this.hashCode()) + "-" + mView.toString();
+	}
 
-    @Override
-    protected Object handleInvocation(final Object proxy, final Method method, final Object[] args)
-            throws Throwable {
+	@Override
+	protected Object handleInvocation(final Object proxy, final Method method, final Object[] args)
+		throws Throwable {
 
-        try {
-            // If the method is a method from Object then defer to normal invocation.
-            final Class<?> declaringClass = method.getDeclaringClass();
-            if (declaringClass == Object.class) {
-                return method.invoke(this, args);
-            }
+		try {
+			// If the method is a method from Object then defer to normal invocation.
+			final Class<?> declaringClass = method.getDeclaringClass();
+			if (declaringClass == Object.class) {
+				return method.invoke(this, args);
+			}
 
-            // simply call the method when already on the main thread
-            if (Looper.getMainLooper() == Looper.myLooper()) {
-                return method.invoke(mView, args);
-            }
+			// simply call the method when already on the main thread
+			if (Looper.getMainLooper() == Looper.myLooper()) {
+				return method.invoke(mView, args);
+			}
 
-            // only void methods are supported. Otherwise
-            if (!method.getReturnType().equals(Void.TYPE)) {
-                return method.invoke(mView, args);
-            }
+			// only void methods are supported. Otherwise
+			if (!method.getReturnType().equals(Void.TYPE)) {
+				return method.invoke(mView, args);
+			}
 
-            // only methods of the View interface are supported
-            if (!TiView.class.isAssignableFrom(declaringClass)) {
-                return method.invoke(mView, args);
-            }
+			// only methods of the View interface are supported
+			if (!TiView.class.isAssignableFrom(declaringClass)) {
+				return method.invoke(mView, args);
+			}
 
-            final CallOnMainThread comtAnnotation =
-                    method.getAnnotation(CallOnMainThread.class);
-            // check if method is correct annotated
-            if (comtAnnotation == null) {
-                return method.invoke(mView, args);
-            }
+			final CallOnMainThread comtAnnotation =
+				method.getAnnotation(CallOnMainThread.class);
+			// check if method is correct annotated
+			if (comtAnnotation == null) {
+				return method.invoke(mView, args);
+			}
 
-            // send calls on the Ui Thread
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        method.invoke(mView, args);
-                    } catch (InvocationTargetException e) {
-                        // To be consistent, the exception will be thrown, not caught and swallowed.
-                        // Sadly, this exception cannot be caught by wrapping the invoked method with try catch.
-                        e.printStackTrace();
-                        throw new RuntimeException(e.getCause());
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            });
-            return null;
+			// send calls on the Ui Thread
+			handler.post(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						method.invoke(mView, args);
+					}
+					catch (InvocationTargetException e) {
+						// To be consistent, the exception will be thrown, not caught and swallowed.
+						// Sadly, this exception cannot be caught by wrapping the invoked method with try catch.
+						e.printStackTrace();
+						throw new RuntimeException(e.getCause());
+					}
+					catch (IllegalAccessException e) {
+						throw new RuntimeException(e);
+					}
+				}
+			});
+			return null;
 
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-            throw e.getCause();
-        } catch (IllegalAccessException e) {
-            throw e;
-        }
-    }
+		}
+		catch (InvocationTargetException e) {
+			e.printStackTrace();
+			throw e.getCause();
+		}
+		catch (IllegalAccessException e) {
+			throw e;
+		}
+	}
 }

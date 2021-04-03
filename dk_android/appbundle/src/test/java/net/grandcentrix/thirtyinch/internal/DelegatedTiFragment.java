@@ -16,41 +16,42 @@
 package net.grandcentrix.thirtyinch.internal;
 
 import android.support.v4.app.Fragment;
+
 import java.util.concurrent.Executor;
 
 public interface DelegatedTiFragment {
 
-    /**
-     * This Object is used identify the correct scope where the presenter should be saved in the
-     * {@link PresenterSavior}. This object is only used for identity comparison.
-     *
-     * @return the object hosting this {@link Fragment}, most likely {@link Fragment#getHost()}
-     */
-    Object getHostingContainer();
+	/**
+	 * This Object is used identify the correct scope where the presenter should be saved in the
+	 * {@link PresenterSavior}. This object is only used for identity comparison.
+	 *
+	 * @return the object hosting this {@link Fragment}, most likely {@link Fragment#getHost()}
+	 */
+	Object getHostingContainer();
 
-    /**
-     * @return {@link UiThreadExecutor}
-     */
-    Executor getUiThreadExecutor();
+	/**
+	 * @return {@link UiThreadExecutor}
+	 */
+	Executor getUiThreadExecutor();
 
-    /**
-     * @return {@link Fragment#isAdded()}
-     */
-    boolean isFragmentAdded();
+	/**
+	 * @return {@link Fragment#isAdded()}
+	 */
+	boolean isFragmentAdded();
 
-    /**
-     * @return {@link Fragment#isDetached()}
-     */
-    boolean isFragmentDetached();
+	/**
+	 * @return {@link Fragment#isDetached()}
+	 */
+	boolean isFragmentDetached();
 
-    /**
-     * @return {@link Fragment#isInBackStack()}
-     */
-    boolean isFragmentInBackstack();
+	/**
+	 * @return {@link Fragment#isInBackStack()}
+	 */
+	boolean isFragmentInBackstack();
 
-    /**
-     * @return {@link Fragment#isRemoving()}
-     */
-    boolean isFragmentRemoving();
+	/**
+	 * @return {@link Fragment#isRemoving()}
+	 */
+	boolean isFragmentRemoving();
 
 }

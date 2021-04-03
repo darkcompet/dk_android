@@ -4,4 +4,5 @@
 
 package tool.compet.paintview;
 
-public class DKPaintUtil {}
+public class DKPaintUtil {
+}

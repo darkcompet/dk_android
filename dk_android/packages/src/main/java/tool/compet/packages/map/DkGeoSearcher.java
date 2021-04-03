@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import tool.compet.core.log.DkLogs;
+import tool.compet.core.DkLogs;
 import tool.compet.packages.location.DkLocation;
 import tool.compet.packages.location.DkLocations;
 

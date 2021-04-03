@@ -13,12 +13,12 @@ public class DkServer {
 	public String baseUrl;
 
 	@Expose
-	@SerializedName("username")
-	public String username;
+	@SerializedName("basicAuthUsername")
+	public String basicAuthUsername;
 
 	@Expose
-	@SerializedName("password")
-	public String password;
+	@SerializedName("basicAuthPassword")
+	public String basicAuthPassword;
 
 	@Expose
 	@SerializedName("connectTimeoutMillis")

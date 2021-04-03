@@ -19,7 +19,6 @@ package at.wirecube.additiveanimations.helper.evaluators;
 import android.graphics.Path;
 import android.graphics.PathMeasure;
 
-
 /**
  * A custom evaluator only to be used by {@link at.wirecube.additiveanimations.additive_animator.AdditiveAnimation}.
  * Use this class if you subclass {@link at.wirecube.additiveanimations.additive_animator.AdditiveAnimator} and want to
@@ -28,42 +27,46 @@ import android.graphics.PathMeasure;
  */
 public class PathEvaluator {
 
-    public enum PathMode {
-        X, Y, ROTATION;
-        public static PathMode from(int mode) {
-            switch (mode) {
-                case 1: return Y;
-                case 2: return ROTATION;
-                default: return X;
-            }
-        }
-    }
+	public enum PathMode {
+		X, Y, ROTATION;
 
-    private float lastEvaluatedFraction = -1;
-    private float[] lastPoint = new float[2];
-    private float lastAngle = 0;
+		public static PathMode from(int mode) {
+			switch (mode) {
+				case 1:
+					return Y;
+				case 2:
+					return ROTATION;
+				default:
+					return X;
+			}
+		}
+	}
 
-    private float getResult(PathMode pathMode) {
-        switch (pathMode) {
-            case X:
-                return lastPoint[0];
-            case Y:
-                return lastPoint[1];
-            case ROTATION:
-                return lastAngle;
-        }
-        return 0;
-    }
+	private float lastEvaluatedFraction = -1;
+	private float[] lastPoint = new float[2];
+	private float lastAngle = 0;
 
-    public float evaluate(float fraction, PathMode pathMode, Path path) {
-        if(fraction == lastEvaluatedFraction) {
-            return getResult(pathMode);
-        }
-        float tan[] = new float[2];
-        PathMeasure pathMeasure = new PathMeasure(path, true);
-        pathMeasure.getPosTan(pathMeasure.getLength() * fraction, lastPoint, tan);
-        lastAngle = (float)(Math.atan2(tan[1], tan[0])*180.0/Math.PI);
-        lastEvaluatedFraction = fraction;
-        return getResult(pathMode);
-    }
+	private float getResult(PathMode pathMode) {
+		switch (pathMode) {
+			case X:
+				return lastPoint[0];
+			case Y:
+				return lastPoint[1];
+			case ROTATION:
+				return lastAngle;
+		}
+		return 0;
+	}
+
+	public float evaluate(float fraction, PathMode pathMode, Path path) {
+		if (fraction == lastEvaluatedFraction) {
+			return getResult(pathMode);
+		}
+		float tan[] = new float[2];
+		PathMeasure pathMeasure = new PathMeasure(path, true);
+		pathMeasure.getPosTan(pathMeasure.getLength() * fraction, lastPoint, tan);
+		lastAngle = (float) (Math.atan2(tan[1], tan[0]) * 180.0 / Math.PI);
+		lastEvaluatedFraction = fraction;
+		return getResult(pathMode);
+	}
 }

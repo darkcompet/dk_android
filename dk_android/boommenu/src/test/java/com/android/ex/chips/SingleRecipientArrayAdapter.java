@@ -25,27 +25,27 @@ import android.widget.ArrayAdapter;
 import com.android.ex.chips.DropdownChipLayouter.AdapterType;
 
 class SingleRecipientArrayAdapter extends ArrayAdapter<RecipientEntry> {
-    private final DropdownChipLayouter mDropdownChipLayouter;
-    private final StateListDrawable mDeleteDrawable;
+	private final DropdownChipLayouter mDropdownChipLayouter;
+	private final StateListDrawable mDeleteDrawable;
 
-    public SingleRecipientArrayAdapter(Context context, RecipientEntry entry,
-        DropdownChipLayouter dropdownChipLayouter) {
-        this(context, entry, dropdownChipLayouter, null);
-    }
+	public SingleRecipientArrayAdapter(Context context, RecipientEntry entry,
+		DropdownChipLayouter dropdownChipLayouter) {
+		this(context, entry, dropdownChipLayouter, null);
+	}
 
-    public SingleRecipientArrayAdapter(Context context, RecipientEntry entry,
-            DropdownChipLayouter dropdownChipLayouter, StateListDrawable deleteDrawable) {
-        super(context,
-                dropdownChipLayouter.getAlternateItemLayoutResId(AdapterType.SINGLE_RECIPIENT),
-                new RecipientEntry[] { entry });
+	public SingleRecipientArrayAdapter(Context context, RecipientEntry entry,
+		DropdownChipLayouter dropdownChipLayouter, StateListDrawable deleteDrawable) {
+		super(context,
+			dropdownChipLayouter.getAlternateItemLayoutResId(AdapterType.SINGLE_RECIPIENT),
+			new RecipientEntry[]{entry});
 
-        mDropdownChipLayouter = dropdownChipLayouter;
-        mDeleteDrawable = deleteDrawable;
-    }
+		mDropdownChipLayouter = dropdownChipLayouter;
+		mDeleteDrawable = deleteDrawable;
+	}
 
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        return mDropdownChipLayouter.bindView(convertView, parent, getItem(position), position,
-                AdapterType.SINGLE_RECIPIENT, null, mDeleteDrawable);
-    }
+	@Override
+	public View getView(int position, View convertView, ViewGroup parent) {
+		return mDropdownChipLayouter.bindView(convertView, parent, getItem(position), position,
+			AdapterType.SINGLE_RECIPIENT, null, mDeleteDrawable);
+	}
 }

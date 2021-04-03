@@ -23,18 +23,18 @@ import java.util.HashMap;
  */
 class AccumulatedAnimationValueManager {
 
-    private HashMap<AdditiveAnimation, AccumulatedAnimationValue> accumulatedAnimationValues = new HashMap<>();
+	private HashMap<AdditiveAnimation, AccumulatedAnimationValue> accumulatedAnimationValues = new HashMap<>();
 
-    // Returns an accumulator that you should store if possible
-    public AccumulatedAnimationValue getAccumulatedAnimationValue(AdditiveAnimation animation) {
-        // TODO: is there any way to make this `get()` faster?
-        AccumulatedAnimationValue accumulatedAnimationValue = accumulatedAnimationValues.get(animation);
-        if(accumulatedAnimationValue != null) {
-            return accumulatedAnimationValue;
-        }
-        accumulatedAnimationValue = new AccumulatedAnimationValue(animation);
-        accumulatedAnimationValues.put(animation, accumulatedAnimationValue);
-        return accumulatedAnimationValue;
-    }
+	// Returns an accumulator that you should store if possible
+	public AccumulatedAnimationValue getAccumulatedAnimationValue(AdditiveAnimation animation) {
+		// TODO: is there any way to make this `get()` faster?
+		AccumulatedAnimationValue accumulatedAnimationValue = accumulatedAnimationValues.get(animation);
+		if (accumulatedAnimationValue != null) {
+			return accumulatedAnimationValue;
+		}
+		accumulatedAnimationValue = new AccumulatedAnimationValue(animation);
+		accumulatedAnimationValues.put(animation, accumulatedAnimationValue);
+		return accumulatedAnimationValue;
+	}
 
 }

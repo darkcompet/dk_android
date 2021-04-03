@@ -21,95 +21,95 @@ import tool.compet.core.view.DkViews;
  * Android Toast has different way to show text, it shows text over display, not app.
  */
 public class DkToastbar extends DkFloatingbar {
-    public static final int DURATION_SHORT = 1500;
-    public static final int DURATION_NORMAL = 2000;
-    public static final int DURATION_LONG = 3500;
+	public static final int DURATION_SHORT = 1500;
+	public static final int DURATION_NORMAL = 2000;
+	public static final int DURATION_LONG = 3500;
 
-    private static MyFloatingbarManager manager;
-    private final TextView tvMessage;
+	private static MyFloatingbarManager manager;
+	private final TextView tvMessage;
 
-    protected DkToastbar(Context context, ViewGroup parent, View bar) {
-        super(context, parent, bar);
+	protected DkToastbar(Context context, ViewGroup parent, View bar) {
+		super(context, parent, bar);
 
-        duration = DURATION_NORMAL;
+		duration = DURATION_NORMAL;
 
-        tvMessage = bar.findViewById(R.id.dk_tv_message);
-        DkViews.changeBackgroundColor(bar, "#80000000", 16, DkConfig.device.density);
-    }
+		tvMessage = bar.findViewById(R.id.dk_tv_message);
+		DkViews.changeBackgroundColor(bar, "#80000000", 16, DkConfig.device.density);
+	}
 
-    public static DkToastbar newIns(ViewGroup parent) {
-        parent = DkViews.findSuperFrameLayout(parent);
+	public static DkToastbar newIns(ViewGroup parent) {
+		parent = MyHelper.findSuperFrameLayout(parent);
 
-        if (parent == null) {
-            throw new RuntimeException("No suitable parent was found");
-        }
-        // prepare required params for the constructor
-        Context context = parent.getContext();
-        View bar = LayoutInflater.from(context).inflate(R.layout.dk_toastbar, parent, false);
+		if (parent == null) {
+			throw new RuntimeException("No suitable parent was found");
+		}
+		// prepare required params for the constructor
+		Context context = parent.getContext();
+		View bar = LayoutInflater.from(context).inflate(R.layout.dk_toastbar, parent, false);
 
-        return new DkToastbar(context, parent, bar);
-    }
+		return new DkToastbar(context, parent, bar);
+	}
 
-    public static DkToastbar newIns(Activity activity) {
-        return newIns(activity.findViewById(android.R.id.content));
-    }
+	public static DkToastbar newIns(Activity activity) {
+		return newIns(activity.findViewById(android.R.id.content));
+	}
 
-    @Override
-    protected MyFloatingbarManager getManager() {
-        return manager != null ? manager : (manager = new MyFloatingbarManager());
-    }
+	@Override
+	protected MyFloatingbarManager getManager() {
+		return manager != null ? manager : (manager = new MyFloatingbarManager());
+	}
 
-    @Override
-    protected ValueAnimator prepareInAnimation() {
-        int height = bar.getHeight();
-        bar.setTranslationY(height);
+	@Override
+	protected ValueAnimator prepareInAnimation() {
+		int height = bar.getHeight();
+		bar.setTranslationY(height);
 
-        ValueAnimator va = new ValueAnimator();
-        va.setFloatValues(0.0f, 1.0f);
-        va.setDuration(200);
-        va.setInterpolator(fastOutSlowIn);
+		ValueAnimator va = new ValueAnimator();
+		va.setFloatValues(0.0f, 1.0f);
+		va.setDuration(200);
+		va.setInterpolator(fastOutSlowIn);
 
-        return va;
-    }
+		return va;
+	}
 
-    @Override
-    protected ValueAnimator prepareOutAnimation() {
-        ValueAnimator va = new ValueAnimator();
-        va.setFloatValues(1.0f, 0.0f);
-        va.setDuration(200);
-        va.setInterpolator(fastOutSlowIn);
+	@Override
+	protected ValueAnimator prepareOutAnimation() {
+		ValueAnimator va = new ValueAnimator();
+		va.setFloatValues(1.0f, 0.0f);
+		va.setDuration(200);
+		va.setInterpolator(fastOutSlowIn);
 
-        return va;
-    }
+		return va;
+	}
 
-    @Override
-    protected void onAnimationUpdate(ValueAnimator animation) {
-        float alpha = (float) animation.getAnimatedValue();
-        bar.setAlpha(alpha);
-    }
+	@Override
+	protected void onAnimationUpdate(ValueAnimator animation) {
+		float alpha = (float) animation.getAnimatedValue();
+		bar.setAlpha(alpha);
+	}
 
-    public DkToastbar message(int msgRes) {
-        tvMessage.setText(msgRes);
-        return this;
-    }
+	public DkToastbar message(int msgRes) {
+		tvMessage.setText(msgRes);
+		return this;
+	}
 
-    public DkToastbar message(CharSequence msg) {
-        tvMessage.setText(msg);
-        return this;
-    }
+	public DkToastbar message(CharSequence msg) {
+		tvMessage.setText(msg);
+		return this;
+	}
 
-    public DkToastbar duration(long duration) {
-        this.duration = duration;
-        return this;
-    }
+	public DkToastbar duration(long duration) {
+		this.duration = duration;
+		return this;
+	}
 
-    public DkToastbar onShownCallback(Runnable onShownCallback) {
-        this.onShownCallback = onShownCallback;
-        return this;
-    }
+	public DkToastbar onShownCallback(Runnable onShownCallback) {
+		this.onShownCallback = onShownCallback;
+		return this;
+	}
 
-    public DkToastbar onDismissCallback(Runnable onDismissCallback) {
-        this.onDismissCallback = onDismissCallback;
-        return this;
-    }
+	public DkToastbar onDismissCallback(Runnable onDismissCallback) {
+		this.onDismissCallback = onDismissCallback;
+		return this;
+	}
 }

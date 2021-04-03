@@ -16,6 +16,7 @@
 package net.grandcentrix.thirtyinch.internal;
 
 import android.support.annotation.NonNull;
+
 import net.grandcentrix.thirtyinch.TiPresenter;
 
 /**
@@ -25,21 +26,21 @@ import net.grandcentrix.thirtyinch.TiPresenter;
  */
 public interface TiPresenterProvider<P extends TiPresenter> {
 
-    /**
-     * Must return a new {@link net.grandcentrix.thirtyinch.TiPresenter} instance in {@link
-     * net.grandcentrix.thirtyinch.TiPresenter.State#INITIALIZED} state. Never return a {@link
-     * TiPresenter} which was already instantiated or is already destroyed.
-     * <p>
-     * Called only once per Activity when the presenter should be retained. One call per Activity
-     * instance is expected when the retain is disabled
-     * </p>
-     * <p>
-     * Can be called multiple times per Fragment. The Presenter gets destroyed when the Fragment is
-     * removed from the {@link android.support.v4.app.FragmentManager}. When the {@link
-     * android.support.v4.app.Fragment} gets added again this method is called to create a new
-     * presenter.
-     * </p>
-     */
-    @NonNull
-    P providePresenter();
+	/**
+	 * Must return a new {@link net.grandcentrix.thirtyinch.TiPresenter} instance in {@link
+	 * net.grandcentrix.thirtyinch.TiPresenter.State#INITIALIZED} state. Never return a {@link
+	 * TiPresenter} which was already instantiated or is already destroyed.
+	 * <p>
+	 * Called only once per Activity when the presenter should be retained. One call per Activity
+	 * instance is expected when the retain is disabled
+	 * </p>
+	 * <p>
+	 * Can be called multiple times per Fragment. The Presenter gets destroyed when the Fragment is
+	 * removed from the {@link android.support.v4.app.FragmentManager}. When the {@link
+	 * android.support.v4.app.Fragment} gets added again this method is called to create a new
+	 * presenter.
+	 * </p>
+	 */
+	@NonNull
+	P providePresenter();
 }

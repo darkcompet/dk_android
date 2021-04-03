@@ -8,6 +8,6 @@ package tool.compet.core.config;
  * Configuration for both of device and app.
  */
 public class DkConfig {
-    public static final DeviceConfig device = new DeviceConfig();
-    public static final AppConfig app = new AppConfig();
+	public static final DeviceConfig device = new DeviceConfig();
+	public static final AppConfig app = new AppConfig();
 }

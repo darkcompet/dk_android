@@ -5,7 +5,7 @@
 package tool.compet.boommenu;
 
 public enum DkEmissionOrder {
-    NATURAL,
-    RESERVE,
-    RANDOM
+	NATURAL,
+	RESERVE,
+	RANDOM
 }

@@ -16,6 +16,7 @@
 package net.grandcentrix.thirtyinch.internal;
 
 import android.app.Activity;
+
 import java.util.concurrent.Executor;
 
 /**
@@ -24,21 +25,21 @@ import java.util.concurrent.Executor;
  */
 public interface DelegatedTiActivity {
 
-    /**
-     * This Object is used identify the correct scope where the presenter should be saved in the
-     * {@link PresenterSavior}. This object is only used for identity comparison.
-     *
-     * @return the {@link Activity} instance itself, which is it's own host
-     */
-    Object getHostingContainer();
+	/**
+	 * This Object is used identify the correct scope where the presenter should be saved in the
+	 * {@link PresenterSavior}. This object is only used for identity comparison.
+	 *
+	 * @return the {@link Activity} instance itself, which is it's own host
+	 */
+	Object getHostingContainer();
 
-    /**
-     * @return {@link UiThreadExecutor}
-     */
-    Executor getUiThreadExecutor();
+	/**
+	 * @return {@link UiThreadExecutor}
+	 */
+	Executor getUiThreadExecutor();
 
-    /**
-     * @return {@link Activity#isFinishing()}
-     */
-    boolean isActivityFinishing();
+	/**
+	 * @return {@link Activity#isFinishing()}
+	 */
+	boolean isActivityFinishing();
 }

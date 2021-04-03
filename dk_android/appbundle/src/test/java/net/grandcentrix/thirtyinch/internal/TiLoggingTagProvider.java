@@ -21,8 +21,8 @@ package net.grandcentrix.thirtyinch.internal;
  */
 public interface TiLoggingTagProvider {
 
-    /**
-     * @return the tag which should be used for logging
-     */
-    String getLoggingTag();
+	/**
+	 * @return the tag which should be used for logging
+	 */
+	String getLoggingTag();
 }

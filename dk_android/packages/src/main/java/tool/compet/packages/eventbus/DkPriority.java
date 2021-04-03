@@ -9,7 +9,7 @@ package tool.compet.packages.eventbus;
  * subscriber which has higher priority will be executed first.
  */
 public interface DkPriority {
-    int MIN = Integer.MIN_VALUE;
-    int NORMAL = 0;
-    int MAX = Integer.MAX_VALUE;
+	int MIN = Integer.MIN_VALUE;
+	int NORMAL = 0;
+	int MAX = Integer.MAX_VALUE;
 }

@@ -21,8 +21,10 @@ import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+
 import java.util.List;
 import java.util.concurrent.Executor;
+
 import net.grandcentrix.thirtyinch.internal.DelegatedTiActivity;
 import net.grandcentrix.thirtyinch.internal.InterceptableViewBinder;
 import net.grandcentrix.thirtyinch.internal.PresenterAccessor;
@@ -84,152 +86,153 @@ import net.grandcentrix.thirtyinch.util.AnnotationUtil;
  * @param <P> the Presenter type, must extend {@link TiPresenter}
  */
 public abstract class TiActivity<P extends TiPresenter<V>, V extends TiView>
-        extends AppCompatActivity
-        implements TiPresenterProvider<P>, TiViewProvider<V>, DelegatedTiActivity,
-        TiLoggingTagProvider, InterceptableViewBinder<V>, PresenterAccessor<P, V> {
+	extends AppCompatActivity
+	implements TiPresenterProvider<P>, TiViewProvider<V>, DelegatedTiActivity,
+	TiLoggingTagProvider, InterceptableViewBinder<V>, PresenterAccessor<P, V> {
 
-    private final String TAG = this.getClass().getSimpleName()
-            + ":" + TiActivity.class.getSimpleName()
-            + "@" + Integer.toHexString(this.hashCode());
+	private final String TAG = this.getClass().getSimpleName()
+		+ ":" + TiActivity.class.getSimpleName()
+		+ "@" + Integer.toHexString(this.hashCode());
 
-    private final TiActivityDelegate<P, V> mDelegate
-            = new TiActivityDelegate<>(this, this, this, this, PresenterSavior.getInstance());
+	private final TiActivityDelegate<P, V> mDelegate
+		= new TiActivityDelegate<>(this, this, this, this, PresenterSavior.getInstance());
 
-    private final UiThreadExecutor mUiThreadExecutor = new UiThreadExecutor();
+	private final UiThreadExecutor mUiThreadExecutor = new UiThreadExecutor();
 
-    @CallSuper
-    @Override
-    protected void onCreate(final Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mDelegate.onCreate_afterSuper(savedInstanceState);
-    }
+	@CallSuper
+	@Override
+	protected void onCreate(final Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		mDelegate.onCreate_afterSuper(savedInstanceState);
+	}
 
-    @CallSuper
-    @Override
-    protected void onStart() {
-        super.onStart();
-        mDelegate.onStart_afterSuper();
-    }
+	@CallSuper
+	@Override
+	protected void onStart() {
+		super.onStart();
+		mDelegate.onStart_afterSuper();
+	}
 
-    @CallSuper
-    @Override
-    protected void onStop() {
-        mDelegate.onStop_beforeSuper();
-        super.onStop();
-        mDelegate.onStop_afterSuper();
-    }
+	@CallSuper
+	@Override
+	protected void onStop() {
+		mDelegate.onStop_beforeSuper();
+		super.onStop();
+		mDelegate.onStop_afterSuper();
+	}
 
-    @CallSuper
-    @Override
-    protected void onSaveInstanceState(final Bundle outState) {
-        super.onSaveInstanceState(outState);
-        mDelegate.onSaveInstanceState_afterSuper(outState);
-    }
+	@CallSuper
+	@Override
+	protected void onSaveInstanceState(final Bundle outState) {
+		super.onSaveInstanceState(outState);
+		mDelegate.onSaveInstanceState_afterSuper(outState);
+	}
 
-    @CallSuper
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mDelegate.onDestroy_afterSuper();
-    }
+	@CallSuper
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		mDelegate.onDestroy_afterSuper();
+	}
 
-    @NonNull
-    @Override
-    public final Removable addBindViewInterceptor(@NonNull final BindViewInterceptor interceptor) {
-        return mDelegate.addBindViewInterceptor(interceptor);
-    }
+	@NonNull
+	@Override
+	public final Removable addBindViewInterceptor(@NonNull final BindViewInterceptor interceptor) {
+		return mDelegate.addBindViewInterceptor(interceptor);
+	}
 
-    @Override
-    public final Object getHostingContainer() {
-        return this;
-    }
+	@Override
+	public final Object getHostingContainer() {
+		return this;
+	}
 
-    @Nullable
-    @Override
-    public final V getInterceptedViewOf(@NonNull final BindViewInterceptor interceptor) {
-        return mDelegate.getInterceptedViewOf(interceptor);
-    }
+	@Nullable
+	@Override
+	public final V getInterceptedViewOf(@NonNull final BindViewInterceptor interceptor) {
+		return mDelegate.getInterceptedViewOf(interceptor);
+	}
 
-    @NonNull
-    @Override
-    public final List<BindViewInterceptor> getInterceptors(
-            @NonNull final Filter<BindViewInterceptor> predicate) {
-        return mDelegate.getInterceptors(predicate);
-    }
+	@NonNull
+	@Override
+	public final List<BindViewInterceptor> getInterceptors(
+		@NonNull final Filter<BindViewInterceptor> predicate) {
+		return mDelegate.getInterceptors(predicate);
+	}
 
-    @Override
-    public String getLoggingTag() {
-        return TAG;
-    }
+	@Override
+	public String getLoggingTag() {
+		return TAG;
+	}
 
-    /**
-     * is {@code null} before {@link #onCreate(Bundle)}
-     */
-    @Override
-    public final P getPresenter() {
-        return mDelegate.getPresenter();
-    }
+	/**
+	 * is {@code null} before {@link #onCreate(Bundle)}
+	 */
+	@Override
+	public final P getPresenter() {
+		return mDelegate.getPresenter();
+	}
 
-    @Override
-    public final Executor getUiThreadExecutor() {
-        return mUiThreadExecutor;
-    }
+	@Override
+	public final Executor getUiThreadExecutor() {
+		return mUiThreadExecutor;
+	}
 
-    /**
-     * Invalidates the cache of the latest bound view. Forces the next binding of the view to run
-     * through all the interceptors (again).
-     */
-    @Override
-    public final void invalidateView() {
-        mDelegate.invalidateView();
-    }
+	/**
+	 * Invalidates the cache of the latest bound view. Forces the next binding of the view to run
+	 * through all the interceptors (again).
+	 */
+	@Override
+	public final void invalidateView() {
+		mDelegate.invalidateView();
+	}
 
-    @Override
-    public final boolean isActivityFinishing() {
-        return isFinishing();
-    }
+	@Override
+	public final boolean isActivityFinishing() {
+		return isFinishing();
+	}
 
-    @CallSuper
-    @Override
-    public void onConfigurationChanged(final Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        mDelegate.onConfigurationChanged_afterSuper(newConfig);
-    }
+	@CallSuper
+	@Override
+	public void onConfigurationChanged(final Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		mDelegate.onConfigurationChanged_afterSuper(newConfig);
+	}
 
-    @SuppressWarnings("unchecked")
-    @NonNull
-    @Override
-    public V provideView() {
-        final Class<?> foundViewInterface = AnnotationUtil
-                .getInterfaceOfClassExtendingGivenInterface(this.getClass(), TiView.class);
+	@SuppressWarnings("unchecked")
+	@NonNull
+	@Override
+	public V provideView() {
+		final Class<?> foundViewInterface = AnnotationUtil
+			.getInterfaceOfClassExtendingGivenInterface(this.getClass(), TiView.class);
 
-        if (foundViewInterface == null) {
-            throw new IllegalArgumentException(
-                    "This Activity doesn't implement a TiView interface. "
-                            + "This is the default behaviour. Override provideView() to explicitly change this.");
-        } else {
-            if (foundViewInterface.getSimpleName().equals("TiView")) {
-                throw new IllegalArgumentException(
-                        "extending TiView doesn't make sense, it's an empty interface."
-                                + " This is the default behaviour. Override provideView() to explicitly change this.");
-            } else {
-                // assume that the activity itself is the view and implements the TiView interface
-                return (V) this;
-            }
-        }
-    }
+		if (foundViewInterface == null) {
+			throw new IllegalArgumentException(
+				"This Activity doesn't implement a TiView interface. "
+					+ "This is the default behaviour. Override provideView() to explicitly change this.");
+		}
+		else {
+			if (foundViewInterface.getSimpleName().equals("TiView")) {
+				throw new IllegalArgumentException(
+					"extending TiView doesn't make sense, it's an empty interface."
+						+ " This is the default behaviour. Override provideView() to explicitly change this.");
+			}
+			else {
+				// assume that the activity itself is the view and implements the TiView interface
+				return (V) this;
+			}
+		}
+	}
 
-    @Override
-    public String toString() {
-        String presenter = mDelegate.getPresenter() == null ? "null" :
-                mDelegate.getPresenter().getClass().getSimpleName()
-                        + "@" + Integer.toHexString(mDelegate.getPresenter().hashCode());
+	@Override
+	public String toString() {
+		String presenter = mDelegate.getPresenter() == null ? "null" :
+			mDelegate.getPresenter().getClass().getSimpleName()
+				+ "@" + Integer.toHexString(mDelegate.getPresenter().hashCode());
 
-        return getClass().getSimpleName()
-                + ":" + TiActivity.class.getSimpleName()
-                + "@" + Integer.toHexString(hashCode())
-                + "{presenter = " + presenter + "}";
-    }
-
+		return getClass().getSimpleName()
+			+ ":" + TiActivity.class.getSimpleName()
+			+ "@" + Integer.toHexString(hashCode())
+			+ "{presenter = " + presenter + "}";
+	}
 
 }

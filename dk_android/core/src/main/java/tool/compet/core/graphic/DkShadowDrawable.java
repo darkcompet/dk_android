@@ -13,23 +13,23 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 public class DkShadowDrawable extends Drawable {
-    @Override
-    public void draw(@NonNull Canvas canvas) {
+	@Override
+	public void draw(@NonNull Canvas canvas) {
 
-    }
+	}
 
-    @Override
-    public void setAlpha(int alpha) {
+	@Override
+	public void setAlpha(int alpha) {
 
-    }
+	}
 
-    @Override
-    public void setColorFilter(@Nullable ColorFilter colorFilter) {
+	@Override
+	public void setColorFilter(@Nullable ColorFilter colorFilter) {
 
-    }
+	}
 
-    @Override
-    public int getOpacity() {
-        return PixelFormat.TRANSPARENT;
-    }
+	@Override
+	public int getOpacity() {
+		return PixelFormat.TRANSPARENT;
+	}
 }

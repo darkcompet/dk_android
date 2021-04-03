@@ -11,39 +11,38 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import tool.compet.appbundle.R;
-import tool.compet.core.view.DkViews;
 
 /**
  * When show it, it urgently dismiss all current bars and show next.
  * It is useful when you wanna update message continuously.
  */
 public class DkUrgentToastbar extends DkToastbar {
-    protected DkUrgentToastbar(Context context, ViewGroup parent, View bar) {
-        super(context, parent, bar);
-    }
+	protected DkUrgentToastbar(Context context, ViewGroup parent, View bar) {
+		super(context, parent, bar);
+	}
 
-    // It will hide super newIns() method from outside-invoke
-    public static DkUrgentToastbar newIns(ViewGroup parent) {
-        parent = DkViews.findSuperFrameLayout(parent);
+	// It will hide super newIns() method from outside-invoke
+	public static DkUrgentToastbar newIns(ViewGroup parent) {
+		parent = MyHelper.findSuperFrameLayout(parent);
 
-        if (parent == null) {
-            throw new RuntimeException("No suitable parent found");
-        }
-        // prepare required params for the constructor
-        Context context = parent.getContext();
-        View bar = LayoutInflater.from(context).inflate(R.layout.dk_toastbar, parent, false);
+		if (parent == null) {
+			throw new RuntimeException("No suitable parent found");
+		}
+		// prepare required params for the constructor
+		Context context = parent.getContext();
+		View bar = LayoutInflater.from(context).inflate(R.layout.dk_toastbar, parent, false);
 
-        return new DkUrgentToastbar(context, parent, bar);
-    }
+		return new DkUrgentToastbar(context, parent, bar);
+	}
 
-    // It will hide super newIns() method from outside-invoke
-    public static DkUrgentToastbar newIns(Activity activity) {
-        return newIns(activity.findViewById(android.R.id.content));
-    }
+	// It will hide super newIns() method from outside-invoke
+	public static DkUrgentToastbar newIns(Activity activity) {
+		return newIns(activity.findViewById(android.R.id.content));
+	}
 
-    @Override
-    public void show() {
-        getManager().dismissAll();
-        super.show();
-    }
+	@Override
+	public void show() {
+		getManager().dismissAll();
+		super.show();
+	}
 }

@@ -5,13 +5,13 @@
 package tool.compet.packages.eventbus;
 
 public class MyPendingPost {
-    MySubscription subscription;
-    Object event;
+	MySubscription subscription;
+	Object event;
 
-    MyPendingPost next;
+	MyPendingPost next;
 
-    MyPendingPost(MySubscription subscription, Object event) {
-        this.subscription = subscription;
-        this.event = event;
-    }
+	MyPendingPost(MySubscription subscription, Object event) {
+		this.subscription = subscription;
+		this.event = event;
+	}
 }

@@ -22,183 +22,186 @@ import static tool.compet.packages.database.MyConst.ROWID;
  * Data access object, you can execute commands to the table which be associated with this.
  */
 public abstract class DkAndroidSqliteDao<M> extends TheDao<M> { // M: table model
-    // Readable database
-    protected abstract SQLiteDatabase getReadableDatabase();
-    // Writable database
-    protected abstract SQLiteDatabase getWritableDatabase();
-    // Each dao map with one table
-    protected abstract String tableName();
-    // Each dao map with one model of table
-    protected abstract Class<M> modelClass();
+	// Readable database
+	protected abstract SQLiteDatabase getReadableDatabase();
 
-    private final MyAndroidSqliteConnection connection = new MyAndroidSqliteConnection() {
-        @Override
-        protected SQLiteDatabase getReadableDatabase() {
-            return DkAndroidSqliteDao.this.getReadableDatabase();
-        }
+	// Writable database
+	protected abstract SQLiteDatabase getWritableDatabase();
 
-        @Override
-        protected SQLiteDatabase getWritableDatabase() {
-            return DkAndroidSqliteDao.this.getWritableDatabase();
-        }
-    };
-    private final MySqliteGrammar grammar = new MySqliteGrammar();
+	// Each dao map with one table
+	protected abstract String tableName();
 
-    @Override
-    public TheQueryBuilder<M> newQuery() {
-        return new TheAndroidSqliteQueryBuilder<>(connection, grammar, tableName(), modelClass());
-    }
+	// Each dao map with one model of table
+	protected abstract Class<M> modelClass();
 
-    @Override
-    public TheQueryBuilder<M> newQuery(String table) {
-        return new TheAndroidSqliteQueryBuilder<>(connection, grammar, table, modelClass());
-    }
+	private final MyAndroidSqliteConnection connection = new MyAndroidSqliteConnection() {
+		@Override
+		protected SQLiteDatabase getReadableDatabase() {
+			return DkAndroidSqliteDao.this.getReadableDatabase();
+		}
 
-    @Override
-    public <T> TheQueryBuilder<T> newQuery(Class<T> modelClass) {
-        return new TheAndroidSqliteQueryBuilder<>(connection, grammar, tableName(), modelClass);
-    }
+		@Override
+		protected SQLiteDatabase getWritableDatabase() {
+			return DkAndroidSqliteDao.this.getWritableDatabase();
+		}
+	};
+	private final MySqliteGrammar grammar = new MySqliteGrammar();
 
-    @Override
-    public <T> TheQueryBuilder<T> newQuery(String table, Class<T> modelClass) {
-        return new TheAndroidSqliteQueryBuilder<>(connection, grammar, table, modelClass);
-    }
+	@Override
+	public TheQueryBuilder<M> newQuery() {
+		return new TheAndroidSqliteQueryBuilder<>(connection, grammar, tableName(), modelClass());
+	}
 
-    @Override
-    public M find(long rowid) {
-        return newQuery().where(ROWID, rowid).first();
-    }
+	@Override
+	public TheQueryBuilder<M> newQuery(String table) {
+		return new TheAndroidSqliteQueryBuilder<>(connection, grammar, table, modelClass());
+	}
 
-    @Override
-    public void delete(long rowid) {
-        newQuery().where(ROWID, rowid).delete();
-    }
+	@Override
+	public <T> TheQueryBuilder<T> newQuery(Class<T> modelClass) {
+		return new TheAndroidSqliteQueryBuilder<>(connection, grammar, tableName(), modelClass);
+	}
 
-    @Override
-    public void clear() {
-        // Just delete all data
-        newQuery().delete();
-    }
+	@Override
+	public <T> TheQueryBuilder<T> newQuery(String table, Class<T> modelClass) {
+		return new TheAndroidSqliteQueryBuilder<>(connection, grammar, table, modelClass);
+	}
 
-    @Override
-    public void truncate() {
-        // Delete all data
-        clear();
+	@Override
+	public M find(long rowid) {
+		return newQuery().where(ROWID, rowid).first();
+	}
 
-        // Reset autoincrement pk
-        newQuery("sqlite_sequence").where("name", tableName()).delete();
-    }
+	@Override
+	public void delete(long rowid) {
+		newQuery().where(ROWID, rowid).delete();
+	}
 
-    @Override
-    public long insert(Object model) {
-        Map<String, Object> params = new ArrayMap<>();
-        Class modelClass = model.getClass();
-        List<Field> fields = DkReflectionFinder.getIns().findFields(modelClass, DkColumnInfo.class);
+	@Override
+	public void clear() {
+		// Just delete all data
+		newQuery().delete();
+	}
 
-        for (Field field : fields) {
-            try {
-                DkColumnInfo colInfo = Objects.requireNonNull(field.getAnnotation(DkColumnInfo.class));
-                // Ignore columns: pk, not-fillable
-                if (colInfo.primaryKey() || ! colInfo.fillable()) {
-                    continue;
-                }
-                String colName = colInfo.name();
-                Object value = MyGrammarHelper.todbvalue(field.get(model));
-                params.put(colName, value);
-            }
-            catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
+	@Override
+	public void truncate() {
+		// Delete all data
+		clear();
 
-        return newQuery().insert(params);
-    }
+		// Reset autoincrement pk
+		newQuery("sqlite_sequence").where("name", tableName()).delete();
+	}
 
-    @Override
-    public void update(Object model) {
-        Map<String, Object> updates = new ArrayMap<>();
-        Class modelClass = model.getClass();
-        List<Field> fields = DkReflectionFinder.getIns().findFields(modelClass, DkColumnInfo.class);
-        Map<String, Field> pk_field = new ArrayMap<>();
+	@Override
+	public long insert(Object model) {
+		Map<String, Object> params = new ArrayMap<>();
+		Class modelClass = model.getClass();
+		List<Field> fields = DkReflectionFinder.getIns().findFields(modelClass, DkColumnInfo.class);
 
-        for (Field field : fields) {
-            try {
-                DkColumnInfo colInfo = Objects.requireNonNull(field.getAnnotation(DkColumnInfo.class));
-                // For pk: remember to build where condition later
-                if (colInfo.primaryKey()) {
-                    pk_field.put(colInfo.name(), field);
-                    continue;
-                }
-                // Ignore upsert column which is not fillable
-                if (! colInfo.fillable()) {
-                    continue;
-                }
-                String colName = colInfo.name();
-                Object value = field.get(model);
-                updates.put(colName, value);
-            }
-            catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
+		for (Field field : fields) {
+			try {
+				DkColumnInfo colInfo = Objects.requireNonNull(field.getAnnotation(DkColumnInfo.class));
+				// Ignore columns: pk, not-fillable
+				if (colInfo.primaryKey() || ! colInfo.fillable()) {
+					continue;
+				}
+				String colName = colInfo.name();
+				Object value = MyGrammarHelper.todbvalue(field.get(model));
+				params.put(colName, value);
+			}
+			catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
 
-        TheQueryBuilder<M> queryBuilder = newQuery();
+		return newQuery().insert(params);
+	}
 
-        if (pk_field.size() == 0) {
-            throw new RuntimeException("Must contain at least 1 pk for update");
-        }
-        else {
-            for (Map.Entry<String, Field> entry : pk_field.entrySet()) {
-                try {
-                    queryBuilder.where(entry.getKey(), entry.getValue().get(model));
-                }
-                catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
+	@Override
+	public void update(Object model) {
+		Map<String, Object> updates = new ArrayMap<>();
+		Class modelClass = model.getClass();
+		List<Field> fields = DkReflectionFinder.getIns().findFields(modelClass, DkColumnInfo.class);
+		Map<String, Field> pk_field = new ArrayMap<>();
 
-        queryBuilder.update(updates);
-    }
+		for (Field field : fields) {
+			try {
+				DkColumnInfo colInfo = Objects.requireNonNull(field.getAnnotation(DkColumnInfo.class));
+				// For pk: remember to build where condition later
+				if (colInfo.primaryKey()) {
+					pk_field.put(colInfo.name(), field);
+					continue;
+				}
+				// Ignore upsert column which is not fillable
+				if (!colInfo.fillable()) {
+					continue;
+				}
+				String colName = colInfo.name();
+				Object value = field.get(model);
+				updates.put(colName, value);
+			}
+			catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
 
-    @Override
-    // Refer when impl: https://www.sqlitetutorial.net/sqlite-replace-statement/
-    public void upsert(Object model) {
-//        INSERT INTO tmp (email, username) VALUES ('mail1', 'name1')
-//        ON CONFLICT (email, username)
-//        DO UPDATE SET email='kkkk3'
+		TheQueryBuilder<M> queryBuilder = newQuery();
 
-        // TODO: 2/7/21 impl it
+		if (pk_field.size() == 0) {
+			throw new RuntimeException("Must contain at least 1 pk for update");
+		}
+		else {
+			for (Map.Entry<String, Field> entry : pk_field.entrySet()) {
+				try {
+					queryBuilder.where(entry.getKey(), entry.getValue().get(model));
+				}
+				catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
 
-        String insertFields = "";
-        String insertValues = "";
-        String pkList = "";
-        String updateSet = "";
+		queryBuilder.update(updates);
+	}
 
-        String upsertQuery = "insert into" +
-            " " + MyGrammarHelper.wrapName(tableName()) +
-            " (" + insertFields + ")" +
-            " values " + insertValues +
-            " on conflict (" + pkList + ")" +
-            " do update set " + updateSet;
+	@Override
+	// Refer when impl: https://www.sqlitetutorial.net/sqlite-replace-statement/
+	public void upsert(Object model) {
+		//        INSERT INTO tmp (email, username) VALUES ('mail1', 'name1')
+		//        ON CONFLICT (email, username)
+		//        DO UPDATE SET email='kkkk3'
 
-        newQuery().execute(upsertQuery.trim());
-    }
+		// TODO: 2/7/21 impl it
 
-    @Override
-    public boolean isEmpty() {
-        // Auto-increment PK has 4 equivalent names: `rowid`, `_rowid_`, `oid` and `id` (our curstom pk)
-        return connection.rawQuery("select `_rowid_` from " + MyGrammarHelper.wrapName(tableName()) + " limit 1").getCount() == 0;
-    }
+		String insertFields = "";
+		String insertValues = "";
+		String pkList = "";
+		String updateSet = "";
 
-    @Override
-    public long count() {
-        long rowCount = 0;
-        Cursor cursor = connection.rawQuery("select count(`_rowid_`) from " + MyGrammarHelper.wrapName(tableName()));
-        if (cursor.moveToFirst()) {
-            rowCount = cursor.getLong(0);
-        }
-        cursor.close();
-        return rowCount;
-    }
+		String upsertQuery = "insert into" +
+			" " + MyGrammarHelper.wrapName(tableName()) +
+			" (" + insertFields + ")" +
+			" values " + insertValues +
+			" on conflict (" + pkList + ")" +
+			" do update set " + updateSet;
+
+		newQuery().execute(upsertQuery.trim());
+	}
+
+	@Override
+	public boolean isEmpty() {
+		// Auto-increment PK has 4 equivalent names: `rowid`, `_rowid_`, `oid` and `id` (our curstom pk)
+		return connection.rawQuery("select `_rowid_` from " + MyGrammarHelper.wrapName(tableName()) + " limit 1").getCount() == 0;
+	}
+
+	@Override
+	public long count() {
+		long rowCount = 0;
+		Cursor cursor = connection.rawQuery("select count(`_rowid_`) from " + MyGrammarHelper.wrapName(tableName()));
+		if (cursor.moveToFirst()) {
+			rowCount = cursor.getLong(0);
+		}
+		cursor.close();
+		return rowCount;
+	}
 }

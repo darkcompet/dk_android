@@ -93,7 +93,8 @@ public class DkPlaceAutocompleteAdapter extends ArrayAdapter<AutocompletePredict
 			protected void publishResults(CharSequence constraint, FilterResults results) {
 				if (results != null && results.count > 0) {
 					notifyDataSetChanged();
-				} else {
+				}
+				else {
 					notifyDataSetInvalidated();
 				}
 			}
@@ -102,7 +103,8 @@ public class DkPlaceAutocompleteAdapter extends ArrayAdapter<AutocompletePredict
 			public CharSequence convertResultToString(Object resultValue) {
 				if (resultValue instanceof AutocompletePrediction) {
 					return ((AutocompletePrediction) resultValue).getFullText(null);
-				} else {
+				}
+				else {
 					return super.convertResultToString(resultValue);
 				}
 			}

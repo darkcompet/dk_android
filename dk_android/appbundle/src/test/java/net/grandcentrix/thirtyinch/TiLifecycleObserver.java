@@ -21,16 +21,16 @@ package net.grandcentrix.thirtyinch;
  */
 public interface TiLifecycleObserver {
 
-    /**
-     * gets called when the {@link TiPresenter.State} changes
-     *
-     * @param state                        the new state of the {@link TiPresenter}
-     * @param hasLifecycleMethodBeenCalled {@code false} when called before the {@code on...}
-     *                                     lifecycle methods, {@code true} when called after
-     * @see TiPresenter#onCreate()
-     * @see TiPresenter#onAttachView(TiView)
-     * @see TiPresenter#onDetachView()
-     * @see TiPresenter#onDestroy()
-     */
-    void onChange(final TiPresenter.State state, final boolean hasLifecycleMethodBeenCalled);
+	/**
+	 * gets called when the {@link TiPresenter.State} changes
+	 *
+	 * @param state                        the new state of the {@link TiPresenter}
+	 * @param hasLifecycleMethodBeenCalled {@code false} when called before the {@code on...}
+	 *                                     lifecycle methods, {@code true} when called after
+	 * @see TiPresenter#onCreate()
+	 * @see TiPresenter#onAttachView(TiView)
+	 * @see TiPresenter#onDetachView()
+	 * @see TiPresenter#onDestroy()
+	 */
+	void onChange(final TiPresenter.State state, final boolean hasLifecycleMethodBeenCalled);
 }

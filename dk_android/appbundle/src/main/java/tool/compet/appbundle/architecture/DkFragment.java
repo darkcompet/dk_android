@@ -19,7 +19,7 @@ import androidx.fragment.app.FragmentActivity;
 
 import tool.compet.appbundle.BuildConfig;
 import tool.compet.appbundle.binder.DkBinder;
-import tool.compet.core.log.DkLogs;
+import tool.compet.core.DkLogs;
 
 /**
  * All fragments should be subclass of this to work with support of Dk library as possible.
@@ -29,196 +29,196 @@ import tool.compet.core.log.DkLogs;
  * - Debug logs in lifecycle methods
  */
 public abstract class DkFragment extends Fragment implements DkFragmentInf {
-    protected FragmentActivity host;
-    protected Context context;
-    protected ViewGroup layout;
+	protected FragmentActivity host;
+	protected Context context;
+	protected ViewGroup layout;
 
-    @Override
-    public void onAttach(@NonNull Context context) {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onAttach (context)");
-        }
-        if (this.host == null) {
-            this.host = getActivity();
-        }
-        if (this.context == null) {
-            this.context = context;
-        }
+	@Override
+	public void onAttach(@NonNull Context context) {
+		if (BuildConfig.DEBUG) {
+			DkLogs.info(this, "onAttach (context)");
+		}
+		if (this.host == null) {
+			this.host = getActivity();
+		}
+		if (this.context == null) {
+			this.context = context;
+		}
 
-        super.onAttach(context);
-    }
+		super.onAttach(context);
+	}
 
-    @Override
-    @SuppressWarnings("deprecation")
-    public void onAttach(@NonNull Activity activity) {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onAttach (activity)");
-        }
-        if (this.context == null) {
-            this.context = getContext();
-        }
-        if (this.host == null) {
-            this.host = (FragmentActivity) activity;
-        }
+	@Override
+	@SuppressWarnings("deprecation")
+	public void onAttach(@NonNull Activity activity) {
+		if (BuildConfig.DEBUG) {
+			DkLogs.info(this, "onAttach (activity)");
+		}
+		if (this.context == null) {
+			this.context = getContext();
+		}
+		if (this.host == null) {
+			this.host = (FragmentActivity) activity;
+		}
 
-        super.onAttach(activity);
-    }
+		super.onAttach(activity);
+	}
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onCreate");
-        }
-        super.setRetainInstance(isRetainInstance()); // retain instance while configuration changes
-        super.onCreate(savedInstanceState);
-    }
+	@Override
+	public void onCreate(@Nullable Bundle savedInstanceState) {
+		if (BuildConfig.DEBUG) {
+			DkLogs.info(this, "onCreate");
+		}
+		super.setRetainInstance(isRetainInstance()); // retain instance while configuration changes
+		super.onCreate(savedInstanceState);
+	}
 
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onCreateView");
-        }
+	@Override
+	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+		if (BuildConfig.DEBUG) {
+			DkLogs.info(this, "onCreateView");
+		}
 
-        int layoutId = layoutResourceId();
-        if (layoutId <= 0) {
-            DkLogs.complain(this, "Invalid layoutId: %d", layoutId);
-        }
+		int layoutId = layoutResourceId();
+		if (layoutId <= 0) {
+			DkLogs.complain(this, "Invalid layoutId: %d", layoutId);
+		}
 
-        layout = (ViewGroup) inflater.inflate(layoutResourceId(), container, false);
-        DkBinder.bindViews(this, layout);
+		layout = (ViewGroup) inflater.inflate(layoutResourceId(), container, false);
+		DkBinder.bindViews(this, layout);
 
-        return layout;
-    }
+		return layout;
+	}
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onViewCreated");
-        }
-        super.onViewCreated(view, savedInstanceState);
-    }
+	@Override
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+		if (BuildConfig.DEBUG) {
+			DkLogs.info(this, "onViewCreated");
+		}
+		super.onViewCreated(view, savedInstanceState);
+	}
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onActivityCreated");
-        }
-        super.onActivityCreated(savedInstanceState);
-    }
+	@Override
+	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+		if (BuildConfig.DEBUG) {
+			DkLogs.info(this, "onActivityCreated");
+		}
+		super.onActivityCreated(savedInstanceState);
+	}
 
-    @Override
-    public void onStart() {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onStart");
-        }
-        super.onStart();
-    }
+	@Override
+	public void onStart() {
+		if (BuildConfig.DEBUG) {
+			DkLogs.info(this, "onStart");
+		}
+		super.onStart();
+	}
 
-    @Override
-    public void onResume() {
-        onActive(true);
-        super.onResume();
-    }
+	@Override
+	public void onResume() {
+		onActive(true);
+		super.onResume();
+	}
 
-    @Override
-    public void onActive(boolean isResume) {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, isResume ? "onResume" : "onFront");
-        }
-    }
+	@Override
+	public void onActive(boolean isResume) {
+		if (BuildConfig.DEBUG) {
+			DkLogs.info(this, isResume ? "onResume" : "onFront");
+		}
+	}
 
-    @Override
-    public void onPause() {
-        onInactive(true);
-        super.onPause();
-    }
+	@Override
+	public void onPause() {
+		onInactive(true);
+		super.onPause();
+	}
 
-    @Override
-    public void onInactive(boolean isPause) {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, isPause ? "onPause" : "onBehind");
-        }
-    }
+	@Override
+	public void onInactive(boolean isPause) {
+		if (BuildConfig.DEBUG) {
+			DkLogs.info(this, isPause ? "onPause" : "onBehind");
+		}
+	}
 
-    @Override
-    public void onStop() {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onStop");
-        }
-        super.onStop();
-    }
+	@Override
+	public void onStop() {
+		if (BuildConfig.DEBUG) {
+			DkLogs.info(this, "onStop");
+		}
+		super.onStop();
+	}
 
-    @Override
-    public void onDestroyView() {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onDestroyView");
-        }
-        super.onDestroyView();
-    }
+	@Override
+	public void onDestroyView() {
+		if (BuildConfig.DEBUG) {
+			DkLogs.info(this, "onDestroyView");
+		}
+		super.onDestroyView();
+	}
 
-    @Override
-    public void onDestroy() {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onDestroy");
-        }
-        super.onDestroy();
-    }
+	@Override
+	public void onDestroy() {
+		if (BuildConfig.DEBUG) {
+			DkLogs.info(this, "onDestroy");
+		}
+		super.onDestroy();
+	}
 
-    @Override
-    public void onDetach() {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onDetach");
-        }
+	@Override
+	public void onDetach() {
+		if (BuildConfig.DEBUG) {
+			DkLogs.info(this, "onDetach");
+		}
 
-        this.host = null;
-        this.context = null;
-        this.layout = null;
+		this.host = null;
+		this.context = null;
+		this.layout = null;
 
-        super.onDetach();
-    }
+		super.onDetach();
+	}
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onActivityResult");
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (BuildConfig.DEBUG) {
+			DkLogs.info(this, "onActivityResult");
+		}
+		super.onActivityResult(requestCode, resultCode, data);
+	}
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onActivityResult");
-        }
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		if (BuildConfig.DEBUG) {
+			DkLogs.info(this, "onActivityResult");
+		}
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+	}
 
-    @Override
-    public void onLowMemory() {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onLowMemory");
-        }
-        super.onLowMemory();
-    }
+	@Override
+	public void onLowMemory() {
+		if (BuildConfig.DEBUG) {
+			DkLogs.info(this, "onLowMemory");
+		}
+		super.onLowMemory();
+	}
 
-    @Override
-    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onViewStateRestored");
-        }
-        super.onViewStateRestored(savedInstanceState);
-    }
+	@Override
+	public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+		if (BuildConfig.DEBUG) {
+			DkLogs.info(this, "onViewStateRestored");
+		}
+		super.onViewStateRestored(savedInstanceState);
+	}
 
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        if (BuildConfig.DEBUG) {
-            DkLogs.info(this, "onSaveInstanceState");
-        }
-        super.onSaveInstanceState(outState);
-    }
+	@Override
+	public void onSaveInstanceState(@NonNull Bundle outState) {
+		if (BuildConfig.DEBUG) {
+			DkLogs.info(this, "onSaveInstanceState");
+		}
+		super.onSaveInstanceState(outState);
+	}
 
-    @Override
-    public Fragment getFragment() {
-        return this;
-    }
+	@Override
+	public Fragment getFragment() {
+		return this;
+	}
 }

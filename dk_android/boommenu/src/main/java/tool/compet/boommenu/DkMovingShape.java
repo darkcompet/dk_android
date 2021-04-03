@@ -5,8 +5,8 @@
 package tool.compet.boommenu;
 
 public enum DkMovingShape {
-    LINE,
+	LINE,
 
-    PARABOL_UP,
-    PARABOL_DOWN
+	PARABOL_UP,
+	PARABOL_DOWN
 }

@@ -20,15 +20,15 @@ package net.grandcentrix.thirtyinch.distinctuntilchanged;
  */
 public interface DistinctComparator {
 
-    /**
-     * Checks if the arguments of a method call have changed compare to the last call of the
-     * method. This method returns {@code false} when calling it for the first time. It's the
-     * initialization step allowing comparisons with the next arguments.
-     *
-     * @param newParameters arguments of the current method call. Compare them to the last call
-     *                      of {@link #compareWith(Object[])}
-     * @return {@code false} if the arguments have changed compared to the last call of this
-     * method, {@code true} when they are the same
-     */
-    boolean compareWith(final Object[] newParameters);
+	/**
+	 * Checks if the arguments of a method call have changed compare to the last call of the
+	 * method. This method returns {@code false} when calling it for the first time. It's the
+	 * initialization step allowing comparisons with the next arguments.
+	 *
+	 * @param newParameters arguments of the current method call. Compare them to the last call
+	 *                      of {@link #compareWith(Object[])}
+	 * @return {@code false} if the arguments have changed compared to the last call of this
+	 * method, {@code true} when they are the same
+	 */
+	boolean compareWith(final Object[] newParameters);
 }

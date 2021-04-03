@@ -24,28 +24,28 @@ import at.wirecube.additiveanimations.helper.FloatProperty;
 // TODO: this works, but fires the onScrollChanged() event too many times (once for scrollX, once for scrollY).
 public class ScrollProperties {
 
-    public static Property<View, Float> SCROLL_X = new FloatProperty<View>("SCROLL_X") {
-        @Override
-        public Float get(View object) {
-            return Float.valueOf(object.getScrollX());
-        }
+	public static Property<View, Float> SCROLL_X = new FloatProperty<View>("SCROLL_X") {
+		@Override
+		public Float get(View object) {
+			return Float.valueOf(object.getScrollX());
+		}
 
-        @Override
-        public void set(View object, Float value) {
-            object.setScrollX(value.intValue());
-        }
-    };
+		@Override
+		public void set(View object, Float value) {
+			object.setScrollX(value.intValue());
+		}
+	};
 
-    public static Property<View, Float> SCROLL_Y = new FloatProperty<View>("SCROLL_Y") {
-        @Override
-        public Float get(View object) {
-            return Float.valueOf(object.getScrollY());
-        }
+	public static Property<View, Float> SCROLL_Y = new FloatProperty<View>("SCROLL_Y") {
+		@Override
+		public Float get(View object) {
+			return Float.valueOf(object.getScrollY());
+		}
 
-        @Override
-        public void set(View object, Float value) {
-            object.setScrollY(value.intValue());
-        }
-    };
+		@Override
+		public void set(View object, Float value) {
+			object.setScrollY(value.intValue());
+		}
+	};
 
 }

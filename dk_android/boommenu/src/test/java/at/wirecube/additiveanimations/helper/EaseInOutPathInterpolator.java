@@ -21,7 +21,7 @@ import android.view.animation.Interpolator;
 import androidx.core.view.animation.PathInterpolatorCompat;
 
 public class EaseInOutPathInterpolator {
-    public static Interpolator create() {
-        return PathInterpolatorCompat.create(0.25f, 0.1f, 0.25f, 1.f);
-    }
+	public static Interpolator create() {
+		return PathInterpolatorCompat.create(0.25f, 0.1f, 0.25f, 1.f);
+	}
 }

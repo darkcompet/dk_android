@@ -16,6 +16,7 @@
 package net.grandcentrix.thirtyinch.internal;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+
 import net.grandcentrix.thirtyinch.Removable;
 
 /**
@@ -23,23 +24,23 @@ import net.grandcentrix.thirtyinch.Removable;
  */
 public abstract class OneTimeRemovable implements Removable {
 
-    private final AtomicBoolean removed = new AtomicBoolean(false);
+	private final AtomicBoolean removed = new AtomicBoolean(false);
 
-    @Override
-    public boolean isRemoved() {
-        return removed.get();
-    }
+	@Override
+	public boolean isRemoved() {
+		return removed.get();
+	}
 
-    /**
-     * Called when the added Object should be removed. Only called once
-     */
-    public abstract void onRemove();
+	/**
+	 * Called when the added Object should be removed. Only called once
+	 */
+	public abstract void onRemove();
 
-    @Override
-    public void remove() {
-        // allow calling remove only once
-        if (removed.compareAndSet(false, true)) {
-            onRemove();
-        }
-    }
+	@Override
+	public void remove() {
+		// allow calling remove only once
+		if (removed.compareAndSet(false, true)) {
+			onRemove();
+		}
+	}
 }

@@ -4,44 +4,78 @@
 
 package tool.compet.core.stream;
 
-class MyFlatMapObservable<T, R> extends MyDownstreamObservable<T, R> {
-    private final DkThrowableFunction<T, DkObservable<R>> converter;
+import tool.compet.core.DkCallable1;
 
-    MyFlatMapObservable(DkObservable<T> parent, DkThrowableFunction<T, DkObservable<R>> converter) {
-        super(parent);
-        this.converter = converter;
-    }
+/**
+ * This switches result from parent node to other type at child node.
+ *
+ * @param <T> Parent node type.
+ * @param <R> Child node type.
+ */
+class MyFlatMapObservable<T, R> extends DkObservable<R> {
+	private final DkObservable<T> parent;
+	private final DkCallable1<T, DkObservable<R>> converter;
 
-    @Override
-    protected void performSubscribe(DkObserver<R> child) {
-        parent.subscribe(new FlatMapObserver<>(child, converter));
-    }
+	MyFlatMapObservable(DkObservable<T> parent, DkCallable1<T, DkObservable<R>> converter) {
+		this.parent = parent;
+		this.converter = converter;
+	}
 
-    static class FlatMapObserver<T, R> extends MyAbsFlatMapObserver<T, R> {
-        final DkThrowableFunction<T, DkObservable<R>> converter;
+	@Override
+	protected void subscribeActual(DkObserver<R> child) {
+		parent.subscribe(new FlatMapObserver<>(child, converter));
+	}
 
-        FlatMapObserver(DkObserver<R> child, DkThrowableFunction<T, DkObservable<R>> converter) {
-            super(child);
-            this.converter = converter;
-        }
+	// This observer is flat map which can cancel, pause, resume stream
+	static class FlatMapObserver<T, R> extends MyFlatMapObserver<T, R> {
+		final DkCallable1<T, DkObservable<R>> converter;
 
-        @Override
-        public void onNext(T result) {
-            try {
-                DkObservable<R> nextObservable = converter.apply(result);
+		FlatMapObserver(DkObserver<R> child, DkCallable1<T, DkObservable<R>> converter) {
+			super(child);
+			this.converter = converter;
+		}
 
-                // If converter null, we can considere this flatMap is normal map
-                if (nextObservable == null) {
-                    child.onNext(null);
-                    return;
-                }
+		@Override
+		public void onSubscribe(DkControllable controllable) throws Exception {
+			super.onSubscribe(controllable);
+		}
 
-                // Run on same thread with upper node
-                nextObservable.subscribe(new MyBenchMarkObserver<>(child));
-            }
-            catch (Exception e) {
-                child.onError(e);
-            }
-        }
-    }
+		@Override
+		public void onNext(T result) throws Exception {
+			// Pass result to create new observable
+			DkObservable<R> flatObservable;
+			try {
+				flatObservable = converter.call(result);
+			}
+			catch (Exception e) {
+				flatObservable = null;
+			}
+
+			// If we got null flat observable, just consider this flatMap is normal map
+			if (flatObservable == null) {
+				child.onNext(null);
+				return;
+			}
+
+			//todo consider logic of flatmap before implement
+
+			// Run on same thread with upper node
+			flatObservable.subscribe(new MyObserver<>(child));
+		}
+
+		@Override
+		public void onComplete() throws Exception {
+			super.onComplete();
+		}
+
+		@Override
+		public void onError(Throwable e) {
+			super.onError(e);
+		}
+
+		@Override
+		public void onFinal() {
+			super.onFinal();
+		}
+	}
 }

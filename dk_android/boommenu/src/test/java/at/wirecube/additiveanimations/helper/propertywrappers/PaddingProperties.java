@@ -24,51 +24,51 @@ import at.wirecube.additiveanimations.helper.FloatProperty;
 
 public class PaddingProperties {
 
-    public static Property<View, Float> PADDING_LEFT = new FloatProperty<View>("PADDING_LEFT") {
-        @Override
-        public Float get(View object) {
-            return Float.valueOf(object.getPaddingLeft());
-        }
+	public static Property<View, Float> PADDING_LEFT = new FloatProperty<View>("PADDING_LEFT") {
+		@Override
+		public Float get(View object) {
+			return Float.valueOf(object.getPaddingLeft());
+		}
 
-        @Override
-        public void set(View object, Float value) {
-            object.setPadding(value.intValue(), object.getPaddingTop(), object.getPaddingRight(), object.getPaddingBottom());
-        }
-    };
+		@Override
+		public void set(View object, Float value) {
+			object.setPadding(value.intValue(), object.getPaddingTop(), object.getPaddingRight(), object.getPaddingBottom());
+		}
+	};
 
-    public static Property<View, Float> PADDING_RIGHT = new FloatProperty<View>("PADDING_RIGHT") {
-        @Override
-        public Float get(View object) {
-            return Float.valueOf(object.getPaddingRight());
-        }
+	public static Property<View, Float> PADDING_RIGHT = new FloatProperty<View>("PADDING_RIGHT") {
+		@Override
+		public Float get(View object) {
+			return Float.valueOf(object.getPaddingRight());
+		}
 
-        @Override
-        public void set(View object, Float value) {
-            object.setPadding(object.getPaddingLeft(), object.getPaddingTop(), value.intValue(), object.getPaddingBottom());
-        }
-    };
+		@Override
+		public void set(View object, Float value) {
+			object.setPadding(object.getPaddingLeft(), object.getPaddingTop(), value.intValue(), object.getPaddingBottom());
+		}
+	};
 
-    public static Property<View, Float> PADDING_TOP = new FloatProperty<View>("PADDING_TOP") {
-        @Override
-        public Float get(View object) {
-            return Float.valueOf(object.getPaddingTop());
-        }
+	public static Property<View, Float> PADDING_TOP = new FloatProperty<View>("PADDING_TOP") {
+		@Override
+		public Float get(View object) {
+			return Float.valueOf(object.getPaddingTop());
+		}
 
-        @Override
-        public void set(View object, Float value) {
-            object.setPadding(object.getPaddingLeft(), value.intValue(), object.getPaddingRight(), object.getPaddingBottom());
-        }
-    };
+		@Override
+		public void set(View object, Float value) {
+			object.setPadding(object.getPaddingLeft(), value.intValue(), object.getPaddingRight(), object.getPaddingBottom());
+		}
+	};
 
-    public static Property<View, Float> PADDING_BOTTOM = new FloatProperty<View>("PADDING_BOTTOM") {
-        @Override
-        public Float get(View object) {
-            return Float.valueOf(object.getPaddingBottom());
-        }
+	public static Property<View, Float> PADDING_BOTTOM = new FloatProperty<View>("PADDING_BOTTOM") {
+		@Override
+		public Float get(View object) {
+			return Float.valueOf(object.getPaddingBottom());
+		}
 
-        @Override
-        public void set(View object, Float value) {
-            object.setPadding(object.getPaddingLeft(), object.getPaddingTop(), object.getPaddingRight(), value.intValue());
-        }
-    };
+		@Override
+		public void set(View object, Float value) {
+			object.setPadding(object.getPaddingLeft(), object.getPaddingTop(), object.getPaddingRight(), value.intValue());
+		}
+	};
 }

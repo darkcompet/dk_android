@@ -25,8 +25,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
-import tool.compet.core.log.DkLogs;
-import tool.compet.core.type.DkCallback2;
+import tool.compet.core.DkLogs;
+import tool.compet.core.DkRunner2;
 
 public class DkBillingManager implements PurchasesUpdatedListener {
 	/**
@@ -174,7 +174,7 @@ public class DkBillingManager implements PurchasesUpdatedListener {
 	 * has been cancelled or expired will not be listed in result.
 	 */
 	public List<Purchase> querySubscriptionPurchases() {
-		if ( ! isFeatureSupported(BillingClient.FeatureType.SUBSCRIPTIONS)) {
+		if (!isFeatureSupported(BillingClient.FeatureType.SUBSCRIPTIONS)) {
 			return null;
 		}
 		Purchase.PurchasesResult result = queryPurchaseHistories(BillingClient.SkuType.SUBS);
@@ -209,11 +209,11 @@ public class DkBillingManager implements PurchasesUpdatedListener {
 	/**
 	 * Query information for sku (product id).
 	 *
-	 * @param skuType BillingClient.SkuType.INAPP or BillingClient.SkuType.SUBS
-	 * @param skuList List of sku which you want to know.
+	 * @param skuType  BillingClient.SkuType.INAPP or BillingClient.SkuType.SUBS
+	 * @param skuList  List of sku which you want to know.
 	 * @param callback Even though success or fail, callback will return NonNull list of SkuDetail
 	 */
-	public void querySkuDetailsAsync(String skuType, List<String> skuList, DkCallback2<BillingResult, List<SkuDetails>> callback) {
+	public void querySkuDetailsAsync(String skuType, List<String> skuList, DkRunner2<BillingResult, List<SkuDetails>> callback) {
 		SkuDetailsParams params = SkuDetailsParams.newBuilder()
 			.setSkusList(skuList)
 			.setType(skuType)
@@ -234,7 +234,7 @@ public class DkBillingManager implements PurchasesUpdatedListener {
 			revokedTokens = new HashSet<>();
 		}
 		if (revokedTokens.contains(purchaseToken)) {
-			DkLogs.warn(this, "Skip revoke item which has already revoked");
+			DkLogs.warning(this, "Skip revoke item which has already revoked");
 			return;
 		}
 
@@ -293,7 +293,7 @@ public class DkBillingManager implements PurchasesUpdatedListener {
 
 	private Purchase.PurchasesResult queryPurchaseHistories(String skuType) {
 		if (billingClient == null) {
-			DkLogs.warn(this, "Stop query purchase histories since billingClient is null");
+			DkLogs.warning(this, "Stop query purchase histories since billingClient is null");
 			return null;
 		}
 		return billingClient.queryPurchases(skuType);

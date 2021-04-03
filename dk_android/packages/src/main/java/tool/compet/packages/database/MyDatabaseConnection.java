@@ -8,9 +8,9 @@ import java.util.List;
 
 // Database connection (read, write...)
 abstract class MyDatabaseConnection {
-    // Provide get query
-    protected abstract <M> List<M> rawQuery(String query, Class<M> modelClass);
+	// Provide get query
+	protected abstract <M> List<M> rawQuery(String query, Class<M> modelClass);
 
-    // Provide insert, update... query
-    protected abstract void execQuery(String query);
+	// Provide insert, update... query
+	protected abstract void execQuery(String query);
 }

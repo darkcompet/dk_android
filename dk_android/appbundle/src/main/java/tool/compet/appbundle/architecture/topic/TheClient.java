@@ -20,24 +20,24 @@ import java.util.Set;
  * topic to release resource when disconnect.
  */
 public class TheClient extends ViewModel {
-    public interface Listener {
-        void onClientDisconnect(TheClient client);
-    }
+	public interface Listener {
+		void onClientDisconnect(TheClient client);
+	}
 
-    private final Set<Listener> listeners = new ArraySet<>();
+	private final Set<Listener> listeners = new ArraySet<>();
 
-    @Override
-    protected void onCleared() {
-        super.onCleared();
+	@Override
+	protected void onCleared() {
+		super.onCleared();
 
-        for (Listener listener : listeners) {
-            listener.onClientDisconnect(this);
-        }
+		for (Listener listener : listeners) {
+			listener.onClientDisconnect(this);
+		}
 
-        listeners.clear();
-    }
+		listeners.clear();
+	}
 
-    void addListener(Listener listener) {
-        listeners.add(listener);
-    }
+	void addListener(Listener listener) {
+		listeners.add(listener);
+	}
 }

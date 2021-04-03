@@ -35,14 +35,14 @@ import java.util.Arrays;
  */
 public class EqualsComparator implements DistinctComparator {
 
-    private Object[] mLastParameters;
+	private Object[] mLastParameters;
 
-    @Override
-    public boolean compareWith(final Object[] newParameters) {
-        if (!Arrays.equals(newParameters, mLastParameters)) {
-            mLastParameters = newParameters;
-            return false;
-        }
-        return true;
-    }
+	@Override
+	public boolean compareWith(final Object[] newParameters) {
+		if (!Arrays.equals(newParameters, mLastParameters)) {
+			mLastParameters = newParameters;
+			return false;
+		}
+		return true;
+	}
 }

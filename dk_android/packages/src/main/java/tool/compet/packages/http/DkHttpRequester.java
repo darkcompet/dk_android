@@ -14,10 +14,10 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import tool.compet.core.graphic.DkBitmaps;
-import tool.compet.core.helper.DkJsonHelper;
-import tool.compet.core.log.DkLogs;
-import tool.compet.core.util.DkUtils;
+import tool.compet.core.DkBitmaps;
+import tool.compet.packages.json.DkJsonHelper;
+import tool.compet.core.DkLogs;
+import tool.compet.core.DkUtils;
 
 import static tool.compet.core.BuildConfig.DEBUG;
 
@@ -45,10 +45,6 @@ public class DkHttpRequester<T> {
 	private int readTimeout = 30000;
 
 	public DkHttpRequester() {
-	}
-
-	public static <R> DkHttpRequester<R> newIns() {
-		return new DkHttpRequester<>();
 	}
 
 	public DkHttpRequester<T> setRequestMethod(String requestMethod) {

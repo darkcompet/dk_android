@@ -14,51 +14,51 @@ import java.util.Set;
  */
 @SuppressWarnings("unchecked")
 class MyTopic {
-    // Unique id of this topic
-    final String id;
+	// Unique id of this topic
+	final String id;
 
-    // List of clients which listening this topic
-    private final Set<TheClient> clients = new ArraySet<>();
+	// List of clients which listening this topic
+	private final Set<TheClient> clients = new ArraySet<>();
 
-    // List of models inside this topic
-    private final ArrayMap<String, Object> models = new ArrayMap<>();
+	// List of models inside this topic
+	private final ArrayMap<String, Object> models = new ArrayMap<>();
 
-    MyTopic(String id) {
-        this.id = id;
-    }
+	MyTopic(String id) {
+		this.id = id;
+	}
 
-    /**
-     * Get or Create new model instance which associate with given #modelClass.
-     */
-    <M> M getOrCreateModel(String modelKey, Class<M> modelType) throws Exception {
-        M model = (M) models.get(modelKey);
+	/**
+	 * Get or Create new model instance which associate with given #modelClass.
+	 */
+	<M> M getOrCreateModel(String modelKey, Class<M> modelType) throws Exception {
+		M model = (M) models.get(modelKey);
 
-        if (model == null) {
-            model = modelType.newInstance();
-            models.put(modelKey, model);
-        }
+		if (model == null) {
+			model = modelType.newInstance();
+			models.put(modelKey, model);
+		}
 
-        return model;
-    }
+		return model;
+	}
 
-    void registerClient(TheClient client) {
-        clients.add(client);
-    }
+	void registerClient(TheClient client) {
+		clients.add(client);
+	}
 
-    void unregisterClient(TheClient client) {
-        clients.remove(client);
-    }
+	void unregisterClient(TheClient client) {
+		clients.remove(client);
+	}
 
-    int clientCount() {
-        return clients.size();
-    }
+	int clientCount() {
+		return clients.size();
+	}
 
-    boolean removeClient(TheClient client) {
-        return clients.remove(client);
-    }
+	boolean removeClient(TheClient client) {
+		return clients.remove(client);
+	}
 
-    void clear() {
-        clients.clear();
-        models.clear();
-    }
+	void clear() {
+		clients.clear();
+		models.clear();
+	}
 }
