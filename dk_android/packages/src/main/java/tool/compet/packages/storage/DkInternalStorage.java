@@ -11,44 +11,30 @@ import java.io.File;
 import java.io.IOException;
 
 import tool.compet.core.DkBitmaps;
-import tool.compet.core.DkLogs;
 import tool.compet.core.DkFiles;
+import tool.compet.core.DkLogs;
 import tool.compet.core.DkStrings;
 
 import static tool.compet.core.BuildConfig.DEBUG;
 
 public class DkInternalStorage {
-	private static DkInternalStorage INS;
-	private final Context appContext;
+	private final Context context;
 
-	private DkInternalStorage(Context appContext) {
-		this.appContext = appContext;
+	public DkInternalStorage(Context context) {
+		this.context = context;
 	}
 
-	public static void install(Context appContext) {
-		if (INS == null) {
-			INS = new DkInternalStorage(appContext);
-		}
-	}
-
-	public static DkInternalStorage getIns() {
-		if (INS == null) {
-			DkLogs.complain(DkInternalStorage.class, "Must call install() first");
-		}
-		return INS;
-	}
-
-	private String makeFilePath(String folderName, String fileName) throws IOException {
+	private String makeFilePath(String folderName, String fileName) {
 		folderName = DkStrings.trimMore(folderName, File.separatorChar);
 		fileName = DkStrings.trimMore(fileName, File.separatorChar);
 
 		if (DEBUG) {
-			DkLogs.info(this, "Internal getFilesDir().getPath(): %s", appContext.getFilesDir().getPath());
+			DkLogs.info(this, "Internal getFilesDir().getPath(): %s", context.getFilesDir().getPath());
 			DkLogs.info(this, "Internal getDir().getPath()/folderName/fileName: " +
-				DkStrings.join(File.separator, appContext.getDir(folderName, Context.MODE_PRIVATE).getPath(), fileName));
+				DkStrings.join(File.separator, context.getDir(folderName, Context.MODE_PRIVATE).getPath(), fileName));
 		}
 
-		return DkStrings.join(File.separatorChar, appContext.getDir(folderName, Context.MODE_PRIVATE).getPath(), fileName);
+		return DkStrings.join(File.separatorChar, context.getDir(folderName, Context.MODE_PRIVATE).getPath(), fileName);
 	}
 
 	public void save(byte[] data, String folderName, String fileName) throws IOException {
@@ -59,7 +45,7 @@ public class DkInternalStorage {
 		DkBitmaps.save(bitmap, makeFilePath(folderName, fileName));
 	}
 
-	public boolean delete(String folderName, String fileName) throws IOException {
+	public boolean delete(String folderName, String fileName) {
 		return DkFiles.delete(makeFilePath(folderName, fileName));
 	}
 
@@ -67,7 +53,7 @@ public class DkInternalStorage {
 		return DkFiles.loadAsString(makeFilePath(folderName, fileName));
 	}
 
-	public Bitmap loadAsBitmap(String folderName, String fileName) throws IOException {
+	public Bitmap loadAsBitmap(String folderName, String fileName) {
 		return DkBitmaps.load(makeFilePath(folderName, fileName));
 	}
 }

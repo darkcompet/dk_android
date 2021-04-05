@@ -19,14 +19,17 @@ import tool.compet.core.DkMaths;
  * other types (int, double...) then we will get an exception when load them with other type.
  */
 @SuppressLint("ApplySharedPref")
-public abstract class DkPreferenceStorageCompat implements DkStorageInf {
+public class DkPreferenceStorageCompat {
 	protected final SharedPreferences preference;
+
+	public DkPreferenceStorageCompat(Context context, String prefName) {
+		this.preference = context.getSharedPreferences(prefName, Context.MODE_PRIVATE);
+	}
 
 	public DkPreferenceStorageCompat(Context context, String prefName, int prefMode) {
 		this.preference = context.getSharedPreferences(prefName, prefMode);
 	}
 
-	@Override
 	public boolean exists(String key) {
 		return preference.contains(key);
 	}
@@ -35,7 +38,6 @@ public abstract class DkPreferenceStorageCompat implements DkStorageInf {
 	// Store/Load integer
 	//
 
-	@Override
 	public void setInt(String key, int value) {
 		preference.edit().putString(key, String.valueOf(value)).commit();
 	}
@@ -44,7 +46,6 @@ public abstract class DkPreferenceStorageCompat implements DkStorageInf {
 		preference.edit().putString(key, String.valueOf(value)).apply();
 	}
 
-	@Override
 	public int getInt(String key) {
 		return DkMaths.parseInt(getString(key));
 	}
@@ -53,7 +54,6 @@ public abstract class DkPreferenceStorageCompat implements DkStorageInf {
 	// Store/Load float
 	//
 
-	@Override
 	public void setFloat(String key, float value) {
 		preference.edit().putString(key, String.valueOf(value)).commit();
 	}
@@ -62,7 +62,6 @@ public abstract class DkPreferenceStorageCompat implements DkStorageInf {
 		preference.edit().putString(key, String.valueOf(value)).apply();
 	}
 
-	@Override
 	public float getFloat(String key) {
 		return DkMaths.parseFloat(getString(key));
 	}
@@ -71,7 +70,6 @@ public abstract class DkPreferenceStorageCompat implements DkStorageInf {
 	// Store/Load double
 	//
 
-	@Override
 	public void setDouble(String key, double value) {
 		preference.edit().putString(key, String.valueOf(value)).commit();
 	}
@@ -80,7 +78,6 @@ public abstract class DkPreferenceStorageCompat implements DkStorageInf {
 		preference.edit().putString(key, String.valueOf(value)).apply();
 	}
 
-	@Override
 	public double getDouble(String key) {
 		return DkMaths.parseDouble(getString(key));
 	}
@@ -89,7 +86,6 @@ public abstract class DkPreferenceStorageCompat implements DkStorageInf {
 	// Store/Load boolean
 	//
 
-	@Override
 	public void setBoolean(String key, boolean value) {
 		preference.edit().putString(key, String.valueOf(value)).commit();
 	}
@@ -98,7 +94,6 @@ public abstract class DkPreferenceStorageCompat implements DkStorageInf {
 		preference.edit().putString(key, String.valueOf(value)).apply();
 	}
 
-	@Override
 	public boolean getBoolean(String key) {
 		return DkMaths.parseBoolean(getString(key));
 	}
@@ -107,7 +102,6 @@ public abstract class DkPreferenceStorageCompat implements DkStorageInf {
 	// Store/Load long
 	//
 
-	@Override
 	public void setLong(String key, long value) {
 		preference.edit().putString(key, String.valueOf(value)).commit();
 	}
@@ -116,7 +110,6 @@ public abstract class DkPreferenceStorageCompat implements DkStorageInf {
 		preference.edit().putString(key, String.valueOf(value)).apply();
 	}
 
-	@Override
 	public long getLong(String key) {
 		return DkMaths.parseLong(getString(key));
 	}
@@ -125,7 +118,6 @@ public abstract class DkPreferenceStorageCompat implements DkStorageInf {
 	// Store/Load string
 	//
 
-	@Override
 	public void setString(String key, String value) {
 		preference.edit().putString(key, value).commit();
 	}
@@ -134,7 +126,6 @@ public abstract class DkPreferenceStorageCompat implements DkStorageInf {
 		preference.edit().putString(key, value).apply();
 	}
 
-	@Override
 	public String getString(String key) {
 		try {
 			// We perform try/catch to archive back-compability (load other types will cause exception)
@@ -150,7 +141,6 @@ public abstract class DkPreferenceStorageCompat implements DkStorageInf {
 	// Store/Load string set
 	//
 
-	@Override
 	public void setStringSet(String key, Set<String> values) {
 		preference.edit().putStringSet(key, values).commit();
 	}
@@ -159,7 +149,6 @@ public abstract class DkPreferenceStorageCompat implements DkStorageInf {
 		preference.edit().putStringSet(key, values).apply();
 	}
 
-	@Override
 	public Set<String> getStringSet(String key) {
 		try {
 			// We perform try/catch to archive back-compability (load other types will cause exception)
@@ -175,7 +164,6 @@ public abstract class DkPreferenceStorageCompat implements DkStorageInf {
 	// CRUD
 	//
 
-	@Override
 	public void delete(String key) {
 		preference.edit().remove(key).commit();
 	}
@@ -184,7 +172,6 @@ public abstract class DkPreferenceStorageCompat implements DkStorageInf {
 		preference.edit().remove(key).apply();
 	}
 
-	@Override
 	public void clear() {
 		preference.edit().clear().commit();
 	}

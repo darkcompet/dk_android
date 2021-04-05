@@ -105,7 +105,7 @@ public abstract class DkItemBuilder<T extends DkItemBuilder> {
 		item.dismissMenuImmediate = dismissMenuImmediate;
 
 		// Setup internal detector listener
-		view.detector.setListener(new MyGestureDetector.Listener() {
+		view.gestureDetector.setListener(new MyGestureDetector.Listener() {
 			@Override
 			public boolean onTranslate(float dx, float dy) {
 				callback.onTranslate(item, dx, dy);

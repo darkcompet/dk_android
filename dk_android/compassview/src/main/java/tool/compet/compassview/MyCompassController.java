@@ -39,10 +39,9 @@ class MyCompassController {
 		southInfo.addChild(new DkInfo(degreesKey, southDegrees));
 		westInfo.addChild(new DkInfo(degreesKey, westDegrees));
 
-		// get ring names
-		if (rings == null) {
-			rings = Collections.emptyList();
-		}
+		// Calculate ring names
+		rings = rings != null ? rings : Collections.emptyList();
+
 		for (DkRing ring : rings) {
 			double rotateDegrees = ring.getRotatedDegrees();
 			List<String> words = ring.getWords();

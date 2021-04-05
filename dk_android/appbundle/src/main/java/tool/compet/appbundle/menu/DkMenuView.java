@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import tool.compet.appbundle.R;
-import tool.compet.packages.storage.DkPreferenceStorageCompat;
+import tool.compet.appbundle.architecture.preference.DkPreferenceStorage;
 import tool.compet.core.DkRunner1;
 
 /**
@@ -31,7 +31,7 @@ import tool.compet.core.DkRunner1;
  * setViewAdapter()、setModelCreator()を呼び出して、ビューとモデルともにカストマイズしてください。
  */
 public abstract class DkMenuView<T extends DkMenuItemModel> extends ListView {
-	protected abstract DkPreferenceStorageCompat storage();
+	protected abstract DkPreferenceStorage storage();
 
 	private Context mContext;
 	private int mCurMenuRes;

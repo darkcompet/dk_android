@@ -34,8 +34,7 @@ public class DkBinder {
 				}
 				catch (Exception e) {
 					DkLogs.error(DkBinder.class, e);
-					DkLogs.complain(DkBinder.class, "Could not initialize field %s inside class %s",
-						field.getName(), target.getClass().getName());
+					DkLogs.complain(DkBinder.class, "Could not initialize field %s inside class %s", field.getName(), target.getClass().getName());
 				}
 			}
 		}
@@ -58,8 +57,7 @@ public class DkBinder {
 					}
 					catch (Exception e) {
 						DkLogs.error(DkBinder.class, e);
-						DkLogs.complain(DkBinder.class, "Could not invoke no-arg method %s inside class %s",
-							method.getName(), target.getClass().getName());
+						DkLogs.complain(DkBinder.class, "Could not invoke method `%s` inside class `%s`", method.getName(), target.getClass().getName());
 					}
 				});
 			}

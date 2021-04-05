@@ -23,10 +23,10 @@ public class DkDualTextItemBuilder extends DkItemBuilder<DkDualTextItemBuilder> 
 		int layoutRes;
 
 		if (style == STYLE_TEXT_LEFT) {
-			layoutRes = R.layout.item_dual_text_left;
+			layoutRes = R.layout.dk_boommenu_item_dual_text_left;
 		}
 		else if (style == STYLE_TEXT_RIGHT) {
-			layoutRes = R.layout.item_dual_text_right;
+			layoutRes = R.layout.dk_boommenu_item_dual_text_right;
 		}
 		else {
 			throw new RuntimeException("Invalid style");

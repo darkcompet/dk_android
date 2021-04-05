@@ -5,6 +5,7 @@
 package tool.compet.appbundle.dialog;
 
 import android.annotation.SuppressLint;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -18,10 +19,9 @@ import androidx.annotation.Nullable;
 
 import tool.compet.appbundle.R;
 import tool.compet.appbundle.architecture.simple.DkSimpleDialog;
-import tool.compet.appbundle.constant.ColorConst;
 import tool.compet.core.BuildConfig;
-import tool.compet.core.config.DkConfig;
 import tool.compet.core.DkLogs;
+import tool.compet.core.config.DkConfig;
 import tool.compet.core.view.DkTextViews;
 import tool.compet.core.view.DkViews;
 
@@ -33,8 +33,7 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
  * - Title, subtitle, message, buttons are gone
  * - Auto dismiss dialog when click to buttons or outside dialog
  */
-public class DkConfirmDialog extends DkSimpleDialog
-	implements View.OnClickListener, TheConfirmDialogInterface {
+public class DkConfirmDialog extends DkSimpleDialog implements View.OnClickListener, TheConfirmDialogInterface {
 	//
 	// Callback
 	//
@@ -43,12 +42,18 @@ public class DkConfirmDialog extends DkSimpleDialog
 	}
 
 	public static final String CONFIRM_TOPIC = ConfirmTopic.class.getName();
-
 	public static class ConfirmTopic {
 		public ConfirmCallback cancelCb;
 		public ConfirmCallback resetCb;
 		public ConfirmCallback okCb;
 	}
+
+	private static final int NORMAL = Color.parseColor("#333333");
+	private static final int ASK = Color.parseColor("#009b8b");
+	private static final int ERROR = Color.parseColor("#ff0000");
+	private static final int WARNING = Color.parseColor("#ff9500");
+	private static final int INFO = Color.parseColor("#493ebb");
+	private static final int SUCCESS = Color.parseColor("#00bb4d");
 
 	protected ViewGroup vBackground;
 	protected ViewGroup vForeground;
@@ -369,23 +374,23 @@ public class DkConfirmDialog extends DkSimpleDialog
 	}
 
 	public DkConfirmDialog asSuccess() {
-		return asType(ColorConst.SUCCESS);
+		return asType(SUCCESS);
 	}
 
 	public DkConfirmDialog asError() {
-		return asType(ColorConst.ERROR);
+		return asType(ERROR);
 	}
 
 	public DkConfirmDialog asWarning() {
-		return asType(ColorConst.WARNING);
+		return asType(WARNING);
 	}
 
 	public DkConfirmDialog asAsk() {
-		return asType(ColorConst.ASK);
+		return asType(ASK);
 	}
 
 	public DkConfirmDialog asInfo() {
-		return asType(ColorConst.INFO);
+		return asType(INFO);
 	}
 
 	public DkConfirmDialog asType(int color) {

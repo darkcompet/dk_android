@@ -14,7 +14,7 @@ public class DkImageOnlyItemBuilder extends DkItemBuilder<DkImageOnlyItemBuilder
 
 	@Override
 	protected DkBaseItemView getView(Context context) {
-		DkImageOnlyItemView v = super.prepareView(context, R.layout.item_image_only);
+		DkImageOnlyItemView v = super.prepareView(context, R.layout.dk_boommenu_item_image_only);
 
 		if (iconRes > 0) {
 			v.ivIcon.setImageResource(iconRes);

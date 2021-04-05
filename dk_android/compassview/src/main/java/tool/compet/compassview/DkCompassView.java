@@ -47,7 +47,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 
 	private final Context context;
 
-	private MyCompassController compassHelper;
+	private MyCompassController controller;
 	private DkDoubleFingerDetector detector;
 	private ValueAnimator countdownAnimator;
 	private DkCompassView.Listener listener;
@@ -157,7 +157,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 
 		this.context = context;
 
-		compassHelper = new MyCompassController();
+		controller = new MyCompassController();
 
 		countdownAnimator = new ValueAnimator();
 		countdownAnimator.setDuration(1000);
@@ -320,7 +320,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 	}
 
 	public DkInfo readCurInfo() {
-		return compassHelper.readInfo(context, nextAnimateDegrees, buildCompassRings, getPoleLongNames());
+		return controller.readInfo(context, nextAnimateDegrees, buildCompassRings, getPoleLongNames());
 	}
 
 	/**
@@ -979,7 +979,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 		compassSemiColor = handlerColor = DkColors.toSemiColor(color);
 
 		countdownAnimator.setIntValues(color, compassSemiColor);
-		countdownAnimator.setEvaluator(compassHelper.getArgbEvaluator());
+		countdownAnimator.setEvaluator(controller.getArgbEvaluator());
 		countdownAnimator.removeAllUpdateListeners();
 		countdownAnimator.addUpdateListener((va) -> {
 			invalidate();

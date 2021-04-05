@@ -20,10 +20,10 @@ import tool.compet.core.stream.DkObservable;
 /**
  * Provide sign in with Google service. That is, user can use Gmail to login, logout...
  */
-public class DkGoogleLogInManager {
+public class DkGoogleAuthManager {
 	private final GoogleSignInClient googleSignInClient;
 
-	public DkGoogleLogInManager(Context context, String googleSignInClientId) {
+	public DkGoogleAuthManager(Context context, String googleSignInClientId) {
 		GoogleSignInOptions opt = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
 			.requestIdToken(googleSignInClientId)
 			.requestEmail()

@@ -52,7 +52,7 @@ public final class DkBitmaps {
 	}
 
 	public static boolean save(Bitmap bitmap, File file) throws IOException {
-		if (!file.exists()) {
+		if (! file.exists()) {
 			DkFiles.createFile(file);
 		}
 		OutputStream os = new FileOutputStream(file);

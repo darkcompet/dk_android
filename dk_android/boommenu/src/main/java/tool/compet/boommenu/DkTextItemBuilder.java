@@ -30,19 +30,19 @@ public class DkTextItemBuilder extends DkItemBuilder<DkTextItemBuilder> {
 		DkTextItemView itemView;
 
 		if (style == STYLE_TEXT_INSIDE_ICON) {
-			layoutRes = R.layout.item_text_inside;
+			layoutRes = R.layout.dk_boommenu_item_text_inside;
 		}
 		else if (style == STYLE_TEXT_LEFT_OUT_ICON) {
-			layoutRes = R.layout.item_text_left;
+			layoutRes = R.layout.dk_boommenu_item_text_left;
 		}
 		else if (style == STYLE_TEXT_RIGHT_OUT_ICON) {
-			layoutRes = R.layout.item_text_right;
+			layoutRes = R.layout.dk_boommenu_item_text_right;
 		}
 		else if (style == STYLE_TEXT_TOP_OUT_ICON) {
-			layoutRes = R.layout.item_text_top;
+			layoutRes = R.layout.dk_boommenu_item_text_top;
 		}
 		else if (style == STYLE_TEXT_BOTTOM_OUT_ICON) {
-			layoutRes = R.layout.item_text_bottom;
+			layoutRes = R.layout.dk_boommenu_item_text_bottom;
 		}
 		else {
 			throw new RuntimeException("Invalid style");

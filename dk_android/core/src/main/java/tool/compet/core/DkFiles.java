@@ -11,9 +11,11 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -27,17 +29,19 @@ import java.util.List;
 public class DkFiles {
 	// region Java core
 
-	public static boolean createFile(String filePath) throws IOException {
+	public static boolean createFile(String filePath) {
 		return createFile(new File(filePath));
 	}
 
 	/**
 	 * Create file deeply (include its parent directory if not exist) if not exist.
 	 *
-	 * @return true if and only if file was newly created, otherwise false.
+	 * @return true if file was existed, or new file was created. Otherwise false.
 	 */
-	public static boolean createFile(File file) throws IOException {
-		if (! file.exists()) {
+	public static boolean createFile(File file) {
+		if (file.exists()) return true;
+
+		try {
 			File parent = file.getParentFile();
 
 			if (parent != null && ! parent.exists() && parent.mkdirs()) {
@@ -47,7 +51,9 @@ public class DkFiles {
 			}
 			return file.createNewFile();
 		}
-		return false;
+		catch (Exception e) {
+			return false;
+		}
 	}
 
 	public static boolean createDir(String dirPath) {
@@ -60,9 +66,8 @@ public class DkFiles {
 	 * @return true if new directory was created or given directory was existed, otherwise false.
 	 */
 	public static boolean createDir(File dir) {
-		if (dir.exists()) {
-			return true;
-		}
+		if (dir.exists()) return true;
+
 		File parent = dir.getParentFile();
 
 		if (parent != null && ! parent.exists() && parent.mkdirs()) {
@@ -80,6 +85,7 @@ public class DkFiles {
 	/**
 	 * Delete file or directory. Note that, Java does not delete dirty folder,
 	 * so first, we need delete dirs on the parent path of this file.
+	 * @return true if file not exist or file was deleted. Otherwise false.
 	 */
 	public static boolean delete(File file) {
 		if (file == null || ! file.exists()) {
@@ -130,8 +136,35 @@ public class DkFiles {
 		return sb.toString();
 	}
 
+	public static byte[] loadAsBytes(String filePath) {
+		try {
+			createFile(filePath);
+			return loadAsBytes(new FileInputStream(filePath));
+		}
+		catch (FileNotFoundException e) {
+			return null;
+		}
+	}
+
+	public static byte[] loadAsBytes(InputStream is) {
+		try {
+			int capacity = 2 << 13;
+			DkByteArrayList result = new DkByteArrayList(capacity);
+			byte[] buffer = new byte[capacity];
+
+			while (is.read(buffer) != -1) {
+				result.addAll(buffer);
+			}
+
+			return result.toArray();
+		}
+		catch (Exception e) {
+			return null;
+		}
+	}
+
 	public static BufferedReader newUtf8Reader(File file) throws Exception {
-		return new BufferedReader(new InputStreamReader(new FileInputStream(file), Charset.forName("UTF_8")));
+		return new BufferedReader(new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8")));
 	}
 
 	public static BufferedWriter newUtf8Writer(File file) throws Exception {
@@ -187,7 +220,7 @@ public class DkFiles {
 
 	public static String makePath(String... names) {
 		if (names == null) {
-			return "";
+			return DkConst.EMPTY_STRING;
 		}
 
 		StringBuilder sb = new StringBuilder();

@@ -27,7 +27,7 @@ public class DkBaseItemView extends ConstraintLayout implements View.OnTouchList
 	int unableColor;
 	boolean useRippleEffect;
 
-	MyGestureDetector detector;
+	MyGestureDetector gestureDetector;
 
 	public DkBaseItemView(Context context) {
 		this(context, null);
@@ -40,22 +40,22 @@ public class DkBaseItemView extends ConstraintLayout implements View.OnTouchList
 	public DkBaseItemView(Context context, AttributeSet attrs, int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
 
-		detector = new MyGestureDetector(context);
+		gestureDetector = new MyGestureDetector(context);
 		setOnTouchListener(this);
 	}
 
 	@Override
 	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-		Drawable background = isCircleShape ?
-			DkDrawables.createCircleBackground(
+		Drawable background = isCircleShape
+			? DkDrawables.createCircleBackground(
 				useRippleEffect,
 				getResources(),
 				w,
 				h,
 				normalColor,
 				pressedColor,
-				unableColor) :
-			DkDrawables.createRectBackground(
+				unableColor)
+			: DkDrawables.createRectBackground(
 				useRippleEffect,
 				getResources(),
 				w,
@@ -73,7 +73,7 @@ public class DkBaseItemView extends ConstraintLayout implements View.OnTouchList
 
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
-		detector.onTouchEvent(v, event);
+		gestureDetector.onTouchEvent(v, event);
 		return super.onTouchEvent(event);
 	}
 }
