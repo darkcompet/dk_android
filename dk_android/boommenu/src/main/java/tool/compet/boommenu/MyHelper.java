@@ -26,9 +26,6 @@ class MyHelper {
 		}
 
 		do {
-//			if (layout instanceof CoordinatorLayout) {
-//				return layout;
-//			}
 			if (layout instanceof FrameLayout) {
 				if (layout.getId() == android.R.id.content) {
 					return layout;

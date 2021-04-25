@@ -54,7 +54,7 @@ class MyGrammarHelper {
 		return singleQuote + value.toString().replace(singleQuote, doubleQuote) + singleQuote;
 	}
 
-	static List<String> wrapPrimitiveValues(Iterable values) {
+	static List<String> wrapPrimitiveValues(Iterable<?> values) {
 		List<String> items = new ArrayList<>();
 		for (Object value : values) {
 			items.add(wrapPrimitiveValue(value));
@@ -62,17 +62,13 @@ class MyGrammarHelper {
 		return items;
 	}
 
-	static Object todbvalue(Object obj) {
+	static Object toDbValue(Object obj) {
 		if (obj == null) {
 			return null;
 		}
-		switch (DkTypeHelper.getTypeMasked(obj.getClass())) {
-			case DkTypeHelper.TYPE_BOOLEAN_MASKED: {
-				return ((boolean) obj) ? 1 : 0;
-			}
-			default: {
-				return obj;
-			}
+		if (DkTypeHelper.getTypeMasked(obj.getClass()) == DkTypeHelper.TYPE_BOOLEAN_MASKED) {
+			return ((boolean) obj) ? 1 : 0;
 		}
+		return obj;
 	}
 }

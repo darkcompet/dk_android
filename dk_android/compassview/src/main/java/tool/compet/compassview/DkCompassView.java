@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import tool.compet.core.DkColors;
 import tool.compet.core.config.DkConfig;
@@ -77,6 +78,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 	private double nextAnimateDegrees;
 	private double lastAnimatedDegrees;
 	private List<DkRing> buildCompassRings;
+	private Locale buildCompassLocale;
 
 	private final Paint linePaint;
 	private final Paint fillPaint;
@@ -198,7 +200,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 		// build compass if we got a request before
 		if (isRequestBuildCompass) {
 			isRequestBuildCompass = false;
-			buildCompassActual();
+			buildCompassActual(buildCompassLocale);
 			return;
 		}
 		// wait until compass is built
@@ -259,7 +261,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 			final float startY = (float) (boardCy + handlerToCenter - this.handlerRadius);
 			final float stopY = pointerStopY;
 			//			final float stopY = mPointerStopY * (1 - mCompassBitmapZoomLevel);
-			Path handlerArrow = DkCompasses.newArrowAt(boardCx, stopY, arrowDim, arrowDim);
+			Path handlerArrow = DkCompassHelper.newArrowAt(boardCx, stopY, arrowDim, arrowDim);
 			canvas.save();
 			canvas.rotate((float) (animateDegrees + pointerDegrees), boardCx, boardCy);
 			canvas.drawLine(boardCx, startY, boardCx, stopY, paint);
@@ -303,11 +305,12 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 	 * This method just call invalidate() since we need the view's dimension to build compass.
 	 * Compass will be built as soon as possible when the view is laid out.
 	 */
-	public void buildCompass(List<DkRing> rings) {
-		buildCompassRings = rings;
+	public void buildCompass(List<DkRing> rings, Locale locale) {
+		this.buildCompassRings = rings;
+		this.buildCompassLocale = locale;
 
 		if (getWidth() > 0 && getHeight() > 0) {
-			buildCompassActual();
+			buildCompassActual(locale);
 		}
 		else {
 			isRequestBuildCompass = true;
@@ -316,7 +319,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 	}
 
 	public double calcPointerDegreesOnRotatedCompass() {
-		return DkCompasses.calcDisplayAngle(pointerDegrees + compassDegreesInPointMode);
+		return DkCompassHelper.calcDisplayAngle(pointerDegrees + compassDegreesInPointMode);
 	}
 
 	public DkInfo readCurInfo() {
@@ -362,7 +365,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 		switch (event.getActionMasked()) {
 			case MotionEvent.ACTION_DOWN: {
 				lastStopTime = System.currentTimeMillis();
-				touchStartDegrees = DkCompasses.point2degrees(x, y, boardCenterX, boardCenterY);
+				touchStartDegrees = DkCompassHelper.point2degrees(x, y, boardCenterX, boardCenterY);
 				isTouchInsideHandler = isInsideHandlers(x, y);
 				handlerColor = isTouchInsideHandler ? compassColor : compassSemiColor;
 				if (isTouchInsideHandler) {
@@ -383,7 +386,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 				}
 
 				lastStopTime = System.currentTimeMillis();
-				double touchEndDegrees = DkCompasses.point2degrees(x, y, boardCenterX, boardCenterY);
+				double touchEndDegrees = DkCompassHelper.point2degrees(x, y, boardCenterX, boardCenterY);
 
 				if (compassMode == MODE_ROTATE) {
 					handlerRotatedDegrees = touchEndDegrees;
@@ -539,13 +542,13 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 		return false;
 	}
 
-	private void buildCompassActual() {
+	private void buildCompassActual(Locale locale) {
 		isBuildingCompass = true;
 
 		DkObservable
 			.fromExecution(() -> {
 				calcAttributes();
-				return buildCompassInternal(buildCompassRings);
+				return buildCompassInternal(buildCompassRings, locale);
 			})
 			.scheduleInBackgroundAndObserveOnAndroidMainThread()
 			.doOnNext(bitmap -> {
@@ -586,7 +589,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 		// navigation Ox, Oy
 		naviArrowStartY = boardCenterY + boardInnerRadius + (boardPadding >> 1);
 		naviArrowStopY = boardCenterY - boardInnerRadius - (boardPadding >> 1);
-		naviArrow = DkCompasses.newArrowAt(boardCenterX, naviArrowStopY, arrowTall, arrowTall);
+		naviArrow = DkCompassHelper.newArrowAt(boardCenterX, naviArrowStopY, arrowTall, arrowTall);
 	}
 
 	private void fitCompassInsideBoard() {
@@ -612,7 +615,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 		lastAnimatedDegrees = 0;
 	}
 
-	private Bitmap buildCompassInternal(List<DkRing> rings) {
+	private Bitmap buildCompassInternal(List<DkRing> rings, Locale locale) {
 		// use to determine default values (padding, height...)
 		final String defaultText = "360";
 		final Paint textPaint = this.textPaint;
@@ -676,10 +679,10 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 					String word = words.get(i);
 
 					if (ring.isWordLowerCase()) {
-						word = word.toLowerCase(DkConfig.app.locale);
+						word = word.toLowerCase(locale);
 					}
 					else if (ring.isWordUpperCase()) {
-						word = word.toUpperCase(DkConfig.app.locale);
+						word = word.toUpperCase(locale);
 					}
 
 					int endLength = ring.getShownCharCount();
@@ -754,7 +757,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 		Bitmap compass = Bitmap.createBitmap(cmpDiameter, cmpDiameter, Bitmap.Config.ALPHA_8);
 		Canvas canvas = new Canvas(compass);
 
-		DkLogs.info(this, "compass size: " + DkBitmaps.getSize(compass));
+		DkLogs.info(this, "compass size: " + DkBitmaps.size(compass));
 
 		// obtain compass radius and center coordinate
 		final int cmpSemiWidth = compass.getWidth() >> 1, cmpSemiHeight = compass.getHeight() >> 1;
@@ -765,7 +768,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 		// draw 4-arrow-indicator for north, east, south and west direction
 		canvas.save();
 		for (int i = 0; i < 4; ++i) {
-			Path arrow = DkCompasses.newArrowAt(cmpSemiWidth, 0, defaultSpace, indicatorHeight);
+			Path arrow = DkCompassHelper.newArrowAt(cmpSemiWidth, 0, defaultSpace, indicatorHeight);
 			canvas.drawPath(arrow, fillPaint);
 			canvas.rotate(90, cmpSemiWidth, cmpSemiHeight);
 		}
@@ -871,10 +874,10 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 				String word = words.get(wordInd);
 
 				if (ring.isWordLowerCase()) {
-					word = word.toLowerCase(DkConfig.app.locale);
+					word = word.toLowerCase(locale);
 				}
 				else if (ring.isWordUpperCase()) {
-					word = word.toUpperCase(DkConfig.app.locale);
+					word = word.toUpperCase(locale);
 				}
 
 				int endLength = ring.getShownCharCount();

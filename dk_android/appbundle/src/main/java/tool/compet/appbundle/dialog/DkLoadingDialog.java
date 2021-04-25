@@ -14,13 +14,13 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import tool.compet.appbundle.DkCompactDialog;
 import tool.compet.appbundle.R;
-import tool.compet.appbundle.architecture.simple.DkSimpleDialog;
 
 /**
  * You can use this to show or close waiting dialog, or extends this to customize behaviors.
  */
-public class DkLoadingDialog extends DkSimpleDialog {
+public class DkLoadingDialog extends DkCompactDialog {
 	protected ProgressBar pbLoading;
 	protected TextView tvMessage;
 

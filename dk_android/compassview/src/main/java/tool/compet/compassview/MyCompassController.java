@@ -24,14 +24,14 @@ class MyCompassController {
 		root.addChild(northInfo).addChild(eastInfo).addChild(southInfo).addChild(westInfo);
 
 		final double north = degrees;
-		final double east = DkCompasses.calcDisplayAngle(north + 90);
-		final double south = DkCompasses.calcDisplayAngle(north + 180);
-		final double west = DkCompasses.calcDisplayAngle(north + 270);
+		final double east = DkCompassHelper.calcDisplayAngle(north + 90);
+		final double south = DkCompassHelper.calcDisplayAngle(north + 180);
+		final double west = DkCompassHelper.calcDisplayAngle(north + 270);
 
-		String northDegrees = DkCompasses.calcOneDecimalDisplayAngle(north);
-		String eastDegrees = DkCompasses.calcOneDecimalDisplayAngle(east);
-		String southDegrees = DkCompasses.calcOneDecimalDisplayAngle(south);
-		String westDegrees = DkCompasses.calcOneDecimalDisplayAngle(west);
+		String northDegrees = DkCompassHelper.calcOneDecimalDisplayAngle(north);
+		String eastDegrees = DkCompassHelper.calcOneDecimalDisplayAngle(east);
+		String southDegrees = DkCompassHelper.calcOneDecimalDisplayAngle(south);
+		String westDegrees = DkCompassHelper.calcOneDecimalDisplayAngle(west);
 		String degreesKey = context.getString(R.string.degrees);
 
 		northInfo.addChild(new DkInfo(degreesKey, northDegrees));
@@ -47,13 +47,13 @@ class MyCompassController {
 			List<String> words = ring.getWords();
 			final int wordCnt = words.size();
 			double delta = 360.0 / wordCnt;
-			double offset = DkCompasses.calcDisplayAngle(-delta / 2 + rotateDegrees);
+			double offset = DkCompassHelper.calcDisplayAngle(-delta / 2 + rotateDegrees);
 			String ringName = ring.ringName;
 
 			for (int i = 0; i < wordCnt; ++i) {
 				String word = words.get(i);
-				double fromDegrees = DkCompasses.calcDisplayAngle(offset + i * delta);
-				double toDegrees = DkCompasses.calcDisplayAngle(fromDegrees + delta);
+				double fromDegrees = DkCompassHelper.calcDisplayAngle(offset + i * delta);
+				double toDegrees = DkCompassHelper.calcDisplayAngle(fromDegrees + delta);
 
 				collectInfo(northInfo, ringName, north, fromDegrees, toDegrees, word);
 				collectInfo(eastInfo, ringName, east, fromDegrees, toDegrees, word);

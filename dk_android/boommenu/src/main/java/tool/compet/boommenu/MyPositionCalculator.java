@@ -9,7 +9,7 @@ import android.graphics.RectF;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import tool.compet.core.DkMaths;
@@ -31,7 +31,7 @@ class MyPositionCalculator implements DkPositionCalculator {
 	}
 
 	@Override
-	public RectF calcStartEndPositions(ArrayList<DkItem> items, View anchor, ViewGroup board,
+	public RectF calcStartEndPositions(List<DkItem> items, View anchor, ViewGroup board,
 		DkShape shape, DkGravity gravity, float horizontalOffset, float verticalOffset) {
 		// Calculate size for cluster, and positions of each item in the bounds
 		float[] size = calcBoundsSizeAndItemsPositionInBounds(items, shape);
@@ -108,7 +108,7 @@ class MyPositionCalculator implements DkPositionCalculator {
 		return new RectF(offset[0], offset[1], offset[0] + size[0], offset[1] + size[1]);
 	}
 
-	private float[] calcBoundsSizeAndItemsPositionInBounds(ArrayList<DkItem> items, DkShape shape) {
+	private float[] calcBoundsSizeAndItemsPositionInBounds(List<DkItem> items, DkShape shape) {
 		final float[] size = new float[2];
 		final int N = items.size();
 
@@ -402,7 +402,7 @@ class MyPositionCalculator implements DkPositionCalculator {
 		return (float) ((min(half_w, half_h) + hypot(half_w, half_h)) / 2);
 	}
 
-	private float[] calcItemPositionsInBoard(ArrayList<DkItem> items, View anchor, ViewGroup board, DkGravity gravity,
+	private float[] calcItemPositionsInBoard(List<DkItem> items, View anchor, ViewGroup board, DkGravity gravity,
 		float[] bounds, float horizontalOffset, float verticalOffset) {
 
 		final int bw = board.getWidth();
@@ -520,6 +520,6 @@ class MyPositionCalculator implements DkPositionCalculator {
 			}
 		}
 
-		return new float[]{left, top};
+		return new float[] {left, top};
 	}
 }

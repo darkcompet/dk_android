@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+~ Copyright (c) 2017-2020 DarkCompet. All rights reserved.
+-->
+
+<FrameLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:id="@+id/dk_background"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:layout_gravity="center"
+	android:clickable="true"
+	android:focusable="true">
+
+	<androidx.cardview.widget.CardView
+		android:id="@+id/dk_foreground"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center"
+		android:padding="0dp"
+		app:cardCornerRadius="12dp"
+		app:cardElevation="8dp"
+		app:cardBackgroundColor="?attr/dk_color_layout_bkg">
+
+		<androidx.constraintlayout.widget.ConstraintLayout
+			android:layout_width="match_parent"
+			android:layout_height="match_parent">
+
+			<!-- Header -->
+
+			<LinearLayout
+				android:id="@+id/dk_header"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="vertical"
+				android:background="?attr/colorPrimary"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintTop_toTopOf="parent"
+				app:layout_constraintBottom_toTopOf="@id/dk_body"
+				android:padding="8dp">
+
+				<ImageView
+					android:id="@+id/dk_icon"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:background="@drawable/ic_library"
+					android:contentDescription="@null"
+					android:layout_gravity="center_horizontal"
+					android:visibility="visible" />
+
+				<TextView
+					android:id="@+id/dk_title"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:background="?attr/colorPrimary"
+					android:textColor="@color/white"
+					android:gravity="center"
+					android:paddingTop="8dp"
+					android:visibility="visible"
+					android:text="Title" />
+
+			</LinearLayout>
+
+			<!-- Body -->
+
+			<FrameLayout
+				android:id="@+id/dk_body"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/dk_header"
+				app:layout_constraintBottom_toTopOf="@id/dk_footer"
+				android:padding="8dp">
+
+				<TextView
+					android:id="@+id/dk_message"
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"
+					android:gravity="left|top"
+					android:layout_gravity="center"
+					android:minLines="5"
+					android:text="Message"
+					android:visibility="visible" />
+
+			</FrameLayout>
+
+			<!-- Footer (buttons) -->
+
+			<androidx.constraintlayout.widget.ConstraintLayout
+				android:id="@+id/dk_footer"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/dk_body"
+				app:layout_constraintBottom_toBottomOf="parent">
+
+				<TextView
+					android:id="@+id/dk_ok"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					app:layout_constraintHorizontal_weight="0.6"
+					app:layout_constraintStart_toStartOf="parent"
+					app:layout_constraintEnd_toEndOf="parent"
+					app:layout_constraintTop_toTopOf="parent"
+					app:layout_constraintBottom_toTopOf="@id/dk_reset"
+					android:gravity="center"
+					android:padding="8dp"
+					android:layout_margin="8dp"
+					android:background="?attr/colorPrimary"
+					android:text="@string/ok"
+					android:textColor="@color/white"
+					android:visibility="visible" />
+
+				<TextView
+					android:id="@+id/dk_reset"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					app:layout_constraintHorizontal_weight="0.6"
+					app:layout_constraintStart_toStartOf="parent"
+					app:layout_constraintEnd_toEndOf="parent"
+					app:layout_constraintTop_toBottomOf="@id/dk_ok"
+					app:layout_constraintBottom_toTopOf="@id/dk_cancel"
+					android:gravity="center"
+					android:padding="8dp"
+					android:layout_margin="8dp"
+					android:background="?attr/colorPrimary"
+					android:text="@string/reset"
+					android:textColor="@color/white"
+					android:visibility="visible" />
+
+				<TextView
+					android:id="@+id/dk_cancel"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					app:layout_constraintHorizontal_weight="0.6"
+					app:layout_constraintStart_toStartOf="parent"
+					app:layout_constraintEnd_toEndOf="parent"
+					app:layout_constraintTop_toBottomOf="@id/dk_reset"
+					app:layout_constraintBottom_toBottomOf="parent"
+					android:gravity="center"
+					android:padding="8dp"
+					android:layout_margin="8dp"
+					android:background="?attr/colorPrimary"
+					android:text="@string/cancel"
+					android:textColor="@color/white"
+					android:visibility="visible" />
+
+			</androidx.constraintlayout.widget.ConstraintLayout>
+
+		</androidx.constraintlayout.widget.ConstraintLayout>
+
+	</androidx.cardview.widget.CardView>
+
+</FrameLayout>

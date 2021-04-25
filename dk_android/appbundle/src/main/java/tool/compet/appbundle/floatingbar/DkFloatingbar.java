@@ -20,6 +20,7 @@ import android.view.animation.Interpolator;
 
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 
+import tool.compet.core.DkRunner;
 import tool.compet.core.view.DkViews;
 
 import static android.graphics.Color.parseColor;
@@ -27,14 +28,10 @@ import static android.graphics.Color.parseColor;
 /**
  * This class uses 2 inputs: a view (bar) and ancestor ViewGroup of the view.
  * Perform your own animation on the bar with support of animation setting.
- * <p></p>
- * Here is usage example:
- * <pre>
- *
- * </pre>
  */
-public abstract class DkFloatingbar implements View.OnTouchListener {
-	protected abstract MyFloatingbarManager getManager();
+@SuppressWarnings("unchecked")
+public abstract class DkFloatingbar<T> implements View.OnTouchListener {
+	protected abstract MyFloatingbarManager manager();
 
 	protected static final long INFINITE_DURATION = -1;
 
@@ -51,16 +48,16 @@ public abstract class DkFloatingbar implements View.OnTouchListener {
 
 	// Use parent to animate this bar
 	protected final ViewGroup parent;
-	// Actual bar view
+	// Layout of the bar
 	protected View bar;
 	// Duration for each animation
 	protected long duration = INFINITE_DURATION;
 	// Specify whether this bar be dismiss on touch
 	protected boolean isDismissOnTouch = true;
 	// Callback after shown
-	protected Runnable onShownCallback;
+	protected DkRunner onShownCallback;
 	// Callback on Dismiss
-	protected Runnable onDismissCallback;
+	protected DkRunner onDismissCallback;
 	// Animation
 	protected static Interpolator fastOutSlowIn = new FastOutSlowInInterpolator();
 
@@ -84,7 +81,7 @@ public abstract class DkFloatingbar implements View.OnTouchListener {
 		});
 	}
 
-	private MyFloatingbarManager.Callback mActionCallback = new MyFloatingbarManager.Callback() {
+	private final MyFloatingbarManager.Callback actionCallback = new MyFloatingbarManager.Callback() {
 		@Override
 		public void show() {
 			handler.sendMessageDelayed(Message.obtain(handler, MSG_SHOW, DkFloatingbar.this), 0);
@@ -99,19 +96,19 @@ public abstract class DkFloatingbar implements View.OnTouchListener {
 	public DkFloatingbar(Context context, ViewGroup parent, View bar) {
 		this.parent = parent;
 		this.bar = bar;
-		accessibilityManager = (AccessibilityManager) context.getSystemService(Context.ACCESSIBILITY_SERVICE);
+		this.accessibilityManager = (AccessibilityManager) context.getSystemService(Context.ACCESSIBILITY_SERVICE);
 
 		bar.setOnTouchListener(this);
 	}
 
 	public void show() {
-		// just tell manager schedule to show this bar
-		getManager().show(duration, mActionCallback);
+		// Just tell manager schedule to show this bar
+		manager().show(duration, actionCallback);
 	}
 
 	public void dismiss() {
-		// just tell manager schedule to dismiss this bar
-		getManager().dismiss(mActionCallback);
+		// Just tell manager schedule to dismiss this bar
+		manager().dismiss(actionCallback);
 	}
 
 	@Override
@@ -130,6 +127,116 @@ public abstract class DkFloatingbar implements View.OnTouchListener {
 			}
 		}
 		return eat;
+	}
+
+	public T asError() {
+		return color(TYPE_ERROR);
+	}
+
+	public T asWarning() {
+		return color(TYPE_WARNING);
+	}
+
+	public T asAsk() {
+		return color(TYPE_ASK);
+	}
+
+	public T asSuccess() {
+		return color(TYPE_SUCCESS);
+	}
+
+	public T asInfo() {
+		return color(TYPE_INFO);
+	}
+
+	public T color(int color) {
+		bar.setBackgroundColor(color);
+		return (T) this;
+	}
+
+	/**
+	 * Override this method to setup initial state of bar and customize ValueAnimator for in-animation.
+	 */
+	protected ValueAnimator prepareInAnimation() {
+		int height = bar.getHeight();
+		bar.setTranslationY(height);
+
+		ValueAnimator va = new ValueAnimator();
+		va.setIntValues(height, 0);
+		va.setDuration(200);
+		va.setInterpolator(fastOutSlowIn);
+
+		return va;
+	}
+
+	/**
+	 * Override this method to setup initial state of bar and customize ValueAnimator for out-animation.
+	 */
+	protected ValueAnimator prepareOutAnimation() {
+		ValueAnimator va = new ValueAnimator();
+		va.setIntValues(0, bar.getHeight());
+		va.setDuration(200);
+		va.setInterpolator(fastOutSlowIn);
+
+		return va;
+	}
+
+	/**
+	 * Override this method to customize bar while updateing animation.
+	 */
+	protected void onAnimationUpdate(ValueAnimator animation) {
+		int y = (int) animation.getAnimatedValue();
+		bar.setTranslationY(y);
+	}
+
+	// region Private
+
+	private void animateViewIn() {
+		ValueAnimator va = prepareInAnimation();
+		va.addListener(new AnimatorListenerAdapter() {
+			@Override
+			public void onAnimationEnd(Animator animation) {
+				onViewShown();
+			}
+		});
+		va.addUpdateListener(this::onAnimationUpdate);
+		va.start();
+	}
+
+	private void onViewShown() {
+		// tell manager when this view is shown
+		manager().onViewShown(actionCallback);
+
+		if (onShownCallback != null) {
+			onShownCallback.run();
+		}
+	}
+
+	private void animateViewOut() {
+		ValueAnimator va = prepareOutAnimation();
+		va.addListener(new AnimatorListenerAdapter() {
+			@Override
+			public void onAnimationEnd(Animator animation) {
+				onViewDismissed();
+			}
+		});
+		va.addUpdateListener(this::onAnimationUpdate);
+		va.start();
+	}
+
+	private void onViewDismissed() {
+		// tell manager when this view is dismissed
+		manager().onViewDismissed(actionCallback);
+
+		if (onDismissCallback != null) {
+			onDismissCallback.run();
+		}
+
+		// remove view from parent
+		ViewParent parent = bar.getParent();
+		if (parent instanceof ViewGroup) {
+			((ViewGroup) parent).removeView(bar);
+		}
 	}
 
 	private void showView() {
@@ -177,86 +284,5 @@ public abstract class DkFloatingbar implements View.OnTouchListener {
 		}
 	}
 
-	/**
-	 * Override this method to setup initial state of bar and customize ValueAnimator for in-animation.
-	 */
-	protected ValueAnimator prepareInAnimation() {
-		int height = bar.getHeight();
-		bar.setTranslationY(height);
-
-		ValueAnimator va = new ValueAnimator();
-		va.setIntValues(height, 0);
-		va.setDuration(200);
-		va.setInterpolator(fastOutSlowIn);
-
-		return va;
-	}
-
-	/**
-	 * Override this method to setup initial state of bar and customize ValueAnimator for out-animation.
-	 */
-	protected ValueAnimator prepareOutAnimation() {
-		ValueAnimator va = new ValueAnimator();
-		va.setIntValues(0, bar.getHeight());
-		va.setDuration(200);
-		va.setInterpolator(fastOutSlowIn);
-
-		return va;
-	}
-
-	/**
-	 * Override this method to customize bar while updateing animation.
-	 */
-	protected void onAnimationUpdate(ValueAnimator animation) {
-		int y = (int) animation.getAnimatedValue();
-		bar.setTranslationY(y);
-	}
-
-	private void animateViewIn() {
-		ValueAnimator va = prepareInAnimation();
-		va.addListener(new AnimatorListenerAdapter() {
-			@Override
-			public void onAnimationEnd(Animator animation) {
-				onViewShown();
-			}
-		});
-		va.addUpdateListener(this::onAnimationUpdate);
-		va.start();
-	}
-
-	private void onViewShown() {
-		// tell manager when this view is shown
-		getManager().onViewShown(mActionCallback);
-
-		if (onShownCallback != null) {
-			onShownCallback.run();
-		}
-	}
-
-	private void animateViewOut() {
-		ValueAnimator va = prepareOutAnimation();
-		va.addListener(new AnimatorListenerAdapter() {
-			@Override
-			public void onAnimationEnd(Animator animation) {
-				onViewDismissed();
-			}
-		});
-		va.addUpdateListener(this::onAnimationUpdate);
-		va.start();
-	}
-
-	private void onViewDismissed() {
-		// tell manager when this view is dismissed
-		getManager().onViewDismissed(mActionCallback);
-
-		if (onDismissCallback != null) {
-			onDismissCallback.run();
-		}
-
-		// remove view from parent
-		ViewParent parent = bar.getParent();
-		if (parent instanceof ViewGroup) {
-			((ViewGroup) parent).removeView(bar);
-		}
-	}
+	// endregion Private
 }

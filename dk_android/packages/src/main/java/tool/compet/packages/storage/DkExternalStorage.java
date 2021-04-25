@@ -9,20 +9,7 @@ import android.os.Environment;
 import java.io.File;
 
 public class DkExternalStorage {
-	private static DkExternalStorage INS;
-
-	private DkExternalStorage() {
-	}
-
-	public static DkExternalStorage getIns() {
-		if (INS == null) {
-			synchronized (DkExternalStorage.class) {
-				if (INS == null) {
-					INS = new DkExternalStorage();
-				}
-			}
-		}
-		return INS;
+	public DkExternalStorage() {
 	}
 
 	public File getDir() {

@@ -20,7 +20,7 @@ import static tool.compet.core.BuildConfig.DEBUG;
  */
 public class DkLogs {
 	// Enable this to log back trace of current thread
-	public static boolean logBackTrace = true;
+	public static boolean logBackTrace = false;
 
 	// Log types
 	private static final String TYPE_DEBUG = "debug";

@@ -5,8 +5,10 @@
 package tool.compet.packages.eventbus;
 
 import java.lang.reflect.Method;
+import java.util.Objects;
 
 import tool.compet.core.DkLogs;
+import tool.compet.core.DkStrings;
 
 class MySubscriptionMethod {
 	final Method method;
@@ -25,10 +27,13 @@ class MySubscriptionMethod {
 		}
 
 		if (paramType == null || paramType.isPrimitive()) {
-			DkLogs.complain(this, "Require at least one non-primitive parameter.");
+			DkLogs.complain(this, "Require non-primitive parameter.");
 		}
 
 		DkSubscribe subscription = method.getAnnotation(DkSubscribe.class);
+		if (subscription == null) {
+			throw new RuntimeException("Oops !");
+		}
 		this.method = method;
 		this.id = subscription.id();
 		this.priority = subscription.priority();

@@ -17,8 +17,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import tool.compet.appbundle.DkCompactDialog;
 import tool.compet.appbundle.R;
-import tool.compet.appbundle.architecture.simple.DkSimpleDialog;
 import tool.compet.core.BuildConfig;
 import tool.compet.core.DkLogs;
 import tool.compet.core.config.DkConfig;
@@ -33,10 +33,8 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
  * - Title, subtitle, message, buttons are gone
  * - Auto dismiss dialog when click to buttons or outside dialog
  */
-public class DkConfirmDialog extends DkSimpleDialog implements View.OnClickListener, TheConfirmDialogInterface {
-	//
+public class DkConfirmDialog extends DkCompactDialog implements View.OnClickListener, TheConfirmDialogInterface {
 	// Callback
-	//
 	public interface ConfirmCallback {
 		void onClick(TheConfirmDialogInterface dialog, View button);
 	}
@@ -54,6 +52,10 @@ public class DkConfirmDialog extends DkSimpleDialog implements View.OnClickListe
 	private static final int WARNING = Color.parseColor("#ff9500");
 	private static final int INFO = Color.parseColor("#493ebb");
 	private static final int SUCCESS = Color.parseColor("#00bb4d");
+
+	public static final int LAYOUT_TYPE_CLASSIC = 1;
+	public static final int LAYOUT_TYPE_MODERN = 2;
+	protected int layoutType = LAYOUT_TYPE_MODERN;
 
 	protected ViewGroup vBackground;
 	protected ViewGroup vForeground;
@@ -97,7 +99,10 @@ public class DkConfirmDialog extends DkSimpleDialog implements View.OnClickListe
 
 	@Override
 	public int layoutResourceId() {
-		return R.layout.dk_dialog_confirm;
+		if (layoutType == LAYOUT_TYPE_MODERN) {
+			return R.layout.dk_confirm_dialog_modern;
+		}
+		return R.layout.dk_confirm_dialog_classic;
 	}
 
 	@Override
@@ -172,26 +177,17 @@ public class DkConfirmDialog extends DkSimpleDialog implements View.OnClickListe
 			return false;
 		});
 
-		//
 		// Header
-		//
-
 		if (headerBackgroundColor != null) {
 			vHeader.setBackgroundColor(headerBackgroundColor);
 		}
 		decorTitle();
 		decorSubTitle();
 
-		//
 		// Body
-		//
-
 		decorBodyView();
 
-		//
 		// Footer
-		//
-
 		vCancel.setOnClickListener(this);
 		decorCancelButton();
 
@@ -201,10 +197,7 @@ public class DkConfirmDialog extends DkSimpleDialog implements View.OnClickListe
 		vOk.setOnClickListener(this);
 		decorOkButton();
 
-		//
 		// Background (dialog) dimension
-		//
-
 		ViewGroup.LayoutParams bkgLayoutParams = vForeground.getLayoutParams();
 		if (bkgLayoutParams == null) {
 			bkgLayoutParams = new FrameLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, Gravity.CENTER);
@@ -373,27 +366,32 @@ public class DkConfirmDialog extends DkSimpleDialog implements View.OnClickListe
 		return this;
 	}
 
+	public DkConfirmDialog setLayoutType(int layoutType) {
+		this.layoutType = layoutType;
+		return this;
+	}
+
 	public DkConfirmDialog asSuccess() {
-		return asType(SUCCESS);
+		return asColor(SUCCESS);
 	}
 
 	public DkConfirmDialog asError() {
-		return asType(ERROR);
+		return asColor(ERROR);
 	}
 
 	public DkConfirmDialog asWarning() {
-		return asType(WARNING);
+		return asColor(WARNING);
 	}
 
 	public DkConfirmDialog asAsk() {
-		return asType(ASK);
+		return asColor(ASK);
 	}
 
 	public DkConfirmDialog asInfo() {
-		return asType(INFO);
+		return asColor(INFO);
 	}
 
-	public DkConfirmDialog asType(int color) {
+	public DkConfirmDialog asColor(int color) {
 		return setHeaderBackgroundColor(color);
 	}
 
@@ -413,9 +411,7 @@ public class DkConfirmDialog extends DkSimpleDialog implements View.OnClickListe
 		return this;
 	}
 
-	//
-	// Protected region
-	//
+	// region Protected
 
 	/**
 	 * By default, this try to perform cancel-callback.
@@ -500,7 +496,7 @@ public class DkConfirmDialog extends DkSimpleDialog implements View.OnClickListe
 		outState.putBoolean("DkConfirmDialog.isDismissOnTouchOutside", isDismissOnTouchOutside);
 		outState.putBoolean("DkConfirmDialog.isFullScreen", isFullScreen);
 
-		ConfirmTopic confirmTopic = joinTopic(CONFIRM_TOPIC).obtain(ConfirmTopic.class);
+		ConfirmTopic confirmTopic = topic(CONFIRM_TOPIC).obtain(ConfirmTopic.class);
 		confirmTopic.cancelCb = this.cancelCb;
 		confirmTopic.resetCb = this.resetCb;
 		confirmTopic.okCb = this.okCb;
@@ -529,16 +525,16 @@ public class DkConfirmDialog extends DkSimpleDialog implements View.OnClickListe
 			isDismissOnTouchOutside = savedInstanceState.getBoolean("DkConfirmDialog.isDismissOnTouchOutside");
 			isFullScreen = savedInstanceState.getBoolean("DkConfirmDialog.isFullScreen");
 
-			ConfirmTopic confirmTopic = joinTopic(CONFIRM_TOPIC).obtain(ConfirmTopic.class);
+			ConfirmTopic confirmTopic = topic(CONFIRM_TOPIC).obtain(ConfirmTopic.class);
 			this.cancelCb = confirmTopic.cancelCb;
 			this.resetCb = confirmTopic.resetCb;
 			this.okCb = confirmTopic.okCb;
 		}
 	}
 
-	//
-	// Private region
-	//
+	// endregion Protected
+
+	// region Private
 
 	private void decorTitle() {
 		if (vTitle == null) {
@@ -631,4 +627,6 @@ public class DkConfirmDialog extends DkSimpleDialog implements View.OnClickListe
 			vOk.setVisibility(View.GONE);
 		}
 	}
+
+	// endregion Private
 }

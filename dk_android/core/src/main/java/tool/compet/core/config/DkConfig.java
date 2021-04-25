@@ -9,5 +9,4 @@ package tool.compet.core.config;
  */
 public class DkConfig {
 	public static final DeviceConfig device = new DeviceConfig();
-	public static final AppConfig app = new AppConfig();
 }

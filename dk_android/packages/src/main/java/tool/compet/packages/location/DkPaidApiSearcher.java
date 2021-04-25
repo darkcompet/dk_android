@@ -19,7 +19,7 @@ import tool.compet.packages.http.DkHttpRequester;
 
 import static java.util.Locale.US;
 import static tool.compet.core.BuildConfig.DEBUG;
-import static tool.compet.core.DkStrings.isWhite;
+import static tool.compet.core.DkStrings.white;
 
 public class DkPaidApiSearcher implements DkPaidApiConst {
 	private String gmapKey;
@@ -32,7 +32,7 @@ public class DkPaidApiSearcher implements DkPaidApiConst {
 		List<DkLocation> res = new ArrayList<>();
 
 		String tmpAddress = address;
-		if (!isWhite(tmpAddress)) {
+		if (!white(tmpAddress)) {
 			tmpAddress = tmpAddress.trim().replaceAll(" ", "%20");
 		}
 
@@ -43,7 +43,7 @@ public class DkPaidApiSearcher implements DkPaidApiConst {
 
 		if (useGeo) {
 			String geoParam = keyParam;
-			if (!isWhite(finalAddress)) {
+			if (!white(finalAddress)) {
 				geoParam += String.format(US, "&address=%s&sensor=false", finalAddress);
 			}
 			if (latLng != null) {
@@ -54,7 +54,7 @@ public class DkPaidApiSearcher implements DkPaidApiConst {
 
 		if (usePlace) {
 			String placeParam = keyParam;
-			if (!isWhite(finalAddress)) {
+			if (!white(finalAddress)) {
 				placeParam += String.format(US, "&name=%s&sensor=false", finalAddress);
 			}
 			if (latLng != null) {
@@ -65,7 +65,7 @@ public class DkPaidApiSearcher implements DkPaidApiConst {
 
 		if (useText) {
 			String textParam = keyParam;
-			if (!isWhite(finalAddress)) {
+			if (!white(finalAddress)) {
 				textParam += String.format(US, "&query=%s&sensor=false", finalAddress);
 			}
 			if (latLng != null) {
@@ -76,7 +76,7 @@ public class DkPaidApiSearcher implements DkPaidApiConst {
 
 		if (useAuto) {
 			String autoParam = keyParam;
-			if (!isWhite(finalAddress)) {
+			if (!white(finalAddress)) {
 				autoParam += String.format(US, "&input=%s&sensor=false", finalAddress);
 			}
 			if (latLng != null) {

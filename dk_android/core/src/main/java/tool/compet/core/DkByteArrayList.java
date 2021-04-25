@@ -4,6 +4,8 @@
 
 package tool.compet.core;
 
+import java.util.Collections;
+
 /**
  * This class is performance-better version of ArrayList for Integer type.
  */
@@ -205,6 +207,10 @@ public class DkByteArrayList {
 		byte[] result = new byte[size];
 		System.arraycopy(arr, 0, result, 0, size);
 		return result;
+	}
+
+	public Iterable<?> toIterable() {
+		return Collections.singletonList(arr);
 	}
 
 	// Grow array to size at least given `minCapacity`, normally it is 1.5 times of current-capacity.

@@ -61,7 +61,7 @@ class MyExpression {
 
 	private String compileWithoutLogic() {
 		String name = grammar.wrapName(this.name); // user.name as user_name
-		this.value = MyGrammarHelper.todbvalue(this.value);
+		Object value = MyGrammarHelper.toDbValue(this.value);
 
 		switch (type) {
 			case K_BASIC: {
@@ -73,7 +73,7 @@ class MyExpression {
 			}
 			case K_IN:
 			case K_NOT_IN: {
-				List<String> values = grammar.wrapPrimitiveValueList((Iterable) value);
+				List<String> values = grammar.wrapPrimitiveValueList((Iterable<?>) value);
 				return DkStrings.format("%s %s (%s)", name, operator, DkStrings.join(", ", values));
 			}
 			default: {

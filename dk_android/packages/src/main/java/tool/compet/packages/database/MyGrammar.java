@@ -72,7 +72,7 @@ abstract class MyGrammar {
 		return MyGrammarHelper.wrapPrimitiveValue(value);
 	}
 
-	protected List<String> wrapPrimitiveValueList(Iterable values) {
+	protected List<String> wrapPrimitiveValueList(Iterable<?> values) {
 		return MyGrammarHelper.wrapPrimitiveValues(values);
 	}
 

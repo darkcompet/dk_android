@@ -32,7 +32,7 @@ class MyItemClusterManager {
 
 	// Items and builders
 	List<DkItemBuilder> itemBuilders = new ArrayList<>();
-	ArrayList<DkItem> items = new ArrayList<>();
+	List<DkItem> items = new ArrayList<>();
 
 	// Offset (margin) of this cluster, maybe negative.
 	float horizontalOffset;
@@ -56,18 +56,19 @@ class MyItemClusterManager {
 	// Bounds of cluster in board
 	private RectF bounds;
 
-	//
-	// From here, apply to all items if not set
-	//
+	// region GLOBAL setting (apply to all items if not set)
+
 	DkOnItemClickListener onItemClickListener; // on click to each item
 	boolean itemEnableRotation; // rotate while animating
 	boolean itemEnable3DAnimation; // 3D animation while animating
 	boolean itemEnableScale = true; // scale while animating
 	boolean itemDismissMenuOnClickItem = true; // dismiss boom menu when click item itself
 	boolean itemDismissMenuImmediate; // true: dismiss boom menu immediate, false: animate unboom
-	public int itemMargin = 8; // 8dp (just call item.setMargin() to convert to pixel)
+	int itemMargin = 8; // 8dp (just call item.setMargin() to convert to pixel)
 	boolean itemDismissOnBackPressed = true;
 	boolean itemDismissImmediate;
+
+	// endregion GLOBAL setting (apply to all items if not set)
 
 	void buildItems(Context context, View anchor, ViewGroup board, DkItemBuilder.Callback callback) {
 		int anchorWidth = anchor.getWidth();
@@ -93,7 +94,8 @@ class MyItemClusterManager {
 			itemBuilder.anchorHeight = anchorHeight;
 			itemBuilder.boardWidth = boardWidth;
 			itemBuilder.boardHeight = boardHeight;
-			// Assign global setting if not set
+
+			// If some fields were not set by user, then assign GLOBAL setting (maybe default) to them
 			if (itemBuilder.onClickListener == null) {
 				itemBuilder.setOnClickListener(onItemClickListener);
 			}
@@ -117,7 +119,6 @@ class MyItemClusterManager {
 			}
 
 			DkItem item = itemBuilder.build(context, callback);
-
 			items.add(item);
 
 			if (autoUnisize) {

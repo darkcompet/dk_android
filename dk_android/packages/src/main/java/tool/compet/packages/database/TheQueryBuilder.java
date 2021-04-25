@@ -11,8 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import tool.compet.core.DkRunner1;
+import tool.compet.core.DkCollections;
 import tool.compet.core.DkMaps;
+import tool.compet.core.DkRunner1;
 import tool.compet.core.DkStrings;
 
 import static tool.compet.packages.database.MyConst.K_AND;
@@ -44,7 +45,9 @@ public abstract class TheQueryBuilder<M> { // M: model
 	 * Insert new row from given key-value map.
 	 *
 	 * @param params Map of insert key-value for the table
+	 *
 	 * @return Last inserted row id of current connection.
+	 *
 	 * @throws RuntimeException When invalid params
 	 */
 	public abstract long insert(Map<String, Object> params);
@@ -85,27 +88,27 @@ public abstract class TheQueryBuilder<M> { // M: model
 		return this;
 	}
 
-	private List<MySelection> selects() {
+	protected List<MySelection> selects() {
 		return nullableSelects != null ? nullableSelects : (nullableSelects = new ArrayList<>());
 	}
 
-	private List<MyJoin> joins() {
+	protected List<MyJoin> joins() {
 		return nullableJoins != null ? nullableJoins : (nullableJoins = new ArrayList<>());
 	}
 
-	private List<MyExpression> wheres() {
+	protected List<MyExpression> wheres() {
 		return nullableWheres != null ? nullableWheres : (nullableWheres = new ArrayList<>());
 	}
 
-	private List<MyOrderBy> orderBys() {
+	protected List<MyOrderBy> orderBys() {
 		return nullableOrderBys != null ? nullableOrderBys : (nullableOrderBys = new ArrayList<>());
 	}
 
-	private List<MyGroupBy> groupBys() {
+	protected List<MyGroupBy> groupBys() {
 		return nullableGroupBys != null ? nullableGroupBys : (nullableGroupBys = new ArrayList<>());
 	}
 
-	private List<MyExpression> havings() {
+	protected List<MyExpression> havings() {
 		return nullableHavings != null ? nullableHavings : (nullableHavings = new ArrayList<>());
 	}
 
@@ -224,19 +227,19 @@ public abstract class TheQueryBuilder<M> { // M: model
 		return registerExpression(new MyExpression(grammar, K_OR, K_NOT_NULL, name, K_IS_NOT_NULL), wheres());
 	}
 
-	public TheQueryBuilder<M> whereIn(String name, Iterable values) {
+	public TheQueryBuilder<M> whereIn(String name, Iterable<?> values) {
 		return registerExpression(new MyExpression(grammar, K_AND, K_IN, name, K_IN, values), wheres());
 	}
 
-	public TheQueryBuilder<M> orWhereIn(String name, Iterable values) {
+	public TheQueryBuilder<M> orWhereIn(String name, Iterable<?> values) {
 		return registerExpression(new MyExpression(grammar, K_OR, K_IN, name, K_IN, values), wheres());
 	}
 
-	public TheQueryBuilder<M> whereNotIn(String name, Iterable values) {
+	public TheQueryBuilder<M> whereNotIn(String name, Iterable<?> values) {
 		return registerExpression(new MyExpression(grammar, K_AND, K_NOT_IN, name, K_NOT_IN, values), wheres());
 	}
 
-	public TheQueryBuilder<M> orWhereNotIn(String name, Iterable values) {
+	public TheQueryBuilder<M> orWhereNotIn(String name, Iterable<?> values) {
 		return registerExpression(new MyExpression(grammar, K_OR, K_NOT_IN, name, K_NOT_IN, values), wheres());
 	}
 
@@ -359,6 +362,13 @@ public abstract class TheQueryBuilder<M> { // M: model
 		return rows == null || rows.size() == 0 ? null : rows.get(0);
 	}
 
+	/**
+	 * Subclass should override this to perform more efficient count calculation.
+	 */
+	public long count() {
+		return DkCollections.sizeOf(get());
+	}
+
 	public List<M> get() {
 		MyGrammar grammar = this.grammar;
 		String[] all = {
@@ -424,10 +434,6 @@ public abstract class TheQueryBuilder<M> { // M: model
 		String query = grammar.compileDeleteQuery(tableName, whereClause);
 
 		connection.execQuery(query.trim());
-	}
-
-	public long count() {
-		return 0;
 	}
 
 	/**

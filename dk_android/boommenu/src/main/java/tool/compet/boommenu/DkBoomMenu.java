@@ -18,7 +18,6 @@ import java.util.ArrayList;
 
 import tool.compet.core.view.animation.DkAnimationConfiguration;
 import tool.compet.core.view.animation.DkInterpolatorProvider;
-import tool.compet.core.view.DkViews;
 
 /**
  * This class shows a menu with a lot of items (cluster), start from an anchor and end in
@@ -56,11 +55,11 @@ public class DkBoomMenu {
 
 	private int animState = ANIM_STATE_NOT_YET;
 
+	private boolean enableCache = true; // for faster animation at next time
 	private boolean backgroundWholeScreen = true;
 	private boolean dismissImmediate;
 	private boolean dismissOnClickOutsideItem = true;
 	private boolean dismissOnBackPressed = true;
-	private boolean cacheOptimization = true;
 	private boolean bringAnchorToFront;
 	private long animStartDelay;
 	private long boomDuration = DkAnimationConfiguration.ANIM_LARGE_EXPAND;
@@ -121,15 +120,20 @@ public class DkBoomMenu {
 	}
 
 	/**
-	 * Expanding (with animation) all items into background.
+	 * Expanding menu with animation.
 	 */
 	public void boom() {
 		boom(false);
 	}
 
 	/**
-	 * Expanding (animate if not immediate) all items into background.
+	 * Expanding menu without animation.
 	 */
+	public void show() {
+		boom(true);
+	}
+
+	// Expanding (animate if not immediate) all items into background.
 	public void boom(boolean immediate) {
 		if (animState == ANIM_STATE_NOT_YET) {
 			setupBackground();
@@ -153,7 +157,7 @@ public class DkBoomMenu {
 
 					@Override
 					public void onAnimationCancel(Animator animation) {
-						cancelAnimAndCleanupLayout();
+						cancelAnimationAndCleanupLayout();
 					}
 
 					@Override
@@ -166,23 +170,30 @@ public class DkBoomMenu {
 	}
 
 	/**
-	 * Collapsing (with animation) all items and dismiss menu.
+	 * Dismiss menu with animation.
 	 */
 	public void unboom() {
 		unboom(false);
 	}
 
 	/**
-	 * Animate collapsing all menu items and remove from background.
+	 * Dismiss menu without animation.
+	 */
+	public void dismiss() {
+		unboom(true);
+	}
+
+	/**
+	 * Dismiss menu with animation.
 	 */
 	public void unboom(boolean immediate) {
 		if (animState == ANIM_STATE_WILL_ANIMATE_SOON) {
-			cancelAnimAndCleanupLayout();
+			cancelAnimationAndCleanupLayout();
 			return;
 		}
 		if (animState == ANIM_STATE_ANIMATED) {
 			if (immediate) {
-				cancelAnimAndCleanupLayout();
+				cancelAnimationAndCleanupLayout();
 				return;
 			}
 			animState = ANIM_STATE_WILL_ANIMATE_SOON;
@@ -194,11 +205,13 @@ public class DkBoomMenu {
 
 				@Override
 				public void onAnimationEnd(Animator animation) {
-					cancelAnimAndCleanupLayout();
+					cancelAnimationAndCleanupLayout();
 				}
 			});
 		}
 	}
+
+	// region Private
 
 	private void showAndForcusBackground() {
 		background.setVisibility(View.VISIBLE);
@@ -206,7 +219,7 @@ public class DkBoomMenu {
 		background.requestFocus();
 	}
 
-	private void cancelAnimAndCleanupLayout() {
+	private void cancelAnimationAndCleanupLayout() {
 		// Cancel animation
 		if (animator != null) {
 			animator.cancel();
@@ -259,7 +272,7 @@ public class DkBoomMenu {
 		ViewGroup parent = findSuitableParent(anchor);
 
 		if (anchor == null) {
-			throw new RuntimeException("You must provide anchor. Maybe call setAnchor().");
+			throw new RuntimeException("Must provide anchor. For eg,. call `setAnchor()`");
 		}
 		if (isShouldBuildItems()) {
 			itemClusterManager.buildItems(context, anchor, parent, new DkItemBuilder.Callback() {
@@ -357,8 +370,7 @@ public class DkBoomMenu {
 		if (background != null) {
 			background.removeAllViews();
 		}
-
-		if (!cacheOptimization) {
+		if (! enableCache) {
 			itemClusterManager.items.clear();
 		}
 	}
@@ -374,7 +386,7 @@ public class DkBoomMenu {
 			}
 		}
 
-		if (!cacheOptimization) {
+		if (! enableCache) {
 			this.background = null;
 		}
 	}
@@ -392,9 +404,9 @@ public class DkBoomMenu {
 		return parent instanceof ViewGroup ? (ViewGroup) parent : null;
 	}
 
-	//
-	// Setup region
-	//
+	// endregion Private
+
+	// region Get/Set
 
 	public DkBoomMenu addItemBuilder(DkItemBuilder itemBuilder) {
 		itemClusterManager.itemBuilders.add(itemBuilder);
@@ -444,26 +456,35 @@ public class DkBoomMenu {
 	}
 
 	public DkBoomMenu setUnboomDuration(long unboomDuration) {
-		this.unboomDuration = unboomDuration;
+		this.unboomDuration = Math.max(0, unboomDuration);
 		return this;
 	}
 
 	public DkBoomMenu setBoomStartDelay(long animStartDelay) {
-		this.animStartDelay = animStartDelay;
+		this.animStartDelay = Math.max(0L, animStartDelay);
 		return this;
 	}
 
-	public DkBoomMenu setClusterMargin(int horizontalMargin, int verticalMargin) {
+	/**
+	 * Set margin (inside layout) of cluster (items) after boomed.
+	 */
+	public DkBoomMenu setMargin(int horizontalMargin, int verticalMargin) {
 		itemClusterManager.horizontalOffset = horizontalMargin;
 		itemClusterManager.verticalOffset = verticalMargin;
 		return this;
 	}
 
+	/**
+	 * Set gravity (position) of cluster (items) after boomed.
+	 */
 	public DkBoomMenu setGravity(DkGravity gravity) {
 		itemClusterManager.gravity = gravity;
 		return this;
 	}
 
+	/**
+	 * Set shape (arrange) of cluster (items) after boomed.
+	 */
 	public DkBoomMenu setShape(DkShape shape) {
 		itemClusterManager.shape = shape;
 		return this;
@@ -509,16 +530,16 @@ public class DkBoomMenu {
 		return this;
 	}
 
-	public DkBoomMenu setCacheOptimization(boolean cacheOptimization) {
-		this.cacheOptimization = cacheOptimization;
+	public DkBoomMenu setCacheOptimization(boolean enable) {
+		this.enableCache = enable;
 		return this;
 	}
 
-	//
-	// Setting for all items
-	//
+	// endregion Get/Set
 
-	public DkBoomMenu setOnItemClickListener(DkOnItemClickListener onItemClickListener) {
+	// region Setting for all items
+
+	public DkBoomMenu setItemClickListener(DkOnItemClickListener onItemClickListener) {
 		itemClusterManager.onItemClickListener = onItemClickListener;
 		return this;
 	}
@@ -533,7 +554,7 @@ public class DkBoomMenu {
 		return this;
 	}
 
-	public DkBoomMenu enableItemRotation(boolean enable) {
+	public DkBoomMenu setItemRotation(boolean enable) {
 		itemClusterManager.itemEnableRotation = enable;
 		return this;
 	}
@@ -542,4 +563,6 @@ public class DkBoomMenu {
 		itemClusterManager.itemMargin = dp;
 		return this;
 	}
+
+	// endregion Setting for all items
 }

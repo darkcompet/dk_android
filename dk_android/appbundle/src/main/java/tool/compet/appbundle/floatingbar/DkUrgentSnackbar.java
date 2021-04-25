@@ -22,17 +22,16 @@ public class DkUrgentSnackbar extends DkSnackbar {
 	}
 
 	// It will hide super newIns() method from outside-invoke
-	public static DkUrgentSnackbar newIns(ViewGroup parent) {
-		parent = MyHelper.findSuperFrameLayout(parent);
-
-		if (parent == null) {
-			throw new RuntimeException("No suitable parent found");
+	public static DkUrgentSnackbar newIns(View view) {
+		ViewGroup parentViewGroup = MyFloatingbarHelper.findSuperFrameLayout(view);
+		if (parentViewGroup == null) {
+			throw new RuntimeException("No suitable parent ViewGroup found");
 		}
-		// prepare required params for the constructor
-		Context context = parent.getContext();
-		View bar = LayoutInflater.from(context).inflate(R.layout.dk_snackbar, parent, false);
+		// Prepare required params for the constructor
+		Context context = parentViewGroup.getContext();
+		View bar = LayoutInflater.from(context).inflate(R.layout.dk_snackbar, parentViewGroup, false);
 
-		return new DkUrgentSnackbar(context, parent, bar);
+		return new DkUrgentSnackbar(context, parentViewGroup, bar);
 	}
 
 	// It will hide super newIns() method from outside-invoke
@@ -42,7 +41,7 @@ public class DkUrgentSnackbar extends DkSnackbar {
 
 	@Override
 	public void show() {
-		getManager().dismissAll();
+		manager().dismissAll(); // this means urgent
 		super.show();
 	}
 }

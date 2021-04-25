@@ -20,13 +20,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import static tool.compet.core.BuildConfig.DEBUG;
-
 /**
  * This class, provides common basic operations on Bitmap.
  */
 public final class DkBitmaps {
-	public static long getSize(Bitmap input) {
+	public static long size(Bitmap input) {
 		if (input == null) {
 			return 0L;
 		}
@@ -78,8 +76,8 @@ public final class DkBitmaps {
 
 	public static Bitmap load(Context context, int imgRes, BitmapFactory.Options opts) {
 		Bitmap res = BitmapFactory.decodeResource(context.getResources(), imgRes, opts);
-		if (DEBUG) {
-			DkLogs.info(DkBitmaps.class, "loaded bitmap size: %d", getSize(res));
+		if (BuildConfig.DEBUG) {
+			DkLogs.info(DkBitmaps.class, "Loaded bitmap size: %d", size(res));
 		}
 		return res;
 	}
@@ -93,8 +91,8 @@ public final class DkBitmaps {
 
 	public static Bitmap load(String filePath, BitmapFactory.Options opts) {
 		Bitmap res = BitmapFactory.decodeFile(filePath, opts);
-		if (DEBUG) {
-			DkLogs.info(DkBitmaps.class, "Loaded bitmap size: %d", getSize(res));
+		if (BuildConfig.DEBUG) {
+			DkLogs.info(DkBitmaps.class, "Loaded bitmap size: %d", size(res));
 		}
 		return res;
 	}
@@ -112,8 +110,8 @@ public final class DkBitmaps {
 
 	public static Bitmap load(InputStream is, BitmapFactory.Options opts) {
 		Bitmap res = BitmapFactory.decodeStream(is, null, opts);
-		if (DEBUG) {
-			DkLogs.info(DkBitmaps.class, "Loaded bitmap size: %d", getSize(res));
+		if (BuildConfig.DEBUG) {
+			DkLogs.info(DkBitmaps.class, "Loaded bitmap size: %d", size(res));
 		}
 		return res;
 	}

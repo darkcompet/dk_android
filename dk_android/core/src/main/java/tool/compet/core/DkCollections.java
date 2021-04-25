@@ -5,6 +5,7 @@
 package tool.compet.core;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -77,5 +78,9 @@ public class DkCollections {
 			}
 		}
 		return -1;
+	}
+
+	public static <M> int sizeOf(@Nullable List<M> list) {
+		return list == null ? 0 : list.size();
 	}
 }

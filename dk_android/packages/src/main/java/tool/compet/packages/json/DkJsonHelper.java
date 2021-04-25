@@ -11,10 +11,10 @@ import tool.compet.core.DkLogs;
 
 public class DkJsonHelper {
 	private static DkJsonHelper INS;
-	private final Gson GSON;
+	private final Gson gson;
 
 	private DkJsonHelper() {
-		GSON = new GsonBuilder()
+		gson = new GsonBuilder()
 			.setDateFormat("yyyy-MM-dd HH:mm:ss")
 			.excludeFieldsWithoutExposeAnnotation()
 			.setPrettyPrinting()
@@ -27,7 +27,7 @@ public class DkJsonHelper {
 
 	public <T> T json2obj(String json, Class<T> classOfT) {
 		try {
-			return GSON.fromJson(json, classOfT);
+			return gson.fromJson(json, classOfT);
 		}
 		catch (Exception e) {
 			DkLogs.error(this, e);
@@ -36,6 +36,6 @@ public class DkJsonHelper {
 	}
 
 	public String obj2json(Object obj) {
-		return GSON.toJson(obj);
+		return gson.toJson(obj);
 	}
 }

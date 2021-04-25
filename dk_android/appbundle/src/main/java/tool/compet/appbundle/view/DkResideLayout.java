@@ -279,7 +279,7 @@ public class DkResideLayout extends ViewGroup {
 	}
 
 	private static boolean viewIsOpaque(View v) {
-		if (ViewCompat.isOpaque(v)) return true;
+		if (v.isOpaque()) return true;
 
 		// View#isOpaque didn't take all valid opaque scrollbar modes into account
 		// before API 18 (JB-MR2). On newer devices rely solely on isOpaque above and return false

@@ -6,6 +6,8 @@ package tool.compet.core;
 
 import android.content.Context;
 
+import androidx.annotation.Nullable;
+
 import java.util.Iterator;
 import java.util.Locale;
 
@@ -13,12 +15,16 @@ import java.util.Locale;
  * String utilities (public api).
  */
 public class DkStrings {
-	public static boolean isWhite(String s) {
+	public static boolean white(@Nullable String s) {
 		return s == null || s.trim().length() == 0;
 	}
 
-	public static boolean isEmpty(CharSequence cs) {
+	public static boolean empty(@Nullable CharSequence cs) {
 		return cs == null || cs.length() == 0;
+	}
+
+	public static String asString(@Nullable Object obj) {
+		return obj == null ? "" : obj.toString();
 	}
 
 	/**

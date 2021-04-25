@@ -18,11 +18,11 @@ class MySubscription {
 		this.subscriptionMethod = subscriptionMethod;
 	}
 
-	void invoke(Object arg) throws InvocationTargetException, IllegalAccessException {
+	void invoke(Object param) throws InvocationTargetException, IllegalAccessException {
 		MySubscriptionMethod sm = subscriptionMethod;
 
-		if (arg == null ? sm.allowNullableParam : sm.paramType.isAssignableFrom(arg.getClass())) {
-			sm.method.invoke(subscriber, arg);
+		if (param == null ? sm.allowNullableParam : sm.paramType.isAssignableFrom(param.getClass())) {
+			sm.method.invoke(subscriber, param);
 		}
 	}
 }

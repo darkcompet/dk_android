@@ -26,8 +26,8 @@ public class DkTextItemBuilder extends DkItemBuilder<DkTextItemBuilder> {
 
 	@Override
 	protected DkBaseItemView getView(Context context) {
-		int layoutRes;
 		DkTextItemView itemView;
+		int layoutRes;
 
 		if (style == STYLE_TEXT_INSIDE_ICON) {
 			layoutRes = R.layout.dk_boommenu_item_text_inside;
@@ -45,7 +45,7 @@ public class DkTextItemBuilder extends DkItemBuilder<DkTextItemBuilder> {
 			layoutRes = R.layout.dk_boommenu_item_text_bottom;
 		}
 		else {
-			throw new RuntimeException("Invalid style");
+			throw new RuntimeException("Must provide valid style");
 		}
 
 		itemView = super.prepareView(context, layoutRes);

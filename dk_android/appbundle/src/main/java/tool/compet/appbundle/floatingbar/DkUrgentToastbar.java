@@ -22,13 +22,12 @@ public class DkUrgentToastbar extends DkToastbar {
 	}
 
 	// It will hide super newIns() method from outside-invoke
-	public static DkUrgentToastbar newIns(ViewGroup parent) {
-		parent = MyHelper.findSuperFrameLayout(parent);
-
+	public static DkUrgentToastbar newIns(View view) {
+		ViewGroup parent = MyFloatingbarHelper.findSuperFrameLayout(view);
 		if (parent == null) {
 			throw new RuntimeException("No suitable parent found");
 		}
-		// prepare required params for the constructor
+		// Prepare required params for the constructor
 		Context context = parent.getContext();
 		View bar = LayoutInflater.from(context).inflate(R.layout.dk_toastbar, parent, false);
 
@@ -42,7 +41,7 @@ public class DkUrgentToastbar extends DkToastbar {
 
 	@Override
 	public void show() {
-		getManager().dismissAll();
+		manager().dismissAll(); // this means urgent
 		super.show();
 	}
 }

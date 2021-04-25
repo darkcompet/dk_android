@@ -72,7 +72,7 @@ public class DkLruCache {
 	}
 
 	public void put(String key, Bitmap value) {
-		put(key, new Snapshot(value, DkBitmaps.getSize(value)));
+		put(key, new Snapshot(value, DkBitmaps.size(value)));
 	}
 
 	public synchronized void put(String key, Snapshot snapshot) {

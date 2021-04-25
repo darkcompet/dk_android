@@ -32,7 +32,7 @@ class MyAndroidSqliteHelper {
 
 		List<Field> fields = DkReflectionFinder.getIns().findFields(modelClass, DkColumnInfo.class);
 		if (fields.size() == 0) {
-			DkLogs.complain(MyAndroidSqliteHelper.class, "You must annotate some fields with @DkColumnInfo in %s", modelClass.getName());
+			DkLogs.complain(MyAndroidSqliteHelper.class, "Must annotate some fields with `@DkColumnInfo` in `%s`", modelClass.getName());
 		}
 
 		for (Field field : fields) {

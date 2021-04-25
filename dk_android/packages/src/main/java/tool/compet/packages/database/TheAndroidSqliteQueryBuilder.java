@@ -6,11 +6,14 @@ package tool.compet.packages.database;
 
 import android.database.Cursor;
 
+import java.util.List;
 import java.util.Map;
 
 import tool.compet.core.BuildConfig;
 import tool.compet.core.DkLogs;
 import tool.compet.core.DkMaps;
+
+import static tool.compet.packages.database.MyConst.K_BASIC;
 
 /**
  * Android sqlite query builder.
@@ -49,5 +52,13 @@ public class TheAndroidSqliteQueryBuilder<M> extends TheQueryBuilder<M> { // M: 
 		cursor.close();
 
 		return insertRowId;
+	}
+
+	@Override
+	public long count() {
+		selects().clear();
+		selects().add(new MySelection(grammar, K_BASIC, "_rowid_"));
+		List<M> rows = get();
+		return rows == null ? 0 : rows.size();
 	}
 }

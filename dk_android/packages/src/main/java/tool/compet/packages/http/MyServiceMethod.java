@@ -74,7 +74,7 @@ class MyServiceMethod<T> {
 		if (requestMethod == null) {
 			DkLogs.complain(this, "Missing request method annotation on the method: " + method);
 		}
-		if (DkStrings.isWhite(tmpRelativeUrl)) {
+		if (DkStrings.white(tmpRelativeUrl)) {
 			DkLogs.complain(this, "Invalid relative url: " + tmpRelativeUrl);
 		}
 
@@ -193,7 +193,7 @@ class MyServiceMethod<T> {
 		String key = headerInfo.key();
 		String value = String.valueOf(paramValue);
 
-		if (!DkStrings.isEmpty(headerInfo.value())) {
+		if (!DkStrings.empty(headerInfo.value())) {
 			DkLogs.complain(this, "Don't use #value() in #DkHeader for params");
 		}
 

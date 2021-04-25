@@ -84,12 +84,14 @@ public abstract class DkAndroidSqliteDao<M> extends TheDao<M> { // M: table mode
 	}
 
 	@Override
+	// In Sqlite, truncate is same with delete-all since when clear table, autoincrement key will also be reset.
 	public void truncate() {
 		// Delete all data
 		clear();
 
 		// Reset autoincrement pk
-		newQuery("sqlite_sequence").where("name", tableName()).delete();
+		// it is auto to reset increment column to default value after delete all data
+//		newQuery("sqlite_sequence").where("name", tableName()).delete();
 	}
 
 	@Override
@@ -106,7 +108,7 @@ public abstract class DkAndroidSqliteDao<M> extends TheDao<M> { // M: table mode
 					continue;
 				}
 				String colName = colInfo.name();
-				Object value = MyGrammarHelper.todbvalue(field.get(model));
+				Object value = MyGrammarHelper.toDbValue(field.get(model));
 				params.put(colName, value);
 			}
 			catch (Exception e) {
@@ -137,7 +139,7 @@ public abstract class DkAndroidSqliteDao<M> extends TheDao<M> { // M: table mode
 					continue;
 				}
 				String colName = colInfo.name();
-				Object value = field.get(model);
+				Object value = MyGrammarHelper.toDbValue(field.get(model));
 				updates.put(colName, value);
 			}
 			catch (Exception e) {

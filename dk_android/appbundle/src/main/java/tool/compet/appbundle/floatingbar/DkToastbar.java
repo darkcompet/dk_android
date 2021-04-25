@@ -13,14 +13,15 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import tool.compet.appbundle.R;
+import tool.compet.core.DkRunner;
 import tool.compet.core.config.DkConfig;
 import tool.compet.core.view.DkViews;
 
 /**
  * Differ with Android Toast, this just show a floating text on the layout of current activity.
- * Android Toast has different way to show text, it shows text over display, not app.
+ * Note that, Android Toast has different way to show text, it shows text over display of device (not app).
  */
-public class DkToastbar extends DkFloatingbar {
+public class DkToastbar extends DkFloatingbar<DkToastbar> {
 	public static final int DURATION_SHORT = 1500;
 	public static final int DURATION_NORMAL = 2000;
 	public static final int DURATION_LONG = 3500;
@@ -34,16 +35,17 @@ public class DkToastbar extends DkFloatingbar {
 		duration = DURATION_NORMAL;
 
 		tvMessage = bar.findViewById(R.id.dk_tv_message);
+
+		//
 		DkViews.changeBackgroundColor(bar, "#80000000", 16, DkConfig.device.density);
 	}
 
-	public static DkToastbar newIns(ViewGroup parent) {
-		parent = MyHelper.findSuperFrameLayout(parent);
-
+	public static DkToastbar newIns(View view) {
+		ViewGroup parent = MyFloatingbarHelper.findSuperFrameLayout(view);
 		if (parent == null) {
 			throw new RuntimeException("No suitable parent was found");
 		}
-		// prepare required params for the constructor
+		// Prepare required params for the constructor
 		Context context = parent.getContext();
 		View bar = LayoutInflater.from(context).inflate(R.layout.dk_toastbar, parent, false);
 
@@ -55,7 +57,7 @@ public class DkToastbar extends DkFloatingbar {
 	}
 
 	@Override
-	protected MyFloatingbarManager getManager() {
+	protected MyFloatingbarManager manager() {
 		return manager != null ? manager : (manager = new MyFloatingbarManager());
 	}
 
@@ -88,6 +90,8 @@ public class DkToastbar extends DkFloatingbar {
 		bar.setAlpha(alpha);
 	}
 
+	// region Get/Set
+
 	public DkToastbar message(int msgRes) {
 		tvMessage.setText(msgRes);
 		return this;
@@ -103,13 +107,15 @@ public class DkToastbar extends DkFloatingbar {
 		return this;
 	}
 
-	public DkToastbar onShownCallback(Runnable onShownCallback) {
+	public DkToastbar setOnShownCallback(DkRunner onShownCallback) {
 		this.onShownCallback = onShownCallback;
 		return this;
 	}
 
-	public DkToastbar onDismissCallback(Runnable onDismissCallback) {
+	public DkToastbar setOnDismissCallback(DkRunner onDismissCallback) {
 		this.onDismissCallback = onDismissCallback;
 		return this;
 	}
+
+	// endregion Get/Set
 }

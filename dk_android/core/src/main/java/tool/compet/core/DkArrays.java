@@ -14,18 +14,14 @@ import java.util.List;
  * This class, provides basic common operations on an array.
  */
 public class DkArrays {
-	public static boolean isEmpty(Object[] arr) {
+	public static boolean empty(Object[] arr) {
 		return arr == null || arr.length == 0;
 	}
 
 	public static void swap(int[] arr, int i, int j) {
-		int N = arr.length;
-
-		if (i >= 0 && j >= 0 && i < N && j < N && i != j) {
-			arr[i] ^= arr[j];
-			arr[j] ^= arr[i];
-			arr[i] ^= arr[j];
-		}
+		int tmp = arr[i];
+		arr[i] = arr[j];
+		arr[j] = tmp;
 	}
 
 	public static void reverse(int[] arr) {

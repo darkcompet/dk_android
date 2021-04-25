@@ -50,6 +50,11 @@ public class DkPreferenceStorageCompat {
 		return DkMaths.parseInt(getString(key));
 	}
 
+	public int getInt(String key, int defautValue) {
+		String value = getString(key);
+		return value == null ? defautValue : DkMaths.parseInt(value);
+	}
+
 	//
 	// Store/Load float
 	//
@@ -64,6 +69,11 @@ public class DkPreferenceStorageCompat {
 
 	public float getFloat(String key) {
 		return DkMaths.parseFloat(getString(key));
+	}
+
+	public float getFloat(String key, float defaultValue) {
+		String value = getString(key);
+		return value == null ? defaultValue : DkMaths.parseFloat(value);
 	}
 
 	//
@@ -82,6 +92,11 @@ public class DkPreferenceStorageCompat {
 		return DkMaths.parseDouble(getString(key));
 	}
 
+	public double getDouble(String key, double defaultValue) {
+		String value = getString(key);
+		return value == null ? defaultValue : DkMaths.parseDouble(value);
+	}
+
 	//
 	// Store/Load boolean
 	//
@@ -98,6 +113,11 @@ public class DkPreferenceStorageCompat {
 		return DkMaths.parseBoolean(getString(key));
 	}
 
+	public boolean getBoolean(String key, boolean defaultValue) {
+		String value = getString(key);
+		return value == null ? defaultValue : DkMaths.parseBoolean(value);
+	}
+
 	//
 	// Store/Load long
 	//
@@ -112,6 +132,11 @@ public class DkPreferenceStorageCompat {
 
 	public long getLong(String key) {
 		return DkMaths.parseLong(getString(key));
+	}
+
+	public long getLong(String key, long defaultValue) {
+		String value = getString(key);
+		return value == null ? defaultValue : DkMaths.parseLong(value);
 	}
 
 	//
@@ -137,6 +162,17 @@ public class DkPreferenceStorageCompat {
 		return null;
 	}
 
+	public String getString(String key, String defaultValue) {
+		try {
+			// We perform try/catch to archive back-compability (load other types will cause exception)
+			return preference.getString(key, defaultValue);
+		}
+		catch (Exception e) {
+			DkLogs.error(this, e);
+		}
+		return defaultValue;
+	}
+
 	//
 	// Store/Load string set
 	//
@@ -160,6 +196,17 @@ public class DkPreferenceStorageCompat {
 		return null;
 	}
 
+	public Set<String> getStringSet(String key, Set<String> defaultValue) {
+		try {
+			// We perform try/catch to archive back-compability (load other types will cause exception)
+			return preference.getStringSet(key, defaultValue);
+		}
+		catch (Exception e) {
+			DkLogs.error(this, e);
+		}
+		return defaultValue;
+	}
+
 	//
 	// CRUD
 	//
@@ -178,5 +225,9 @@ public class DkPreferenceStorageCompat {
 
 	public void clearAsync() {
 		preference.edit().clear().apply();
+	}
+
+	public void commit() {
+		preference.edit().commit();
 	}
 }

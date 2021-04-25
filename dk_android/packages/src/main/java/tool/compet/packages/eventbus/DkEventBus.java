@@ -19,8 +19,8 @@ import tool.compet.core.DkLogs;
 import tool.compet.core.reflection.DkReflectionFinder;
 
 /**
- * This library supports communication between objects (for eg,. Android Activity/Fragment).
- * You can post an object value to all consumers which interest your event, so consumer will
+ * This library supports communication between poster and susbcribers (for eg,. Android Activity/Fragment).
+ * You can post an object value to all consumers which interest your event, and then consumer can
  * handle that event in the thread that consumer specified.
  * It also support #postSticky() when consumer was absent, but consumer must remove sticky event
  * manually when it consumes the event.
@@ -75,19 +75,20 @@ public class DkEventBus {
 	/**
 	 * Add newly all subscriptions of this target to bus system.
 	 */
-	public <T> void register(T target) {
-		Class clazz = target.getClass();
+	public <T> void register(T subscriber) {
+		Class subscriberClass = subscriber.getClass();
 
-		// lookup subscription methods of the target's class
+		// Lookup subscription methods of subscriber
 		ArrayMap<Class<?>, List<MySubscriptionMethod>> methodCache = subscriptionMethodCache;
 		List<MySubscriptionMethod> subscriptionMethods;
 
 		synchronized (this.subscriptionMethodCache) {
-			subscriptionMethods = methodCache.get(clazz);
+			subscriptionMethods = methodCache.get(subscriberClass);
 		}
 
+		// Register methods of subcriber
 		if (subscriptionMethods == null) {
-			List<Method> methods = DkReflectionFinder.getIns().findMethods(clazz, DkSubscribe.class);
+			List<Method> methods = DkReflectionFinder.getIns().findMethods(subscriberClass, DkSubscribe.class);
 
 			if (methods.size() > 0) {
 				subscriptionMethods = new ArrayList<>();
@@ -97,15 +98,15 @@ public class DkEventBus {
 				}
 
 				synchronized (this.subscriptionMethodCache) {
-					if (!methodCache.containsKey(clazz)) {
-						methodCache.put(clazz, subscriptionMethods);
+					if (! methodCache.containsKey(subscriberClass)) {
+						methodCache.put(subscriberClass, subscriptionMethods);
 					}
 				}
 			}
 		}
 
+		// Add newly subscription to subscriptions for each subscriptionMethod
 		if (subscriptionMethods != null && subscriptionMethods.size() > 0) {
-			// add newly subscription to subscriptions for each subscriptionMethod
 			synchronized (this) {
 				CopyOnWriteArrayList<MySubscription> subscriptions;
 
@@ -118,10 +119,10 @@ public class DkEventBus {
 						this.subscriptions.put(subscriptionMethod.id, subscriptions);
 					}
 
-					MySubscription subscription = new MySubscription(target, subscriptionMethod);
+					MySubscription subscription = new MySubscription(subscriber, subscriptionMethod);
 					binaryInsertionSynced(subscription, subscriptions);
 
-					// post sticky event to this subscription
+					// Send sticky event to this subscription
 					if (subscriptionMethod.sticky) {
 						List<Object> stickyEvents = this.stickyEvents.get(id);
 
@@ -129,7 +130,7 @@ public class DkEventBus {
 							boolean isMainThread = Looper.myLooper() == Looper.getMainLooper();
 
 							for (Object event : stickyEvents) {
-								postToSubscription(subscription, event, isMainThread);
+								sendEventDataToSubscription(subscription, event, isMainThread);
 							}
 						}
 					}
@@ -141,9 +142,9 @@ public class DkEventBus {
 	/**
 	 * Remove all subscriptions of this target from bus system
 	 */
-	public synchronized <T> void unregister(T target) {
+	public synchronized <T> void unregister(T subscriber) {
 		// For Class: remove from subscription methods
-		subscriptionMethodCache.remove(target.getClass());
+		subscriptionMethodCache.remove(subscriber.getClass());
 
 		// For ID: remove from subscriptions
 		SparseArray<CopyOnWriteArrayList<MySubscription>> cache = subscriptions;
@@ -155,7 +156,7 @@ public class DkEventBus {
 				for (int subIndex = subscriptions.size() - 1; subIndex >= 0; --subIndex) {
 					MySubscription subscription = subscriptions.get(subIndex);
 
-					if (target == subscription.subscriber) {
+					if (subscriber == subscription.subscriber) {
 						// make this subscription unactive
 						subscription.active = false;
 						subscriptions.remove(subIndex);
@@ -191,11 +192,11 @@ public class DkEventBus {
 	/**
 	 * Check whether this Class was registered or not.
 	 */
-	public <T> boolean isRegistered(Class<T> clazz) {
+	public <T> boolean isRegistered(Class<T> subscriber) {
 		List<MySubscriptionMethod> methods;
 
 		synchronized (subscriptionMethodCache) {
-			methods = this.subscriptionMethodCache.get(clazz);
+			methods = this.subscriptionMethodCache.get(subscriber);
 		}
 
 		return methods != null && methods.size() > 0;
@@ -215,7 +216,7 @@ public class DkEventBus {
 			boolean isMainThread = Looper.myLooper() == Looper.getMainLooper();
 
 			for (MySubscription subscription : subscriptions) {
-				postToSubscription(subscription, data, isMainThread);
+				sendEventDataToSubscription(subscription, data, isMainThread);
 			}
 		}
 	}
@@ -223,7 +224,7 @@ public class DkEventBus {
 	/**
 	 * Post to given target class.
 	 */
-	public <T> void post(int id, Class target, T data) {
+	public <T> void post(int id, Class subscriber, T data) {
 		CopyOnWriteArrayList<MySubscription> subscriptions;
 
 		synchronized (this.subscriptions) {
@@ -234,8 +235,8 @@ public class DkEventBus {
 			boolean isMainThread = Looper.myLooper() == Looper.getMainLooper();
 
 			for (MySubscription subscription : subscriptions) {
-				if (target.equals(subscription.subscriber.getClass())) {
-					postToSubscription(subscription, data, isMainThread);
+				if (subscriber.equals(subscription.subscriber.getClass())) {
+					sendEventDataToSubscription(subscription, data, isMainThread);
 					break;
 				}
 			}
@@ -245,7 +246,7 @@ public class DkEventBus {
 	/**
 	 * Post to targets that not be in excepted target classes.
 	 */
-	public <T> void postExcept(int id, T data, Class... exceptTargetClasses) {
+	public <T> void postExcept(int id, T data, Class... exceptSubscriberClasses) {
 		CopyOnWriteArrayList<MySubscription> subscriptions;
 
 		synchronized (this.subscriptions) {
@@ -253,12 +254,12 @@ public class DkEventBus {
 		}
 
 		if (subscriptions != null) {
-			List<Class> blacklist = Arrays.asList(exceptTargetClasses);
+			List<Class> blacklist = Arrays.asList(exceptSubscriberClasses);
 			boolean isMainThread = Looper.myLooper() == Looper.getMainLooper();
 
 			for (MySubscription subscription : subscriptions) {
 				if (!blacklist.contains(subscription.subscriber.getClass())) {
-					postToSubscription(subscription, data, isMainThread);
+					sendEventDataToSubscription(subscription, data, isMainThread);
 				}
 			}
 		}
@@ -267,7 +268,7 @@ public class DkEventBus {
 	/**
 	 * Post to targets that not be in excepted targets.
 	 */
-	public <T> void postExcept(int id, T data, Object... exceptTargets) {
+	public <T> void postExcept(int id, T data, Object... exceptSubscribers) {
 		CopyOnWriteArrayList<MySubscription> subscriptions;
 
 		synchronized (this.subscriptions) {
@@ -275,12 +276,12 @@ public class DkEventBus {
 		}
 
 		if (subscriptions != null) {
-			List<Object> blacklist = Arrays.asList(exceptTargets);
+			List<Object> blacklist = Arrays.asList(exceptSubscribers);
 			boolean isMainThread = Looper.myLooper() == Looper.getMainLooper();
 
 			for (MySubscription subscription : subscriptions) {
 				if (!blacklist.contains(subscription.subscriber)) {
-					postToSubscription(subscription, data, isMainThread);
+					sendEventDataToSubscription(subscription, data, isMainThread);
 				}
 			}
 		}
@@ -405,7 +406,7 @@ public class DkEventBus {
 		return asyncPoster;
 	}
 
-	private <T> void postToSubscription(MySubscription subscription, T eventData, boolean isMainThread) {
+	private <T> void sendEventDataToSubscription(MySubscription subscription, T eventData, boolean isMainThread) {
 		switch (subscription.subscriptionMethod.threadMode) {
 			case DkThreadMode.POSTER: {
 				invokeSubscriber(subscription, eventData);
