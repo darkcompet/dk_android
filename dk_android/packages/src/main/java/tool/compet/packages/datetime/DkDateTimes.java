@@ -40,11 +40,11 @@ public class DkDateTimes {
 	/**
 	 * Format current time (now) with default format `Y-m-d H:i:s`.
 	 */
-	public static String format() {
+	public static String formatNow() {
 		return format(nowInMillis());
 	}
 
-	public static String format(String pattern) {
+	public static String formatNow(String pattern) {
 		return format(nowInMillis(), pattern, Locale.US);
 	}
 

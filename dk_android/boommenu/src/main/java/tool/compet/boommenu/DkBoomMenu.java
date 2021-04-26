@@ -14,7 +14,7 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
+import java.util.List;
 
 import tool.compet.core.view.animation.DkAnimationConfiguration;
 import tool.compet.core.view.animation.DkInterpolatorProvider;
@@ -310,7 +310,7 @@ public class DkBoomMenu {
 	}
 
 	private void startAnimation(AnimatorListenerAdapter listener) {
-		final ArrayList<DkItem> items = itemClusterManager.items;
+		final List<DkItem> items = itemClusterManager.items;
 		final int itemCount = items.size();
 		long totalDuration = boomDuration + emissionDelayBetweenItems * (itemCount - 1);
 
@@ -339,7 +339,7 @@ public class DkBoomMenu {
 	}
 
 	private void reverseAnimation(AnimatorListenerAdapter listener) {
-		final ArrayList<DkItem> items = itemClusterManager.items;
+		final List<DkItem> items = itemClusterManager.items;
 		final int itemCount = items.size();
 		long totalDuration = unboomDuration + emissionDelayBetweenItems * (itemCount - 1);
 

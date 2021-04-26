@@ -330,6 +330,11 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends A
 		return new TheActivityTopicController(topicId, this, this);
 	}
 
+	// Obtain topic controller and then clear its materials
+	public TheActivityTopicController cleanTopic(String topicId) {
+		return new TheActivityTopicController(topicId, host, this).clear();
+	}
+
 	// endregion Scoped topic
 
 	// region Utility

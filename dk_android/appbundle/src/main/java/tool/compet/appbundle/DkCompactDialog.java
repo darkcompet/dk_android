@@ -394,6 +394,11 @@ public abstract class DkCompactDialog extends AppCompatDialogFragment implements
 		return new TheFragmentTopicController(topicId, host, this);
 	}
 
+	// Obtain topic controller and then clear its materials
+	public TheFragmentTopicController cleanTopic(String topicId) {
+		return new TheFragmentTopicController(topicId, host, this).clear();
+	}
+
 	// endregion Scoped topic
 
 	// region Protected (overridable)

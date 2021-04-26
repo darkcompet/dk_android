@@ -98,7 +98,8 @@
 				app:layout_constraintTop_toBottomOf="@id/dk_body"
 				app:layout_constraintBottom_toBottomOf="parent">
 
-				<TextView
+				<Button
+					style="@style/Widget.AppCompat.Button.Borderless.Colored"
 					android:id="@+id/dk_cancel"
 					android:layout_width="0dp"
 					android:layout_height="match_parent"
@@ -108,14 +109,12 @@
 					app:layout_constraintTop_toTopOf="parent"
 					app:layout_constraintBottom_toBottomOf="parent"
 					android:gravity="center"
-					android:padding="8dp"
-					android:layout_margin="0dp"
-					android:background="@color/material_green_300"
 					android:text="@string/cancel"
 					android:textColor="?attr/colorPrimaryDark"
 					android:visibility="visible" />
 
-				<TextView
+				<Button
+					style="@style/Widget.AppCompat.Button.Borderless.Colored"
 					android:id="@+id/dk_reset"
 					android:layout_width="0dp"
 					android:layout_height="match_parent"
@@ -124,15 +123,13 @@
 					app:layout_constraintEnd_toStartOf="@id/dk_ok"
 					app:layout_constraintTop_toTopOf="parent"
 					app:layout_constraintBottom_toBottomOf="parent"
-					android:layout_margin="0dp"
 					android:gravity="center"
-					android:padding="8dp"
-					android:background="@color/material_green_300"
 					android:text="@string/reset"
 					android:textColor="?attr/colorPrimaryDark"
 					android:visibility="visible" />
 
-				<TextView
+				<Button
+					style="@style/Widget.AppCompat.Button.Borderless.Colored"
 					android:id="@+id/dk_ok"
 					android:layout_width="0dp"
 					android:layout_height="match_parent"
@@ -141,10 +138,7 @@
 					app:layout_constraintEnd_toEndOf="parent"
 					app:layout_constraintTop_toTopOf="parent"
 					app:layout_constraintBottom_toBottomOf="parent"
-					android:layout_margin="0dp"
 					android:gravity="center"
-					android:padding="8dp"
-					android:background="@color/material_green_300"
 					android:text="@string/ok"
 					android:textColor="?attr/colorPrimaryDark"
 					android:visibility="visible" />

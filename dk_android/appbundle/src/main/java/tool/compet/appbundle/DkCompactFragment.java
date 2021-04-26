@@ -394,6 +394,11 @@ public abstract class DkCompactFragment<VL extends DkCompactViewLogic> extends F
 		return new TheFragmentTopicController(topicId, host, this);
 	}
 
+	// Obtain topic controller and then clear its materials
+	public TheFragmentTopicController cleanTopic(String topicId) {
+		return new TheFragmentTopicController(topicId, host, this).clear();
+	}
+
 	// endregion Scoped topic
 
 	// region Floating bar

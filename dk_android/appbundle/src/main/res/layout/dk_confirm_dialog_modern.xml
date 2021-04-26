@@ -98,7 +98,8 @@
 				app:layout_constraintTop_toBottomOf="@id/dk_body"
 				app:layout_constraintBottom_toBottomOf="parent">
 
-				<TextView
+				<Button
+					style="@style/Widget.AppCompat.Button.Borderless.Colored"
 					android:id="@+id/dk_ok"
 					android:layout_width="0dp"
 					android:layout_height="wrap_content"
@@ -108,14 +109,12 @@
 					app:layout_constraintTop_toTopOf="parent"
 					app:layout_constraintBottom_toTopOf="@id/dk_reset"
 					android:gravity="center"
-					android:padding="8dp"
-					android:layout_margin="8dp"
-					android:background="?attr/colorPrimary"
 					android:text="@string/ok"
-					android:textColor="@color/white"
+					android:textColor="?attr/colorAccent"
 					android:visibility="visible" />
 
-				<TextView
+				<Button
+					style="@style/Widget.AppCompat.Button.Borderless.Colored"
 					android:id="@+id/dk_reset"
 					android:layout_width="0dp"
 					android:layout_height="wrap_content"
@@ -125,14 +124,12 @@
 					app:layout_constraintTop_toBottomOf="@id/dk_ok"
 					app:layout_constraintBottom_toTopOf="@id/dk_cancel"
 					android:gravity="center"
-					android:padding="8dp"
-					android:layout_margin="8dp"
-					android:background="?attr/colorPrimary"
 					android:text="@string/reset"
-					android:textColor="@color/white"
+					android:textColor="?attr/colorAccent"
 					android:visibility="visible" />
 
-				<TextView
+				<Button
+					style="@style/Widget.AppCompat.Button.Borderless.Colored"
 					android:id="@+id/dk_cancel"
 					android:layout_width="0dp"
 					android:layout_height="wrap_content"
@@ -142,11 +139,8 @@
 					app:layout_constraintTop_toBottomOf="@id/dk_reset"
 					app:layout_constraintBottom_toBottomOf="parent"
 					android:gravity="center"
-					android:padding="8dp"
-					android:layout_margin="8dp"
-					android:background="?attr/colorPrimary"
 					android:text="@string/cancel"
-					android:textColor="@color/white"
+					android:textColor="?attr/colorAccent"
 					android:visibility="visible" />
 
 			</androidx.constraintlayout.widget.ConstraintLayout>

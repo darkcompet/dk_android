@@ -6,7 +6,7 @@ package tool.compet.packages.location;
 
 import android.location.Address;
 
-import com.google.android.gms.location.places.Place;
+//import com.google.android.gms.location.places.Place;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -36,17 +36,17 @@ public class DkLocations {
 		return loc;
 	}
 
-	public static DkLocation place2myLocation(Place place) {
-		if (place == null) {
-			return null;
-		}
-		DkLocation loc = new DkLocation();
-		CharSequence cs = place.getAddress();
-		loc.setLatLng(place.getLatLng());
-		loc.address = cs == null ? "" : cs.toString();
-
-		return loc;
-	}
+//	public static DkLocation place2myLocation(Place place) {
+//		if (place == null) {
+//			return null;
+//		}
+//		DkLocation loc = new DkLocation();
+//		CharSequence cs = place.getAddress();
+//		loc.setLatLng(place.getLatLng());
+//		loc.address = cs == null ? "" : cs.toString();
+//
+//		return loc;
+//	}
 
 	public static DkLocation[] jsonGeo2myLocation(String jsonGeo) {
 		try {

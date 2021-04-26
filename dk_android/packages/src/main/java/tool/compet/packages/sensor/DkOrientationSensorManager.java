@@ -197,7 +197,7 @@ public class DkOrientationSensorManager implements SensorEventListener {
 	}
 
 	public DkOrientationSensorManager register(Listener listener) {
-		if (listener != null && !listeners.contains(listener)) {
+		if (listener != null && ! listeners.contains(listener)) {
 			listeners.add(listener);
 		}
 		return this;

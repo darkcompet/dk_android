@@ -39,8 +39,8 @@ public class DkObjCopier {
 	 * @param annoClass         Annotation which be assigned to each copy-target field to mark them as target of copy.
 	 *                          Null value means all fields are target for copy.
 	 * @param upSuper           True to include super fields, False to exclude super fields.
-	 * @param filterCallback	Filter before perform copy, return `false` to ignore copy, `true` to allow copy.
-	 *                          This callback give back 3 params: field_name, src_value, dst_value to caller.
+	 * @param filterCallback	Filter before perform copy, return `true` to allow copy, `false` to ignore copy.
+	 *                          This callback give back 3 params: field_name, src_value, dst_value to caller respectively.
 	 */
 	public static void copy(Object src, Object dst, @Nullable Class<? extends Annotation> annoClass,
 		boolean upSuper, @Nullable DkCaller3<String, Object, Object, Boolean> filterCallback) {
@@ -80,7 +80,7 @@ public class DkObjCopier {
 					Object srcFieldValue = srcField.get(src);
 					Object dstFieldValue = dstField.get(dst);
 
-					if (filterCallback == null || ! filterCallback.call(fieldName, srcFieldValue, dstFieldValue)) {
+					if (filterCallback == null || filterCallback.call(fieldName, srcFieldValue, dstFieldValue)) {
 						dstField.set(dst, srcFieldValue);
 					}
 				}

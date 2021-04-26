@@ -7,7 +7,7 @@ package tool.compet.appbundle;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelStoreOwner;
 
-public class TheActivityTopicController extends TheBaseTopicController {
+public class TheActivityTopicController extends TheBaseTopicController<TheActivityTopicController> {
 	public TheActivityTopicController(String topicId, FragmentActivity host, ViewModelStoreOwner clientOwner) {
 		super(topicId, host, clientOwner);
 

@@ -9,7 +9,8 @@ import android.app.Application;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelStoreOwner;
 
-public class TheBaseTopicController {
+@SuppressWarnings("unchecked")
+public class TheBaseTopicController<T> {
 	protected final int SCOPE_APP = 1;
 	protected final int SCOPE_HOST = 2;
 	protected final int SCOPE_OWN = 3;
@@ -25,20 +26,20 @@ public class TheBaseTopicController {
 		this.clientOwner = clientOwner;
 	}
 
-	public TheBaseTopicController atAppScope() {
+	public T atAppScope() {
 		return atScope(SCOPE_APP);
 	}
 
-	public TheBaseTopicController atOwnScope() {
+	public T atOwnScope() {
 		return atScope(SCOPE_OWN);
 	}
 
 	/**
 	 * Choose scope to holds the topic.
 	 */
-	public TheBaseTopicController atScope(int scope) {
+	public T atScope(int scope) {
 		this.scope = scope;
-		return this;
+		return (T) this;
 	}
 
 	public <M> M obtain(Class<M> modelType) {
@@ -62,9 +63,9 @@ public class TheBaseTopicController {
 	/**
 	 * Clear all materials which be held by the topic (such as: ViewModels, Clients...).
 	 */
-	public TheBaseTopicController clear() {
+	public T clear() {
 		topicProvider().removeTopic(topicId);
-		return this;
+		return (T) this;
 	}
 
 	// Obtain topic provider to handle topics
