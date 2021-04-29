@@ -164,14 +164,14 @@ public abstract class DkObservable<T> {
 		return new MyThreadSwitcherObservable<>(this, scheduler, null, delay, unit, isSerial);
 	}
 
-	public DkObservable<T> switchTo(DkScheduler<T> scheduler, DkRunnable1<T> action) {
-		return switchTo(scheduler, action, 0, TimeUnit.MILLISECONDS, true);
+	public DkObservable<T> switchThread(DkScheduler<T> scheduler, DkRunnable1<T> action) {
+		return switchThread(scheduler, action, 0, TimeUnit.MILLISECONDS, true);
 	}
 
 	/**
 	 * Make flow run in other thread, this is thread-switching.
 	 */
-	public DkObservable<T> switchTo(DkScheduler<T> scheduler, DkRunnable1<T> action, long delay, TimeUnit unit, boolean isSerial) {
+	public DkObservable<T> switchThread(DkScheduler<T> scheduler, DkRunnable1<T> action, long delay, TimeUnit unit, boolean isSerial) {
 		return new MyThreadSwitcherObservable<>(this, scheduler, action, delay, unit, isSerial);
 	}
 

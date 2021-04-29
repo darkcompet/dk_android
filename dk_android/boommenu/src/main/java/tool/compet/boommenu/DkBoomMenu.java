@@ -8,6 +8,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.graphics.Rect;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -67,7 +68,7 @@ public class DkBoomMenu {
 	private long emissionDelayBetweenItems = 50;
 	private ValueAnimator animator;
 
-	private final MyItemClusterManager itemClusterManager = new MyItemClusterManager();
+	private final MyClusterManager clusterManager = new MyClusterManager();
 	private boolean shouldRebuildItems = true;
 	private MyBackgroundLayout background;
 	private int backgroundWidth;
@@ -85,7 +86,7 @@ public class DkBoomMenu {
 
 		@Override
 		public boolean onTranslate(float dx, float dy) {
-			itemClusterManager.translateItems(dx, dy, backgroundWidth, backgroundHeight);
+			clusterManager.translateItems(dx, dy, backgroundWidth, backgroundHeight);
 			return true;
 		}
 
@@ -141,7 +142,7 @@ public class DkBoomMenu {
 
 			if (immediate) {
 				animState = ANIM_STATE_ANIMATED;
-				for (DkItem item : itemClusterManager.items) {
+				for (DkItem item : clusterManager.items) {
 					item.show();
 				}
 				showAndForcusBackground();
@@ -275,10 +276,10 @@ public class DkBoomMenu {
 			throw new RuntimeException("Must provide anchor. For eg,. call `setAnchor()`");
 		}
 		if (isShouldBuildItems()) {
-			itemClusterManager.buildItems(context, anchor, parent, new DkItemBuilder.Callback() {
+			clusterManager.buildItems(context, anchor, parent, new DkItemBuilder.Callback() {
 				@Override
 				public void onTranslate(DkItem item, float dx, float dy) {
-					itemClusterManager.translateItems(dx, dy, backgroundWidth, backgroundHeight);
+					clusterManager.translateItems(dx, dy, backgroundWidth, backgroundHeight);
 				}
 
 				@Override
@@ -293,9 +294,9 @@ public class DkBoomMenu {
 			});
 		}
 
-		itemClusterManager.calcStartEndPositions(anchor, parent);
+		clusterManager.calcStartEndPositions(anchor, parent);
 
-		for (DkItem item : itemClusterManager.items) {
+		for (DkItem item : clusterManager.items) {
 			item.hide();
 			background.addView(item.view);
 		}
@@ -306,11 +307,11 @@ public class DkBoomMenu {
 			shouldRebuildItems = false;
 			return true;
 		}
-		return itemClusterManager.items.size() == 0;
+		return clusterManager.items.size() == 0;
 	}
 
 	private void startAnimation(AnimatorListenerAdapter listener) {
-		final List<DkItem> items = itemClusterManager.items;
+		final List<DkItem> items = clusterManager.items;
 		final int itemCount = items.size();
 		long totalDuration = boomDuration + emissionDelayBetweenItems * (itemCount - 1);
 
@@ -319,7 +320,7 @@ public class DkBoomMenu {
 		}
 
 		background.setupAnimation(animStartDelay, totalDuration, totalDuration);
-		itemClusterManager.setupAnimation(animStartDelay, emissionDelayBetweenItems, boomDuration, totalDuration);
+		clusterManager.setupAnimation(animStartDelay, emissionDelayBetweenItems, boomDuration, totalDuration);
 
 		animator = ValueAnimator.ofInt(0, 1);
 		animator.setInterpolator(DkInterpolatorProvider.newLinear());
@@ -339,7 +340,7 @@ public class DkBoomMenu {
 	}
 
 	private void reverseAnimation(AnimatorListenerAdapter listener) {
-		final List<DkItem> items = itemClusterManager.items;
+		final List<DkItem> items = clusterManager.items;
 		final int itemCount = items.size();
 		long totalDuration = unboomDuration + emissionDelayBetweenItems * (itemCount - 1);
 
@@ -348,7 +349,7 @@ public class DkBoomMenu {
 		}
 
 		background.setupAnimation(animStartDelay, totalDuration, totalDuration);
-		itemClusterManager.setupAnimation(animStartDelay, emissionDelayBetweenItems, unboomDuration, totalDuration);
+		clusterManager.setupAnimation(animStartDelay, emissionDelayBetweenItems, unboomDuration, totalDuration);
 
 		animator.removeAllListeners();
 		animator.removeAllUpdateListeners();
@@ -371,7 +372,7 @@ public class DkBoomMenu {
 			background.removeAllViews();
 		}
 		if (! enableCache) {
-			itemClusterManager.items.clear();
+			clusterManager.items.clear();
 		}
 	}
 
@@ -396,7 +397,7 @@ public class DkBoomMenu {
 			return null;
 		}
 		if (backgroundWholeScreen) {
-			return MyHelper.findSuperFrameLayout(view);
+			return MyUtils.findSuperFrameLayout(view);
 		}
 
 		ViewParent parent = view.getParent();
@@ -409,7 +410,7 @@ public class DkBoomMenu {
 	// region Get/Set
 
 	public DkBoomMenu addItemBuilder(DkItemBuilder itemBuilder) {
-		itemClusterManager.itemBuilders.add(itemBuilder);
+		clusterManager.itemBuilders.add(itemBuilder);
 		return this;
 	}
 
@@ -465,28 +466,31 @@ public class DkBoomMenu {
 		return this;
 	}
 
+	public DkBoomMenu setClusterOffset(int left, int top, int right, int bottom) {
+		return setClusterOffset(new Rect(left, top, right, bottom));
+	}
+
 	/**
-	 * Set margin (inside layout) of cluster (items) after boomed.
+	 * Set offset of cluster (items) inside board after boomed.
 	 */
-	public DkBoomMenu setMargin(int horizontalMargin, int verticalMargin) {
-		itemClusterManager.horizontalOffset = horizontalMargin;
-		itemClusterManager.verticalOffset = verticalMargin;
+	public DkBoomMenu setClusterOffset(Rect offset) {
+		clusterManager.offset = offset;
 		return this;
 	}
 
 	/**
 	 * Set gravity (position) of cluster (items) after boomed.
 	 */
-	public DkBoomMenu setGravity(DkGravity gravity) {
-		itemClusterManager.gravity = gravity;
+	public DkBoomMenu setClusterGravity(DkGravity gravity) {
+		clusterManager.gravity = gravity;
 		return this;
 	}
 
 	/**
 	 * Set shape (arrange) of cluster (items) after boomed.
 	 */
-	public DkBoomMenu setShape(DkShape shape) {
-		itemClusterManager.shape = shape;
+	public DkBoomMenu setClusterShape(DkShape shape) {
+		clusterManager.shape = shape;
 		return this;
 	}
 
@@ -496,7 +500,7 @@ public class DkBoomMenu {
 	}
 
 	public DkBoomMenu setItemsEmissionOrder(DkEmissionOrder order) {
-		itemClusterManager.emissionOrder = order;
+		clusterManager.emissionOrder = order;
 		return this;
 	}
 
@@ -506,27 +510,27 @@ public class DkBoomMenu {
 	}
 
 	public DkBoomMenu setItemsPositionCalculator(DkPositionCalculator calculator) {
-		itemClusterManager.calculator = calculator;
+		clusterManager.calculator = calculator;
 		return this;
 	}
 
 	public DkBoomMenu setRandomItemsStartPosition(boolean randomStartPosition) {
-		itemClusterManager.randomStartPosition = randomStartPosition;
+		clusterManager.randomStartPosition = randomStartPosition;
 		return this;
 	}
 
 	public DkBoomMenu setAutoScaleClusterIfOversize(boolean autoScale) {
-		itemClusterManager.autoScaleIfOversize = autoScale;
+		clusterManager.autoScaleIfOversize = autoScale;
 		return this;
 	}
 
 	public DkBoomMenu setAllowClusterOutsideBoard(boolean allow) {
-		itemClusterManager.allowOutsideBoard = allow;
+		clusterManager.allowOutsideBoard = allow;
 		return this;
 	}
 
 	public DkBoomMenu setAutoUnisize(boolean autoUnisize) {
-		itemClusterManager.autoUnisize = autoUnisize;
+		clusterManager.autoUnisize = autoUnisize;
 		return this;
 	}
 
@@ -540,27 +544,27 @@ public class DkBoomMenu {
 	// region Setting for all items
 
 	public DkBoomMenu setItemClickListener(DkOnItemClickListener onItemClickListener) {
-		itemClusterManager.onItemClickListener = onItemClickListener;
+		clusterManager.onItemClickListener = onItemClickListener;
 		return this;
 	}
 
 	public DkBoomMenu setItemDismissOnBackPressed(boolean dismiss) {
-		itemClusterManager.itemDismissOnBackPressed = dismiss;
+		clusterManager.itemDismissOnBackPressed = dismiss;
 		return this;
 	}
 
 	public DkBoomMenu setItemDismissImmediate(boolean immediate) {
-		itemClusterManager.itemDismissImmediate = immediate;
+		clusterManager.itemDismissImmediate = immediate;
 		return this;
 	}
 
 	public DkBoomMenu setItemRotation(boolean enable) {
-		itemClusterManager.itemEnableRotation = enable;
+		clusterManager.itemEnableRotation = enable;
 		return this;
 	}
 
 	public DkBoomMenu setItemMargin(int dp) {
-		itemClusterManager.itemMargin = dp;
+		clusterManager.itemMargin = dp;
 		return this;
 	}
 

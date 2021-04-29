@@ -119,10 +119,7 @@ public abstract class DkItemBuilder<T extends DkItemBuilder> {
 			}
 		});
 
-		//
 		// Update dimension
-		//
-
 		if (width <= 0 || height <= 0) { // Measure view dimension if unspecific
 			view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
 			width = view.getMeasuredWidth();
@@ -144,20 +141,19 @@ public abstract class DkItemBuilder<T extends DkItemBuilder> {
 				width = (int) (widthRatio * height / heightRatio);
 			}
 		}
-		// Re-calculate dimension by scaling
+		// Re-calculate dimension if scaling
 		if (scaleX > 0f) {
 			width *= scaleX;
 		}
 		if (scaleY > 0f) {
 			height *= scaleY;
 		}
-		// Auto fix start scaleFactor if oversize anchor
-		final float pieceWidth = anchorWidth >> 3;
-		final float pieceHeight = anchorHeight >> 3;
-		final float ssf = startScaleFactor;
+		// Auto fix start scaleFactor if oversize anchor (default make item equals to 1/8 size of anchor)
+		final float startWidth = anchorWidth >> 3;
+		final float startHeight = anchorHeight >> 3;
 		// choose suitable start scale factor
-		if (ssf == -1f || ssf * width > pieceWidth || ssf * height > pieceHeight) {
-			item.startScaleFactor = Math.min(pieceWidth / (float) width, pieceHeight / (float) height);
+		if (startScaleFactor == -1f || startScaleFactor * width > startWidth || startScaleFactor * height > startHeight) {
+			item.startScaleFactor = Math.min(startWidth / width, startHeight / height);
 		}
 
 		// Ok, assign final dimension to item
@@ -199,9 +195,7 @@ public abstract class DkItemBuilder<T extends DkItemBuilder> {
 		return (V) view;
 	}
 
-	//
-	// Setup region
-	//
+	// region Setup
 
 	public T setOnClickListener(DkOnItemClickListener onClickListener) {
 		this.onClickListener = onClickListener;
@@ -319,4 +313,6 @@ public abstract class DkItemBuilder<T extends DkItemBuilder> {
 		this.dismissMenuImmediate = dismissImmediate;
 		return (T) this;
 	}
+
+	// endregion Setup
 }

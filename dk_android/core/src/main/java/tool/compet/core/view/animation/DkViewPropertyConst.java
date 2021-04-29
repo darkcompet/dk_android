@@ -4,6 +4,9 @@
 
 package tool.compet.core.view.animation;
 
+/**
+ * Property of a view for animation.
+ */
 public interface DkViewPropertyConst {
 	String X = "x"; // left
 	String Y = "y"; // top

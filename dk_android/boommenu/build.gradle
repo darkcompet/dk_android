@@ -39,6 +39,5 @@ dependencies {
 
 	api project(path: ':core')
 
-	implementation 'androidx.appcompat:appcompat:1.2.0'
-	implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+	api 'androidx.constraintlayout:constraintlayout:2.0.4'
 }

@@ -6,10 +6,14 @@ package tool.compet.core;
 
 import androidx.annotation.Nullable;
 
+import java.util.Random;
+
 /**
  * This class, provides common basic operations for math.
  */
 public final class DkMaths {
+	public static final Random random = new Random();
+
 	public static boolean parseBoolean(@Nullable String s) {
 		return "1".equals(s) || "true".equals(s);
 	}

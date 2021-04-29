@@ -8,8 +8,8 @@ import android.graphics.PointF;
 import android.view.animation.Interpolator;
 
 class MyMotionCalculator {
-	public float X;
-	public float Y;
+	public float curX;
+	public float curY;
 
 	private final PointF startPos;
 	private final PointF endPos;
@@ -32,12 +32,12 @@ class MyMotionCalculator {
 		final float DY = y2 - y1;
 
 		// Calculate X
-		this.X = x1 + DX * movingInterpolator.getInterpolation(fraction);
+		this.curX = x1 + DX * movingInterpolator.getInterpolation(fraction);
 
 		// Calculate Y
 		switch (movingShape) {
 			case LINE: {
-				this.Y = y1 + DY * (X - x1) / DX;
+				this.curY = y1 + DY * (curX - x1) / DX;
 				break;
 			}
 			case PARABOL_UP: {
@@ -48,7 +48,7 @@ class MyMotionCalculator {
 				float b = (y1 - y2) / (x1 - x2) - a * (x1 + x2);
 				float c = y1 - x1 * (a * x1 + b);
 
-				this.Y = (a * X + b) * X + c;
+				this.curY = (a * curX + b) * curX + c;
 				break;
 			}
 			case PARABOL_DOWN: {
@@ -59,7 +59,7 @@ class MyMotionCalculator {
 				float b = (y1 - y2) / (x1 - x2) - a * (x1 + x2);
 				float c = y1 - x1 * (a * x1 + b);
 
-				this.Y = (a * X + b) * X + c;
+				this.curY = (a * curX + b) * curX + c;
 				break;
 			}
 			default: {

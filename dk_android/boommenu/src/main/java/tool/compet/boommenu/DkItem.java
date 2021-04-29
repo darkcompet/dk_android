@@ -80,11 +80,9 @@ public class DkItem {
 
 		if (f >= 0f && f <= 1f) {
 			View view = this.view;
-			MyMotionCalculator motionCalculator = this.motionCalculator;
-
 			motionCalculator.calculateCoordinates(f);
-			view.setX(motionCalculator.X);
-			view.setY(motionCalculator.Y);
+			view.setX(motionCalculator.curX);
+			view.setY(motionCalculator.curY);
 
 			if (enableRotation) {
 				float degrees = rotationEvaluator.getAnimatedValue(f);

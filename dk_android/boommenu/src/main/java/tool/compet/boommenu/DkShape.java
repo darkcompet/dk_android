@@ -10,12 +10,12 @@ package tool.compet.boommenu;
 public enum DkShape {
 	RANDOM(0),
 
-	HORIZONTAL_LINE(0),
-	VERTICAL_LINE(0),
+	HORIZONTAL_LINE(0), // Locate items from left to right
+	VERTICAL_LINE(0), // Locate item from top to bottom
 
-	// We consider each item as circle which has radius is min(item.width / 2, item.height / 2)
-	CIRCLE(0),
-	CIRCLE_AND_CENTER(0),
+	// We consider each item as circle which has radius is `min(item.width / 2, item.height / 2)`
+	CIRCLE(0), // Locate items around a circle without center
+	CIRCLE_AND_CENTER(0), // Locate items at circle center and around circle
 
 	GRID_2_COLS(2),
 	GRID_3_COLS(3),

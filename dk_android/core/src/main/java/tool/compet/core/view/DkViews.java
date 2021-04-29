@@ -43,7 +43,7 @@ public class DkViews {
 	 * Get dimension of a view when it is laid out.
 	 *
 	 * @param view     target view.
-	 * @param callback dimension callback with {width, height}.
+	 * @param callback dimension callback [width, height].
 	 */
 	public static void getViewDimension(View view, DkRunner1<int[]> callback) {
 		view.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -217,8 +217,8 @@ public class DkViews {
 	}
 
 	/**
-	 * @param color  {normalColor, pressedColor}
-	 * @param border {topLeft, topRight, bottomRight, bottomLeft}
+	 * @param color  [normalColor, pressedColor]
+	 * @param border [topLeft, topRight, bottomRight, bottomLeft]
 	 */
 	public static void injectStateListDrawable(View view, float cornerRadius, int[] color, boolean[] border) {
 		int normalColor = color[0];
@@ -246,8 +246,8 @@ public class DkViews {
 			bottomRightRad, bottomRightRad,
 			bottomLeftRad, bottomLeftRad});
 
-		stateList.addState(new int[]{android.R.attr.state_pressed}, pressedDrawable);
-		stateList.addState(new int[]{}, normalDrawable);
+		stateList.addState(new int[] {android.R.attr.state_pressed}, pressedDrawable);
+		stateList.addState(new int[] {}, normalDrawable);
 
 		ViewCompat.setBackground(view, stateList);
 	}
@@ -316,15 +316,49 @@ public class DkViews {
 		return localX >= -slop && localY >= -slop && localX < (w + slop) && localY < (h + slop);
 	}
 
-	public static Rect getOffsetFromDescendantToAncestor(View descendant, ViewGroup ancestor) {
+	/**
+	 * Calculate rectangle offset (NOT bounds) of descendant at ancestor coordinate space.
+	 * Normally, result-offset contains positive left, top values.
+	 *
+	 * @return Coordinate of left-top point of descendant.
+	 * Caller should use `offset.left` and `offset.top`.
+	 */
+	public static Rect calcDescendantOffsetAtAncestorCoords(ViewGroup ancestor, View descendant) {
 		Rect offset = new Rect();
 		ancestor.offsetDescendantRectToMyCoords(descendant, offset);
 		return offset;
 	}
 
-	public static Rect getOffsetFromAncestorToDescendant(View descendant, ViewGroup ancestor) {
+	/**
+	 * Calculate rectangle offset (NOT bounds) of ancestor at descendant coordinate space.
+	 * Normally, result-offset contains negative left, top values.
+	 *
+	 * @return Coordinate of left-top point of descendant.
+	 * Caller should use `offset.left` and `offset.top`.
+	 */
+	public static Rect calcAncestorOffsetAtDescendantCoords(ViewGroup ancestor, View descendant) {
 		Rect offset = new Rect();
 		ancestor.offsetRectIntoDescendantCoords(descendant, offset);
 		return offset;
+	}
+
+	/**
+	 * Calculate bounds of descendant view at ancestor view coordinate space.
+	 */
+	public static Rect calcDescendantBoundsAtAncestorCoords(ViewGroup ancestor, View descendant) {
+		Rect offset = calcDescendantOffsetAtAncestorCoords(ancestor, descendant);
+		int left = offset.left;
+		int top = offset.top;
+		return new Rect(left, top, left + descendant.getWidth(), top + descendant.getHeight());
+	}
+
+	/**
+	 * Calculate bounds of descendant view at ancestor view coordinate space.
+	 */
+	public static Rect calcAncestorBoundsAtDescendantCoords(ViewGroup ancestor, View descendant) {
+		Rect offset = calcAncestorOffsetAtDescendantCoords(ancestor, descendant);
+		int left = offset.left;
+		int top = offset.top;
+		return new Rect(left, top, left + ancestor.getWidth(), top + ancestor.getHeight());
 	}
 }
