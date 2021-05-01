@@ -389,14 +389,14 @@ public abstract class DkCompactFragment<VL extends DkCompactViewLogic> extends F
 
 	// region Scoped topic
 
-	// Obtain topic controller
-	public TheFragmentTopicController topic(String topicId) {
-		return new TheFragmentTopicController(topicId, host, this);
-	}
-
 	// Obtain topic controller and then clear its materials
 	public TheFragmentTopicController cleanTopic(String topicId) {
 		return new TheFragmentTopicController(topicId, host, this).clear();
+	}
+
+	// Obtain topic controller
+	public TheFragmentTopicController refTopic(String topicId) {
+		return new TheFragmentTopicController(topicId, host, this);
 	}
 
 	// endregion Scoped topic

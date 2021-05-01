@@ -6,6 +6,7 @@ package tool.compet.core.stream;
 
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Looper;
 
 class MyDelayObservable<T> extends DkObservable<T> {
 	private final long delayMillis;
@@ -30,16 +31,19 @@ class MyDelayObservable<T> extends DkObservable<T> {
 
 		@Override
 		public void onNext(T result) {
-			//todo fix since not work well
-			HandlerThread handlerThread = new HandlerThread("HandlerThread");
+			HandlerThread handlerThread = new HandlerThread(MyDelayObservable.class.getName());
 			handlerThread.start();
+
 			Handler handler = new Handler(handlerThread.getLooper());
 			handler.postDelayed(() -> {
 				try {
 					child.onNext(result);
 				}
 				catch (Exception e) {
-					e.printStackTrace();
+					child.onError(e);
+				}
+				finally {
+					handlerThread.quit();
 				}
 			}, delayMillis);
 		}

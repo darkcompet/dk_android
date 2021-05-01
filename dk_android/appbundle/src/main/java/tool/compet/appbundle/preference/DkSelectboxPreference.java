@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import tool.compet.appbundle.R;
+import tool.compet.core.view.DkTextViews;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -29,12 +30,13 @@ public class DkSelectboxPreference extends MyBasePreference<DkSelectboxPreferenc
 
 	// Title
 	protected int titleViewId = R.id.dk_title; // viewId for title
-	protected String title; // text for title
 	protected int titleResId; // text res id for title
+	protected String title; // text for title
 
 	// Summary
+	protected int summaryViewId = R.id.dk_summary; // viewId for summary
 	protected boolean showSummary; // show or hide
-	protected int summaryResId = R.id.dk_summary; // viewId for summary
+	protected int summaryResId; // summary text res id
 	protected String summary; // text for summary
 
 	// Entries
@@ -42,7 +44,7 @@ public class DkSelectboxPreference extends MyBasePreference<DkSelectboxPreferenc
 	protected final List<String> entryValueList = new ArrayList<>();
 
 	// Selected item
-	protected int selectorResId = R.id.dk_display_name; // viewId for selector
+	protected int selectorViewId = R.id.dk_display_name; // viewId for selector
 	protected String selectedName; // current seleted setting name
 	protected String selectedValue; // current selected setting value
 
@@ -74,15 +76,22 @@ public class DkSelectboxPreference extends MyBasePreference<DkSelectboxPreferenc
 	@Override
 	protected void decorateView(View view) {
 		TextView tvTitle = view.findViewById(titleViewId);
-		TextView tvSummary = view.findViewById(summaryResId);
-		TextView tvName = view.findViewById(selectorResId);
+		TextView tvSummary = view.findViewById(summaryViewId);
+		TextView tvName = view.findViewById(selectorViewId);
 
 		// Setup title
+		DkTextViews.setTextSize(tvTitle, 1.25f * tvSummary.getTextSize());
+		if (titleResId > 0) {
+			title = context.getString(titleResId);
+		}
 		tvTitle.setText(title);
 
 		// Setup summary
 		tvSummary.setVisibility(showSummary ? View.VISIBLE : View.GONE);
 		if (showSummary) {
+			if (summaryResId > 0) {
+				summary = context.getString(summaryResId);
+			}
 			tvSummary.setText(summary);
 		}
 
@@ -127,12 +136,6 @@ public class DkSelectboxPreference extends MyBasePreference<DkSelectboxPreferenc
 
 					notifyDataChanged();
 				})
-				//                .setNegativeButton(R.string.cancel, (dlg, which) -> {
-				//                    dlg.dismiss();
-				//                })
-				//                .setPositiveButton(R.string.ok, (dlg, which) -> {
-				//                    dlg.dismiss();
-				//                })
 				.show();
 		}
 		else if (popupStyle == POPUP_STYLE_POPUP) {
@@ -185,11 +188,11 @@ public class DkSelectboxPreference extends MyBasePreference<DkSelectboxPreferenc
 	/**
 	 * Use it to customize layout of selectbox preference, caller must provide viewId of title, summmary and selector view.
 	 */
-	public DkSelectboxPreference customView(View view, int titleResId, int summaryResId, int selectorResId) {
+	public DkSelectboxPreference customView(View view, int titleResId, int summaryViewId, int selectorViewId) {
 		this.customView = view;
 		this.titleViewId = titleResId;
-		this.summaryResId = summaryResId;
-		this.selectorResId = selectorResId;
+		this.summaryViewId = summaryViewId;
+		this.selectorViewId = selectorViewId;
 		return this;
 	}
 }

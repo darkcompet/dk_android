@@ -37,8 +37,8 @@ import androidx.lifecycle.ViewModelStoreOwner;
 
 import tool.compet.core.DkLogs;
 import tool.compet.core.DkRunner2;
-import tool.compet.core.view.animation.DkAnimationConfiguration;
-import tool.compet.core.view.animation.DkInterpolatorProvider;
+import tool.compet.core.view.DkAnimationConfiguration;
+import tool.compet.core.view.DkInterpolatorProvider;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
@@ -389,14 +389,14 @@ public abstract class DkCompactDialog extends AppCompatDialogFragment implements
 
 	// region Scoped topic
 
-	// Obtain and Listen a topic in hostOwner
-	public TheFragmentTopicController topic(String topicId) {
-		return new TheFragmentTopicController(topicId, host, this);
-	}
-
 	// Obtain topic controller and then clear its materials
 	public TheFragmentTopicController cleanTopic(String topicId) {
 		return new TheFragmentTopicController(topicId, host, this).clear();
+	}
+
+	// Obtain and Listen a topic in hostOwner
+	public TheFragmentTopicController refTopic(String topicId) {
+		return new TheFragmentTopicController(topicId, host, this);
 	}
 
 	// endregion Scoped topic

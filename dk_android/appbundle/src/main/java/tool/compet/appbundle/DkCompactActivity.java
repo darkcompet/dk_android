@@ -325,14 +325,14 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends A
 
 	// Target a topic in hostOwner
 
-	// Obtain topic provider
-	public TheActivityTopicController topic(String topicId) {
-		return new TheActivityTopicController(topicId, this, this);
-	}
-
 	// Obtain topic controller and then clear its materials
 	public TheActivityTopicController cleanTopic(String topicId) {
 		return new TheActivityTopicController(topicId, host, this).clear();
+	}
+
+	// Obtain topic provider
+	public TheActivityTopicController refTopic(String topicId) {
+		return new TheActivityTopicController(topicId, this, this);
 	}
 
 	// endregion Scoped topic

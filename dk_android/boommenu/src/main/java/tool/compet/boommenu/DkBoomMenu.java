@@ -17,8 +17,8 @@ import android.view.ViewParent;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
-import tool.compet.core.view.animation.DkAnimationConfiguration;
-import tool.compet.core.view.animation.DkInterpolatorProvider;
+import tool.compet.core.view.DkAnimationConfiguration;
+import tool.compet.core.view.DkInterpolatorProvider;
 
 /**
  * This class shows a menu with a lot of items (cluster), start from an anchor and end in
@@ -39,8 +39,8 @@ import tool.compet.core.view.animation.DkInterpolatorProvider;
  *            .setText(R.string.rate_app)
  *            .setStyle(DkTextItemBuilder.STYLE_TEXT_RIGHT_OUT_ICON)
  *        )
- *        .setShape(DkShape.VERTICAL_LINE)
- *        .setGravity(DkGravity.ANCHOR_BOTTOM_LEFT)
+ *        .setClusterShape(DkShape.VERTICAL_LINE)
+ *        .setClusterGravity(DkGravity.ANCHOR_BOTTOM_LEFT)
  *        .setClusterMargin(anchor.getWidth(), 0)
  *        .boom();
  * </code></pre>
@@ -541,7 +541,7 @@ public class DkBoomMenu {
 
 	// endregion Get/Set
 
-	// region Setting for all items
+	// region Setting for cluster items
 
 	public DkBoomMenu setItemClickListener(DkOnItemClickListener onItemClickListener) {
 		clusterManager.onItemClickListener = onItemClickListener;
@@ -568,5 +568,5 @@ public class DkBoomMenu {
 		return this;
 	}
 
-	// endregion Setting for all items
+	// endregion Setting for cluster items
 }

@@ -26,8 +26,16 @@ import tool.compet.core.DkRunner1;
  * Utility class for text processing for TextView.
  */
 public class DkTextViews {
-	public static float calcTextSize(int fontSize) {
+	public static float fontSizeInPx(int fontSize) {
 		return fontSize * DkConfig.device.density;
+	}
+
+	public static void scaleTextSize(TextView tv, float factor) {
+		tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, tv.getTextSize() * factor);
+	}
+
+	public static void setTextSize(TextView tv, float newSizeInPx) {
+		tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, newSizeInPx);
 	}
 
 	public static Spanned getSpannedText(String text, boolean hasColor, int color, boolean isBold, boolean hasUnderline) {
@@ -88,14 +96,10 @@ public class DkTextViews {
 		float halfWidth = (bounds.right - bounds.left) / 2f;
 		float halfHeight = (bounds.bottom - bounds.top) / 2f;
 
-		return new float[]{cx - halfWidth - bounds.left, cy + halfHeight - bounds.bottom};
+		return new float[] {cx - halfWidth - bounds.left, cy + halfHeight - bounds.bottom};
 	}
 
 	public static float[] getTextViewDrawPoint(Rect bounds, float leftBottomX, float leftBottomY) {
 		return new float[]{leftBottomX - bounds.left, leftBottomY - bounds.bottom};
-	}
-
-	public static void scaleTextSize(TextView tv, float factor) {
-		tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, tv.getTextSize() * factor);
 	}
 }

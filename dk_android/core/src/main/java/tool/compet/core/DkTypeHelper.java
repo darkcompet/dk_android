@@ -6,6 +6,10 @@ package tool.compet.core;
 
 import androidx.collection.ArrayMap;
 
+/**
+ * Classify type of a class.
+ * For eg,. when we have `X.class`, we can detect its primitive-type as: int, long, ...
+ */
 public class DkTypeHelper {
 	public static final int TYPE_BOOLEAN_MASKED = 0x1;
 	public static final int TYPE_BOOLEAN_OBJECT = 0x11;
@@ -59,18 +63,21 @@ public class DkTypeHelper {
 	}
 
 	/**
-	 * Detect given `type` is primitive or object of the type.
+	 * Detect type as primitive or object.
+	 * For eg,. `int.class` will result prmitive-integer,
+	 * but `Integer.class` will result object-integer.
 	 */
-	public static int getTypeSpecific(Class type) {
-		Integer val = types.get(type);
+	public static int type(Class clazz) {
+		Integer val = types.get(clazz);
 		return val == null ? -1 : val;
 	}
 
 	/**
-	 * Detect given `type` is the type.
+	 * Detect given `type` without care of primitive or object.
+	 * For eg,. both of `int.class` and `Integer.class` will result integer type.
 	 */
-	public static int getTypeMasked(Class type) {
-		Integer val = types.get(type);
-		return val == null ? -1 : val >> 4;
+	public static int typeMasked(Class clazz) {
+		Integer val = types.get(clazz);
+		return (val == null) ? -1 : val >> 4;
 	}
 }

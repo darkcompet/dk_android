@@ -21,16 +21,24 @@ public class DeviceConfig {
 	public String country; // eg: VN, JP
 	public Locale locale;
 
-	// Screen dimension in pixel
+	/**
+	 * Screen dimension in pixel
+	 */
 	public int[] displaySize;
 
-	// density for dimension calculation
+	/**
+	 * Density for dimension calculation.
+	 */
 	public float density;
 
-	// density which is expressed as Dot-per-inch
+	/**
+	 * Density which is expressed as Dot-per-inch
+	 */
 	public int densityDpi;
 
-	// density for fontsize calculation
+	/**
+	 * Density for fontsize calculation.
+	 */
 	public float scaledDensity;
 
 	DeviceConfig() {

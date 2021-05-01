@@ -7,16 +7,19 @@ package tool.compet.core;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * This class, provides common basic operations on a collection.
  */
 public class DkCollections {
 	// Check emptiness of List, Set ... which is subclass of Collection
-	public static boolean isEmpty(Collection<?> collection) {
+	public static boolean empty(Collection<?> collection) {
 		return collection == null || collection.size() == 0;
 	}
 
@@ -82,5 +85,14 @@ public class DkCollections {
 
 	public static <M> int sizeOf(@Nullable List<M> list) {
 		return list == null ? 0 : list.size();
+	}
+
+	public static <T> Set<T> asSet(@Nullable T[] objs) {
+		if (objs == null || objs.length == 0) {
+			return new HashSet<>();
+		}
+		Set<T> set = new HashSet<>(objs.length);
+		set.addAll(Arrays.asList(objs));
+		return set;
 	}
 }

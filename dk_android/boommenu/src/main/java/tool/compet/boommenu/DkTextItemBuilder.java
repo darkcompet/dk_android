@@ -17,7 +17,7 @@ public class DkTextItemBuilder extends DkItemBuilder<DkTextItemBuilder> {
 	public static final int STYLE_TEXT_TOP_OUT_ICON = 4; // text at top and outside of icon
 	public static final int STYLE_TEXT_BOTTOM_OUT_ICON = 5; // text at bottom and outside of icon
 
-	private int style = STYLE_TEXT_INSIDE_ICON;
+	private int style = STYLE_TEXT_RIGHT_OUT_ICON;
 
 	private int iconRes;
 	private int iconBorderColor = Color.TRANSPARENT;

@@ -4,8 +4,6 @@
 
 package tool.compet.core.stream;
 
-import tool.compet.core.DkLogs;
-
 /**
  * God observable node.
  */
@@ -50,7 +48,6 @@ class MyGodIterableObservable<T> extends DkObservable<T> {
 				onError(e);
 			}
 			finally {
-				DkLogs.debug(this, "call final at God node");
 				onFinal();
 			}
 		}

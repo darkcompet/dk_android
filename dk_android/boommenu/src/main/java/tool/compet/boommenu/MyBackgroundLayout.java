@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
 
-import tool.compet.core.view.animation.DkInterpolatorProvider;
+import tool.compet.core.view.DkInterpolatorProvider;
 
 class MyBackgroundLayout extends FrameLayout implements View.OnClickListener, View.OnTouchListener, View.OnKeyListener {
 	interface Listener {

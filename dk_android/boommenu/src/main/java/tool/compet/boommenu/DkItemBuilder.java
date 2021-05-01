@@ -73,7 +73,7 @@ public abstract class DkItemBuilder<T extends DkItemBuilder> {
 
 		// Validate and initialize
 		if (view == null) {
-			throw new RuntimeException("Must provide view");
+			throw new RuntimeException("Must provide item view at `getView()`");
 		}
 		if (movingInterpolator == null) {
 			movingInterpolator = PathInterpolatorCompat.create(
@@ -172,6 +172,7 @@ public abstract class DkItemBuilder<T extends DkItemBuilder> {
 	protected <V extends DkBaseItemView> V prepareView(Context context, int layoutRes) {
 		DkBaseItemView view = (DkBaseItemView) View.inflate(context, layoutRes, null);
 
+		// This is time to need build some info for item view
 		if (cornerRadius == Integer.MIN_VALUE) {
 			cornerRadius = DkConfig.device.dp2px(8);
 		}

@@ -18,7 +18,7 @@ import android.view.ViewConfiguration;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatImageView;
 
-import tool.compet.core.graphic.DkIDrawable;
+import tool.compet.core.view.DkDrawable;
 import tool.compet.core.view.DkViews;
 
 /**
@@ -160,8 +160,8 @@ public class DkForegroundImageView extends AppCompatImageView {
 
 		if (IS_PRE_LOLLIPOP) {
 			// setHotspot for own drawable since pre-lollipop has not hotspot concept
-			if (fg instanceof DkIDrawable) {
-				((DkIDrawable) fg).setHotspot(x, y);
+			if (fg instanceof DkDrawable) {
+				((DkDrawable) fg).setHotspot(x, y);
 			}
 		}
 		else {

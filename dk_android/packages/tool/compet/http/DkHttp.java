@@ -163,7 +163,7 @@ public class DkHttp {
 
 		final MyServiceMethod<?> finalServiceMethod = serviceMethod;
 
-		return DkObservable.fromExecution(() -> {
+		return DkObservable.fromCallable(() -> {
 			// Rebuild arguments of service method since args are dynamic
 			String requestMethod;
 			byte[] body;

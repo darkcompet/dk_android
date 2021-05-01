@@ -33,7 +33,7 @@ public class TheSqliteColumnDetail {
 			def += " not null";
 		}
 		if (hasDefaultValue) {
-			def += " \"" + defaultValue + "\"";
+			def += " '" + defaultValue + "'";
 		}
 		return def.trim();
 	}

@@ -13,8 +13,6 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
-import tool.compet.core.view.gesturedetector.DkDoubleFingerDetector;
-
 public class DkPhotoView extends View implements DkDoubleFingerDetector.Listener, View.OnTouchListener {
 	private int maxZoomLevel = 30;
 	private int minZoomLevel = -30;

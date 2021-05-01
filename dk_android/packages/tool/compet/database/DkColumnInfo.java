@@ -10,17 +10,17 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotates this into column which is field in database for convenience CRUD operations.
+ * Annotates this into column which maps with table column for CRUD operations.
  */
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DkColumnInfo {
-	// column name (can be real table column or virtual table column)
+	// Column name (can be real table column or virtual table column)
 	String name();
 
-	// primary key (unique)
+	// Primary key (unique)
 	boolean primaryKey() default false;
 
-	// indicate this column can be updated
+	// Indicate this column can be upserted (true: can upsert, false: cannot upsert)
 	boolean fillable() default false;
 }

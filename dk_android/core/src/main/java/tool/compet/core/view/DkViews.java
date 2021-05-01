@@ -36,7 +36,7 @@ import androidx.core.view.ViewCompat;
 import tool.compet.core.DkRunner1;
 
 /**
- * Utility class for View.
+ * View utility.
  */
 public class DkViews {
 	/**

@@ -62,7 +62,7 @@ class MyClusterManager {
 	boolean itemEnableScale = true; // scale while animating
 	boolean itemDismissMenuOnClickItem = true; // dismiss boom menu when click item itself
 	boolean itemDismissMenuImmediate; // true: dismiss boom menu immediate, false: animate unboom
-	int itemMargin = 8; // 8dp (just call item.setMargin() to convert to pixel)
+	int itemMargin = 4; // default 4dp (call item.setMargin() to convert to pixel)
 	boolean itemDismissOnBackPressed = true;
 	boolean itemDismissImmediate;
 

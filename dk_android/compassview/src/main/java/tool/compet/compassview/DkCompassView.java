@@ -27,8 +27,7 @@ import java.util.List;
 import java.util.Locale;
 
 import tool.compet.core.DkColors;
-import tool.compet.core.config.DkConfig;
-import tool.compet.core.view.gesturedetector.DkDoubleFingerDetector;
+import tool.compet.core.view.DkDoubleFingerDetector;
 import tool.compet.core.DkBitmaps;
 import tool.compet.core.DkLogs;
 import tool.compet.core.DkMaths;
@@ -44,7 +43,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 	public static final int MODE_ROTATE = 2;
 	public static final int MODE_POINT = 3;
 
-	private static final float DEFAULT_WORD_TEXT_SIZE = DkTextViews.calcTextSize(12);
+	private static final float DEFAULT_WORD_TEXT_SIZE = DkTextViews.fontSizeInPx(12);
 
 	private final Context context;
 
@@ -546,11 +545,11 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 		isBuildingCompass = true;
 
 		DkObservable
-			.fromExecution(() -> {
+			.fromCallable(() -> {
 				calcAttributes();
 				return buildCompassInternal(buildCompassRings, locale);
 			})
-			.scheduleInBackgroundAndObserveOnAndroidMainThread()
+			.scheduleInBackgroundAndObserveOnMainThread()
 			.doOnNext(bitmap -> {
 				compass = bitmap;
 				isFitCompassInsideBoard = true;
@@ -662,7 +661,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 				// word font size should between [1, 100]
 				int wordFontSize = Math.max(1, Math.min(100, ring.wordFontSize));
 
-				float ringTextSize = DkTextViews.calcTextSize(wordFontSize) - time;
+				float ringTextSize = DkTextViews.fontSizeInPx(wordFontSize) - time;
 				if (ringTextSize < 1) {
 					ringTextSize = 1;
 					++numberUnnecessaryMeasureRing;

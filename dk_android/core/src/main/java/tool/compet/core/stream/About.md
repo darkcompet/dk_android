@@ -1,6 +1,0 @@
-# stream
-
-RxJava stream.
-
-
-## Usage

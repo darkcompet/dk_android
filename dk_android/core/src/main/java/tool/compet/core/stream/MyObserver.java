@@ -39,8 +39,6 @@ class MyObserver<T> implements DkObserver<T> {
 		child.onFinal();
 
 		if (BuildConfig.DEBUG) {
-			DkLogs.warning(this, "Call onFinal()");
-
 			if (++__testFinalCount > 1) {
 				DkLogs.warning(this, "Wrong implementation of #onFinal. Please review code !");
 			}
@@ -48,5 +46,4 @@ class MyObserver<T> implements DkObserver<T> {
 	}
 
 	private int __testFinalCount;
-	private long __startTime;
 }

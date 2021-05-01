@@ -10,6 +10,10 @@ import java.util.List;
 public class TheSqliteColumnBuilder {
 	private final List<TheSqliteColumnDetail> colDetails = new ArrayList<>();
 
+	/**
+	 * Add id column without autoincrement feature.
+	 * We should turn off this feature for re-use rowid.
+	 */
 	public TheSqliteColumnDetail id(String colName) {
 		return id(colName, false);
 	}

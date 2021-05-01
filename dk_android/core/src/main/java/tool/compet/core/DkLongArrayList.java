@@ -4,17 +4,10 @@
 
 package tool.compet.core;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-
 /**
  * This class is performance-better version of ArrayList for Integer type.
  */
 public class DkLongArrayList {
-	// Max size that array can be reach to
-	private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
-
 	// Current snapshot of element data (changed if perform insert/delete...)
 	private long[] arr;
 
@@ -215,19 +208,8 @@ public class DkLongArrayList {
 		return DkArrays.asList(toArray());
 	}
 
-	// Grow array to size at least given `minCapacity`, normally it is 1.5 times of current-capacity.
 	private void growCapacity(int minCapacity) {
-		// Calculate new capacity
-		int oldCapacity = arr.length;
-		int newCapacity = oldCapacity + (oldCapacity >> 1);
-
-		// Check over-flow (must subtract, NOT compare)
-		if (newCapacity - minCapacity < 0) {
-			newCapacity = minCapacity;
-		}
-		if (newCapacity - MAX_ARRAY_SIZE > 0) {
-			newCapacity = MAX_ARRAY_SIZE;
-		}
+		int newCapacity = MyArrayHelper.calcNextCapacity(arr.length, minCapacity, Integer.MAX_VALUE - 8);
 
 		// Make new array and then copy from old array.
 		long[] newArr = new long[newCapacity];

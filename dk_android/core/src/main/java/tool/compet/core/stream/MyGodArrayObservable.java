@@ -7,8 +7,6 @@ package tool.compet.core.stream;
 import java.util.Arrays;
 import java.util.Collections;
 
-import tool.compet.core.DkLogs;
-
 /**
  * God observable node.
  */
@@ -57,7 +55,6 @@ class MyGodArrayObservable<T> extends DkObservable<T> {
 				onError(e);
 			}
 			finally {
-				DkLogs.debug(this, "call final at God node");
 				onFinal();
 			}
 		}

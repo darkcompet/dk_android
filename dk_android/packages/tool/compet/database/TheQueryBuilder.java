@@ -7,14 +7,18 @@ package tool.compet.database;
 import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import tool.compet.core.DkCollections;
-import tool.compet.core.DkMaps;
+import tool.compet.core.DkConst;
 import tool.compet.core.DkRunner1;
 import tool.compet.core.DkStrings;
+import tool.compet.core.reflection.DkReflectionFinder;
 
 import static tool.compet.database.MyConst.K_AND;
 import static tool.compet.database.MyConst.K_ASC;
@@ -40,19 +44,16 @@ import static tool.compet.database.MyConst.K_RIGHT;
  *
  * @author darkcompet
  */
-public abstract class TheQueryBuilder<M> { // M: model
-	/**
-	 * Insert new row from given key-value map.
-	 *
-	 * @param params Map of insert key-value for the table
-	 *
-	 * @return Last inserted row id of current connection.
-	 *
-	 * @throws RuntimeException When invalid params
-	 */
-	public abstract long insert(Map<String, Object> params);
+public abstract class TheQueryBuilder<M> {
+	// Enable this to reduce mistake when query
+	private boolean enableStrictMode = true;
 
-	protected final MyDatabaseConnection connection;
+	/**
+	 * @return Last insert row id.
+	 */
+	public abstract long lastInsertRowId();
+
+	protected final TheDao<M> dao;
 	protected final MyGrammar grammar;
 	protected String tableName;
 	protected Class<M> modelClass;
@@ -67,16 +68,15 @@ public abstract class TheQueryBuilder<M> { // M: model
 	protected long limit = Long.MIN_VALUE;
 	protected long offset = Long.MIN_VALUE;
 
-	// Params for insert or update
-	protected Map<String, Object> pairs;
-
-	// Package privated (note that, this class is open for usage, not for create)
-	TheQueryBuilder(MyDatabaseConnection connection, MyGrammar grammar, String tableName, Class<M> modelClass) {
-		this.connection = connection;
+	// Package privated (this class is open for usage, not for create)
+	TheQueryBuilder(TheDao<M> dao, MyGrammar grammar, String tableName, Class<M> modelClass) {
+		this.dao = dao;
 		this.grammar = grammar;
 		this.tableName = tableName;
 		this.modelClass = modelClass;
 	}
+
+	// region Build query
 
 	public TheQueryBuilder table(String tableName) {
 		this.tableName = tableName;
@@ -112,6 +112,9 @@ public abstract class TheQueryBuilder<M> { // M: model
 		return nullableHavings != null ? nullableHavings : (nullableHavings = new ArrayList<>());
 	}
 
+	/**
+	 * Select one or multiple columns.
+	 */
 	public TheQueryBuilder<M> select(String... names) {
 		for (String name : names) {
 			selects().add(new MySelection(grammar, K_BASIC, name));
@@ -137,6 +140,9 @@ public abstract class TheQueryBuilder<M> { // M: model
 		return this;
 	}
 
+	/**
+	 * Left join with another table on `first = second` condition.
+	 */
 	public TheQueryBuilder<M> leftJoin(String joinTable, String first, String second) {
 		return registerSingleJoin(K_LEFT, joinTable, first, "=", second);
 	}
@@ -161,21 +167,21 @@ public abstract class TheQueryBuilder<M> { // M: model
 		return registerSingleJoin(K_INNER, joinTable, first, operator, second);
 	}
 
-	public TheQueryBuilder<M> leftJoin(String joinTable, DkRunner1<DkJoiner> joinerCallback) {
+	public TheQueryBuilder<M> leftJoin(String joinTable, DkRunner1<MyJoiner> joinerCallback) {
 		return registerMultipleJoin(K_LEFT, joinTable, joinerCallback);
 	}
 
-	public TheQueryBuilder<M> rightJoin(String joinTable, DkRunner1<DkJoiner> joinerCallback) {
+	public TheQueryBuilder<M> rightJoin(String joinTable, DkRunner1<MyJoiner> joinerCallback) {
 		return registerMultipleJoin(K_RIGHT, joinTable, joinerCallback);
 	}
 
-	public TheQueryBuilder<M> join(String joinTable, DkRunner1<DkJoiner> joinerCallback) {
+	public TheQueryBuilder<M> join(String joinTable, DkRunner1<MyJoiner> joinerCallback) {
 		return registerMultipleJoin(K_INNER, joinTable, joinerCallback);
 	}
 
-	private TheQueryBuilder<M> registerMultipleJoin(String joinType, String joinTable, DkRunner1<DkJoiner> joinerCallback) {
+	private TheQueryBuilder<M> registerMultipleJoin(String joinType, String joinTable, DkRunner1<MyJoiner> joinerCallback) {
 		// Send joiner to callback and receive condition from callbacker
-		DkJoiner joiner = new DkJoiner(grammar);
+		MyJoiner joiner = new MyJoiner(grammar);
 		joinerCallback.run(joiner);
 
 		joins().add(new MyJoin(grammar, joinType, joinTable, joiner));
@@ -285,7 +291,6 @@ public abstract class TheQueryBuilder<M> { // M: model
 
 	public TheQueryBuilder<M> groupByRaw(String sql) {
 		groupBys().add(new MyGroupBy(grammar, K_RAW, sql));
-
 		return this;
 	}
 
@@ -342,17 +347,19 @@ public abstract class TheQueryBuilder<M> { // M: model
 	public TheQueryBuilder<M> orHavingRaw(String sql) {
 		return registerExpression(new MyExpression(grammar, K_OR, K_RAW, sql), havings());
 	}
+	public TheQueryBuilder<M> offset(long offset) {
+		this.offset = offset;
+		return this;
+	}
 
 	public TheQueryBuilder<M> limit(long limit) {
 		this.limit = limit;
 		return this;
 	}
 
-	public TheQueryBuilder<M> offset(long offset) {
-		this.offset = offset;
+	// endregion Build query
 
-		return this;
-	}
+	// region CRUD
 
 	@Nullable
 	public M first() {
@@ -391,56 +398,73 @@ public abstract class TheQueryBuilder<M> { // M: model
 				items.add(s);
 			}
 		}
-		String query = DkStrings.join(' ', items);
 
-		return connection.rawQuery(query.trim(), modelClass);
+		// Maybe should validate the query if possible :D
+		String query = DkStrings.join(DkConst.SPACE_CHAR, items).trim();
+
+		return dao.rawQuery(query, modelClass);
+	}
+
+	public long insert(Object model) {
+		return insert(model, null);
 	}
 
 	/**
-	 * Call this to set pair (key-value) for insert or update.
+	 * By default, we only support insert a model which has fields annotated with `DkColumnInfo`.
+	 * For trigger before insert, caller can override `onUpdate()` at dao class.
+	 *
+	 * @param model Must be model which contains fields annotated with `DkColumnInfo`
+	 * @param fillable When null is passed, we only filter fields which has fillable in model
 	 */
-	public TheQueryBuilder<M> set(String key, Object value) {
-		if (pairs == null) {
-			pairs = new ArrayMap<>();
-		}
-		pairs.put(key, value);
+	public long insert(Object model, @Nullable String[] fillable) {
+		// Trigger before make insert params
+		dao.onInsert(model);
 
-		return this;
+		Map<String, Object> insertParams = requireInsertParams(model, fillable);
+		String query = grammar.compileInsertQuery(tableName, insertParams);
+
+		dao.execQuery(query);
+
+		return lastInsertRowId();
 	}
 
-	public long insert() {
-		return insert(pairs);
-	}
-
-	public void update() {
-		update(pairs);
+	public void update(Object model) {
+		update(model, null);
 	}
 
 	/**
-	 * @throws RuntimeException When invalid update
+	 * By default, we only support update a model which has fields annotated with `DkColumnInfo`.
+	 * For trigger before update, caller can override `onUpdate()` at dao class.
+	 *
+	 * @param model Must be model which contains fields annotated with `DkColumnInfo`
+	 * @param fillable When null is passed, we only filter fields which has fillable in model
 	 */
-	public void update(Map<String, Object> params) {
-		if (DkMaps.isEmpty(params)) {
-			throw new RuntimeException("Cannot update empty record");
-		}
+	public void update(Object model, @Nullable String[] fillable) {
+		// Trigger before make update params
+		dao.onUpdate(model);
+
+		Map<String, Object> updateParams = requireUpdateParams(model, fillable);
 		String whereClause = grammar.compileWheres(wheres());
-		String query = grammar.compileUpdateQuery(tableName, params, whereClause);
+		if (enableStrictMode && wheres().size() == 0) {
+			throw new RuntimeException("Failed since perform update without any condition in strict mode");
+		}
+		String query = grammar.compileUpdateQuery(tableName, updateParams, whereClause);
 
-		connection.execQuery(query);
+		dao.execQuery(query);
 	}
 
 	public void delete() {
 		String whereClause = grammar.compileWheres(wheres());
 		String query = grammar.compileDeleteQuery(tableName, whereClause);
 
-		connection.execQuery(query.trim());
+		dao.execQuery(query.trim());
 	}
 
 	/**
 	 * Execute a query.
 	 */
 	public void execute(String query) {
-		connection.execQuery(query);
+		dao.execQuery(query);
 	}
 
 	/**
@@ -456,4 +480,107 @@ public abstract class TheQueryBuilder<M> { // M: model
 	public TheQueryBuilder<M> validateQuery() {
 		throw new RuntimeException("Invalid sql");
 	}
+
+	// endregion CRUD
+
+	// region Get/Set
+
+	public boolean isEnableStrictMode() {
+		return enableStrictMode;
+	}
+
+	public void setEnableStrictMode(boolean enableStrictMode) {
+		this.enableStrictMode = enableStrictMode;
+	}
+
+	// endregion Get/Set
+
+	// region Private
+
+	private Map<String, Object> requireInsertParams(Object model, String[] fillable) {
+		Map<String, Object> params = new ArrayMap<>();
+		Set<String> fillableCols = (fillable == null) ? null : DkCollections.asSet(fillable);
+
+		Class modelClass = model.getClass();
+		List<Field> fields = DkReflectionFinder.getIns().findFields(modelClass, DkColumnInfo.class);
+
+		for (Field field : fields) {
+			try {
+				DkColumnInfo colInfo = Objects.requireNonNull(field.getAnnotation(DkColumnInfo.class));
+				// Ignore pk
+				if (colInfo.primaryKey()) {
+					continue;
+				}
+
+				String colName = colInfo.name();
+
+				// Ignore by default fillable at model
+				if (fillableCols == null) {
+					if (! colInfo.fillable()) continue;
+				}
+				// Ignore by caller requested fillable
+				else {
+					if (! fillableCols.contains(colName)) continue;
+				}
+
+				Object value = MyGrammarHelper.toDbValue(field.get(model));
+
+				params.put(colName, value);
+			}
+			catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		if (params.size() == 0) {
+			throw new RuntimeException("Must provide fillable columns in model");
+		}
+
+		return params;
+	}
+
+	private Map<String, Object> requireUpdateParams(Object model, @Nullable String[] fillable) {
+		Map<String, Object> params = new ArrayMap<>();
+		Set<String> fillableCols = (fillable == null) ? null : DkCollections.asSet(fillable);
+
+		Class modelClass = model.getClass();
+		List<Field> fields = DkReflectionFinder.getIns().findFields(modelClass, DkColumnInfo.class);
+
+		// Collect update params from model fields
+		for (Field field : fields) {
+			try {
+				DkColumnInfo colInfo = Objects.requireNonNull(field.getAnnotation(DkColumnInfo.class));
+				// Ignore pk
+				if (colInfo.primaryKey()) {
+					continue;
+				}
+
+				String colName = colInfo.name();
+
+				// When caller does not pass fillable, let ignore columns which is not fillable at model definition
+				if (fillableCols == null) {
+					if (! colInfo.fillable()) continue;
+				}
+				// Ignore columns which is not in caller requested fillable
+				else {
+					if (! fillableCols.contains(colName)) continue;
+				}
+
+				Object value = MyGrammarHelper.toDbValue(field.get(model));
+
+				params.put(colName, value);
+			}
+			catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		if (params.size() == 0) {
+			throw new RuntimeException("The model must contain fillable fields");
+		}
+
+		return params;
+	}
+
+	// endregion Private
 }

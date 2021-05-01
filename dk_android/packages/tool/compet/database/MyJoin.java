@@ -17,7 +17,7 @@ class MyJoin {
 	private String second;
 
 	// B. Multiple join on
-	private DkJoiner joiner;
+	private MyJoiner joiner;
 
 	// A
 	MyJoin(MyGrammar grammar, String joinType, String joinTable, String first, String operator, String second) {
@@ -30,7 +30,7 @@ class MyJoin {
 	}
 
 	// B
-	MyJoin(MyGrammar grammar, String joinType, String joinTable, DkJoiner joiner) {
+	MyJoin(MyGrammar grammar, String joinType, String joinTable, MyJoiner joiner) {
 		this.grammar = grammar;
 		this.joinType = joinType;
 		this.joinTable = joinTable;

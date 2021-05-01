@@ -9,14 +9,17 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.telephony.TelephonyManager;
 
+import androidx.annotation.Nullable;
+
+/**
+ * Network activity util.
+ */
 public class DkNetworks {
+	@Nullable
 	public static NetworkInfo getActiveNetworkInfo(Context context) {
 		ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 		if (cm != null) {
-			NetworkInfo info = cm.getActiveNetworkInfo();
-			if (info != null) {
-				return info;
-			}
+			return cm.getActiveNetworkInfo();
 		}
 		return null;
 	}
@@ -29,7 +32,7 @@ public class DkNetworks {
 		if (info == null) {
 			return DkNetworkStatus.NOT_CONNECTED;
 		}
-		//todo deprecation
+
 		switch (info.getType()) {
 			case ConnectivityManager.TYPE_WIFI: {
 				return DkNetworkStatus.WIFI;

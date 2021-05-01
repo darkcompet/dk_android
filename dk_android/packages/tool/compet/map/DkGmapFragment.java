@@ -167,14 +167,11 @@ public abstract class DkGmapFragment extends SupportMapFragment implements OnMap
 
 	public void showMap(boolean isShow) {
 		FragmentManager parentFragmentManager = getParentFragmentManager();
-
-		if (parentFragmentManager != null) {
-			if (isShow) {
-				parentFragmentManager.beginTransaction().show(this).commit();
-			}
-			else {
-				parentFragmentManager.beginTransaction().hide(this).commit();
-			}
+		if (isShow) {
+			parentFragmentManager.beginTransaction().show(this).commit();
+		}
+		else {
+			parentFragmentManager.beginTransaction().hide(this).commit();
 		}
 	}
 

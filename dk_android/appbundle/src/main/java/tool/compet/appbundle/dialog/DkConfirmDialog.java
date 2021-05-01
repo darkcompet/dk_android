@@ -12,6 +12,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -53,17 +54,19 @@ public class DkConfirmDialog extends DkCompactDialog implements View.OnClickList
 	private static final int INFO = Color.parseColor("#493ebb");
 	private static final int SUCCESS = Color.parseColor("#00bb4d");
 
-	public static final int LAYOUT_TYPE_CLASSIC = 1;
-	public static final int LAYOUT_TYPE_MODERN = 2;
-	protected int layoutType = LAYOUT_TYPE_MODERN;
+	public static final int LAYOUT_TYPE_HORIZONTAL_ACTIONS = 1;
+	public static final int LAYOUT_TYPE_VERTICAL_ACTIONS = 2;
+	protected int layoutType = LAYOUT_TYPE_VERTICAL_ACTIONS;
 
 	protected ViewGroup vBackground;
 	protected ViewGroup vForeground;
 
 	// Header
 	protected View vHeader;
+	protected ImageView ivIcon;
 	protected TextView vTitle;
 	protected TextView vSubTitle;
+	protected int iconResId; // store in instance state
 	protected int titleTextResId; // store in instance state
 	protected int subTitleTextResId; // store in instance state
 	protected Integer headerBackgroundColor; // store in instance state
@@ -99,10 +102,10 @@ public class DkConfirmDialog extends DkCompactDialog implements View.OnClickList
 
 	@Override
 	public int layoutResourceId() {
-		if (layoutType == LAYOUT_TYPE_MODERN) {
-			return R.layout.dk_confirm_dialog_modern;
+		if (layoutType == LAYOUT_TYPE_VERTICAL_ACTIONS) {
+			return R.layout.dk_confirm_dialog_vertical_actions;
 		}
-		return R.layout.dk_confirm_dialog_classic;
+		return R.layout.dk_confirm_dialog_horizonal_actions;
 	}
 
 	@Override
@@ -154,12 +157,13 @@ public class DkConfirmDialog extends DkCompactDialog implements View.OnClickList
 		vBody = view.findViewById(R.id.dk_body);
 
 		vHeader = view.findViewById(R.id.dk_header);
+		ivIcon = view.findViewById(R.id.dk_icon);
 		vTitle = view.findViewById(R.id.dk_title);
+		vSubTitle = view.findViewById(R.id.dk_subtitle);
+		vMessage = view.findViewById(R.id.dk_message);
 		vCancel = view.findViewById(R.id.dk_cancel);
 		vReset = view.findViewById(R.id.dk_reset);
 		vOk = view.findViewById(R.id.dk_ok);
-		vSubTitle = view.findViewById(R.id.dk_subtitle);
-		vMessage = view.findViewById(R.id.dk_message);
 
 		vBackground.setOnTouchListener((v, event) -> {
 			switch (event.getActionMasked()) {
@@ -168,7 +172,7 @@ public class DkConfirmDialog extends DkCompactDialog implements View.OnClickList
 				case MotionEvent.ACTION_UP:
 				case MotionEvent.ACTION_CANCEL:
 				case MotionEvent.ACTION_OUTSIDE: {
-					if (!DkViews.isInsideView(event, vForeground)) {
+					if (! DkViews.isInsideView(event, vForeground)) {
 						onClickOutside();
 					}
 					break;
@@ -181,6 +185,7 @@ public class DkConfirmDialog extends DkCompactDialog implements View.OnClickList
 		if (headerBackgroundColor != null) {
 			vHeader.setBackgroundColor(headerBackgroundColor);
 		}
+		decorIcon();
 		decorTitle();
 		decorSubTitle();
 
@@ -206,9 +211,9 @@ public class DkConfirmDialog extends DkCompactDialog implements View.OnClickList
 			bkgLayoutParams.width = bkgLayoutParams.height = MATCH_PARENT;
 		}
 		else {
-			int d = Math.min(DkConfig.device.displaySize[0], DkConfig.device.displaySize[1]);
-			bkgLayoutParams.width = (d >> 2) + (d >> 1); // 0.75
-			//            bkgLayoutParams.height = (int) (bkgLayoutParams.width * heightWeight / widthWeight);
+			int ds = Math.min(DkConfig.device.displaySize[0], DkConfig.device.displaySize[1]);
+			bkgLayoutParams.width = (ds >> 2) + (ds >> 1); // 0.75 * deviceSize
+			// bkgLayoutParams.height = (int) (bkgLayoutParams.width * heightWeight / widthWeight);
 		}
 		vForeground.setLayoutParams(bkgLayoutParams);
 	}
@@ -252,6 +257,16 @@ public class DkConfirmDialog extends DkCompactDialog implements View.OnClickList
 		onDismissDialog(dialog);
 
 		super.onDismiss(dialog);
+	}
+
+	// region Get/Set
+
+	public DkConfirmDialog setIcon(int iconResId) {
+		this.iconResId = iconResId;
+		if (ivIcon != null) {
+			decorIcon();
+		}
+		return this;
 	}
 
 	public DkConfirmDialog setTitle(int titleResId) {
@@ -411,6 +426,8 @@ public class DkConfirmDialog extends DkCompactDialog implements View.OnClickList
 		return this;
 	}
 
+	// endregion Get/Set
+
 	// region Protected
 
 	/**
@@ -462,6 +479,7 @@ public class DkConfirmDialog extends DkCompactDialog implements View.OnClickList
 
 	// Subclass can override this to store something
 	protected void onStoreInstanceState(@NonNull Bundle outState) {
+		outState.putInt("DkConfirmDialog.iconResId", iconResId);
 		outState.putInt("DkConfirmDialog.titleTextResId", titleTextResId);
 		outState.putInt("DkConfirmDialog.subTitleTextResId", subTitleTextResId);
 		if (headerBackgroundColor != null) {
@@ -496,7 +514,7 @@ public class DkConfirmDialog extends DkCompactDialog implements View.OnClickList
 		outState.putBoolean("DkConfirmDialog.isDismissOnTouchOutside", isDismissOnTouchOutside);
 		outState.putBoolean("DkConfirmDialog.isFullScreen", isFullScreen);
 
-		ConfirmTopic confirmTopic = topic(CONFIRM_TOPIC).obtain(ConfirmTopic.class);
+		ConfirmTopic confirmTopic = refTopic(CONFIRM_TOPIC).obtain(ConfirmTopic.class);
 		confirmTopic.cancelCb = this.cancelCb;
 		confirmTopic.resetCb = this.resetCb;
 		confirmTopic.okCb = this.okCb;
@@ -505,6 +523,7 @@ public class DkConfirmDialog extends DkCompactDialog implements View.OnClickList
 	// Subclass can override this to restore something
 	protected void onRestoreInstanceState(@Nullable Bundle savedInstanceState) {
 		if (savedInstanceState != null) {
+			iconResId = savedInstanceState.getInt("DkConfirmDialog.iconResId");
 			titleTextResId = savedInstanceState.getInt("DkConfirmDialog.titleTextResId");
 			subTitleTextResId = savedInstanceState.getInt("DkConfirmDialog.subTitleTextResId");
 			headerBackgroundColor = savedInstanceState.getInt("DkConfirmDialog.headerBackgroundColor");
@@ -525,7 +544,7 @@ public class DkConfirmDialog extends DkCompactDialog implements View.OnClickList
 			isDismissOnTouchOutside = savedInstanceState.getBoolean("DkConfirmDialog.isDismissOnTouchOutside");
 			isFullScreen = savedInstanceState.getBoolean("DkConfirmDialog.isFullScreen");
 
-			ConfirmTopic confirmTopic = topic(CONFIRM_TOPIC).obtain(ConfirmTopic.class);
+			ConfirmTopic confirmTopic = refTopic(CONFIRM_TOPIC).obtain(ConfirmTopic.class);
 			this.cancelCb = confirmTopic.cancelCb;
 			this.resetCb = confirmTopic.resetCb;
 			this.okCb = confirmTopic.okCb;
@@ -535,6 +554,19 @@ public class DkConfirmDialog extends DkCompactDialog implements View.OnClickList
 	// endregion Protected
 
 	// region Private
+
+	private void decorIcon() {
+		if (ivIcon == null) {
+			return;
+		}
+		if (iconResId > 0) {
+			ivIcon.setImageResource(iconResId);
+			ivIcon.setVisibility(View.VISIBLE);
+		}
+		else {
+			ivIcon.setVisibility(View.GONE);
+		}
+	}
 
 	private void decorTitle() {
 		if (vTitle == null) {

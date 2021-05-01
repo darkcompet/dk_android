@@ -91,7 +91,7 @@ abstract class MyGrammar {
 	 */
 	protected String compileSelects(List<MySelection> selections) {
 		// Consider caller wanna get all fields if no selection was specified
-		if (DkCollections.isEmpty(selections)) {
+		if (DkCollections.empty(selections)) {
 			return "*";
 		}
 
@@ -180,7 +180,7 @@ abstract class MyGrammar {
 	 */
 	protected String compileBoolExpression(String prefix, List<MyExpression> expressions) {
 		// Nothing is compiled, so return empty string
-		if (DkCollections.isEmpty(expressions)) {
+		if (DkCollections.empty(expressions)) {
 			return DkConst.EMPTY_STRING;
 		}
 		List<String> items = new ArrayList<>();
@@ -200,7 +200,7 @@ abstract class MyGrammar {
 	 * inner join `user_main` on `user`.`id` = `user_main`.`user_id`
 	 */
 	protected String compileJoins(List<MyJoin> joinInfos) {
-		if (DkCollections.isEmpty(joinInfos)) {
+		if (DkCollections.empty(joinInfos)) {
 			return DkConst.EMPTY_STRING;
 		}
 		List<String> joinClauses = new ArrayList<>();
@@ -217,7 +217,7 @@ abstract class MyGrammar {
 	 * @return for eg,. "group by `id`, `name`, `age`"
 	 */
 	protected String compileGroupBys(List<MyGroupBy> groupBys) {
-		if (DkCollections.isEmpty(groupBys)) {
+		if (DkCollections.empty(groupBys)) {
 			return DkConst.EMPTY_STRING;
 		}
 		List<String> groupByList = new ArrayList<>();
@@ -244,7 +244,7 @@ abstract class MyGrammar {
 	 * @return for eg,. "order by `id` asc, `name` desc"
 	 */
 	protected String compileOrderBys(List<MyOrderBy> orderBys) {
-		if (DkCollections.isEmpty(orderBys)) {
+		if (DkCollections.empty(orderBys)) {
 			return DkConst.EMPTY_STRING;
 		}
 		List<String> orderByList = new ArrayList<>();

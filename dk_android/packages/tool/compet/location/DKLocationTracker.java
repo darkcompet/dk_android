@@ -19,7 +19,7 @@ import tool.compet.core.DkUtils;
 /**
  * This is location tracker which uses `LocationManager` of framework.
  */
-public class DKLocationTracker {
+public class DkLocationTracker {
 	public interface Listener {
 		void onStatusChanged(String provider, int status, Bundle extras);
 
@@ -38,7 +38,7 @@ public class DKLocationTracker {
 	private final Criteria criteria;
 	private Listener listener;
 
-	public DKLocationTracker(Context context) {
+	public DkLocationTracker(Context context) {
 		locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 		criteria = new Criteria();
 		criteria.setAccuracy(Criteria.ACCURACY_COARSE);
@@ -100,14 +100,14 @@ public class DKLocationTracker {
 		curLatLng = null;
 	}
 
-	public DKLocationTracker setIntervalTimeUpdate(long millis) {
+	public DkLocationTracker setIntervalTimeUpdate(long millis) {
 		if (millis > 0) {
 			minTimePeriodUpdate = millis;
 		}
 		return this;
 	}
 
-	public DKLocationTracker setDistanceUpdate(float meter) {
+	public DkLocationTracker setDistanceUpdate(float meter) {
 		if (meter > 0) {
 			minDistanceUpdate = meter;
 		}
@@ -139,7 +139,7 @@ public class DKLocationTracker {
 		@Override
 		public void onLocationChanged(Location location) {
 			synchronized (this) {
-				DKLocationTracker.this.curLocation = location;
+				DkLocationTracker.this.curLocation = location;
 				if (location != null) {
 					curLatLng = new LatLng(location.getLatitude(), location.getLongitude());
 				}

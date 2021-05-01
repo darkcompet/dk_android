@@ -15,6 +15,7 @@ public interface DkConst {
 	String FS = File.separator;
 
 	String EMPTY_STRING = "";
+	char SPACE_CHAR = ' ';
 
 	// Request code
 	String REQ_CODE = "requestCode";

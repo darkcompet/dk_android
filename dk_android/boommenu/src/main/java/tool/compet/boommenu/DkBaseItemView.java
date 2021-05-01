@@ -13,7 +13,7 @@ import android.view.View;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.view.ViewCompat;
 
-import tool.compet.core.graphic.DkDrawables;
+import tool.compet.core.view.DkDrawables;
 
 /**
  * Base item view which be used in DkItemBuilder.getView().
@@ -47,7 +47,7 @@ public class DkBaseItemView extends ConstraintLayout implements View.OnTouchList
 	@Override
 	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 		Drawable background = isCircleShape
-			? DkDrawables.createCircleBackground(
+			? DkDrawables.circleBackground(
 				useRippleEffect,
 				getResources(),
 				w,
@@ -55,7 +55,7 @@ public class DkBaseItemView extends ConstraintLayout implements View.OnTouchList
 				normalColor,
 				pressedColor,
 				unableColor)
-			: DkDrawables.createRectBackground(
+			: DkDrawables.rectBackground(
 				useRippleEffect,
 				getResources(),
 				w,

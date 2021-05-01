@@ -14,6 +14,7 @@ import tool.compet.core.DkRunnable;
 import tool.compet.core.DkRunnable1;
 
 /**
+ * This works like RxJava or Java stream.
  * Refer: https://github.com/ReactiveX/RxJava/
  */
 public abstract class DkObservable<T> {
@@ -58,7 +59,7 @@ public abstract class DkObservable<T> {
 	 * execution of running thread but cannot control (cancel, pause, resume...) it deeply.
 	 * To overcome this, just use #withControllable() instead.
 	 */
-	public static <T> DkObservable<T> fromExecution(DkCallable<T> execution) {
+	public static <T> DkObservable<T> fromCallable(DkCallable<T> execution) {
 		return new MyGodCallableObservable<>(execution);
 	}
 
@@ -118,8 +119,12 @@ public abstract class DkObservable<T> {
 	 * Note that, null observable got from given #function.call() will be ok, but since nothing
 	 * was converted in this node, then process will jump to next lower node with null-result.
 	 */
-	public <R> DkObservable<R> flatMap(DkCallable1<T, DkObservable<R>> function) {
-		return new MyFlatMapObservable<>(this, function);
+	public <R> DkObservable<R> mapStream(DkCallable1<T, DkObservable<R>> function) {
+		return new MyMapStreamObservable<>(this, function);
+	}
+
+	public DkObservable<T> delay(long duration) {
+		return delay(duration, TimeUnit.MILLISECONDS);
 	}
 
 	public DkObservable<T> delay(long duration, TimeUnit unit) {
@@ -131,13 +136,13 @@ public abstract class DkObservable<T> {
 	}
 
 	public DkObservable<T> observeOnMainThread() {
-		return observeOn(DkSchedulers.androidMain(), 0L, TimeUnit.MILLISECONDS, true);
+		return observeOn(DkSchedulers.main(), 0L, TimeUnit.MILLISECONDS, true);
 	}
 
-	public DkObservable<T> scheduleInBackgroundAndObserveOnAndroidMainThread() {
+	public DkObservable<T> scheduleInBackgroundAndObserveOnMainThread() {
 		return this
 			.scheduleIn(DkSchedulers.io(), 0, TimeUnit.MILLISECONDS, false)
-			.observeOn(DkSchedulers.androidMain(), 0L, TimeUnit.MILLISECONDS, true);
+			.observeOn(DkSchedulers.main(), 0L, TimeUnit.MILLISECONDS, true);
 	}
 
 	public DkObservable<T> scheduleIn(DkScheduler<T> scheduler) {
@@ -218,6 +223,14 @@ public abstract class DkObservable<T> {
 	 */
 	public DkObservable<T> doOnFinal(DkRunnable action) {
 		return new MyOnFinalObservable<>(this, action);
+	}
+
+	public void subscribeDefault() {
+		this.scheduleInBackgroundAndObserveOnMainThread().subscribe();
+	}
+
+	public void subscribeAsync() {
+		this.scheduleInBackground().subscribe();
 	}
 
 	public DkControllable<T> subscribeForControllable() {

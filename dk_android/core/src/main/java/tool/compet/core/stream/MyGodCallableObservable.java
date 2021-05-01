@@ -4,7 +4,6 @@
 
 package tool.compet.core.stream;
 
-import tool.compet.core.DkLogs;
 import tool.compet.core.DkCallable;
 
 /**
@@ -48,7 +47,6 @@ class MyGodCallableObservable<T> extends DkObservable<T> {
 				onError(e);
 			}
 			finally {
-				DkLogs.debug(this, "call final at God node");
 				onFinal();
 			}
 		}

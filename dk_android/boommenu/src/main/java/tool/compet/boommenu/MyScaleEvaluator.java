@@ -6,7 +6,7 @@ package tool.compet.boommenu;
 
 import android.view.animation.Interpolator;
 
-import tool.compet.core.view.animation.DkInterpolatorProvider;
+import tool.compet.core.view.DkInterpolatorProvider;
 
 class MyScaleEvaluator {
 	private final float startValue;

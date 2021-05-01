@@ -32,7 +32,7 @@ class MyGrammarHelper {
 
 	static List<String> wrapNameList(Collection<String> names) {
 		List<String> items = new ArrayList<>();
-		if (!DkCollections.isEmpty(names)) {
+		if (!DkCollections.empty(names)) {
 			for (String name : names) {
 				items.add('`' + name + '`');
 			}
@@ -66,7 +66,7 @@ class MyGrammarHelper {
 		if (obj == null) {
 			return null;
 		}
-		if (DkTypeHelper.getTypeMasked(obj.getClass()) == DkTypeHelper.TYPE_BOOLEAN_MASKED) {
+		if (DkTypeHelper.typeMasked(obj.getClass()) == DkTypeHelper.TYPE_BOOLEAN_MASKED) {
 			return ((boolean) obj) ? 1 : 0;
 		}
 		return obj;

@@ -9,8 +9,6 @@ import androidx.lifecycle.ViewModel;
 
 import tool.compet.core.DkLogs;
 
-import static tool.compet.appbundle.BuildConfig.DEBUG;
-
 /**
  * This is subclass of ViewModel, is stored in a {@link androidx.lifecycle.ViewModelStoreOwner} object
  * (like {@link androidx.fragment.app.FragmentActivity}, {@link androidx.fragment.app.Fragment}...).
@@ -63,17 +61,11 @@ public class TheHost extends ViewModel implements TheClient.Listener {
 		MyTopic topic = allTopics.get(topicId);
 
 		if (topic != null) {
-			boolean removed = topic.removeClient(client);
-			if (DEBUG) {
-				DkLogs.info(this, "Unregistered (%b) client `%s` from topic `%s`", removed, client.getClass().getSimpleName(), topicId);
-			}
+			topic.removeClient(client);
+
 			if (topic.clientCount() == 0) {
 				topic.clear();
 				allTopics.remove(topic);
-
-				if (DEBUG) {
-					DkLogs.info(this, "Removed topic `%s` since no client listening", topicId);
-				}
 			}
 		}
 	}
@@ -85,9 +77,6 @@ public class TheHost extends ViewModel implements TheClient.Listener {
 
 		if (allTopics.size() > 0) {
 			DkLogs.warning(this, "NG, host `%s` is cleared while still have %d clients", getClass().getSimpleName(), allTopics.size());
-		}
-		else if (DEBUG) {
-			DkLogs.info(this, "OK, host `%s` is cleared when no client connect", getClass().getSimpleName());
 		}
 
 		// Cleanup all topics
@@ -107,18 +96,10 @@ public class TheHost extends ViewModel implements TheClient.Listener {
 			// Try to remove client from this topic
 			topic.unregisterClient(client);
 
-			if (DEBUG) {
-				DkLogs.info(this, "Client `%s` has left topic `%s` under host `%s`.", client.getClass().getSimpleName(), topicId, getClass().getSimpleName());
-			}
-
 			// Cleanup and Delete topic which is no more listened by client
 			if (topic.clientCount() == 0) {
 				topic.clear();
 				allTopics.removeAt(index);
-
-				if (DEBUG) {
-					DkLogs.info(this, "Topic `%s` was cleanuped and removed from host `%s` since no client listen.", topicId, getClass().getSimpleName());
-				}
 			}
 		}
 	}

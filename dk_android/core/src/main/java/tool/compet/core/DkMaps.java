@@ -10,7 +10,7 @@ import java.util.Map;
  * This class, provides common basic operations on a collection.
  */
 public class DkMaps {
-	public static boolean isEmpty(Map<?, ?> map) {
+	public static boolean empty(Map<?, ?> map) {
 		return map == null || map.size() == 0;
 	}
 }

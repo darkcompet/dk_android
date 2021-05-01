@@ -11,8 +11,6 @@ import android.util.AttributeSet;
 
 import androidx.appcompat.widget.AppCompatImageView;
 
-import tool.compet.core.graphic.DkShadowDrawable;
-
 // https://github.com/hdodenhof/CircleImageView/blob/master/circleimageview/src/main/java/de/hdodenhof/circleimageview/CircleImageView.java
 public class DkCircleImageView extends AppCompatImageView {
 	private int radius;

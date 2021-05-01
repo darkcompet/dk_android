@@ -1,14 +1,31 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-  ~ Copyright (c) 2017-2020 DarkCompet. All rights reserved.
-  -->
+<?xml version="1.0" encoding="utf-8"?>
 
-<tool.compet.boommenu.DkTextItemView xmlns:android="http://schemas.android.com/apk/res/android"
+<tool.compet.boommenu.DkTextItemView
+	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:layout_width="wrap_content"
 	android:layout_height="wrap_content"
 	android:padding="8dp"
 	android:clickable="true"
 	android:focusable="true">
+
+	<TextView
+		android:id="@+id/tvText"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
+		app:layout_constraintBottom_toTopOf="@id/img"
+		android:text="Hello guys, this is very long text, then should be marqueed"
+		android:textColor="@android:color/white"
+		android:gravity="start|center_vertical"
+		android:padding="0dp"
+		android:layout_margin="0dp"
+		android:singleLine="true"
+		android:ellipsize="marquee"
+		android:scrollHorizontally="true"
+		android:marqueeRepeatLimit="marquee_forever" />
 
 	<tool.compet.boommenu.DkImageOnlyItemView
 		android:id="@+id/img"
@@ -23,24 +40,5 @@
 		android:contentDescription="@null"
 		android:src="@android:drawable/ic_dialog_map"
 		android:tint="@android:color/white" />
-
-	<TextView
-		android:id="@+id/tvText"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintTop_toTopOf="parent"
-		app:layout_constraintBottom_toTopOf="@id/img"
-		android:text="Hello guys, this is very long text, then should be marqueed"
-		android:textColor="@android:color/white"
-		android:gravity="center"
-		android:padding="0dp"
-		android:layout_margin="0dp"
-		android:minLines="1"
-		android:singleLine="true"
-		android:ellipsize="marquee"
-		android:scrollHorizontally="true"
-		android:marqueeRepeatLimit="marquee_forever" />
 
 </tool.compet.boommenu.DkTextItemView>

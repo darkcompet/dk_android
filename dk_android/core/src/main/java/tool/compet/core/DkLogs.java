@@ -12,8 +12,6 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 
-import static tool.compet.core.BuildConfig.DEBUG;
-
 /**
  * Android log in Logcat.
  * It contains some helpful logs as: performance benchmark
@@ -35,7 +33,7 @@ public class DkLogs {
 	/**
 	 * Throw RuntimeException.
 	 */
-	public static void complain(Object where, String format, Object... args) {
+	public static void complain(@Nullable Object where, @Nullable String format, Object... args) {
 		throw new RuntimeException(makePrefix(where) + DkStrings.format(format, args));
 	}
 
@@ -44,8 +42,11 @@ public class DkLogs {
 	 * Note that, we should remove all debug code when release.
 	 */
 	// todo: Remove all debug line which call this
-	public static void debug(Object where, String format, Object... args) {
-		logcat(false, TYPE_DEBUG, where, format, args);
+	public static void debug(@Nullable Object where, @Nullable String format, Object... args) {
+		if (! BuildConfig.DEBUG) {
+			DkUtils.complainAt(DkLogs.class, "Can not use debug-log at product version");
+		}
+		log(TYPE_DEBUG, where, format, args);
 	}
 
 	/**
@@ -54,58 +55,73 @@ public class DkLogs {
 	 * If sometime caller wanna log it only in local env, so caller can
 	 * wrap this function with DEBUG constant instead of call it directly.
 	 */
-	public static void info(Object where, String format, Object... args) {
-		logcat(true, TYPE_INFO, where, format, args);
+	public static void info(@Nullable Object where, @Nullable String format, Object... args) {
+		log(TYPE_INFO, where, format, args);
 	}
 
 	/**
 	 * Warning log. Can be invoked in production.
 	 */
-	public static void warning(Object where, String format, Object... args) {
-		logcat(true, TYPE_WARNING, where, format, args);
+	public static void warning(@Nullable Object where, @Nullable String format, Object... args) {
+		log(TYPE_WARNING, where, format, args);
 	}
 
 	/**
 	 * Error log. Can be invoked in production.
 	 */
-	public static void error(Object where, String format, Object... args) {
-		logcat(true, TYPE_ERROR, where, format, args);
+	public static void error(@Nullable Object where, @Nullable String format, Object... args) {
+		log(TYPE_ERROR, where, format, args);
 	}
 
 	/**
 	 * Exception log. Can be invoked in production.
 	 */
-	public static void error(Object where, Throwable e) {
+	public static void error(@Nullable Object where, Throwable e) {
 		error(where, e, null);
-		e.printStackTrace();
 	}
 
 	/**
 	 * Exception log. Can be invoked in production.
 	 */
-	public static void error(Object where, Throwable e, String format, Object... args) {
-		logcatException(where, e, format, args);
+	public static void error(@Nullable Object where, Throwable e, @Nullable String format, Object... args) {
+		StringBuilder sb = new StringBuilder();
+
+		if (format != null) {
+			if (args != null) {
+				format = DkStrings.format(format, args);
+			}
+			sb.append("Message: ").append(format).append(DkConst.LS);
+		}
+
+		sb.append(e.toString()).append(DkConst.LS);
+
+		for (StackTraceElement traceElement : e.getStackTrace()) {
+			sb.append("\tat ").append(traceElement).append(DkConst.LS);
+		}
+
+		log(TYPE_ERROR, where, sb.toString());
+		e.printStackTrace();
 	}
 
 	/**
 	 * Start benchmark. Can't be invoked in production.
 	 */
-	public static void tick(Object where, String task) {
+	public static void tick(@Nullable Object where, String task) {
 		if (benchmarkTaskNames == null) {
 			benchmarkTaskNames = new ArrayDeque<>();
 		}
 
 		benchmarkTaskNames.push(task);
-		logcat(false, TYPE_DEBUG, where, "Task [%s] was started", task);
+		log(TYPE_DEBUG, where, "Task [%s] was started", task);
 		benchmarkStartTime = System.currentTimeMillis();
 	}
 
 	/**
 	 * End benchmark. Can't be invoked in production.
 	 */
-	public static void tock(Object where) {
+	public static void tock(@Nullable Object where) {
 		long elapsed = System.currentTimeMillis() - benchmarkStartTime;
-		logcat(false, TYPE_DEBUG, where,
+		log(TYPE_DEBUG, where,
 			"Task [%s] end in: %d s %d ms",
 			benchmarkTaskNames.pop(),
 			elapsed / 1000,
@@ -124,7 +140,7 @@ public class DkLogs {
 		return prefix;
 	}
 
-	private static void logcat(boolean validAtProduction, String logType, Object where, String format, Object... args) {
+	private static void log(String logType, @Nullable Object where, @Nullable String format, Object... args) {
 		String message = format;
 		if (args != null && args.length > 0) {
 			message = DkStrings.format(format, args);
@@ -132,33 +148,10 @@ public class DkLogs {
 
 		message = makePrefix(where) + message;
 
-		logActual(validAtProduction, logType, message);
+		logActual(logType, message);
 	}
 
-	private static void logcatException(Object where, Throwable e, String format, Object[] args) {
-		StringBuilder sb = new StringBuilder();
-
-		if (format != null) {
-			if (args != null) {
-				format = DkStrings.format(format, args);
-			}
-			sb.append("Message: ").append(format).append(DkConst.LS);
-		}
-
-		sb.append(e.toString()).append(DkConst.LS);
-
-		for (StackTraceElement traceElement : e.getStackTrace()) {
-			sb.append("\tat ").append(traceElement).append(DkConst.LS);
-		}
-
-		logcat(true, TYPE_ERROR, where, sb.toString());
-	}
-
-	private static void logActual(boolean validAtProduction, String logType, String message) {
-		if (! DEBUG && ! validAtProduction) {
-			DkUtils.complainAt(DkLogs.class, "Can not use log type %d in product version. You maybe need wrap it in DEBUG constant.", logType);
-		}
-
+	private static void logActual(String logType, String message) {
 		String logTag = "xxx_" + logType;
 
 		switch (logType) {

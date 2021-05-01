@@ -37,7 +37,6 @@
 		android:paddingLeft="2dp"
 		android:paddingRight="2dp"
 		android:layout_margin="0dp"
-		android:minLines="1"
 		android:singleLine="true"
 		android:ellipsize="marquee"
 		android:scrollHorizontally="true"

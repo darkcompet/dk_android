@@ -182,7 +182,6 @@ public class MyFragmentTransactor {
 	}
 
 	public MyFragmentTransactor removeAll() {
-		DkLogs.debug(this, "all frags inside it: " + fragmentManager.getFragments());
 		// humh, other fragment exists in this stack: SupportLifecycleFragmentImpl
 		for (Fragment child : fragmentManager.getFragments()) {
 			transaction.setCustomAnimations(removeAnim, 0);

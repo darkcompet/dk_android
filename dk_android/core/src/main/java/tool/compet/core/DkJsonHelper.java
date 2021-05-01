@@ -13,7 +13,7 @@ public class DkJsonHelper {
 
 	private DkJsonHelper() {
 		gson = new GsonBuilder()
-			.setDateFormat("yyyy-MM-dd HH:mm:ss")
+			.setDateFormat(DkDateTimeConst.DATETIME)
 			.excludeFieldsWithoutExposeAnnotation()
 			.setPrettyPrinting()
 			.create();
