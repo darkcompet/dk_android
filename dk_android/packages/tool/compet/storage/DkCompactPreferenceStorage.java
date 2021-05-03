@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 
 import java.util.Set;
 
+import tool.compet.core.DkJsonHelper;
 import tool.compet.core.DkLogs;
 import tool.compet.core.DkMaths;
 
@@ -19,14 +20,14 @@ import tool.compet.core.DkMaths;
  * other types (int, double...) then we will get an exception when load them with other type.
  */
 @SuppressLint("ApplySharedPref")
-public class DkPreferenceStorageCompat {
+public class DkCompactPreferenceStorage {
 	protected final SharedPreferences preference;
 
-	public DkPreferenceStorageCompat(Context context, String prefName) {
+	public DkCompactPreferenceStorage(Context context, String prefName) {
 		this.preference = context.getSharedPreferences(prefName, Context.MODE_PRIVATE);
 	}
 
-	public DkPreferenceStorageCompat(Context context, String prefName, int prefMode) {
+	public DkCompactPreferenceStorage(Context context, String prefName, int prefMode) {
 		this.preference = context.getSharedPreferences(prefName, prefMode);
 	}
 
@@ -205,6 +206,18 @@ public class DkPreferenceStorageCompat {
 			DkLogs.error(this, e);
 		}
 		return defaultValue;
+	}
+
+	//
+	// Store/Load json
+	//
+
+	public <T> T getJsonObject(String key, Class<T> resClass) {
+		return DkJsonHelper.getIns().json2obj(getString(key), resClass);
+	}
+
+	public void setJsonObject(String key, Object value) {
+		setString(key, DkJsonHelper.getIns().obj2json(value));
 	}
 
 	//

@@ -5,33 +5,50 @@
 package tool.compet.appbundle.preference;
 
 import android.content.Context;
-import android.view.View;
-import android.view.ViewGroup;
 
-abstract class MyBasePreference<P> {
-	abstract View createView(Context context, ViewGroup parent);
+import androidx.annotation.Nullable;
 
-	abstract void decorateView(View view);
+@SuppressWarnings("unchecked")
+abstract class MyBasePreference<P> implements DkPreference<P> {
+	protected String groupId; // id of group which contains this preference
+	protected String key; // preference key in storage
 
-	String key; // preference key in storage
-	Context context; // to get resource value
-	DkPreferenceStorage storage; // to store setting
-	MyPreferenceListener listener; // to callback when something changed
+	// Init below fields when add a preference
+	protected Context context; // to get resource value
+	protected DkPreferenceStorage storage; // to store setting
+	protected DkPreferenceListener listener; // to callback when something changed
 
-	MyBasePreference(String key) {
+	MyBasePreference(@Nullable String key) {
 		this.key = key;
 	}
 
-	void init(Context context, DkPreferenceStorage storage, MyPreferenceListener listener) {
+	@Override
+	public CharSequence key() {
+		return this.key;
+	}
+
+	/**
+	 * Pass more data when add a preference.
+	 */
+	@Override
+	public void init(Context context, DkPreferenceStorage storage, DkPreferenceListener listener) {
 		this.context = context;
 		this.storage = storage;
 		this.listener = listener;
 	}
 
 	/**
+	 * Indicate this preference is one of given group.
+	 */
+	public P groupId(String groupId) {
+		this.groupId = groupId;
+		return (P) this;
+	}
+
+	/**
 	 * Call this to update item view when some data changed.
 	 */
-	void notifyDataChanged() {
+	public void notifyDataChanged() {
 		// For now, just update all items
 		listener.notifyDataSetChanged();
 	}

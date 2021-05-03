@@ -4,7 +4,7 @@
 
 package tool.compet.appbundle.preference;
 
-public interface MyPreferenceListener {
+public interface DkPreferenceListener {
 	void onPreferenceChanged(String key);
 
 	void notifyDataSetChanged();

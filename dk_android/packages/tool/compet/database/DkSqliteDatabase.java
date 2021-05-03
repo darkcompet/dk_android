@@ -18,30 +18,6 @@ public abstract class DkSqliteDatabase extends SQLiteOpenHelper implements TheDa
 	protected final String name;
 	protected final int version;
 
-	/**
-	 * Be called when a query was fired and db was not existed.
-	 * <p>
-	 * At this time, db was locked, so caller can perform any creation query here within current thread.
-	 *
-	 * @param db readable and writable db instance
-	 */
-	@Override
-	public abstract void onCreate(SQLiteDatabase db);
-
-	/**
-	 * Be called when a query was fired and new version was declared.
-	 * <p>
-	 * At this time, db was locked, so caller can perform any updates here within current thread.
-	 * If something goes wrong, just throw exception, so all changes will be rollbacked automatically,
-	 * and db will stil in old version.
-	 *
-	 * @param db         readable and writable db instance
-	 * @param oldVersion old db version
-	 * @param newVersion new db version
-	 */
-	@Override
-	public abstract void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion);
-
 	protected DkSqliteDatabase(Context context, String name, int version) {
 		super(context, name, null, version);
 		this.name = name;

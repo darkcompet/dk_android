@@ -15,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import tool.compet.appbundle.R;
 import tool.compet.core.view.DkTextViews;
-import tool.compet.core.view.DkViews;
 
 public class DkCheckBoxPreference extends MyBasePreference<DkCheckBoxPreference> {
 	// Title
@@ -29,7 +28,6 @@ public class DkCheckBoxPreference extends MyBasePreference<DkCheckBoxPreference>
 
 	// Summary
 	protected int summaryViewId = R.id.dk_summary; // viewId for summary view
-	protected boolean showSummary; // show or hide
 	protected String summary; // text for summary
 	protected int summaryTextId; // text id for summary view
 
@@ -40,16 +38,16 @@ public class DkCheckBoxPreference extends MyBasePreference<DkCheckBoxPreference>
 	}
 
 	@Override
-	protected void init(Context context, DkPreferenceStorage storage, MyPreferenceListener listener) {
+	public void init(Context context, DkPreferenceStorage storage, DkPreferenceListener listener) {
 		super.init(context, storage, listener);
 		this.checked = storage.getBoolean(key);
 	}
 
 	@Override
-	protected View createView(Context context, ViewGroup parent) {
+	public View createView(Context context, ViewGroup parent) {
 		View itemView = customView;
 		if (itemView == null) {
-			itemView = LayoutInflater.from(context).inflate(R.layout.dk_preference_checkbox, parent, false);
+			itemView = LayoutInflater.from(context).inflate(R.layout.dk_preference_item_checkbox, parent, false);
 		}
 
 		RecyclerView.LayoutParams params = new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -59,7 +57,7 @@ public class DkCheckBoxPreference extends MyBasePreference<DkCheckBoxPreference>
 	}
 
 	@Override
-	protected void decorateView(View view) {
+	public void decorateView(View view) {
 		TextView tvTitle = view.findViewById(titleViewId);
 		CheckBox cbCheck = view.findViewById(checkboxViewId);
 		TextView tvSummary = view.findViewById(summaryViewId);
@@ -68,8 +66,14 @@ public class DkCheckBoxPreference extends MyBasePreference<DkCheckBoxPreference>
 		if (titleTextId > 0) {
 			title = context.getString(titleTextId);
 		}
-		DkTextViews.setTextSize(tvTitle, 1.25f * tvSummary.getTextSize());
-		tvTitle.setText(title);
+		if (title != null) {
+			DkTextViews.setTextSize(tvTitle, 1.125f * tvSummary.getTextSize());
+			tvTitle.setText(title);
+			tvTitle.setVisibility(View.VISIBLE);
+		}
+		else {
+			tvTitle.setVisibility(View.GONE);
+		}
 
 		// Setup checkbox
 		cbCheck.setChecked(checked);
@@ -84,12 +88,15 @@ public class DkCheckBoxPreference extends MyBasePreference<DkCheckBoxPreference>
 		view.setOnClickListener(v -> cbCheck.performClick());
 
 		// Setup summary
-		tvSummary.setVisibility(showSummary ? View.VISIBLE : View.GONE);
-		if (showSummary) {
-			if (summaryTextId > 0) {
-				summary = context.getString(summaryTextId);
-			}
+		if (summaryTextId > 0) {
+			summary = context.getString(summaryTextId);
+		}
+		if (summary != null) {
+			tvSummary.setVisibility(View.VISIBLE);
 			tvSummary.setText(summary);
+		}
+		else {
+			tvSummary.setVisibility(View.GONE);
 		}
 	}
 
@@ -105,11 +112,6 @@ public class DkCheckBoxPreference extends MyBasePreference<DkCheckBoxPreference>
 
 	public DkCheckBoxPreference title(String title) {
 		this.title = title;
-		return this;
-	}
-
-	public DkCheckBoxPreference showSummary(boolean show) {
-		this.showSummary = show;
 		return this;
 	}
 

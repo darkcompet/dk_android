@@ -19,20 +19,24 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 /**
  * Just show view (this is used for decoration purposed).
  */
-public class DkViewPreference extends MyBasePreference<DkViewPreference> {
+public class DkCustomViewPreference extends MyBasePreference<DkCustomViewPreference> {
 	private int layoutResId;
 	private View view;
 
-	public DkViewPreference(String key) {
+	public DkCustomViewPreference() {
+		super(null);
+	}
+
+	public DkCustomViewPreference(String key) {
 		super(key);
 	}
 
 	@Override
-	protected View createView(Context context, ViewGroup parent) {
+	public View createView(Context context, ViewGroup parent) {
 		View itemView = view;
 		if (itemView == null) {
 			if (layoutResId <= 0) {
-				layoutResId = R.layout.dk_preference_default_custom_view;
+				layoutResId = R.layout.dk_preference_item_default_custom_view;
 			}
 			itemView = LayoutInflater.from(context).inflate(layoutResId, parent, false);
 		}
@@ -44,15 +48,15 @@ public class DkViewPreference extends MyBasePreference<DkViewPreference> {
 	}
 
 	@Override
-	protected void decorateView(View view) {
+	public void decorateView(View view) {
 	}
 
-	public DkViewPreference view(int layoutResId) {
+	public DkCustomViewPreference view(int layoutResId) {
 		this.layoutResId = layoutResId;
 		return this;
 	}
 
-	public DkViewPreference view(View view) {
+	public DkCustomViewPreference view(View view) {
 		this.view = view;
 		return this;
 	}

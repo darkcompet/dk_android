@@ -30,14 +30,13 @@ public class DkSelectboxPreference extends MyBasePreference<DkSelectboxPreferenc
 
 	// Title
 	protected int titleViewId = R.id.dk_title; // viewId for title
-	protected int titleResId; // text res id for title
 	protected String title; // text for title
+	protected int titleResId;
 
 	// Summary
 	protected int summaryViewId = R.id.dk_summary; // viewId for summary
-	protected boolean showSummary; // show or hide
-	protected int summaryResId; // summary text res id
 	protected String summary; // text for summary
+	protected int summaryResId;
 
 	// Entries
 	protected final List<Object> entryNameList = new ArrayList<>();
@@ -55,16 +54,16 @@ public class DkSelectboxPreference extends MyBasePreference<DkSelectboxPreferenc
 	}
 
 	@Override
-	protected void init(Context context, DkPreferenceStorage storage, MyPreferenceListener listener) {
+	public void init(Context context, DkPreferenceStorage storage, DkPreferenceListener listener) {
 		super.init(context, storage, listener);
 		this.selectedValue = storage.getString(key);
 	}
 
 	@Override
-	protected View createView(Context context, ViewGroup parent) {
+	public View createView(Context context, ViewGroup parent) {
 		View itemView = customView;
 		if (itemView == null) {
-			itemView = LayoutInflater.from(context).inflate(R.layout.dk_preference_selectbox, parent, false);
+			itemView = LayoutInflater.from(context).inflate(R.layout.dk_preference_item_selectbox, parent, false);
 		}
 
 		RecyclerView.LayoutParams params = new RecyclerView.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
@@ -74,25 +73,34 @@ public class DkSelectboxPreference extends MyBasePreference<DkSelectboxPreferenc
 	}
 
 	@Override
-	protected void decorateView(View view) {
+	public void decorateView(View view) {
 		TextView tvTitle = view.findViewById(titleViewId);
 		TextView tvSummary = view.findViewById(summaryViewId);
 		TextView tvName = view.findViewById(selectorViewId);
 
 		// Setup title
-		DkTextViews.setTextSize(tvTitle, 1.25f * tvSummary.getTextSize());
 		if (titleResId > 0) {
 			title = context.getString(titleResId);
 		}
-		tvTitle.setText(title);
+		if (title != null) {
+			DkTextViews.setTextSize(tvTitle, 1.125f * tvSummary.getTextSize());
+			tvTitle.setText(title);
+			tvTitle.setVisibility(View.VISIBLE);
+		}
+		else {
+			tvTitle.setVisibility(View.GONE);
+		}
 
 		// Setup summary
-		tvSummary.setVisibility(showSummary ? View.VISIBLE : View.GONE);
-		if (showSummary) {
-			if (summaryResId > 0) {
-				summary = context.getString(summaryResId);
-			}
+		if (summaryResId > 0) {
+			summary = context.getString(summaryResId);
+		}
+		if (summary != null) {
 			tvSummary.setText(summary);
+			tvSummary.setVisibility(View.VISIBLE);
+		}
+		else {
+			tvSummary.setVisibility(View.GONE);
 		}
 
 		// Setup content
@@ -158,18 +166,13 @@ public class DkSelectboxPreference extends MyBasePreference<DkSelectboxPreferenc
 		return this;
 	}
 
-	public DkSelectboxPreference showSummary(boolean show) {
-		this.showSummary = show;
-		return this;
-	}
-
 	public DkSelectboxPreference summary(String summary) {
 		this.summary = summary;
 		return this;
 	}
 
 	public DkSelectboxPreference summary(int summaryResId) {
-		this.summary = context.getString(summaryResId);
+		this.summaryResId = summaryResId;
 		return this;
 	}
 

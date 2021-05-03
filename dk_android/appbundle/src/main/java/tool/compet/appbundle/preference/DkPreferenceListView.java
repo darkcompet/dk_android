@@ -4,7 +4,8 @@
 
 package tool.compet.appbundle.preference;
 
-import android.os.Bundle;
+import android.content.Context;
+import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -15,40 +16,45 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-import tool.compet.appbundle.DkCompactActivity;
-import tool.compet.appbundle.DkCompactViewLogic;
-
-public abstract class DkPreferenceActivity<VL extends DkCompactViewLogic> extends DkCompactActivity<VL> implements DkPreferenceView {
-	/**
-	 * Caller must provide preference view id (id of recycler view)
-	 */
-	protected abstract int preferenceViewId();
-
-	protected ThePreferenceManager preferenceManager;
-	protected MyPreferenceAdapter preferenceAdapter;
+/**
+ * Subclass can extend this to implement preference via View.
+ */
+public abstract class DkPreferenceListView extends RecyclerView implements DkPreferenceView {
+	private ThePreferenceManager preferenceManager;
+	private MyPreferenceAdapter preferenceAdapter;
 	private final DkPreferenceListener preferenceListener = new DkPreferenceListener() {
 		@Override
 		public void onPreferenceChanged(String key) {
-			DkPreferenceActivity.this.onPreferenceChanged(key);
+			DkPreferenceListView.this.onPreferenceChanged(key);
 		}
 
 		@Override
 		public void notifyDataSetChanged() {
-			DkPreferenceActivity.this.preferenceAdapter.notifyDataSetChanged();
+			DkPreferenceListView.this.preferenceAdapter.notifyDataSetChanged();
 		}
 	};
 
-	@Override
-	public void onCreate(@Nullable Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+	public DkPreferenceListView(@NonNull Context context) {
+		super(context);
+		init(context);
+	}
 
-		preferenceManager = new ThePreferenceManager(context, storage(), preferenceListener);
-		preferenceAdapter = new MyPreferenceAdapter(preferenceManager.getPreferences());
+	public DkPreferenceListView(@NonNull Context context, @Nullable AttributeSet attrs) {
+		super(context, attrs);
+		init(context);
+	}
 
-		RecyclerView prefView = layout.findViewById(preferenceViewId());
+	public DkPreferenceListView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+		super(context, attrs, defStyleAttr);
+		init(context);
+	}
+
+	private void init(Context context) {
+		this.preferenceManager = new ThePreferenceManager(context, storage(), preferenceListener);
+		this.preferenceAdapter = new MyPreferenceAdapter(preferenceManager.getPreferences());
 
 		// Subclass can override this to customize preference view (recycler view)
-		onSetupPreferenceView(prefView);
+		onSetupPreferenceView(context);
 
 		// Subclass can override this to create preference list
 		onCreatePreferences(preferenceManager);
@@ -57,11 +63,11 @@ public abstract class DkPreferenceActivity<VL extends DkCompactViewLogic> extend
 	/**
 	 * Subclass can override this to setup preference view (RecyclerView)
 	 */
-	protected void onSetupPreferenceView(RecyclerView prefView) {
-		prefView.setAdapter(preferenceAdapter);
-		prefView.setHasFixedSize(true);
-		prefView.setLayoutManager(new LinearLayoutManager(context));
-//		prefView.addItemDecoration(new DividerItemDecoration(context, LinearLayoutManager.VERTICAL));
+	protected void onSetupPreferenceView(Context context) {
+		this.setAdapter(preferenceAdapter);
+		this.setHasFixedSize(true);
+		this.setLayoutManager(new LinearLayoutManager(context));
+//		this.addItemDecoration(new DividerItemDecoration(context, LinearLayoutManager.VERTICAL));
 	}
 
 	@Override
@@ -69,7 +75,7 @@ public abstract class DkPreferenceActivity<VL extends DkCompactViewLogic> extend
 		return preferenceManager;
 	}
 
-	private static class MyViewHolder extends RecyclerView.ViewHolder {
+	private static class MyViewHolder extends ViewHolder {
 		public MyViewHolder(@NonNull View itemView) {
 			super(itemView);
 		}
@@ -79,7 +85,7 @@ public abstract class DkPreferenceActivity<VL extends DkCompactViewLogic> extend
 		}
 	}
 
-	private static class MyPreferenceAdapter extends RecyclerView.Adapter<MyViewHolder> {
+	private static class MyPreferenceAdapter extends Adapter<MyViewHolder> {
 		private final List<DkPreference> preferences;
 
 		MyPreferenceAdapter(List<DkPreference> preferences) {

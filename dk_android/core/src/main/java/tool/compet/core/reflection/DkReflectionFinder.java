@@ -4,6 +4,8 @@
 
 package tool.compet.core.reflection;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
 import androidx.collection.ArrayMap;
 
@@ -34,6 +36,10 @@ public class DkReflectionFinder {
 		this.searchPrefixPackages = searchPrefixPackages;
 		this.fieldCache = new ArrayMap<>();
 		this.methodCache = new ArrayMap<>();
+	}
+
+	public static void installDefault(Context context) {
+		install("tool.compet", context.getPackageName());
 	}
 
 	public static void install(String... prefixSearchPackages) {

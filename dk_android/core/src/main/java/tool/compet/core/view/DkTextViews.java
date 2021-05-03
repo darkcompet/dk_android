@@ -19,7 +19,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
-import tool.compet.core.config.DkConfig;
+import tool.compet.core.DkConfig;
 import tool.compet.core.DkRunner1;
 
 /**
@@ -27,7 +27,7 @@ import tool.compet.core.DkRunner1;
  */
 public class DkTextViews {
 	public static float fontSizeInPx(int fontSize) {
-		return fontSize * DkConfig.device.density;
+		return fontSize * DkConfig.density();
 	}
 
 	public static void scaleTextSize(TextView tv, float factor) {

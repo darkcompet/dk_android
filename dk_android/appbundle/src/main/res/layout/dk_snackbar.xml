@@ -22,6 +22,7 @@
 		android:gravity="center" />
 
 	<Button
+		android:visibility="gone"
 		style="?attr/borderlessButtonStyle"
 		android:id="@+id/dk_btn_action"
 		android:layout_width="wrap_content"
@@ -30,7 +31,6 @@
 		app:layout_constraintTop_toTopOf="parent"
 		app:layout_constraintBottom_toBottomOf="parent"
 		android:minWidth="48dp"
-		android:visibility="gone"
 		android:text="@string/ok"
 		android:textColor="@color/white" />
 

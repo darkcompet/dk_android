@@ -20,7 +20,8 @@ import tool.compet.appbundle.R;
 /**
  * You can use this to show or close waiting dialog, or extends this to customize behaviors.
  */
-public class DkLoadingDialog extends DkCompactDialog {
+@SuppressWarnings("unchecked")
+public class DkLoadingDialog<D> extends DkCompactDialog<D> {
 	protected ProgressBar pbLoading;
 	protected TextView tvMessage;
 
@@ -107,30 +108,30 @@ public class DkLoadingDialog extends DkCompactDialog {
 	// Get/Set region
 	//
 
-	public DkLoadingDialog setMessage(int messageResId) {
+	public D setMessage(int messageResId) {
 		this.messageResId = messageResId;
 		if (tvMessage != null) {
 			tvMessage.setText(messageResId);
 		}
-		return this;
+		return (D) this;
 	}
 
-	public DkLoadingDialog setMessage(String message) {
+	public D setMessage(String message) {
 		this.message = message;
 		if (tvMessage != null) {
 			tvMessage.setText(message);
 		}
-		return this;
+		return (D) this;
 	}
 
 	/**
 	 * @param color Set to null to turn off color filter
 	 */
-	public DkLoadingDialog setColorFilter(@Nullable Integer color) {
+	public D setColorFilter(@Nullable Integer color) {
 		this.filterColor = color;
 		if (pbLoading != null && filterColor != null) {
 			pbLoading.getIndeterminateDrawable().setColorFilter(filterColor, PorterDuff.Mode.MULTIPLY);
 		}
-		return this;
+		return (D) this;
 	}
 }

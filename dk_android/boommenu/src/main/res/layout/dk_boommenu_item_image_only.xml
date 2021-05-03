@@ -21,6 +21,6 @@
 		android:layout_margin="0dp"
 		android:contentDescription="@null"
 		android:src="@android:drawable/ic_delete"
-		android:tint="@android:color/white" />
+		app:tint="@android:color/white" />
 
 </tool.compet.boommenu.DkImageOnlyItemView>

@@ -11,7 +11,7 @@ import android.view.animation.Interpolator;
 
 import androidx.core.view.animation.PathInterpolatorCompat;
 
-import tool.compet.core.config.DkConfig;
+import tool.compet.core.DkConfig;
 
 @SuppressWarnings("unchecked")
 public abstract class DkItemBuilder<T extends DkItemBuilder> {
@@ -174,7 +174,7 @@ public abstract class DkItemBuilder<T extends DkItemBuilder> {
 
 		// This is time to need build some info for item view
 		if (cornerRadius == Integer.MIN_VALUE) {
-			cornerRadius = DkConfig.device.dp2px(8);
+			cornerRadius = DkConfig.dp2px(8);
 		}
 		if (normalColor == Color.TRANSPARENT) {
 			normalColor = colorGenerator.nextNormalColor();
@@ -209,12 +209,14 @@ public abstract class DkItemBuilder<T extends DkItemBuilder> {
 		return (T) this;
 	}
 
+	// Length on board
 	public T setWeight(float widthWeight, float heightWeight) {
 		this.widthWeight = widthWeight;
 		this.heightWeight = heightWeight;
 		return (T) this;
 	}
 
+	// Width : Height rate, for eg,. 3:4
 	public T setDimensionRatio(boolean baseOnWidth, float widthRatio, float heightRatio) {
 		this.ratioBaseOnWidth = baseOnWidth;
 		this.widthRatio = widthRatio;
@@ -239,7 +241,7 @@ public abstract class DkItemBuilder<T extends DkItemBuilder> {
 	}
 
 	public T setMargin(int dp) {
-		this.margin = DkConfig.device.dp2px(dp);
+		this.margin = DkConfig.dp2px(dp);
 		return (T) this;
 	}
 

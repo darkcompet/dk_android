@@ -23,6 +23,15 @@ public class DkCollections {
 		return collection == null || collection.size() == 0;
 	}
 
+	public static <T> Set<T> asSet(@Nullable T[] objs) {
+		if (objs == null || objs.length == 0) {
+			return new HashSet<>();
+		}
+		Set<T> set = new HashSet<>(objs.length);
+		set.addAll(Arrays.asList(objs));
+		return set;
+	}
+
 	public static <T> boolean contains(T target, Iterable<T> iterable) {
 		if (iterable != null) {
 			for (T item : iterable) {
@@ -74,7 +83,7 @@ public class DkCollections {
 		}
 	}
 
-	public static int findIndex(List<?> list, DkCaller1<Object, Boolean> condition) {
+	public static <T> int findIndex(List<T> list, DkCaller1<T, Boolean> condition) {
 		for (int index = list.size() - 1; index >= 0; --index) {
 			if (condition.call(list.get(index))) {
 				return index;
@@ -85,14 +94,5 @@ public class DkCollections {
 
 	public static <M> int sizeOf(@Nullable List<M> list) {
 		return list == null ? 0 : list.size();
-	}
-
-	public static <T> Set<T> asSet(@Nullable T[] objs) {
-		if (objs == null || objs.length == 0) {
-			return new HashSet<>();
-		}
-		Set<T> set = new HashSet<>(objs.length);
-		set.addAll(Arrays.asList(objs));
-		return set;
 	}
 }

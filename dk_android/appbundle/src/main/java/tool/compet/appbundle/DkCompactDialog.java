@@ -46,9 +46,11 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
  * This provides some below features:
  * - ViewLogic which can overcome configuration changes.
  */
-public abstract class DkCompactDialog extends AppCompatDialogFragment implements DkDialogFragment {
+@SuppressWarnings("unchecked")
+public abstract class DkCompactDialog<D> extends AppCompatDialogFragment implements DkDialogFragment {
 	public static final String TAG = DkCompactDialog.class.getName();
 
+	protected DkApp app;
 	protected FragmentActivity host;
 	protected Context context;
 	protected View layout;
@@ -63,6 +65,9 @@ public abstract class DkCompactDialog extends AppCompatDialogFragment implements
 		}
 		if (this.host == null) {
 			this.host = getActivity();
+		}
+		if (this.app == null) {
+			this.app = (DkApp) this.host.getApplication();
 		}
 
 		super.onAttach(context);
@@ -79,6 +84,9 @@ public abstract class DkCompactDialog extends AppCompatDialogFragment implements
 		}
 		if (this.host == null) {
 			host = (FragmentActivity) activity;
+		}
+		if (this.app == null) {
+			this.app = (DkApp) activity.getApplication();
 		}
 
 		super.onAttach(activity);
@@ -232,6 +240,7 @@ public abstract class DkCompactDialog extends AppCompatDialogFragment implements
 			DkLogs.info(this, "onDetach");
 		}
 
+		this.app = null;
 		this.host = null;
 		this.context = null;
 		this.layout = null;
@@ -476,6 +485,16 @@ public abstract class DkCompactDialog extends AppCompatDialogFragment implements
 	}
 
 	// endregion Protected (overridable)
+
+	// region Get/Set
+
+	public D setCancellable(boolean cancelable) {
+		super.setCancelable(cancelable);
+		return (D) this;
+	}
+
+	// endregion Get/Set
+
 
 	public static final int ANIM_ZOOM_IN = 1;
 	public static final int ANIM_SWIPE_DOWN = 2;

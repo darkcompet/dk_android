@@ -22,7 +22,7 @@ import tool.compet.appbundle.DkCompactDialog;
 import tool.compet.appbundle.R;
 import tool.compet.core.BuildConfig;
 import tool.compet.core.DkLogs;
-import tool.compet.core.config.DkConfig;
+import tool.compet.core.DkConfig;
 import tool.compet.core.view.DkTextViews;
 import tool.compet.core.view.DkViews;
 
@@ -34,7 +34,8 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
  * - Title, subtitle, message, buttons are gone
  * - Auto dismiss dialog when click to buttons or outside dialog
  */
-public class DkConfirmDialog extends DkCompactDialog implements View.OnClickListener, TheConfirmDialogInterface {
+@SuppressWarnings("unchecked")
+public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<D> implements View.OnClickListener, TheConfirmDialogInterface {
 	// Callback
 	public interface ConfirmCallback {
 		void onClick(TheConfirmDialogInterface dialog, View button);
@@ -211,7 +212,8 @@ public class DkConfirmDialog extends DkCompactDialog implements View.OnClickList
 			bkgLayoutParams.width = bkgLayoutParams.height = MATCH_PARENT;
 		}
 		else {
-			int ds = Math.min(DkConfig.device.displaySize[0], DkConfig.device.displaySize[1]);
+			int[] displaySize = DkConfig.displaySize();
+			int ds = Math.min(displaySize[0], displaySize[1]);
 			bkgLayoutParams.width = (ds >> 2) + (ds >> 1); // 0.75 * deviceSize
 			// bkgLayoutParams.height = (int) (bkgLayoutParams.width * heightWeight / widthWeight);
 		}
@@ -261,169 +263,169 @@ public class DkConfirmDialog extends DkCompactDialog implements View.OnClickList
 
 	// region Get/Set
 
-	public DkConfirmDialog setIcon(int iconResId) {
+	public D setIcon(int iconResId) {
 		this.iconResId = iconResId;
 		if (ivIcon != null) {
 			decorIcon();
 		}
-		return this;
+		return (D) this;
 	}
 
-	public DkConfirmDialog setTitle(int titleResId) {
+	public D setTitle(int titleResId) {
 		this.titleTextResId = titleResId;
 		if (vTitle != null) {
 			decorTitle();
 		}
-		return this;
+		return (D) this;
 	}
 
-	public DkConfirmDialog setSubTitle(int subTitleRes) {
+	public D setSubTitle(int subTitleRes) {
 		this.subTitleTextResId = subTitleRes;
 		if (vSubTitle != null) {
 			decorSubTitle();
 		}
-		return this;
+		return (D) this;
 	}
 
-	public DkConfirmDialog setMessage(int messageResId) {
+	public D setMessage(int messageResId) {
 		this.messageTextResId = messageResId;
 		if (vMessage != null) {
 			decorBodyView();
 		}
-		return this;
+		return (D) this;
 	}
 
-	public DkConfirmDialog setMessage(String message) {
+	public D setMessage(String message) {
 		this.message = message;
 		if (vMessage != null) {
 			decorBodyView();
 		}
-		return this;
+		return (D) this;
 	}
 
-	public DkConfirmDialog setBodyView(int layoutResId) {
+	public D setBodyView(int layoutResId) {
 		this.bodyLayoutResId = layoutResId;
 		if (vBody != null) {
 			decorBodyView();
 		}
-		return this;
+		return (D) this;
 	}
 
-	public DkConfirmDialog setCancelButton(int textRes, ConfirmCallback cancelCb) {
-		return setCancelButtonCallback(cancelCb).setCancelButton(textRes);
+	public D setCancelButton(int textRes, ConfirmCallback cancelCb) {
+		return (D) setCancelButtonCallback(cancelCb).setCancelButton(textRes);
 	}
 
-	public DkConfirmDialog setCancelButton(int textResId) {
+	public D setCancelButton(int textResId) {
 		this.cancelTextResId = textResId;
 		if (vCancel != null) {
 			decorCancelButton();
 		}
-		return this;
+		return (D) this;
 	}
 
-	public DkConfirmDialog setCancelButtonCallback(ConfirmCallback cancelCb) {
+	public D setCancelButtonCallback(ConfirmCallback cancelCb) {
 		this.cancelCb = cancelCb;
-		return this;
+		return (D) this;
 	}
 
-	public DkConfirmDialog setResetButton(int textRes, ConfirmCallback resetCb) {
-		return setResetButtonCallback(resetCb).setResetButton(textRes);
+	public D setResetButton(int textRes, ConfirmCallback resetCb) {
+		return (D) setResetButtonCallback(resetCb).setResetButton(textRes);
 	}
 
-	public DkConfirmDialog setResetButton(int textResId) {
+	public D setResetButton(int textResId) {
 		this.resetTextResId = textResId;
 		if (vReset != null) {
 			decorResetButton();
 		}
-		return this;
+		return (D) this;
 	}
 
-	public DkConfirmDialog setResetButtonCallback(ConfirmCallback resetCb) {
+	public D setResetButtonCallback(ConfirmCallback resetCb) {
 		this.resetCb = resetCb;
-		return this;
+		return (D) this;
 	}
 
-	public DkConfirmDialog setOkButton(int textRes, ConfirmCallback okCb) {
-		return setOkButtonCallback(okCb).setOkButton(textRes);
+	public D setOkButton(int textRes, ConfirmCallback okCb) {
+		return (D) setOkButtonCallback(okCb).setOkButton(textRes);
 	}
 
-	public DkConfirmDialog setOkButton(int textResId) {
+	public D setOkButton(int textResId) {
 		this.okTextResId = textResId;
 		if (vOk != null) {
 			decorOkButton();
 		}
-		return this;
+		return (D) this;
 	}
 
-	public DkConfirmDialog setOkButtonCallback(ConfirmCallback okCb) {
+	public D setOkButtonCallback(ConfirmCallback okCb) {
 		this.okCb = okCb;
-		return this;
+		return (D) this;
 	}
 
-	public DkConfirmDialog setDismissOnTouchOutside(boolean isDismissOnTouchOutside) {
+	public D setDismissOnTouchOutside(boolean isDismissOnTouchOutside) {
 		this.isDismissOnTouchOutside = isDismissOnTouchOutside;
-		return this;
+		return (D) this;
 	}
 
-	public DkConfirmDialog setDismissOnClickButton(boolean dismissOnClickButton) {
+	public D setDismissOnClickButton(boolean dismissOnClickButton) {
 		this.isDismissOnClickButton = dismissOnClickButton;
-		return this;
+		return (D) this;
 	}
 
-	public DkConfirmDialog setFullScreen(boolean isFullScreen) {
+	public D setFullScreen(boolean isFullScreen) {
 		this.isFullScreen = isFullScreen;
-		return this;
+		return (D) this;
 	}
 
-	public DkConfirmDialog setDimensionWithRate(float widthWeight, float heightWeight) {
+	public D setDimensionWithRate(float widthWeight, float heightWeight) {
 		this.widthWeight = widthWeight;
 		this.heightWeight = heightWeight;
-		return this;
+		return (D) this;
 	}
 
-	public DkConfirmDialog setLayoutType(int layoutType) {
+	public D setLayoutType(int layoutType) {
 		this.layoutType = layoutType;
-		return this;
+		return (D) this;
 	}
 
-	public DkConfirmDialog asSuccess() {
+	public D asSuccess() {
 		return asColor(SUCCESS);
 	}
 
-	public DkConfirmDialog asError() {
+	public D asError() {
 		return asColor(ERROR);
 	}
 
-	public DkConfirmDialog asWarning() {
+	public D asWarning() {
 		return asColor(WARNING);
 	}
 
-	public DkConfirmDialog asAsk() {
+	public D asAsk() {
 		return asColor(ASK);
 	}
 
-	public DkConfirmDialog asInfo() {
+	public D asInfo() {
 		return asColor(INFO);
 	}
 
-	public DkConfirmDialog asColor(int color) {
+	public D asColor(int color) {
 		return setHeaderBackgroundColor(color);
 	}
 
-	public DkConfirmDialog setHeaderBackgroundColor(int color) {
+	public D setHeaderBackgroundColor(int color) {
 		this.headerBackgroundColor = color;
 		if (vHeader != null) {
 			vHeader.setBackgroundColor(color);
 		}
-		return this;
+		return (D) this;
 	}
 
-	public DkConfirmDialog setMessageBackgroundColor(int messageBackgroundColor) {
+	public D setMessageBackgroundColor(int messageBackgroundColor) {
 		this.messageBackgroundColor = messageBackgroundColor;
 		if (vMessage != null) {
 			vMessage.setBackgroundColor(messageBackgroundColor);
 		}
-		return this;
+		return (D) this;
 	}
 
 	// endregion Get/Set

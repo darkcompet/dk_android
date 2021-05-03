@@ -11,7 +11,6 @@ import java.util.Locale;
 
 import tool.compet.core.DkMaths;
 import tool.compet.core.DkStrings;
-import tool.compet.core.config.DkConfig;
 
 public class DkCompassHelper {
 	/**

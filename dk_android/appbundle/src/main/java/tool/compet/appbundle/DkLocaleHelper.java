@@ -12,6 +12,7 @@ import android.os.Build;
 import java.util.Locale;
 
 import tool.compet.core.DkConst;
+import tool.compet.core.DkConfig;
 
 public class DkLocaleHelper {
 	/**
@@ -22,7 +23,7 @@ public class DkLocaleHelper {
 	 * @return Localed context
 	 */
 	public static ContextWrapper wrapLocale(Context context, String lang) {
-		final Locale systemLocale = getSystemLocale(context);
+		final Locale systemLocale = DkConfig.appLocale(context);
 
 		if (! DkConst.EMPTY_STRING.equals(lang) && ! systemLocale.getLanguage().equals(lang)) {
 			Configuration config = context.getResources().getConfiguration();
@@ -45,18 +46,5 @@ public class DkLocaleHelper {
 		}
 
 		return new ContextWrapper(context);
-	}
-
-	/**
-	 * @return System locale of current device.
-	 */
-	public static Locale getSystemLocale(Context context) {
-		Configuration config = context.getResources().getConfiguration();
-
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-			return config.getLocales().get(0);
-		}
-
-		return config.locale;
 	}
 }

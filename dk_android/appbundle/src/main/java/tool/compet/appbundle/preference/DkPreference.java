@@ -4,24 +4,32 @@
 
 package tool.compet.appbundle.preference;
 
-public interface DkPreference {
+import android.content.Context;
+import android.view.View;
+import android.view.ViewGroup;
+
+public interface DkPreference<P> {
 	/**
-	 * Which manages preference list.
+	 * Preference key in storage.
 	 */
-	ThePreferenceManager getPreferenceManager();
+	CharSequence key();
 
 	/**
-	 * Subclass must provide which storage to store preference
+	 * Call this to pass customized params to this preference.
+	 *
+	 * @param context To init layout
+	 * @param storage To store setting
+	 * @param listener To tell caller know changes from this preference.
 	 */
-	DkPreferenceStorage storage();
+	void init(Context context, DkPreferenceStorage storage, DkPreferenceListener listener);
 
 	/**
-	 * Subclass must manually define content (item list) of preference
+	 * Called when init view.
 	 */
-	void onCreatePreferences(ThePreferenceManager preferenceManager);
+	View createView(Context context, ViewGroup parent);
 
 	/**
-	 * Called when some preference was stored (changed)
+	 * Called after init view for decoration.
 	 */
-	void onPreferenceChanged(String key);
+	void decorateView(View itemView);
 }

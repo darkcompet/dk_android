@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -22,15 +21,15 @@ import tool.compet.appbundle.DkCompactViewLogic;
 /**
  * Subclass can extend this to implement preference via Fragment.
  */
-public abstract class DkPreferenceFragment<VL extends DkCompactViewLogic> extends DkCompactFragment<VL> implements DkPreference {
+public abstract class DkPreferenceFragment<VL extends DkCompactViewLogic> extends DkCompactFragment<VL> implements DkPreferenceView {
 	/**
 	 * Caller must provide preference view id (id of recycler view)
 	 */
 	protected abstract int preferenceViewId();
 
 	protected ThePreferenceManager preferenceManager;
-	protected MyAdapter adapter;
-	private final MyPreferenceListener listener = new MyPreferenceListener() {
+	protected MyPreferenceAdapter preferenceAdapter;
+	private final DkPreferenceListener preferenceListener = new DkPreferenceListener() {
 		@Override
 		public void onPreferenceChanged(String key) {
 			DkPreferenceFragment.this.onPreferenceChanged(key);
@@ -38,21 +37,21 @@ public abstract class DkPreferenceFragment<VL extends DkCompactViewLogic> extend
 
 		@Override
 		public void notifyDataSetChanged() {
-			DkPreferenceFragment.this.adapter.notifyDataSetChanged();
+			DkPreferenceFragment.this.preferenceAdapter.notifyDataSetChanged();
 		}
 	};
 
 	@Override
 	public boolean isRetainInstance() {
-		return true; // over configuration change
+		return true; // over configuration change by default
 	}
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		preferenceManager = new ThePreferenceManager(context, storage(), listener);
-		adapter = new MyAdapter(preferenceManager.getPreferences());
+		preferenceManager = new ThePreferenceManager(context, storage(), preferenceListener);
+		preferenceAdapter = new MyPreferenceAdapter(preferenceManager.getPreferences());
 	}
 
 	@Override
@@ -60,7 +59,11 @@ public abstract class DkPreferenceFragment<VL extends DkCompactViewLogic> extend
 		super.onViewCreated(view, savedInstanceState);
 
 		RecyclerView prefView = layout.findViewById(preferenceViewId());
+
+		// Subclass can override this to customize preference view (recycler view)
 		onSetupPreferenceView(prefView);
+
+		// Subclass can override this to create preference list
 		onCreatePreferences(preferenceManager);
 	}
 
@@ -68,10 +71,10 @@ public abstract class DkPreferenceFragment<VL extends DkCompactViewLogic> extend
 	 * Subclass can override this to setup preference view (RecyclerView)
 	 */
 	protected void onSetupPreferenceView(RecyclerView prefView) {
-		prefView.setAdapter(adapter);
+		prefView.setAdapter(preferenceAdapter);
 		prefView.setHasFixedSize(true);
 		prefView.setLayoutManager(new LinearLayoutManager(context));
-		prefView.addItemDecoration(new DividerItemDecoration(context, LinearLayoutManager.VERTICAL));
+//		prefView.addItemDecoration(new DividerItemDecoration(context, LinearLayoutManager.VERTICAL));
 	}
 
 	@Override
@@ -84,15 +87,15 @@ public abstract class DkPreferenceFragment<VL extends DkCompactViewLogic> extend
 			super(itemView);
 		}
 
-		void decorate(MyBasePreference preference) {
+		void decorate(DkPreference preference) {
 			preference.decorateView(itemView);
 		}
 	}
 
-	private static class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
-		private final List<MyBasePreference> preferences;
+	private static class MyPreferenceAdapter extends RecyclerView.Adapter<MyViewHolder> {
+		private final List<DkPreference> preferences;
 
-		MyAdapter(List<MyBasePreference> preferences) {
+		MyPreferenceAdapter(List<DkPreference> preferences) {
 			this.preferences = preferences;
 		}
 
@@ -100,7 +103,7 @@ public abstract class DkPreferenceFragment<VL extends DkCompactViewLogic> extend
 		@Override
 		public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 			// At below method `getItemViewType()`, we has set viewType as position of the preference in list
-			MyBasePreference preference = preferences.get(viewType);
+			DkPreference preference = preferences.get(viewType);
 			return new MyViewHolder(preference.createView(parent.getContext(), parent));
 		}
 

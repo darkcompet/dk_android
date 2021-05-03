@@ -14,16 +14,19 @@ import tool.compet.core.DkStrings;
 
 public class ThePreferenceManager {
 	private final Context context;
-	private final List<MyBasePreference> preferences = new ArrayList<>();
+	private final List<DkPreference> preferences = new ArrayList<>();
 	private final DkPreferenceStorage storage;
-	private final MyPreferenceListener listener;
+	private final DkPreferenceListener listener;
 
-	ThePreferenceManager(Context context, DkPreferenceStorage storage, MyPreferenceListener listener) {
+	ThePreferenceManager(Context context, DkPreferenceStorage storage, DkPreferenceListener listener) {
 		this.context = context;
 		this.storage = storage;
 		this.listener = listener;
 	}
 
+	/**
+	 * Call this when have changes at preference list.
+	 */
 	public void notifyDataSetChanged() {
 		listener.notifyDataSetChanged();
 	}
@@ -36,23 +39,23 @@ public class ThePreferenceManager {
 		preferences.clear();
 	}
 
-	public MyBasePreference getPreference(String key) {
-		int index = DkCollections.findIndex(preferences, pref -> DkStrings.isEquals(key, ((MyBasePreference) pref).key));
+	public DkPreference findPreference(String key) {
+		int index = DkCollections.findIndex(preferences, pref -> DkStrings.isEquals(key, pref.key()));
 		return index < 0 ? null : preferences.get(index);
 	}
 
-	public List<MyBasePreference> getPreferences() {
+	public List<DkPreference> getPreferences() {
 		return preferences;
 	}
 
-	public ThePreferenceManager addPreference(MyBasePreference preference) {
+	public ThePreferenceManager addPreference(DkPreference preference) {
 		preference.init(context, storage, listener);
 		preferences.add(preference);
 		return this;
 	}
 
 	public void removePreference(String key) {
-		int index = DkCollections.findIndex(preferences, pref -> DkStrings.isEquals(key, ((MyBasePreference) pref).key));
+		int index = DkCollections.findIndex(preferences, pref -> DkStrings.isEquals(key, pref.key()));
 		if (index >= 0) {
 			preferences.remove(index);
 		}

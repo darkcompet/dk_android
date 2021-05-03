@@ -30,7 +30,7 @@ import static android.graphics.Color.parseColor;
  * Perform your own animation on the bar with support of animation setting.
  */
 @SuppressWarnings("unchecked")
-public abstract class DkFloatingbar<T> implements View.OnTouchListener {
+public abstract class DkFloatingbar<B> implements View.OnTouchListener {
 	protected abstract MyFloatingbarManager manager();
 
 	protected static final long INFINITE_DURATION = -1;
@@ -38,7 +38,7 @@ public abstract class DkFloatingbar<T> implements View.OnTouchListener {
 	private static final int MSG_SHOW = 1;
 	private static final int MSG_DISMISS = 2;
 
-	// Color for type of bar
+	// Background color of bar (for each type)
 	public static final int TYPE_NORMAL = parseColor("#333333");
 	public static final int TYPE_ASK = parseColor("#009b8b");
 	public static final int TYPE_ERROR = parseColor("#ff0000");
@@ -129,29 +129,29 @@ public abstract class DkFloatingbar<T> implements View.OnTouchListener {
 		return eat;
 	}
 
-	public T asError() {
+	public B asError() {
 		return color(TYPE_ERROR);
 	}
 
-	public T asWarning() {
+	public B asWarning() {
 		return color(TYPE_WARNING);
 	}
 
-	public T asAsk() {
+	public B asAsk() {
 		return color(TYPE_ASK);
 	}
 
-	public T asSuccess() {
+	public B asSuccess() {
 		return color(TYPE_SUCCESS);
 	}
 
-	public T asInfo() {
+	public B asInfo() {
 		return color(TYPE_INFO);
 	}
 
-	public T color(int color) {
+	public B color(int color) {
 		bar.setBackgroundColor(color);
-		return (T) this;
+		return (B) this;
 	}
 
 	/**

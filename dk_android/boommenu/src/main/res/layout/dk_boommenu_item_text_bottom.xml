@@ -9,7 +9,7 @@
 	android:clickable="true"
 	android:focusable="true">
 
-	<tool.compet.boommenu.DkImageOnlyItemView
+	<ImageView
 		android:id="@+id/img"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -21,7 +21,7 @@
 		android:layout_marginBottom="4dp"
 		android:contentDescription="@null"
 		android:src="@android:drawable/ic_dialog_map"
-		android:tint="@android:color/white" />
+		app:tint="@android:color/white" />
 
 	<TextView
 		android:id="@+id/tvText"
@@ -31,7 +31,6 @@
 		app:layout_constraintEnd_toEndOf="@id/img"
 		app:layout_constraintTop_toBottomOf="@id/img"
 		app:layout_constraintBottom_toBottomOf="parent"
-		android:text="Hello guys, this is very long text, then should be marqueed"
 		android:textColor="@android:color/white"
 		android:gravity="center"
 		android:padding="0dp"

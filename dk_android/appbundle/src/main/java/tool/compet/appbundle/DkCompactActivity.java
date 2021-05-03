@@ -51,6 +51,8 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends A
 		return true;
 	}
 
+	// Current app
+	protected DkApp app;
 	// Current fragment activity
 	protected FragmentActivity host;
 	// Current context
@@ -95,12 +97,24 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends A
 	}
 
 	@Override
+	protected void attachBaseContext(Context newBase) {
+		if (BuildConfig.DEBUG) {
+			DkLogs.info(this, "attachBaseContext()");
+		}
+		super.attachBaseContext(newBase);
+	}
+
+	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
 		if (BuildConfig.DEBUG) {
 			DkLogs.info(this, "onCreate");
 		}
 
 		super.onCreate(savedInstanceState);
+
+		app = (DkApp) getApplication();
+		host = this;
+		context = this;
 
 		// Must run after #super.onCreate()
 		if (enableViewLogicDesignPattern()) {
@@ -195,6 +209,12 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends A
 			viewLogic.onDestroy(this);
 			viewLogic = null;
 		}
+
+		this.app = null;
+		this.host = null;
+		this.context = null;
+		this.layout = null;
+
 		super.onDestroy();
 	}
 

@@ -4,114 +4,24 @@
 
 package tool.compet.appbundle.preference;
 
-import android.content.Context;
-import android.util.AttributeSet;
-import android.view.View;
-import android.view.ViewGroup;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import java.util.List;
-
-/**
- * Subclass can extend this to implement preference via View.
- */
-public abstract class DkPreferenceView extends RecyclerView implements DkPreference {
-	private ThePreferenceManager preferenceManager;
-	private MyAdapter adapter;
-	private final MyPreferenceListener listener = new MyPreferenceListener() {
-		@Override
-		public void onPreferenceChanged(String key) {
-			DkPreferenceView.this.onPreferenceChanged(key);
-		}
-
-		@Override
-		public void notifyDataSetChanged() {
-			DkPreferenceView.this.adapter.notifyDataSetChanged();
-		}
-	};
-
-	public DkPreferenceView(@NonNull Context context) {
-		super(context);
-		init(context);
-	}
-
-	public DkPreferenceView(@NonNull Context context, @Nullable AttributeSet attrs) {
-		super(context, attrs);
-		init(context);
-	}
-
-	public DkPreferenceView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
-		super(context, attrs, defStyleAttr);
-		init(context);
-	}
-
-	private void init(Context context) {
-		this.preferenceManager = new ThePreferenceManager(context, storage(), listener);
-		this.adapter = new MyAdapter(preferenceManager.getPreferences());
-
-		onSetupPreferenceView(context);
-		onCreatePreferences(preferenceManager);
-	}
+public interface DkPreferenceView<P> {
+	/**
+	 * Which manages preference list.
+	 */
+	ThePreferenceManager getPreferenceManager();
 
 	/**
-	 * Subclass can override this to setup preference view (RecyclerView)
+	 * Subclass must provide which storage to store preference
 	 */
-	protected void onSetupPreferenceView(Context context) {
-		this.setAdapter(adapter);
-		this.setHasFixedSize(true);
-		this.setLayoutManager(new LinearLayoutManager(context));
-		this.addItemDecoration(new DividerItemDecoration(context, LinearLayoutManager.VERTICAL));
-	}
+	DkPreferenceStorage storage();
 
-	@Override
-	public ThePreferenceManager getPreferenceManager() {
-		return preferenceManager;
-	}
+	/**
+	 * Subclass must manually define content (item list) of preference
+	 */
+	void onCreatePreferences(ThePreferenceManager preferenceManager);
 
-	private static class MyViewHolder extends ViewHolder {
-		public MyViewHolder(@NonNull View itemView) {
-			super(itemView);
-		}
-
-		void decorate(MyBasePreference preference) {
-			preference.decorateView(itemView);
-		}
-	}
-
-	private static class MyAdapter extends Adapter<MyViewHolder> {
-		private final List<MyBasePreference> preferences;
-
-		MyAdapter(List<MyBasePreference> preferences) {
-			this.preferences = preferences;
-		}
-
-		@NonNull
-		@Override
-		public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-			// At below method `getItemViewType()`, we has set viewType as position of the preference in list
-			MyBasePreference preference = preferences.get(viewType);
-			return new MyViewHolder(preference.createView(parent.getContext(), parent));
-		}
-
-		@Override
-		public int getItemViewType(int position) {
-			// Consider viewType as position
-			return position;
-		}
-
-		@Override
-		public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-			holder.decorate(preferences.get(position));
-		}
-
-		@Override
-		public int getItemCount() {
-			return preferences.size();
-		}
-	}
+	/**
+	 * Called when some preference was stored (changed)
+	 */
+	void onPreferenceChanged(String key);
 }

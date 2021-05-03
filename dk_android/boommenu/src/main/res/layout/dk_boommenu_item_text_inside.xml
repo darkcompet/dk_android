@@ -22,7 +22,7 @@
 		android:layout_margin="0dp"
 		android:contentDescription="@null"
 		android:src="@android:drawable/ic_delete"
-		android:tint="@android:color/white" />
+		app:tint="@android:color/white" />
 
 	<TextView
 		android:id="@+id/tvText"
@@ -31,7 +31,6 @@
 		app:layout_constraintStart_toStartOf="@id/ivIcon"
 		app:layout_constraintEnd_toEndOf="@id/ivIcon"
 		app:layout_constraintBottom_toBottomOf="@id/ivIcon"
-		android:text="Hello guys, this is very long text, then should be marqueed"
 		android:textColor="@android:color/white"
 		android:gravity="center"
 		android:paddingLeft="2dp"

@@ -50,6 +50,8 @@ public abstract class DkCompactFragment<VL extends DkCompactViewLogic> extends F
 		return true;
 	}
 
+	// Current application
+	protected DkApp app;
 	// Current fragment activity
 	protected FragmentActivity host;
 	// Current context
@@ -110,6 +112,9 @@ public abstract class DkCompactFragment<VL extends DkCompactViewLogic> extends F
 		if (this.context == null) {
 			this.context = context;
 		}
+		if (this.app == null) {
+			this.app = (DkApp) this.host.getApplication();
+		}
 
 		super.onAttach(context);
 	}
@@ -125,6 +130,9 @@ public abstract class DkCompactFragment<VL extends DkCompactViewLogic> extends F
 		}
 		if (this.host == null) {
 			this.host = (FragmentActivity) activity;
+		}
+		if (this.app == null) {
+			this.app = (DkApp) activity.getApplication();
 		}
 
 		super.onAttach(activity);
@@ -269,6 +277,7 @@ public abstract class DkCompactFragment<VL extends DkCompactViewLogic> extends F
 			DkLogs.info(this, "onDetach");
 		}
 
+		this.app = null;
 		this.host = null;
 		this.context = null;
 		this.layout = null;
