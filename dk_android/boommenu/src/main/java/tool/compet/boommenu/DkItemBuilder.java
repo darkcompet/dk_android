@@ -15,7 +15,7 @@ import tool.compet.core.DkConfig;
 
 @SuppressWarnings("unchecked")
 public abstract class DkItemBuilder<T extends DkItemBuilder> {
-	protected abstract DkBaseItemView getView(Context context);
+	protected abstract DkItemView getView(Context context);
 
 	interface Callback {
 		void onTranslate(DkItem item, float dx, float dy);
@@ -69,7 +69,7 @@ public abstract class DkItemBuilder<T extends DkItemBuilder> {
 
 	protected DkItem build(Context context, Callback callback) {
 		DkItem item = new DkItem();
-		DkBaseItemView view = getView(context);
+		DkItemView view = getView(context);
 
 		// Validate and initialize
 		if (view == null) {
@@ -169,8 +169,8 @@ public abstract class DkItemBuilder<T extends DkItemBuilder> {
 	/**
 	 * This method should be called inside subclass.
 	 */
-	protected <V extends DkBaseItemView> V prepareView(Context context, int layoutRes) {
-		DkBaseItemView view = (DkBaseItemView) View.inflate(context, layoutRes, null);
+	protected <V extends DkItemView> V prepareView(Context context, int layoutRes) {
+		DkItemView view = (DkItemView) View.inflate(context, layoutRes, null);
 
 		// This is time to need build some info for item view
 		if (cornerRadius == Integer.MIN_VALUE) {

@@ -53,7 +53,7 @@ public class DkCompassHelper {
 		return DkMaths.convertAngleToRange180(res);
 	}
 
-	public static void applyWordCase(DkRing ring, Locale locale) {
+	public static void applyWordCase(DkCompassRing ring, Locale locale) {
 		List<String> words = ring.getWords();
 
 		if (!ring.isWordUpperCase() && !ring.isWordLowerCase()) {

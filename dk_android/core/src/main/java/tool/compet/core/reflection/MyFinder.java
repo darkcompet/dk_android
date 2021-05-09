@@ -28,8 +28,12 @@ public class MyFinder {
 	 * @return map of each annotation with list of methods which annotated with that annotation.
 	 */
 	@NonNull
-	Map<Class<? extends Annotation>, List<Field>> findFields
-	(Class clazz, Iterable<Class<? extends Annotation>> annotations, boolean upSuper, String[] searchPackages) {
+	Map<Class<? extends Annotation>, List<Field>> findFields(
+		Class clazz,
+		Iterable<Class<? extends Annotation>> annotations,
+		boolean upSuper,
+		String[] searchPackages) {
+
 		Map<Class<? extends Annotation>, List<Field>> result = new ArrayMap<>();
 
 		if (clazz != null && isValidTarget(clazz, searchPackages)) {
@@ -59,8 +63,12 @@ public class MyFinder {
 	 * @return map of each annotation with list of methods which annotated with that annotation.
 	 */
 	@NonNull
-	Map<Class<? extends Annotation>, List<Method>> findMethods
-	(Class clazz, Iterable<Class<? extends Annotation>> annotations, boolean upSuper, String[] searchPackages) {
+	Map<Class<? extends Annotation>, List<Method>> findMethods(
+		Class clazz,
+		Iterable<Class<? extends Annotation>> annotations,
+		boolean upSuper,
+		String[] searchPackages) {
+
 		Map<Class<? extends Annotation>, List<Method>> result = new ArrayMap<>();
 
 		if (clazz != null && isValidTarget(clazz, searchPackages)) {
@@ -83,8 +91,11 @@ public class MyFinder {
 	/**
 	 * In given class, collect fields which be annotated with one of given annotations.
 	 */
-	private void collectFieldsOf
-	(Class clazz, Iterable<Class<? extends Annotation>> annotations, Map<Class<? extends Annotation>, List<Field>> result) {
+	private void collectFieldsOf(
+		Class clazz,
+		Iterable<Class<? extends Annotation>> annotations,
+		Map<Class<? extends Annotation>, List<Field>> result) {
+
 		for (Class<? extends Annotation> annotation : annotations) {
 			List<Field> fields = result.get(annotation);
 
@@ -103,8 +114,11 @@ public class MyFinder {
 	/**
 	 * In given class, collect methods which be annotated with one of given annotations.
 	 */
-	private void collectMethodsOf
-	(Class clazz, Iterable<Class<? extends Annotation>> annotations, Map<Class<? extends Annotation>, List<Method>> result) {
+	private void collectMethodsOf(
+		Class clazz,
+		Iterable<Class<? extends Annotation>> annotations,
+		Map<Class<? extends Annotation>, List<Method>> result) {
+
 		for (Class<? extends Annotation> annotation : annotations) {
 			List<Method> methods = result.get(annotation);
 
@@ -139,8 +153,11 @@ public class MyFinder {
 	/**
 	 * Merge #superResult to #result.
 	 */
-	private static <T> void mergeWithSuperResult
-	(Iterable<Class<? extends Annotation>> annotations, Map<Class<? extends Annotation>, List<T>> superResult, Map<Class<? extends Annotation>, List<T>> result) {
+	private static <T> void mergeWithSuperResult(
+		Iterable<Class<? extends Annotation>> annotations,
+		Map<Class<? extends Annotation>, List<T>> superResult,
+		Map<Class<? extends Annotation>, List<T>> result) {
+
 		for (Class<? extends Annotation> annotation : annotations) {
 			List<T> superItems = superResult.get(annotation);
 

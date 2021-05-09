@@ -3,7 +3,7 @@
 <FrameLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
-	android:id="@+id/dk_background"
+	android:id="@+id/dk_fullground"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:layout_gravity="center"
@@ -11,13 +11,15 @@
 	android:focusable="true">
 
 	<androidx.cardview.widget.CardView
-		android:id="@+id/dk_foreground"
+		android:id="@+id/dk_background"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center"
 		app:cardCornerRadius="12dp"
 		app:cardElevation="8dp"
 		app:cardBackgroundColor="?attr/dk_color_layout_bkg">
+
+		<!-- Rounded dialog -->
 
 		<androidx.constraintlayout.widget.ConstraintLayout
 			android:layout_width="match_parent"
@@ -60,19 +62,22 @@
 			<FrameLayout
 				android:id="@+id/dk_body"
 				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
+				android:layout_height="0dp"
+				app:layout_constraintVertical_weight="1"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintEnd_toEndOf="parent"
 				app:layout_constraintTop_toBottomOf="@id/dk_header"
 				app:layout_constraintBottom_toTopOf="@id/dk_footer">
 
 				<TextView
-					style="@style/Widget.AppCompat.Button.Borderless.Colored"
 					android:id="@+id/dk_message"
 					android:layout_width="match_parent"
 					android:layout_height="match_parent"
 					android:gravity="left|top"
+					android:scrollbars="vertical"
 					android:layout_gravity="center"
+					android:padding="8dp"
+					android:lines="3"
 					android:minLines="3" />
 
 			</FrameLayout>

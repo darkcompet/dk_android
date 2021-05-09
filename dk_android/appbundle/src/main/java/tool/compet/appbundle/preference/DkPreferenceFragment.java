@@ -15,8 +15,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-import tool.compet.appbundle.DkCompactFragment;
-import tool.compet.appbundle.DkCompactViewLogic;
+import tool.compet.appbundle.compact.DkCompactFragment;
+import tool.compet.appbundle.compact.DkCompactViewLogic;
 
 /**
  * Subclass can extend this to implement preference via Fragment.

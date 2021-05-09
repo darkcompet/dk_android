@@ -6,6 +6,8 @@ package tool.compet.appbundle;
 
 import android.app.Activity;
 
+import tool.compet.appbundle.navigator.DkFragmentNavigator;
+
 /**
  * Activity interface, an activity should implement this interface to work where Dk library.
  */

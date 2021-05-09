@@ -10,7 +10,7 @@ import android.graphics.Bitmap;
 import java.io.File;
 import java.io.IOException;
 
-import tool.compet.core.DkBitmaps;
+import tool.compet.core.graphics.DkBitmaps;
 import tool.compet.core.DkFiles;
 import tool.compet.core.DkLogs;
 import tool.compet.core.DkStrings;

@@ -26,16 +26,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-import tool.compet.core.DkColors;
+import tool.compet.core.graphics.DkColors;
 import tool.compet.core.view.DkDoubleFingerDetector;
-import tool.compet.core.DkBitmaps;
+import tool.compet.core.graphics.DkBitmaps;
 import tool.compet.core.DkLogs;
 import tool.compet.core.DkMaths;
 import tool.compet.core.stream.DkObservable;
-import tool.compet.core.view.DkTextViews;
+import tool.compet.core.view.DkViews;
 
 import static tool.compet.core.BuildConfig.DEBUG;
-import static tool.compet.core.view.DkTextViews.getTextViewDrawPoint;
+import static tool.compet.core.view.DkViews.getTextViewDrawPoint;
 
 public class DkCompassView extends View implements DkDoubleFingerDetector.Listener, View.OnTouchListener {
 	// Compass modes: normal, rotator and pointer.
@@ -43,7 +43,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 	public static final int MODE_ROTATE = 2;
 	public static final int MODE_POINT = 3;
 
-	private static final float DEFAULT_WORD_TEXT_SIZE = DkTextViews.fontSizeInPx(12);
+	private static final float DEFAULT_WORD_TEXT_SIZE = DkViews.fontSizeInPx(12);
 
 	private final Context context;
 
@@ -76,7 +76,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 	private boolean isCompassMovable = true;
 	private double nextAnimateDegrees;
 	private double lastAnimatedDegrees;
-	private List<DkRing> buildCompassRings;
+	private List<DkCompassRing> buildCompassRings;
 	private Locale buildCompassLocale;
 
 	private final Paint linePaint;
@@ -304,7 +304,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 	 * This method just call invalidate() since we need the view's dimension to build compass.
 	 * Compass will be built as soon as possible when the view is laid out.
 	 */
-	public void buildCompass(List<DkRing> rings, Locale locale) {
+	public void buildCompass(List<DkCompassRing> rings, Locale locale) {
 		this.buildCompassRings = rings;
 		this.buildCompassLocale = locale;
 
@@ -321,7 +321,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 		return DkCompassHelper.calcDisplayAngle(pointerDegrees + compassDegreesInPointMode);
 	}
 
-	public DkInfo readCurInfo() {
+	public DkCompassInfo readCurInfo() {
 		return controller.readInfo(context, nextAnimateDegrees, buildCompassRings, getPoleLongNames());
 	}
 
@@ -614,7 +614,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 		lastAnimatedDegrees = 0;
 	}
 
-	private Bitmap buildCompassInternal(List<DkRing> rings, Locale locale) {
+	private Bitmap buildCompassInternal(List<DkCompassRing> rings, Locale locale) {
 		// use to determine default values (padding, height...)
 		final String defaultText = "360";
 		final Paint textPaint = this.textPaint;
@@ -652,7 +652,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 			int numberUnnecessaryMeasureRing = 0;
 
 			for (int ringInd = ringCnt - 1; ringInd >= 0; --ringInd) {
-				DkRing ring = rings.get(ringInd);
+				DkCompassRing ring = rings.get(ringInd);
 				if (!ring.isVisible()) {
 					++numberUnnecessaryMeasureRing;
 					continue;
@@ -661,7 +661,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 				// word font size should between [1, 100]
 				int wordFontSize = Math.max(1, Math.min(100, ring.wordFontSize));
 
-				float ringTextSize = DkTextViews.fontSizeInPx(wordFontSize) - time;
+				float ringTextSize = DkViews.fontSizeInPx(wordFontSize) - time;
 				if (ringTextSize < 1) {
 					ringTextSize = 1;
 					++numberUnnecessaryMeasureRing;
@@ -840,7 +840,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 
 		// Step 3. draw user customed compass
 		for (int ringInd = 0; ringInd < ringCnt; ++ringInd) {
-			DkRing ring = rings.get(ringInd);
+			DkCompassRing ring = rings.get(ringInd);
 			if (!ring.isVisible()) {
 				continue;
 			}

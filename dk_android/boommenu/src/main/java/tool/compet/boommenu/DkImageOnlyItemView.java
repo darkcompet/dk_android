@@ -8,10 +8,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
-import tool.compet.boommenu.DkBaseItemView;
-import tool.compet.boommenu.R;
-
-public class DkImageOnlyItemView extends DkBaseItemView {
+public class DkImageOnlyItemView extends DkItemView {
 	ImageView ivIcon;
 
 	public DkImageOnlyItemView(Context context) {

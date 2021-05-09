@@ -16,11 +16,10 @@ import android.view.animation.Interpolator;
  * <p></p>
  * Contrast with it, good-performance version lookups table which pre-calculated interpolation values
  * to get approximated value of given fraction.
+ *
+ * Refer:
  */
 public class DkInterpolatorProvider {
-	private DkInterpolatorProvider() {
-	}
-
 	public static Interpolator newLinear() {
 		return fraction -> fraction;
 	}

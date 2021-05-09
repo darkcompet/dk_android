@@ -7,7 +7,7 @@ package tool.compet.imgproc;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 
-import tool.compet.core.DkBitmaps;
+import tool.compet.core.graphics.DkBitmaps;
 import tool.compet.core.DkLogs;
 
 class MyRotator {

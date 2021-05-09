@@ -7,6 +7,7 @@ package tool.compet.core;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
+import androidx.lifecycle.MutableLiveData;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ import java.util.List;
 public class DkLogs {
 	// Enable this to log back trace of current thread
 	public static boolean logBackTrace = false;
+	public static final MutableLiveData<String> errorCallbackAtMainThread = new MutableLiveData<>();
 
 	// Log types
 	private static final String TYPE_DEBUG = "debug";
@@ -177,6 +179,7 @@ public class DkLogs {
 					String trace = DkStrings.join('\n', descriptions);
 					message += "\nStack Trace:\n" + trace;
 				}
+				errorCallbackAtMainThread.postValue(message);
 				Log.e(logTag, message);
 				break;
 			}

@@ -15,8 +15,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-import tool.compet.appbundle.DkCompactActivity;
-import tool.compet.appbundle.DkCompactViewLogic;
+import tool.compet.appbundle.compact.DkCompactActivity;
+import tool.compet.appbundle.compact.DkCompactViewLogic;
 
 public abstract class DkPreferenceActivity<VL extends DkCompactViewLogic> extends DkCompactActivity<VL> implements DkPreferenceView {
 	/**

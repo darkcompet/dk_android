@@ -14,10 +14,10 @@ import java.lang.reflect.Method;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 
-import tool.compet.core.DkBitmaps;
+import tool.compet.core.graphics.DkBitmaps;
 import tool.compet.core.DkJsonHelper;
 import tool.compet.core.DkLogs;
-import tool.compet.core.reflection.DkReflections;
+import tool.compet.core.DkReflections;
 import tool.compet.core.DkStrings;
 
 class MyServiceMethod<T> {

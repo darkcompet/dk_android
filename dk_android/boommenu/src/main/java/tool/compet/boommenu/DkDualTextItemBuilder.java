@@ -19,7 +19,7 @@ public class DkDualTextItemBuilder extends DkItemBuilder<DkDualTextItemBuilder> 
 	}
 
 	@Override
-	protected DkBaseItemView getView(Context context) {
+	protected DkItemView getView(Context context) {
 		int layoutRes;
 
 		if (style == STYLE_TEXT_LEFT) {

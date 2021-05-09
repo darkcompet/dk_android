@@ -11,11 +11,16 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * This class, provides basic common operations on an array.
+ * Utility class for array or array-list.
  */
 public class DkArrays {
 	public static boolean empty(Object[] arr) {
 		return arr == null || arr.length == 0;
+	}
+
+	@SafeVarargs
+	public static <T> List<T> asList(@Nullable T... args) {
+		return (args == null || args.length == 0) ? new ArrayList<>() : Arrays.asList(args);
 	}
 
 	public static void swap(int[] arr, int i, int j) {
@@ -66,11 +71,6 @@ public class DkArrays {
 			arr[i] = arr[j];
 			arr[j] = tmp;
 		}
-	}
-
-	@SafeVarargs
-	public static <T> List<T> asList(@Nullable T... args) {
-		return (args == null || args.length == 0) ? new ArrayList<>() : Arrays.asList(args);
 	}
 
 	public static boolean inArray(char target, char[] arr) {

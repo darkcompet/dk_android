@@ -9,15 +9,14 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
- * システム全体に、タスク実行を担当・管理する唯一のScheduledThreadPoolExecutorです。
- * デフォルトに使用スレッド数は2〜4になります。また、スレッドの生きる時間は1分です。
+ * This provides task-schduling on overall app by handle `ScheduledThreadPoolExecutor` class.
+ * This uses 2~4 threads, and by default, each thread has timeout 1 minute.
  */
 public class DkExecutorService {
 	private static DkExecutorService INS;
-
 	private final ScheduledThreadPoolExecutor executor;
 
-	private DkExecutorService(int corePoolSize, int maxPoolSize, long aliveTime, TimeUnit unit) {
+	public DkExecutorService(int corePoolSize, int maxPoolSize, long aliveTime, TimeUnit unit) {
 		executor = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(corePoolSize);
 		executor.setMaximumPoolSize(maxPoolSize);
 		executor.setKeepAliveTime(aliveTime, unit);
@@ -44,7 +43,7 @@ public class DkExecutorService {
 
 	public static ScheduledThreadPoolExecutor getIns() {
 		if (INS == null) {
-			throw new RuntimeException("Must call #install() first");
+			throw new RuntimeException("Must call `install()` first");
 		}
 		return INS.executor;
 	}

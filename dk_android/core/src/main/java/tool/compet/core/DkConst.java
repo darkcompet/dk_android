@@ -6,16 +6,20 @@ package tool.compet.core;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.os.Build;
 
 import java.io.File;
 
 public interface DkConst {
-	// Separator
+	// This is sdk version of current device (compare with `Build.VERSION_CODES.*`)
+	int SDK_VERSION = Build.VERSION.SDK_INT;
+
+	// Separators
 	String LS = System.getProperty("line.separator");
 	String FS = File.separator;
 
 	String EMPTY_STRING = "";
-	char SPACE_CHAR = ' ';
+	char SPACE_CHAR = ' '; // 1 byte
 
 	// Request code
 	String REQ_CODE = "requestCode";

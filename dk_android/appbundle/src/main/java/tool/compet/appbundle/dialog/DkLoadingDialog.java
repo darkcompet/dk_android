@@ -14,7 +14,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import tool.compet.appbundle.DkCompactDialog;
+import tool.compet.appbundle.compact.DkCompactDialog;
 import tool.compet.appbundle.R;
 
 /**

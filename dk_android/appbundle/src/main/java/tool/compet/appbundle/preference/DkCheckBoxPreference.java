@@ -14,7 +14,7 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import tool.compet.appbundle.R;
-import tool.compet.core.view.DkTextViews;
+import tool.compet.core.view.DkViews;
 
 public class DkCheckBoxPreference extends MyBasePreference<DkCheckBoxPreference> {
 	// Title
@@ -62,12 +62,14 @@ public class DkCheckBoxPreference extends MyBasePreference<DkCheckBoxPreference>
 		CheckBox cbCheck = view.findViewById(checkboxViewId);
 		TextView tvSummary = view.findViewById(summaryViewId);
 
+		view.setEnabled(enabled);
+
 		// Setup title
 		if (titleTextId > 0) {
 			title = context.getString(titleTextId);
 		}
 		if (title != null) {
-			DkTextViews.setTextSize(tvTitle, 1.125f * tvSummary.getTextSize());
+			DkViews.setTextSize(tvTitle, 1.125f * tvSummary.getTextSize());
 			tvTitle.setText(title);
 			tvTitle.setVisibility(View.VISIBLE);
 		}
@@ -76,16 +78,20 @@ public class DkCheckBoxPreference extends MyBasePreference<DkCheckBoxPreference>
 		}
 
 		// Setup checkbox
+		cbCheck.setEnabled(enabled);
 		cbCheck.setChecked(checked);
-		cbCheck.setOnCheckedChangeListener((buttonView, isChecked) -> {
-			checked = isChecked;
 
-			storage.setBoolean(key, isChecked);
-			listener.onPreferenceChanged(key);
+		if (enabled) {
+			cbCheck.setOnCheckedChangeListener((buttonView, isChecked) -> {
+				checked = isChecked;
 
-			notifyDataChanged();
-		});
-		view.setOnClickListener(v -> cbCheck.performClick());
+				storage.setBoolean(key, isChecked);
+				listener.onPreferenceChanged(key);
+
+				notifyDataChanged();
+			});
+			view.setOnClickListener(v -> cbCheck.performClick());
+		}
 
 		// Setup summary
 		if (summaryTextId > 0) {

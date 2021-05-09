@@ -9,7 +9,7 @@ import android.util.AttributeSet;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class DkDualTextItemView extends DkBaseItemView {
+public class DkDualTextItemView extends DkItemView {
 	ImageView ivIcon;
 	TextView tvTitle;
 	TextView tvSummary;

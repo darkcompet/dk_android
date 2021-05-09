@@ -30,8 +30,8 @@ public class DkReflectionFinder {
 	private final String[] searchPrefixPackages;
 
 	private DkReflectionFinder(String... searchPrefixPackages) {
-		if (searchPrefixPackages == null) {
-			searchPrefixPackages = new String[] {"tool.compet"};
+		if (searchPrefixPackages == null || searchPrefixPackages.length == 0) {
+			throw new RuntimeException("Search prefix packages cannot be empty");
 		}
 		this.searchPrefixPackages = searchPrefixPackages;
 		this.fieldCache = new ArrayMap<>();

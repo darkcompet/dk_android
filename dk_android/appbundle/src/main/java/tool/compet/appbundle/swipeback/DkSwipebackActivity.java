@@ -4,7 +4,7 @@
 
 package tool.compet.appbundle.swipeback;
 
-import tool.compet.appbundle.DkCompactActivity;
+import tool.compet.appbundle.compact.DkCompactActivity;
 
 public abstract class DkSwipebackActivity extends DkCompactActivity {
 }

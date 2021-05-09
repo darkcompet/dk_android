@@ -14,13 +14,13 @@ import tool.compet.core.DkLogs;
  */
 public class DkCustomItemBuilder extends DkItemBuilder<DkCustomItemBuilder> {
 	private int layoutRes;
-	private DkBaseItemView view;
+	private DkItemView view;
 
 	public DkCustomItemBuilder() {
 	}
 
 	@Override
-	protected DkBaseItemView getView(Context context) {
+	protected DkItemView getView(Context context) {
 		if (view == null) {
 			view = super.prepareView(context, layoutRes);
 
@@ -32,7 +32,7 @@ public class DkCustomItemBuilder extends DkItemBuilder<DkCustomItemBuilder> {
 		return view;
 	}
 
-	public DkCustomItemBuilder setView(DkBaseItemView view) {
+	public DkCustomItemBuilder setView(DkItemView view) {
 		this.view = view;
 		return this;
 	}

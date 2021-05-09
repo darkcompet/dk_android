@@ -14,6 +14,7 @@ import tool.compet.core.DkStrings;
  * Subclass must implement methods `migrate_X_to_Y()` for upgrading process when call this method,
  * in here, `X` is some version, and `Y` is next of X version (X and Y are integers and not leading with zero).
  * For eg,. subclass should implement methods like: `migrate_0_to_1()`, `migrate_1_to_2()`, `migrate_2_to_3()`, ...
+ * with a parameter `SQLiteDatabase db`.
  */
 public abstract class DkSqliteMigration {
 	/**
@@ -57,7 +58,7 @@ public abstract class DkSqliteMigration {
 
 		for (int version = oldVersion; version < newVersion; ++version) {
 			String methodName = calcMigrationMethodName(version, version + 1);
-			Method method = clazz.getDeclaredMethod(methodName);
+			Method method = clazz.getDeclaredMethod(methodName, SQLiteDatabase.class);
 			method.setAccessible(true);
 			method.invoke(this, db);
 		}

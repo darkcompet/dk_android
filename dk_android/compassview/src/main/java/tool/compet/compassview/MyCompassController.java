@@ -13,13 +13,13 @@ import java.util.List;
 class MyCompassController {
 	private TypeEvaluator mArgbEvaluator;
 
-	DkInfo readInfo(Context context, double degrees, List<DkRing> rings, String[] poleLongNames) {
-		DkInfo root = new DkInfo();
+	DkCompassInfo readInfo(Context context, double degrees, List<DkCompassRing> rings, String[] poleLongNames) {
+		DkCompassInfo root = new DkCompassInfo();
 
-		DkInfo northInfo = new DkInfo(poleLongNames[0]);
-		DkInfo eastInfo = new DkInfo(poleLongNames[1]);
-		DkInfo southInfo = new DkInfo(poleLongNames[2]);
-		DkInfo westInfo = new DkInfo(poleLongNames[3]);
+		DkCompassInfo northInfo = new DkCompassInfo(poleLongNames[0]);
+		DkCompassInfo eastInfo = new DkCompassInfo(poleLongNames[1]);
+		DkCompassInfo southInfo = new DkCompassInfo(poleLongNames[2]);
+		DkCompassInfo westInfo = new DkCompassInfo(poleLongNames[3]);
 
 		root.addChild(northInfo).addChild(eastInfo).addChild(southInfo).addChild(westInfo);
 
@@ -34,15 +34,15 @@ class MyCompassController {
 		String westDegrees = DkCompassHelper.calcOneDecimalDisplayAngle(west);
 		String degreesKey = context.getString(R.string.degrees);
 
-		northInfo.addChild(new DkInfo(degreesKey, northDegrees));
-		eastInfo.addChild(new DkInfo(degreesKey, eastDegrees));
-		southInfo.addChild(new DkInfo(degreesKey, southDegrees));
-		westInfo.addChild(new DkInfo(degreesKey, westDegrees));
+		northInfo.addChild(new DkCompassInfo(degreesKey, northDegrees));
+		eastInfo.addChild(new DkCompassInfo(degreesKey, eastDegrees));
+		southInfo.addChild(new DkCompassInfo(degreesKey, southDegrees));
+		westInfo.addChild(new DkCompassInfo(degreesKey, westDegrees));
 
 		// Calculate ring names
 		rings = rings != null ? rings : Collections.emptyList();
 
-		for (DkRing ring : rings) {
+		for (DkCompassRing ring : rings) {
 			double rotateDegrees = ring.getRotatedDegrees();
 			List<String> words = ring.getWords();
 			final int wordCnt = words.size();
@@ -65,9 +65,9 @@ class MyCompassController {
 		return root;
 	}
 
-	private void collectInfo(DkInfo info, String ringName, double angle, double from, double to, String word) {
+	private void collectInfo(DkCompassInfo info, String ringName, double angle, double from, double to, String word) {
 		if ((from <= angle && angle <= to) || (from > to && (from <= angle || angle <= to))) {
-			info.addChild(new DkInfo(ringName, word));
+			info.addChild(new DkCompassInfo(ringName, word));
 		}
 	}
 

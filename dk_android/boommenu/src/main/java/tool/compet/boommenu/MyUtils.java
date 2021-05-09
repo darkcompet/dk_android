@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.FrameLayout;
 
+import androidx.annotation.Nullable;
+
 class MyUtils {
 	/**
 	 * Scan up to find a layout like FrameLayout which can make layer of views.
@@ -16,6 +18,7 @@ class MyUtils {
 	 *
 	 * @return Nomarly, it results Root FrameLayout of current Activity.
 	 */
+	@Nullable
 	static ViewGroup findSuperFrameLayout(View view) {
 		ViewGroup layout = null;
 		ViewGroup fallback = null;

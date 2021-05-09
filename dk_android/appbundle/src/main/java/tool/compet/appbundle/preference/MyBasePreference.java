@@ -10,6 +10,9 @@ import androidx.annotation.Nullable;
 
 @SuppressWarnings("unchecked")
 abstract class MyBasePreference<P> implements DkPreference<P> {
+	// Control enabled/disabled state by this
+	protected boolean enabled = true;
+
 	protected String groupId; // id of group which contains this preference
 	protected String key; // preference key in storage
 
@@ -42,6 +45,11 @@ abstract class MyBasePreference<P> implements DkPreference<P> {
 	 */
 	public P groupId(String groupId) {
 		this.groupId = groupId;
+		return (P) this;
+	}
+
+	public P setEnabled(boolean enabled) {
+		this.enabled = enabled;
 		return (P) this;
 	}
 

@@ -24,10 +24,10 @@ class MyClusterManager {
 	DkEmissionOrder emissionOrder = DkEmissionOrder.RANDOM;
 
 	// Cluster gravity (for calculating cluster position in board)
-	DkGravity gravity = DkGravity.ANCHOR_BOTTOM_LEFT_CENTERED;
+	DkClusterGravity gravity = DkClusterGravity.ANCHOR_BOTTOM_LEFT_CENTERED;
 
 	// Cluster shape
-	DkShape shape = DkShape.VERTICAL_LINE;
+	DkClusterShape shape = DkClusterShape.VERTICAL_LINE;
 
 	// Items and builders
 	List<DkItemBuilder> itemBuilders = new ArrayList<>();

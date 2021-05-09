@@ -14,7 +14,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import tool.compet.core.DkBitmaps;
+import tool.compet.core.graphics.DkBitmaps;
 import tool.compet.core.DkJsonHelper;
 import tool.compet.core.DkLogs;
 import tool.compet.core.DkUtils;

@@ -4,7 +4,7 @@
 
 package tool.compet.appbundle.swipeback;
 
-import tool.compet.appbundle.DkCompactFragment;
+import tool.compet.appbundle.compact.DkCompactFragment;
 
 public abstract class DkSwipebackFragment extends DkCompactFragment {
 }

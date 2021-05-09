@@ -13,7 +13,7 @@ public class DkTextOnlyItemBuilder extends DkItemBuilder<DkTextOnlyItemBuilder> 
 	}
 
 	@Override
-	protected DkBaseItemView getView(Context context) {
+	protected DkItemView getView(Context context) {
 		DkTextOnlyItemView v = super.prepareView(context, R.layout.dk_boommenu_item_text_only);
 
 		if (textRes > 0) {

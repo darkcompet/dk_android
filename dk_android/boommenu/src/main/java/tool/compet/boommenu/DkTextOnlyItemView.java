@@ -8,10 +8,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
-import tool.compet.boommenu.DkBaseItemView;
-import tool.compet.boommenu.R;
-
-public class DkTextOnlyItemView extends DkBaseItemView {
+public class DkTextOnlyItemView extends DkItemView {
 	TextView tvText;
 
 	public DkTextOnlyItemView(Context context) {

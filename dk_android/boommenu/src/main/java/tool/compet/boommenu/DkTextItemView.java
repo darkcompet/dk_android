@@ -9,10 +9,7 @@ import android.util.AttributeSet;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import tool.compet.boommenu.DkBaseItemView;
-import tool.compet.boommenu.R;
-
-public class DkTextItemView extends DkBaseItemView {
+public class DkTextItemView extends DkItemView {
 	ImageView ivIcon;
 	TextView tvText;
 

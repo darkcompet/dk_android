@@ -25,7 +25,7 @@ public class DkTextItemBuilder extends DkItemBuilder<DkTextItemBuilder> {
 	private int textRes;
 
 	@Override
-	protected DkBaseItemView getView(Context context) {
+	protected DkItemView getView(Context context) {
 		DkTextItemView itemView;
 		int layoutRes;
 

@@ -6,7 +6,9 @@ package tool.compet.appbundle.dialog;
 
 import android.annotation.SuppressLint;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -17,13 +19,14 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
+import androidx.core.view.ViewCompat;
 
-import tool.compet.appbundle.DkCompactDialog;
+import tool.compet.appbundle.compact.DkCompactDialog;
 import tool.compet.appbundle.R;
 import tool.compet.core.BuildConfig;
-import tool.compet.core.DkLogs;
 import tool.compet.core.DkConfig;
-import tool.compet.core.view.DkTextViews;
+import tool.compet.core.DkLogs;
 import tool.compet.core.view.DkViews;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
@@ -46,6 +49,7 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 		public ConfirmCallback cancelCb;
 		public ConfirmCallback resetCb;
 		public ConfirmCallback okCb;
+		public Drawable backgroundDrawable;
 	}
 
 	private static final int NORMAL = Color.parseColor("#333333");
@@ -59,8 +63,13 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 	public static final int LAYOUT_TYPE_VERTICAL_ACTIONS = 2;
 	protected int layoutType = LAYOUT_TYPE_VERTICAL_ACTIONS;
 
-	protected ViewGroup vBackground;
-	protected ViewGroup vForeground;
+	// Fullground (dialog itself)
+	protected ViewGroup vFullground;
+
+	// Background (card view)
+	protected CardView vBackground;
+	private Integer backgroundColor;
+	private Drawable backgroundDrawable;
 
 	// Header
 	protected View vHeader;
@@ -72,7 +81,7 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 	protected int subTitleTextResId; // store in instance state
 	protected Integer headerBackgroundColor; // store in instance state
 
-	// Content: body view
+	// Body
 	protected ViewGroup vBody;
 	protected int bodyLayoutResId; // store in instance state
 	protected float widthWeight = 4f; // store in instance state
@@ -153,8 +162,8 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 		// header = title + subtitle
 		// content = custom-view || message
 		// footer = buttons
+		vFullground = view.findViewById(R.id.dk_fullground);
 		vBackground = view.findViewById(R.id.dk_background);
-		vForeground = view.findViewById(R.id.dk_foreground);
 		vBody = view.findViewById(R.id.dk_body);
 
 		vHeader = view.findViewById(R.id.dk_header);
@@ -166,14 +175,14 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 		vReset = view.findViewById(R.id.dk_reset);
 		vOk = view.findViewById(R.id.dk_ok);
 
-		vBackground.setOnTouchListener((v, event) -> {
+		vFullground.setOnTouchListener((v, event) -> {
 			switch (event.getActionMasked()) {
 				case MotionEvent.ACTION_DOWN:
 					return true;
 				case MotionEvent.ACTION_UP:
 				case MotionEvent.ACTION_CANCEL:
 				case MotionEvent.ACTION_OUTSIDE: {
-					if (! DkViews.isInsideView(event, vForeground)) {
+					if (! DkViews.isInsideView(event, vBackground)) {
 						onClickOutside();
 					}
 					break;
@@ -182,10 +191,11 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 			return false;
 		});
 
+		// Background (card view)
+		decorBackground();
+
 		// Header
-		if (headerBackgroundColor != null) {
-			vHeader.setBackgroundColor(headerBackgroundColor);
-		}
+		decorHeader();
 		decorIcon();
 		decorTitle();
 		decorSubTitle();
@@ -204,7 +214,7 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 		decorOkButton();
 
 		// Background (dialog) dimension
-		ViewGroup.LayoutParams bkgLayoutParams = vForeground.getLayoutParams();
+		ViewGroup.LayoutParams bkgLayoutParams = vBackground.getLayoutParams();
 		if (bkgLayoutParams == null) {
 			bkgLayoutParams = new FrameLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, Gravity.CENTER);
 		}
@@ -215,9 +225,11 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 			int[] displaySize = DkConfig.displaySize();
 			int ds = Math.min(displaySize[0], displaySize[1]);
 			bkgLayoutParams.width = (ds >> 2) + (ds >> 1); // 0.75 * deviceSize
-			// bkgLayoutParams.height = (int) (bkgLayoutParams.width * heightWeight / widthWeight);
+			if (widthWeight > 0) {
+				bkgLayoutParams.height = (int) (bkgLayoutParams.width * heightWeight / widthWeight);
+			}
 		}
-		vForeground.setLayoutParams(bkgLayoutParams);
+		vBackground.setLayoutParams(bkgLayoutParams);
 	}
 
 	@Override
@@ -262,6 +274,14 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 	}
 
 	// region Get/Set
+
+	public D setBackgroundColor(int backgroundColor) {
+		this.backgroundColor = backgroundColor;
+		if (vBackground != null) {
+			decorBackground();
+		}
+		return (D) this;
+	}
 
 	public D setIcon(int iconResId) {
 		this.iconResId = iconResId;
@@ -377,7 +397,7 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 		return (D) this;
 	}
 
-	public D setDimensionWithRate(float widthWeight, float heightWeight) {
+	public D setDimensionRatio(float widthWeight, float heightWeight) {
 		this.widthWeight = widthWeight;
 		this.heightWeight = heightWeight;
 		return (D) this;
@@ -481,6 +501,10 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 
 	// Subclass can override this to store something
 	protected void onStoreInstanceState(@NonNull Bundle outState) {
+		if (backgroundColor != null) {
+			outState.putInt("DkConfirmDialog.backgroundColor", backgroundColor);
+		}
+
 		outState.putInt("DkConfirmDialog.iconResId", iconResId);
 		outState.putInt("DkConfirmDialog.titleTextResId", titleTextResId);
 		outState.putInt("DkConfirmDialog.subTitleTextResId", subTitleTextResId);
@@ -520,11 +544,16 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 		confirmTopic.cancelCb = this.cancelCb;
 		confirmTopic.resetCb = this.resetCb;
 		confirmTopic.okCb = this.okCb;
+		if (backgroundDrawable != null) {
+			confirmTopic.backgroundDrawable = backgroundDrawable;
+		}
 	}
 
 	// Subclass can override this to restore something
 	protected void onRestoreInstanceState(@Nullable Bundle savedInstanceState) {
 		if (savedInstanceState != null) {
+			backgroundColor = savedInstanceState.getInt("DkConfirmDialog.backgroundColor");
+
 			iconResId = savedInstanceState.getInt("DkConfirmDialog.iconResId");
 			titleTextResId = savedInstanceState.getInt("DkConfirmDialog.titleTextResId");
 			subTitleTextResId = savedInstanceState.getInt("DkConfirmDialog.subTitleTextResId");
@@ -550,12 +579,34 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 			this.cancelCb = confirmTopic.cancelCb;
 			this.resetCb = confirmTopic.resetCb;
 			this.okCb = confirmTopic.okCb;
+			this.backgroundDrawable = confirmTopic.backgroundDrawable;
 		}
 	}
 
 	// endregion Protected
 
 	// region Private
+
+	private void decorBackground() {
+		if (vBackground == null) {
+			return;
+		}
+		if (backgroundColor != null) {
+			vBackground.setCardBackgroundColor(backgroundColor);
+		}
+		if (backgroundDrawable != null) {
+			ViewCompat.setBackground(vBackground, backgroundDrawable);
+		}
+	}
+
+	private void decorHeader() {
+		if (vHeader == null) {
+			return;
+		}
+		if (headerBackgroundColor != null) {
+			vHeader.setBackgroundColor(headerBackgroundColor);
+		}
+	}
 
 	private void decorIcon() {
 		if (ivIcon == null) {
@@ -575,9 +626,9 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 			return;
 		}
 		if (titleTextResId > 0) {
+			DkViews.setTextSize(vTitle, 1.25f * vReset.getTextSize());
 			vTitle.setText(titleTextResId);
 			vTitle.setVisibility(View.VISIBLE);
-			DkTextViews.scaleTextSize(vTitle, 1.3f);
 		}
 		else {
 			vTitle.setVisibility(View.GONE);
@@ -589,9 +640,9 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 			return;
 		}
 		if (subTitleTextResId > 0) {
+			DkViews.setTextSize(vSubTitle, 0.85f * vReset.getTextSize());
 			vSubTitle.setText(subTitleTextResId);
 			vSubTitle.setVisibility(View.VISIBLE);
-			DkTextViews.scaleTextSize(vSubTitle, 0.85f);
 		}
 		else {
 			vSubTitle.setVisibility(View.GONE);
@@ -603,17 +654,16 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 			return;
 		}
 		if (messageTextResId > 0 || message != null) {
-			if (messageTextResId > 0) {
-				message = context.getString(messageTextResId);
-			}
-
-			vMessage.setVisibility(View.VISIBLE);
-			vMessage.setText(message);
-			DkTextViews.scaleTextSize(vMessage, 1.2f);
-
 			if (messageBackgroundColor != null) {
 				vMessage.setBackgroundColor(messageBackgroundColor);
 			}
+			if (messageTextResId > 0) {
+				message = context.getString(messageTextResId);
+			}
+			DkViews.setTextSize(vMessage, 1.125f * vReset.getTextSize());
+			vMessage.setMovementMethod(new ScrollingMovementMethod());
+			vMessage.setVisibility(View.VISIBLE);
+			vMessage.setText(message);
 		}
 		else {
 			if (bodyLayoutResId > 0) {

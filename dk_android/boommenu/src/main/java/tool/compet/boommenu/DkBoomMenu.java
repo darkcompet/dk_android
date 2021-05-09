@@ -14,6 +14,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 
+import androidx.annotation.Nullable;
+
 import java.lang.ref.WeakReference;
 import java.util.List;
 
@@ -392,6 +394,7 @@ public class DkBoomMenu {
 		}
 	}
 
+	@Nullable
 	private ViewGroup findSuitableParent(View view) {
 		if (view == null) {
 			return null;
@@ -481,7 +484,7 @@ public class DkBoomMenu {
 	/**
 	 * Set gravity (position) of cluster (items) after boomed.
 	 */
-	public DkBoomMenu setClusterGravity(DkGravity gravity) {
+	public DkBoomMenu setClusterGravity(DkClusterGravity gravity) {
 		clusterManager.gravity = gravity;
 		return this;
 	}
@@ -489,7 +492,7 @@ public class DkBoomMenu {
 	/**
 	 * Set shape (arrange) of cluster (items) after boomed.
 	 */
-	public DkBoomMenu setClusterShape(DkShape shape) {
+	public DkBoomMenu setClusterShape(DkClusterShape shape) {
 		clusterManager.shape = shape;
 		return this;
 	}

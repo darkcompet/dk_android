@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import tool.compet.appbundle.R;
-import tool.compet.core.view.DkTextViews;
+import tool.compet.core.view.DkViews;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -74,6 +74,8 @@ public class DkSelectboxPreference extends MyBasePreference<DkSelectboxPreferenc
 
 	@Override
 	public void decorateView(View view) {
+		view.setEnabled(enabled);
+
 		TextView tvTitle = view.findViewById(titleViewId);
 		TextView tvSummary = view.findViewById(summaryViewId);
 		TextView tvName = view.findViewById(selectorViewId);
@@ -83,7 +85,7 @@ public class DkSelectboxPreference extends MyBasePreference<DkSelectboxPreferenc
 			title = context.getString(titleResId);
 		}
 		if (title != null) {
-			DkTextViews.setTextSize(tvTitle, 1.125f * tvSummary.getTextSize());
+			DkViews.setTextSize(tvTitle, 1.125f * tvSummary.getTextSize());
 			tvTitle.setText(title);
 			tvTitle.setVisibility(View.VISIBLE);
 		}
@@ -108,8 +110,14 @@ public class DkSelectboxPreference extends MyBasePreference<DkSelectboxPreferenc
 		selectedName = calcEntryName(entryNameList.get(selectedIndex));
 		tvName.setText(selectedName);
 
-		// Setup click listern (show popup to select)
-		view.setOnClickListener(v -> showPopup(selectedIndex));
+		// Setup click and long-click listener (show popup to select)
+		if (enabled) {
+			view.setOnClickListener(v -> showPopup(selectedIndex));
+			view.setOnLongClickListener(v -> {
+				showPopup(selectedIndex);
+				return true;
+			});
+		}
 	}
 
 	private String calcEntryName(Object textIdOrString) {

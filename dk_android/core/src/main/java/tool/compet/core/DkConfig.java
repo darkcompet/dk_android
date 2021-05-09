@@ -8,6 +8,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.os.Build;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
@@ -16,7 +17,7 @@ import android.util.TypedValue;
 import java.util.Locale;
 
 /**
- * Configuration for both of system (os) and app.
+ * Configuration for both system (os) and app.
  */
 public class DkConfig {
 	/**
@@ -123,8 +124,60 @@ public class DkConfig {
 		return px / TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, 1, dm);
 	}
 
+	/**
+	 * @return Unique device id.
+	 */
 	@SuppressLint("HardwareIds")
 	public String deviceId(Context context) {
 		return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+	}
+
+	/**
+	 * App version name from `BuildConfig`.
+	 */
+	public String appVersionName(Context context) {
+		try {
+			return context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
+		}
+		catch (Exception e) {
+			DkLogs.error(DkLogs.class, e);
+			return "1.0.0";
+		}
+	}
+
+	/**
+	 * App version code from `BuildConfig`.
+	 */
+	public int appVersionCode(Context context) {
+		try {
+			return context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionCode;
+		}
+		catch (Exception e) {
+			DkLogs.error(DkLogs.class, e);
+			return 0;
+		}
+	}
+
+	public static int colorPrimaryDark(Context context) {
+		return attrColor(context, R.attr.colorPrimaryDark);
+	}
+
+	public static int colorPrimary(Context context) {
+		return attrColor(context, R.attr.colorPrimary);
+	}
+
+	public static int colorAccent(Context context) {
+		return attrColor(context, R.attr.colorAccent);
+	}
+
+	private static int attrColor(Context context, int colorAccentAttrId) {
+		TypedValue typedValue = new TypedValue();
+		int[] attrs = new int[] {colorAccentAttrId};
+		TypedArray arr = context.obtainStyledAttributes(typedValue.data, attrs);
+
+		int color = arr.getColor(0, 0);
+		arr.recycle();
+
+		return color;
 	}
 }

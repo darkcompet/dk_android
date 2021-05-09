@@ -18,7 +18,7 @@ import android.view.ViewConfiguration;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatImageView;
 
-import tool.compet.core.view.DkDrawable;
+import tool.compet.core.graphics.drawable.DkDrawable;
 import tool.compet.core.view.DkViews;
 
 /**
@@ -28,11 +28,9 @@ import tool.compet.core.view.DkViews;
  * You can setForeground() to use your own drawable with own properties (animation, gradient...).
  */
 public class DkForegroundImageView extends AppCompatImageView {
-	public static final boolean IS_PRE_LOLLIPOP = Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP;
-
-	private Drawable mForeground;
-	private boolean mIsPrePress;
-	private PressAction mPrePressAction;
+	private Drawable foreground;
+	private boolean isPrePress;
+	private PressAction prePressAction;
 
 	public DkForegroundImageView(Context context) {
 		this(context, null);
@@ -59,16 +57,16 @@ public class DkForegroundImageView extends AppCompatImageView {
 		ColorStateList colorStates = new ColorStateList(states, colors);
 
 		//todo init foreground first
-		if (mForeground != null) {
-			mForeground.setCallback(this);
-			setForeground(mForeground);
+		if (foreground != null) {
+			foreground.setCallback(this);
+			setForeground(foreground);
 		}
 	}
 
 	@Override
 	protected void onSizeChanged(int width, int height, int oldwidth, int oldheight) {
 		super.onSizeChanged(width, height, oldwidth, oldheight);
-		Drawable fg = mForeground;
+		Drawable fg = foreground;
 		if (fg != null) {
 			fg.setBounds(0, 0, width, height);
 		}
@@ -78,8 +76,7 @@ public class DkForegroundImageView extends AppCompatImageView {
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
 
-		Drawable fg = mForeground;
-
+		Drawable fg = foreground;
 		if (fg != null) {
 			fg.draw(canvas);
 		}
@@ -89,8 +86,7 @@ public class DkForegroundImageView extends AppCompatImageView {
 	protected void dispatchDraw(Canvas canvas) {
 		super.dispatchDraw(canvas);
 
-		Drawable fg = mForeground;
-
+		Drawable fg = foreground;
 		if (fg != null) {
 			fg.draw(canvas);
 		}
@@ -98,7 +94,7 @@ public class DkForegroundImageView extends AppCompatImageView {
 
 	@Override
 	protected boolean verifyDrawable(@NonNull Drawable who) {
-		return super.verifyDrawable(who) || who == mForeground;
+		return super.verifyDrawable(who) || who == foreground;
 	}
 
 	@Override
@@ -109,23 +105,22 @@ public class DkForegroundImageView extends AppCompatImageView {
 
 	@Override
 	public Drawable getForeground() {
-		return mForeground;
+		return foreground;
 	}
 
-	// @Override from api 21+
+	// @Override from Lollipop, do NOT change method name `setForeground()`
 	public void setForeground(Drawable drawable) {
-		Drawable fg = mForeground;
+		Drawable fg = foreground;
 
 		if (fg == drawable) {
 			return;
 		}
-
 		if (fg != null) {
 			fg.setCallback(null);
 			unscheduleDrawable(fg);
 		}
 
-		mForeground = fg = drawable;
+		foreground = fg = drawable;
 
 		if (fg != null) {
 			setWillNotDraw(false);
@@ -147,36 +142,50 @@ public class DkForegroundImageView extends AppCompatImageView {
 	@Override
 	protected void drawableStateChanged() {
 		super.drawableStateChanged();
-		Drawable fg = mForeground;
 
+		Drawable fg = foreground;
 		if (fg != null && fg.isStateful()) {
 			fg.setState(getDrawableState());
 		}
 	}
 
-	// @Override from api 21+
+	// @Override from Lollipop, do NOT change method name `drawableHotspotChanged()`
 	public void drawableHotspotChanged(float x, float y) {
-		Drawable fg = mForeground;
+		// For older version, foreground should be instance of `DkDrawable`
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+			Drawable background = getBackground();
+			Drawable foreground = this.foreground;
 
-		if (IS_PRE_LOLLIPOP) {
-			// setHotspot for own drawable since pre-lollipop has not hotspot concept
-			if (fg instanceof DkDrawable) {
-				((DkDrawable) fg).setHotspot(x, y);
+			if (background instanceof DkDrawable) {
+				((DkDrawable) background).setHotspot(x, y);
 			}
+			if (foreground instanceof DkDrawable) {
+				((DkDrawable) foreground).setHotspot(x, y);
+			}
+
+			dispatchDrawableHotspotChanged(x, y);
+		}
+		// For newer version from Lollipop, just call super
+		else {
+			super.drawableHotspotChanged(x, y);
+		}
+	}
+
+	// @Override from Lollipop, do NOT change method name `dispatchDrawableHotspotChanged()`
+	public void dispatchDrawableHotspotChanged(float x, float y) {
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+			// nothing to do
 		}
 		else {
-			// api 21+, notify background that hotspot changed
-			super.drawableHotspotChanged(x, y);
-			// set foreground new hotspot
-			fg.setHotspot(x, y);
+			super.dispatchDrawableHotspotChanged(x, y);
 		}
 	}
 
 	@SuppressLint("ClickableViewAccessibility")
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		if (IS_PRE_LOLLIPOP) {
-			trackDrawableHotspotChanged(event);
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+			handleTouchEventForHotspotChanged(event);
 		}
 		return super.onTouchEvent(event);
 	}
@@ -186,23 +195,24 @@ public class DkForegroundImageView extends AppCompatImageView {
 
 		@Override
 		public void run() {
-			mIsPrePress = false;
+			isPrePress = false;
 			drawableHotspotChanged(x, y);
 		}
 	}
 
-	public void trackDrawableHotspotChanged(MotionEvent event) {
+	// Check touch event to update hotspot position
+	private void handleTouchEventForHotspotChanged(MotionEvent event) {
 		final int actionMasked = event.getActionMasked();
 
 		// disabled view will consume event but hotspot doest not be changed
-		if (!isEnabled()) {
-			if (mIsPrePress
+		if (! isEnabled()) {
+			if (isPrePress
 				|| actionMasked == MotionEvent.ACTION_OUTSIDE
 				|| actionMasked == MotionEvent.ACTION_CANCEL
 				|| actionMasked == MotionEvent.ACTION_UP) {
-				// clear pre-press action if view become disabled at sometime
-				mIsPrePress = false;
-				removeCallbacks(mPrePressAction);
+				// Clear pre-press action if view become disabled at sometime
+				isPrePress = false;
+				removeCallbacks(prePressAction);
 			}
 			return;
 		}
@@ -213,23 +223,23 @@ public class DkForegroundImageView extends AppCompatImageView {
 
 		switch (actionMasked) {
 			case MotionEvent.ACTION_DOWN: {
-				// only clickable view can perform press
-				if (!clickable) {
+				// Only clickable view can perform press
+				if (! clickable) {
 					break;
 				}
-				// view in scrolling container should delay press action
+				// View in scrolling container should delay press action
 				if (DkViews.isInScrollingContainer(this)) {
-					mIsPrePress = true;
+					isPrePress = true;
 
-					PressAction prePressAction = mPrePressAction;
+					PressAction prePressAction = this.prePressAction;
 					if (prePressAction == null) {
-						mPrePressAction = prePressAction = new PressAction();
+						this.prePressAction = prePressAction = new PressAction();
 					}
 					prePressAction.x = x;
 					prePressAction.y = y;
 					postDelayed(prePressAction, ViewConfiguration.getTapTimeout());
 				}
-				// other perform press immediately
+				// Otherwise, perform press immediately
 				else {
 					drawableHotspotChanged(x, y);
 				}
@@ -242,17 +252,18 @@ public class DkForegroundImageView extends AppCompatImageView {
 				break;
 			}
 			case MotionEvent.ACTION_UP: {
-				if (clickable && mIsPrePress) {
-					mIsPrePress = false;
-					removeCallbacks(mPrePressAction);
+				if (clickable && isPrePress) {
+					isPrePress = false;
+					removeCallbacks(prePressAction);
+
 					drawableHotspotChanged(x, y);
 				}
 				break;
 			}
 			case MotionEvent.ACTION_CANCEL: {
-				if (mIsPrePress) {
-					mIsPrePress = false;
-					removeCallbacks(mPrePressAction);
+				if (isPrePress) {
+					isPrePress = false;
+					removeCallbacks(prePressAction);
 				}
 				break;
 			}

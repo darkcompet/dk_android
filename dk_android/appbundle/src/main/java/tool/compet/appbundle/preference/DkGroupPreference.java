@@ -16,7 +16,6 @@ import androidx.collection.ArraySet;
 
 import tool.compet.appbundle.R;
 import tool.compet.core.DkArrays;
-import tool.compet.core.view.DkTextViews;
 import tool.compet.core.view.DkViews;
 
 public class DkGroupPreference extends MyBasePreference<DkGroupPreference> {
@@ -66,7 +65,7 @@ public class DkGroupPreference extends MyBasePreference<DkGroupPreference> {
 			title = context.getString(titleResId);
 		}
 		if (title != null) {
-			DkTextViews.setTextSize(tvTitle, tvSummary.getTextSize() * 1.25f);
+			DkViews.setTextSize(tvTitle, tvSummary.getTextSize() * 1.25f);
 			tvTitle.setText(title);
 			tvTitle.setVisibility(View.VISIBLE);
 		}

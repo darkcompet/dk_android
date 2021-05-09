@@ -38,7 +38,7 @@ public interface DkPositionCalculator {
 	 */
 	RectF calcStartEndPositions(
 		// Cluster info
-		List<DkItem> items, DkGravity gravity, DkShape shape, Rect offset,
+		List<DkItem> items, DkClusterGravity gravity, DkClusterShape shape, Rect offset,
 		// Board and anchor
 		ViewGroup board, View anchor
 	);

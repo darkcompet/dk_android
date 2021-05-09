@@ -32,7 +32,7 @@ class MyPositionCalculator implements DkPositionCalculator {
 	 * @return Cluster bounds inside the board.
 	 */
 	@Override
-	public RectF calcStartEndPositions(List<DkItem> items, DkGravity gravity, DkShape shape, Rect offset, ViewGroup board, View anchor) {
+	public RectF calcStartEndPositions(List<DkItem> items, DkClusterGravity gravity, DkClusterShape shape, Rect offset, ViewGroup board, View anchor) {
 		// Calculate cluster size and also update items position inside cluster
 		float[] clusterSize = calcClusterSizeAndUpdateItemsEndPositionInCluster(items, shape);
 
@@ -88,7 +88,7 @@ class MyPositionCalculator implements DkPositionCalculator {
 	/**
 	 * @return Cluster dimension [width, height]
 	 */
-	private float[] calcClusterSizeAndUpdateItemsEndPositionInCluster(List<DkItem> items, DkShape shape) {
+	private float[] calcClusterSizeAndUpdateItemsEndPositionInCluster(List<DkItem> items, DkClusterShape shape) {
 		final int itemCount = items.size();
 
 		switch (shape) {
@@ -143,7 +143,7 @@ class MyPositionCalculator implements DkPositionCalculator {
 				}
 
 				// For beauty, we consider bounds of items as a Square
-				final boolean hasCenter = (shape == DkShape.CIRCLE_AND_CENTER);
+				final boolean hasCenter = (shape == DkClusterShape.CIRCLE_AND_CENTER);
 				// Radius of inner-circle which through all items center
 				float R1 = 0;
 				// Radius of outer-circle which bounds all items, of course R2 > R1
@@ -295,20 +295,20 @@ class MyPositionCalculator implements DkPositionCalculator {
 				boolean ycos = true;
 
 				// Code-volume optimization for end-position calculation at next step
-				if (shape == DkShape.QUARTER_LEFT) {
+				if (shape == DkClusterShape.QUARTER_LEFT) {
 					clusterHeight = (float) (clusterWidth * Math.sqrt(2));
 					angle += Math.PI / 4;
 					bx = clusterWidth;
 					by = clusterHeight / 2;
 					fx = -R_cc;
 				}
-				else if (shape == DkShape.QUARTER_RIGHT) {
+				else if (shape == DkClusterShape.QUARTER_RIGHT) {
 					clusterHeight = (float) (clusterWidth * Math.sqrt(2));
 					angle += Math.PI / 4;
 					by = clusterHeight / 2;
 					fy = -R_cc;
 				}
-				else if (shape == DkShape.QUARTER_TOP) {
+				else if (shape == DkClusterShape.QUARTER_TOP) {
 					clusterWidth = (float) (clusterHeight * Math.sqrt(2));
 					angle += Math.PI / 4;
 					bx = clusterWidth / 2;
@@ -317,27 +317,27 @@ class MyPositionCalculator implements DkPositionCalculator {
 					fy = -R_cc;
 					xsin = ycos = false;
 				}
-				else if (shape == DkShape.QUARTER_BOTTOM) {
+				else if (shape == DkClusterShape.QUARTER_BOTTOM) {
 					clusterWidth = (float) (clusterHeight * Math.sqrt(2));
 					angle += Math.PI / 4;
 					bx = clusterWidth / 2;
 					xsin = ycos = false;
 				}
-				else if (shape == DkShape.QUARTER_LEFT_TOP) {
+				else if (shape == DkClusterShape.QUARTER_LEFT_TOP) {
 					bx = clusterWidth;
 					by = clusterHeight;
 					fx = -R_cc;
 					fy = -R_cc;
 					xsin = ycos = false;
 				}
-				else if (shape == DkShape.QUARTER_TOP_RIGHT) {
+				else if (shape == DkClusterShape.QUARTER_TOP_RIGHT) {
 					by = clusterHeight;
 					fy = -R_cc;
 				}
-				else if (shape == DkShape.QUARTER_RIGHT_BOTTOM) {
+				else if (shape == DkClusterShape.QUARTER_RIGHT_BOTTOM) {
 					xsin = ycos = false;
 				}
-				else if (shape == DkShape.QUARTER_BOTTOM_LEFT) {
+				else if (shape == DkClusterShape.QUARTER_BOTTOM_LEFT) {
 					bx = clusterWidth;
 					fx = -R_cc;
 				}
@@ -377,7 +377,7 @@ class MyPositionCalculator implements DkPositionCalculator {
 		// Cluster dimension, position, offset in board
 		List<DkItem> items, float[] clusterSize,
 		// Request from caller
-		DkGravity gravity, Rect offset,
+		DkClusterGravity gravity, Rect offset,
 		// Board and anchor
 		ViewGroup board, Rect anchorBounds) {
 
@@ -417,86 +417,86 @@ class MyPositionCalculator implements DkPositionCalculator {
 		return new float[] {clusterLeft, clusterTop};
 	}
 
-	private float[] calcClusterOffsetInBoard(Rect offset, float[] clusterSize, DkGravity gravity, ViewGroup board, Rect anchorBounds) {
+	private float[] calcClusterOffsetInBoard(Rect offset, float[] clusterSize, DkClusterGravity gravity, ViewGroup board, Rect anchorBounds) {
 		float clusterLeft = offset.left;
 		float clusterTop = offset.top;
 
-		if (gravity == DkGravity.CENTER) {
+		if (gravity == DkClusterGravity.CENTER) {
 			clusterLeft += (board.getWidth() - clusterSize[0]) / 2f;
 			clusterTop += (board.getHeight() - clusterSize[1]) / 2f;
 		}
-		else if (gravity == DkGravity.CENTER_TOP) {
+		else if (gravity == DkClusterGravity.CENTER_TOP) {
 			clusterLeft += (board.getWidth() - clusterSize[0]) / 2f;
 		}
-		else if (gravity == DkGravity.CENTER_BOTTOM) {
+		else if (gravity == DkClusterGravity.CENTER_BOTTOM) {
 			clusterLeft += (board.getWidth() - clusterSize[0]) / 2f;
 			clusterTop += board.getHeight() - clusterSize[1];
 		}
-		else if (gravity == DkGravity.CENTER_LEFT) {
+		else if (gravity == DkClusterGravity.CENTER_LEFT) {
 			clusterTop += (board.getHeight() - clusterSize[1]) / 2f;
 		}
-		else if (gravity == DkGravity.CENTER_RIGHT) {
+		else if (gravity == DkClusterGravity.CENTER_RIGHT) {
 			clusterLeft += board.getWidth() - clusterSize[0];
 			clusterTop += (board.getHeight() - clusterSize[1]) / 2f;
 		}
-		else if (gravity == DkGravity.LEFT_TOP) {
+		else if (gravity == DkClusterGravity.LEFT_TOP) {
 			// Don't need to calculate
 		}
-		else if (gravity == DkGravity.TOP_RIGHT) {
+		else if (gravity == DkClusterGravity.TOP_RIGHT) {
 			clusterLeft += board.getWidth() - clusterSize[0];
 		}
-		else if (gravity == DkGravity.BOTTOM_LEFT) {
+		else if (gravity == DkClusterGravity.BOTTOM_LEFT) {
 			clusterTop += board.getHeight() - clusterSize[1];
 		}
-		else if (gravity == DkGravity.RIGHT_BOTTOM) {
+		else if (gravity == DkClusterGravity.RIGHT_BOTTOM) {
 			clusterLeft += board.getWidth() - clusterSize[0];
 			clusterTop += board.getHeight() - clusterSize[1];
 		}
-		else if (gravity == DkGravity.ANCHOR_LEFT) {
+		else if (gravity == DkClusterGravity.ANCHOR_LEFT) {
 			clusterLeft += anchorBounds.left - clusterSize[0];
 			clusterTop += anchorBounds.top + (anchorBounds.height() - clusterSize[1]) / 2f;
 		}
-		else if (gravity == DkGravity.ANCHOR_RIGHT) {
+		else if (gravity == DkClusterGravity.ANCHOR_RIGHT) {
 			clusterLeft += anchorBounds.left + anchorBounds.width();
 			clusterTop += anchorBounds.top + (anchorBounds.height() - clusterSize[1]) / 2f;
 		}
-		else if (gravity == DkGravity.ANCHOR_TOP) {
+		else if (gravity == DkClusterGravity.ANCHOR_TOP) {
 			clusterLeft += anchorBounds.left + (anchorBounds.width() - clusterSize[0]) / 2f;
 			clusterTop += anchorBounds.top - clusterSize[1];
 		}
-		else if (gravity == DkGravity.ANCHOR_BOTTOM) {
+		else if (gravity == DkClusterGravity.ANCHOR_BOTTOM) {
 			clusterLeft += anchorBounds.left + (anchorBounds.width() - clusterSize[0]) / 2f;
 			clusterTop += anchorBounds.top + anchorBounds.height();
 		}
-		else if (gravity == DkGravity.ANCHOR_LEFT_TOP) {
+		else if (gravity == DkClusterGravity.ANCHOR_LEFT_TOP) {
 			clusterLeft += anchorBounds.left - clusterSize[0];
 			clusterTop += anchorBounds.top - clusterSize[1];
 		}
-		else if (gravity == DkGravity.ANCHOR_TOP_RIGHT) {
+		else if (gravity == DkClusterGravity.ANCHOR_TOP_RIGHT) {
 			clusterLeft += anchorBounds.left + anchorBounds.width();
 			clusterTop += anchorBounds.top - clusterSize[1];
 		}
-		else if (gravity == DkGravity.ANCHOR_RIGHT_BOTTOM) {
+		else if (gravity == DkClusterGravity.ANCHOR_RIGHT_BOTTOM) {
 			clusterLeft += anchorBounds.left + anchorBounds.width();
 			clusterTop += anchorBounds.top + clusterSize[1];
 		}
-		else if (gravity == DkGravity.ANCHOR_BOTTOM_LEFT) {
+		else if (gravity == DkClusterGravity.ANCHOR_BOTTOM_LEFT) {
 			clusterLeft += anchorBounds.left - clusterSize[0];
 			clusterTop += anchorBounds.top + anchorBounds.height();
 		}
-		else if (gravity == DkGravity.ANCHOR_LEFT_TOP_CENTERED) {
+		else if (gravity == DkClusterGravity.ANCHOR_LEFT_TOP_CENTERED) {
 			clusterLeft += anchorBounds.centerX() - clusterSize[0];
 			clusterTop += anchorBounds.centerY() - clusterSize[1];
 		}
-		else if (gravity == DkGravity.ANCHOR_TOP_RIGHT_CENTERED) {
+		else if (gravity == DkClusterGravity.ANCHOR_TOP_RIGHT_CENTERED) {
 			clusterLeft += anchorBounds.centerX();
 			clusterTop += anchorBounds.top - clusterSize[1];
 		}
-		else if (gravity == DkGravity.ANCHOR_RIGHT_BOTTOM_CENTERED) {
+		else if (gravity == DkClusterGravity.ANCHOR_RIGHT_BOTTOM_CENTERED) {
 			clusterLeft += anchorBounds.centerX();
 			clusterTop += anchorBounds.centerY();
 		}
-		else if (gravity == DkGravity.ANCHOR_BOTTOM_LEFT_CENTERED) {
+		else if (gravity == DkClusterGravity.ANCHOR_BOTTOM_LEFT_CENTERED) {
 			clusterLeft += anchorBounds.centerX() - clusterSize[0];
 			clusterTop += anchorBounds.centerY();
 		}
