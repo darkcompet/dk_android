@@ -40,11 +40,11 @@ public class DkFragmentNavigator implements MyBackStack.OnStackChangeListener {
 	}
 
 	@Override
-	public void onStackSizeChanged(int oldSize, int newSize) {
-		if (newSize == 0) {
+	public void onStackSizeChanged(int size, int oldSize) {
+		if (size == 0) {
 			callback.onActive(false);
 		}
-		else if (newSize == 1 && oldSize == 0) {
+		else if (size == 1 && oldSize == 0) {
 			callback.onInactive(false);
 		}
 	}

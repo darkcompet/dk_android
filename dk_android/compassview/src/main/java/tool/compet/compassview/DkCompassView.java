@@ -47,7 +47,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 
 	private final Context context;
 
-	private MyCompassController controller;
+	private final MyCompassController controller;
 	private DkDoubleFingerDetector detector;
 	private ValueAnimator countdownAnimator;
 	private DkCompassView.Listener listener;
@@ -90,16 +90,14 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 	// 24 lines
 	private boolean isShow24PointerLines;
 
-	// Handler (circle + arrow)
+	// Rotator (circle + arrow)
 	private int handlerColor;
-	private boolean isShowHandler = true;
-	private float distFromHandlerCenterToBoardCenter;
-	private double handlerRadius;
-	private double handlerRotatedDegrees;
-	private boolean isTouchInsideHandler;
-	private long handlerDisableCountDown = 800;
-
-	// Rotator mode
+	private boolean isShowRotator = true;
+	private float distFromRotatorCenterToBoardCenter;
+	private double rotatorRadius;
+	private double rotatorRotatedDegrees;
+	private boolean isTouchInsideRotator;
+	private long rotatorDisabledCountDown = 800;
 	private double rotationFactor = 0.1;
 
 	// Pointer
@@ -226,8 +224,8 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 		}
 
 		int boardCx = boardCenterX, boardCy = boardCenterY;
-		float handlerRadius = (float) this.handlerRadius;
-		float handlerToCenter = distFromHandlerCenterToBoardCenter;
+		float handlerRadius = (float) this.rotatorRadius;
+		float handlerToCenter = distFromRotatorCenterToBoardCenter;
 		double animateDegrees = nextAnimateDegrees;
 
 		// reset before draw
@@ -247,9 +245,9 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 		Paint paint = isHighlight ? fillPaint : linePaint;
 
 		// draw rotator
-		if (isShowHandler && compassMode == MODE_ROTATE) {
+		if (isShowRotator && compassMode == MODE_ROTATE) {
 			canvas.save();
-			canvas.rotate((float) (animateDegrees + handlerRotatedDegrees), boardCx, boardCy);
+			canvas.rotate((float) (animateDegrees + rotatorRotatedDegrees), boardCx, boardCy);
 			canvas.drawCircle(boardCx, boardCy + handlerToCenter, handlerRadius, paint);
 			canvas.drawCircle(boardCx, boardCy - handlerToCenter, handlerRadius, paint);
 			canvas.restore();
@@ -257,7 +255,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 		// draw pointer
 		else if (isShowPointer && compassMode == MODE_POINT) {
 			final float arrowDim = boardInnerRadius / 15f;
-			final float startY = (float) (boardCy + handlerToCenter - this.handlerRadius);
+			final float startY = (float) (boardCy + handlerToCenter - this.rotatorRadius);
 			final float stopY = pointerStopY;
 			//			final float stopY = mPointerStopY * (1 - mCompassBitmapZoomLevel);
 			Path handlerArrow = DkCompassHelper.newArrowAt(boardCx, stopY, arrowDim, arrowDim);
@@ -365,21 +363,21 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 			case MotionEvent.ACTION_DOWN: {
 				lastStopTime = System.currentTimeMillis();
 				touchStartDegrees = DkCompassHelper.point2degrees(x, y, boardCenterX, boardCenterY);
-				isTouchInsideHandler = isInsideHandlers(x, y);
-				handlerColor = isTouchInsideHandler ? compassColor : compassSemiColor;
-				if (isTouchInsideHandler) {
+				isTouchInsideRotator = isInsideHandlers(x, y);
+				handlerColor = isTouchInsideRotator ? compassColor : compassSemiColor;
+				if (isTouchInsideRotator) {
 					handler.sendMessageDelayed(handler.obtainMessage(MSG_TURN_OFF_HIGH_LIGHT), 500);
 				}
 				invalidate();
 				break;
 			}
 			case MotionEvent.ACTION_MOVE: {
-				if (!isTouchInsideHandler) {
+				if (!isTouchInsideRotator) {
 					break;
 				}
 				// do not move handler if time passed over the specific value
 				long stopTimeElapsed = System.currentTimeMillis() - lastStopTime;
-				if (stopTimeElapsed >= handlerDisableCountDown) {
+				if (stopTimeElapsed >= rotatorDisabledCountDown) {
 					lastStopTime = 0;
 					break;
 				}
@@ -388,7 +386,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 				double touchEndDegrees = DkCompassHelper.point2degrees(x, y, boardCenterX, boardCenterY);
 
 				if (compassMode == MODE_ROTATE) {
-					handlerRotatedDegrees = touchEndDegrees;
+					rotatorRotatedDegrees = touchEndDegrees;
 					double rotatedDegrees = DkMaths.convertAngleToRange180(touchEndDegrees - touchStartDegrees);
 
 					if (rotatedDegrees <= -1 || rotatedDegrees >= 1) {
@@ -421,7 +419,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 			}
 		}
 
-		return isRequestNextEvent || isTouchInsideHandler;
+		return isRequestNextEvent || isTouchInsideRotator;
 	}
 
 	@Override
@@ -429,7 +427,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 		if (!isAdjustCompass) {
 			return true;
 		}
-		if (!isTouchInsideHandler) {
+		if (!isTouchInsideRotator) {
 			scaleFactor = scaleFactor > 1.0f ? 1.01f : 0.99f;
 			compassBitmapZoomLevel += (scaleFactor - 1.0);
 			compassBitmapMatrix.postScale(scaleFactor, scaleFactor, compassCx, compassCy);
@@ -444,7 +442,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 		if (!isAdjustCompass) {
 			return true;
 		}
-		if (isCompassMovable && !isTouchInsideHandler) {
+		if (isCompassMovable && !isTouchInsideRotator) {
 			if (isShouldStartCountDown()) {
 				if (!countdownAnimator.isRunning()) {
 					countdownAnimator.start();
@@ -464,7 +462,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 		if (!isAdjustCompass) {
 			return true;
 		}
-		if (isTouchInsideHandler) {
+		if (isTouchInsideRotator) {
 			postRotateCompassMatrix(deltaDegrees + lastAnimatedDegrees);
 			invalidate();
 			return true;
@@ -497,7 +495,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 		double dy = boardCenterY - compassCy;
 
 		double cmpToCenter = dx * dx + dy * dy;
-		double countdown = handlerRadius * handlerRadius;
+		double countdown = rotatorRadius * rotatorRadius;
 
 		boolean isShouldStart = false;
 
@@ -517,26 +515,26 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 
 	private boolean isInsideHandlers(double x, double y) {
 		final int boardCx = boardCenterX, boardCy = boardCenterY;
-		final float handlerToCenter = distFromHandlerCenterToBoardCenter;
+		final float handlerToCenter = distFromRotatorCenterToBoardCenter;
 
 		if (compassMode == MODE_POINT && isShowPointer) {
 			double radian = Math.toRadians(pointerDegrees);
 			double sin = Math.sin(radian), cos = Math.cos(radian);
 			double cx = boardCx - handlerToCenter * sin, cy = boardCy + handlerToCenter * cos;
-			return Math.hypot(x - cx, y - cy) <= handlerRadius;
+			return Math.hypot(x - cx, y - cy) <= rotatorRadius;
 		}
-		else if (compassMode == MODE_ROTATE && isShowHandler) {
-			double radian = Math.toRadians(handlerRotatedDegrees);
+		else if (compassMode == MODE_ROTATE && isShowRotator) {
+			double radian = Math.toRadians(rotatorRotatedDegrees);
 			double sin = Math.sin(radian);
 			double cos = Math.cos(radian);
 			double cx = boardCx + handlerToCenter * sin;
 			double cy = boardCy - handlerToCenter * cos;
-			if (Math.hypot(x - cx, y - cy) <= handlerRadius) {
+			if (Math.hypot(x - cx, y - cy) <= rotatorRadius) {
 				return true;
 			}
 			cx = boardCx - handlerToCenter * sin;
 			cy = boardCy + handlerToCenter * cos;
-			return Math.hypot(x - cx, y - cy) <= handlerRadius;
+			return Math.hypot(x - cx, y - cy) <= rotatorRadius;
 		}
 		return false;
 	}
@@ -579,8 +577,8 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 		int boardInnerRadius = this.boardInnerRadius;
 		int arrowTall = (boardInnerRadius >> 4) + (boardInnerRadius >> 8);
 		int boardPadding = boardCenterY - boardInnerRadius;
-		distFromHandlerCenterToBoardCenter = (boardInnerRadius >> 2) + (boardInnerRadius >> 3);
-		handlerRadius = (boardInnerRadius >> 3) + (boardInnerRadius >> 4);
+		distFromRotatorCenterToBoardCenter = (boardInnerRadius >> 2) + (boardInnerRadius >> 3);
+		rotatorRadius = (boardInnerRadius >> 3) + (boardInnerRadius >> 4);
 
 		// pointer
 		pointerStopY = boardCenterY - Math.max(boardCenterX, boardCenterY) + arrowTall;
@@ -774,7 +772,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 		canvas.restore();
 
 		// draw center lines for compass
-		double halfHandlerRadius = handlerRadius / 2;
+		double halfHandlerRadius = rotatorRadius / 2;
 		float vsy = (float) (cmpSemiHeight - halfHandlerRadius);
 		float vey = (float) (cmpSemiHeight + halfHandlerRadius);
 		float hsx = (float) (cmpSemiWidth - halfHandlerRadius);
@@ -968,7 +966,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 	}
 
 	public void setHandlerDisablePeriodTime(long handlerDisablePeriodTime) {
-		handlerDisableCountDown = handlerDisablePeriodTime;
+		rotatorDisabledCountDown = handlerDisablePeriodTime;
 	}
 
 	public DkCompassView setListener(DkCompassView.Listener listener) {
@@ -1001,7 +999,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 	}
 
 	public DkCompassView setShowRotator(boolean show) {
-		isShowHandler = show;
+		isShowRotator = show;
 		return this;
 	}
 
@@ -1011,7 +1009,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 	}
 
 	public boolean isShowRotator() {
-		return isShowHandler;
+		return isShowRotator;
 	}
 
 	public boolean isShowPointer() {

@@ -5,21 +5,21 @@
 package tool.compet.boommenu;
 
 import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Path;
+import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
-import androidx.core.view.ViewCompat;
-
-import tool.compet.core.graphics.drawable.DkDrawables;
-import tool.compet.core.view.DkConstraintLayoutCompat;
+import tool.compet.core.view.DkCompatConstraintLayout;
 
 /**
  * Base item view which be used in DkItemBuilder.getView().
  * For customize view, you must extend this class and provide settings via builder class.
  */
-public class DkItemView extends DkConstraintLayoutCompat implements View.OnTouchListener {
+public class DkItemView extends DkCompatConstraintLayout implements View.OnTouchListener {
 	boolean isCircleShape;
 	float cornerRadius;
 	int normalColor;
@@ -28,6 +28,8 @@ public class DkItemView extends DkConstraintLayoutCompat implements View.OnTouch
 	boolean useRippleEffect;
 
 	MyGestureDetector gestureDetector;
+
+	private final Path path = new Path();
 
 	public DkItemView(Context context) {
 		this(context, null);
@@ -46,29 +48,64 @@ public class DkItemView extends DkConstraintLayoutCompat implements View.OnTouch
 
 	@Override
 	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-		Drawable background = isCircleShape
-			? DkDrawables.circleBackground(
-				useRippleEffect,
-				getResources(),
-				w,
-				h,
-				normalColor,
-				pressedColor,
-				unableColor)
-			: DkDrawables.rectBackground(
-				useRippleEffect,
+		Drawable background = MyDrawables.rectStateListDrawable(
+			normalColor,
+			pressedColor,
+			unableColor,
+			cornerRadius
+		);
+
+//		if (isCircleShape) {
+//			background = MyDrawables.circleBackground(
+//				useRippleEffect,
 //				getResources(),
 //				w,
 //				h,
-				normalColor,
-				pressedColor,
-				unableColor,
-				cornerRadius
-			);
+//				normalColor,
+//				pressedColor,
+//				unableColor);
+//		}
+//		else {
+//			background = MyDrawables.rectStateListDrawable(
+//				normalColor,
+//				pressedColor,
+//				unableColor,
+//				cornerRadius
+//			);
+//		}
 
-		ViewCompat.setBackground(this, background);
+		// Setup background
+//		setBackgroundColor(normalColor); // why this causes background cannot be clipped???
+		setBackground(background);
+
+		// Setup foreground
+		setDefaultForeground(pressedColor);
+
+		// Calculate for shaping view
+		int cx = w >> 1;
+		int cy = h >> 1;
+		int radius = Math.min(cx, cy);
+
+		path.reset();
+
+		if (isCircleShape) {
+			path.addCircle(cx, cy, radius, Path.Direction.CW);
+		}
+		else {
+			path.addRoundRect(new RectF(0, 0, w, h), cornerRadius, cornerRadius, Path.Direction.CCW);
+		}
 
 		super.onSizeChanged(w, h, oldw, oldh);
+	}
+
+	@Override
+	public void draw(Canvas canvas) {
+		// Must choose software layer for clipping a path (circle, rectangle...)
+		// Note: hardware layer does not support clipping
+		setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+		canvas.clipPath(path);
+
+		super.draw(canvas);
 	}
 
 	@Override

@@ -40,6 +40,7 @@ import tool.compet.appbundle.DkActivity;
 import tool.compet.appbundle.DkApp;
 import tool.compet.appbundle.DkDialogFragment;
 import tool.compet.appbundle.DkFragment;
+import tool.compet.appbundle.navigator.DkFragmentNavigator;
 import tool.compet.appbundle.topic.TheFragmentTopicController;
 import tool.compet.core.DkLogs;
 import tool.compet.core.DkRunner2;
@@ -72,7 +73,7 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment impleme
 		if (this.host == null) {
 			this.host = getActivity();
 		}
-		if (this.app == null) {
+		if (this.app == null && this.host != null) {
 			this.app = (DkApp) this.host.getApplication();
 		}
 
@@ -130,7 +131,8 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment impleme
 		}
 		int layoutId = layoutResourceId();
 		if (layoutId > 0) {
-			return inflater.inflate(layoutId, container);
+			// Pass `false` to indicate don't attach this layout to parent
+			return inflater.inflate(layoutId, container, false);
 		}
 		return super.onCreateView(inflater, container, savedInstanceState);
 	}
@@ -346,16 +348,44 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment impleme
 		}
 	}
 
-	@Override
-	public void dismiss() {
+	public DkFragmentNavigator getParentNavigator() {
+		Fragment parent = getParentFragment();
+		DkFragmentNavigator owner = null;
+
+		if (parent == null) {
+			if (host instanceof DkCompactActivity) {
+				owner = ((DkCompactActivity) host).getChildNavigator();
+			}
+		}
+		else if (parent instanceof DkCompactFragment) {
+			owner = ((DkCompactFragment) parent).getChildNavigator();
+		}
+
+		if (owner == null) {
+			DkLogs.complain(this, "Must have a parent navigator own this fragment `%s`", getClass().getName());
+		}
+
+		if (BuildConfig.DEBUG) {
+			DkLogs.debug(this, "Parent: `%s` -> Child: `%s`", parent == null ? host.getClass().getName() : parent.getClass().getName(), getClass().getName());
+		}
+
+		return owner;
+	}
+
+	public boolean close() {
+		return getParentNavigator().beginTransaction().remove(getClass().getName()).commit();
+	}
+
+//	@Override
+	public void xdismiss() {
 		close();
 	}
 
 	/**
 	 * Close (dismiss) the dialog.
 	 */
-	@Override
-	public boolean close() {
+//	@Override
+	public boolean xclose() {
 		boolean ok = false;
 		// Execute all pending transactions first
 		try {
@@ -404,12 +434,18 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment impleme
 
 	// region Scoped topic
 
-	// Obtain topic controller and then clear its materials
+	/**
+	 * Obtain topic controller and then clear its materials.
+	 * It is strongly recommended to use this at entry point (for eg,. when open new page).
+	 */
 	public TheFragmentTopicController cleanTopic(String topicId) {
 		return new TheFragmentTopicController(topicId, host, this).clear();
 	}
 
-	// Obtain and Listen a topic in hostOwner
+	/**
+	 * Obtain topic controller.
+	 * Lets use it after we have called `cleanTopic()`.
+	 */
 	public TheFragmentTopicController refTopic(String topicId) {
 		return new TheFragmentTopicController(topicId, host, this);
 	}
@@ -434,7 +470,7 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment impleme
 			animInterpolator = getAnimationInterpolator();
 
 			animator = ValueAnimator.ofFloat(0f, 1f);
-			animator.setDuration(DkAnimationConfiguration.ANIM_LARGE_EXPAND);
+			animator.setDuration(DkAnimationConfiguration.ANIM_LARGE_EXPAND_DURATION);
 			animator.setInterpolator(animInterpolator);
 			animator.addUpdateListener(anim -> {
 				animUpdater.run(anim, layout);
@@ -462,7 +498,7 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment impleme
 				animInterpolator = getAnimationInterpolator();
 
 				animator.removeAllListeners();
-				animator.setDuration(DkAnimationConfiguration.ANIM_LARGE_COLLAPSE);
+				animator.setDuration(DkAnimationConfiguration.ANIM_LARGE_COLLAPSE_DURATION);
 				animator.addListener(new AnimatorListenerAdapter() {
 					@Override
 					public void onAnimationEnd(Animator animation) {
@@ -500,7 +536,6 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment impleme
 	}
 
 	// endregion Get/Set
-
 
 	public static final int ANIM_ZOOM_IN = 1;
 	public static final int ANIM_SWIPE_DOWN = 2;

@@ -7,6 +7,8 @@ package tool.compet.appbundle.navigator;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.NonNull;
+
 class MyKeyState implements Parcelable {
 	String tag;
 
@@ -38,5 +40,11 @@ class MyKeyState implements Parcelable {
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeString(tag);
+	}
+
+	@NonNull
+	@Override
+	public String toString() {
+		return "MyKeyState{" + "tag='" + tag + '\'' + '}';
 	}
 }

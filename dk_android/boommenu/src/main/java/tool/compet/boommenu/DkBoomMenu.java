@@ -65,8 +65,8 @@ public class DkBoomMenu {
 	private boolean dismissOnBackPressed = true;
 	private boolean bringAnchorToFront;
 	private long animStartDelay;
-	private long boomDuration = DkAnimationConfiguration.ANIM_LARGE_EXPAND;
-	private long unboomDuration = DkAnimationConfiguration.ANIM_LARGE_COLLAPSE;
+	private long boomDuration = DkAnimationConfiguration.ANIM_MEDIUM_EXPAND_DURATION;
+	private long unboomDuration = DkAnimationConfiguration.ANIM_MEDIUM_COLLAPSE_DURATION;
 	private long emissionDelayBetweenItems = 50;
 	private ValueAnimator animator;
 

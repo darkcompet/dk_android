@@ -7,20 +7,18 @@ package tool.compet.appbundle.navigator;
 import android.os.Parcelable;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
+import tool.compet.core.BuildConfig;
 import tool.compet.core.DkLogs;
 import tool.compet.core.DkStrings;
-
-import static tool.compet.core.BuildConfig.DEBUG;
 
 // This manages children fragment (list of child framgnet inside the parent).
 class MyBackStack {
 	interface OnStackChangeListener {
-		void onStackSizeChanged(int oldSize, int newSize);
+		void onStackSizeChanged(int size, int oldSize);
 	}
 
-	// List of tag of child fragment (since we can instantiate fragment from its tag)
+	// List of tag of child fragment (we can instantiate fragment from a tag)
 	private ArrayList<MyKeyState> keys;
 	private final OnStackChangeListener listener;
 
@@ -37,19 +35,8 @@ class MyBackStack {
 				keys = new ArrayList<>();
 			}
 
-			if (DEBUG) {
-				StringBuilder msg = new StringBuilder("[");
-				Iterator<MyKeyState> it = keys.iterator();
-
-				if (it.hasNext()) {
-					msg.append(it.next().tag);
-
-					while (it.hasNext()) {
-						msg.append(", ").append(it.next().tag);
-					}
-				}
-
-				DkLogs.info(this, "Restored backstack keys to: " + msg.append("]").toString());
+			if (BuildConfig.DEBUG) {
+				DkLogs.info(this, "Restored backstack keys to: " + keys.toString());
 			}
 		}
 	}
@@ -58,19 +45,8 @@ class MyBackStack {
 		MyBackStackState out = new MyBackStackState();
 		out.keys = keys;
 
-		if (DEBUG) {
-			StringBuilder msg = new StringBuilder("[");
-			Iterator<MyKeyState> it = keys.iterator();
-
-			if (it.hasNext()) {
-				msg.append(it.next().tag);
-
-				while (it.hasNext()) {
-					msg.append(", ").append(it.next().tag);
-				}
-			}
-
-			DkLogs.info(this, "Saved backstack keys: " + msg.append("]").toString());
+		if (BuildConfig.DEBUG) {
+			DkLogs.info(this, "Saved backstack keys: " + keys.toString());
 		}
 
 		return out;
@@ -84,13 +60,13 @@ class MyBackStack {
 		return keys.indexOf(key);
 	}
 
+	// last index
 	public int indexOf(String tag) {
-		for (int i = keys.size() - 1; i >= 0; --i) {
-			if (DkStrings.isEquals(tag, keys.get(i).tag)) {
-				return i;
+		for (int index = keys.size() - 1; index >= 0; --index) {
+			if (DkStrings.isEquals(tag, keys.get(index).tag)) {
+				return index;
 			}
 		}
-
 		return -1;
 	}
 
@@ -107,13 +83,11 @@ class MyBackStack {
 				return key;
 			}
 		}
-
 		return null;
 	}
 
 	public void clear() {
-		final int oldSize = keys.size();
-
+		int oldSize = keys.size();
 		keys.clear();
 
 		notifySizeChanged(oldSize);
@@ -124,8 +98,7 @@ class MyBackStack {
 	}
 
 	public void add(MyKeyState key) {
-		final int oldSize = keys.size();
-
+		int oldSize = keys.size();
 		keys.add(key);
 
 		notifySizeChanged(oldSize);
@@ -133,8 +106,7 @@ class MyBackStack {
 
 	public void remove(int index) {
 		if (index >= 0 && index < keys.size()) {
-			final int oldSize = keys.size();
-
+			int oldSize = keys.size();
 			keys.remove(index);
 
 			notifySizeChanged(oldSize);
@@ -153,10 +125,8 @@ class MyBackStack {
 		int index = indexOf(tag);
 
 		if (index >= 0) {
-			final int oldSize = keys.size();
-
+			int oldSize = keys.size();
 			MyKeyState keyState = keys.remove(index);
-
 			notifySizeChanged(oldSize);
 
 			return keyState;

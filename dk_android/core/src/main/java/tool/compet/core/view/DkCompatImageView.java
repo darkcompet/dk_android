@@ -17,8 +17,8 @@ import android.view.MotionEvent;
 import android.view.ViewConfiguration;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.appcompat.widget.AppCompatButton;
+import androidx.appcompat.widget.AppCompatImageView;
 
 import tool.compet.core.DkConfig;
 import tool.compet.core.DkConst;
@@ -26,80 +26,60 @@ import tool.compet.core.graphics.drawable.DkDrawable;
 import tool.compet.core.graphics.drawable.DkRippleDrawable;
 
 /**
- * This is backward-compatibility, brings foreground of newer api into older api.
- * For older api, by default, it creates a foreground that uses Ripple animation to response user-touch.
- * You can call `setForeground()` to use your own drawable with own properties (animation, gradient, state, ...).
+ * This is compatible View, for eg,. it provides backward-compatibility for `foreground`.
+ * You can call `setDefaultForeground()` to use default ripple-drawable to response user-touch.
  */
-public class DkConstraintLayoutCompat extends ConstraintLayout {
+public class DkCompatImageView extends AppCompatImageView {
+	// By default, we try to create default foreground when size was changed
+	private boolean createDefaultForegroundIfNotExist = true;
+
 	// We only handle foreground when super does not support
-	private static final boolean isForegroundAvailableAtSuper = false;//DkConst.SDK_VERSION >= Build.VERSION_CODES.M;
-	private Drawable foreground; // for api 23-
+	protected static final boolean isForegroundAvailableAtSuper = DkConst.SDK_VERSION >= Build.VERSION_CODES.M;
+	protected Drawable foreground; // for api 23-
 
 	// We only handle hotspot when super does not support
-	private static final boolean isHotspotAvailableAtSuper = false;//DkConst.SDK_VERSION >= Build.VERSION_CODES.LOLLIPOP;
-	private boolean isPrePress;
-	private PressAction prePressAction;
+	protected static final boolean isHotspotAvailableAtSuper = DkConst.SDK_VERSION >= Build.VERSION_CODES.LOLLIPOP;
+	protected boolean isPrePress;
+	protected PressAction prePressAction;
 
-	public DkConstraintLayoutCompat(Context context) {
-		this(context, null);
+	public DkCompatImageView(Context context) {
+		super(context);
+		init(context);
 	}
 
-	public DkConstraintLayoutCompat(Context context, AttributeSet attrs) {
-		this(context, attrs, 0);
+	public DkCompatImageView(Context context, AttributeSet attrs) {
+		super(context, attrs);
+		init(context);
 	}
 
 	@SuppressLint("CustomViewStyleable")
-	public DkConstraintLayoutCompat(Context context, AttributeSet attrs, int defStyleAttr) {
+	public DkCompatImageView(Context context, AttributeSet attrs, int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
+		init(context);
+	}
 
+	private void init(Context context) {
 		// Don't redraw while this time
 		setWillNotDraw(false);
 
-//		TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.DKForegroundView);
-//		String animType = a.getString(R.styleable.DKForegroundView_dk_animation);
-//		int normalColor = a.getColor(R.styleable.DKForegroundView_dk_normal_color, Color.TRANSPARENT);
-//		int pressedColor = a.getColor(R.styleable.DKForegroundView_dk_pressed_color, Color.WHITE);
-//		a.recycle();
+		//		TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.DKForegroundView);
+		//		String animType = a.getString(R.styleable.DKForegroundView_dk_animation);
+		//		int normalColor = a.getColor(R.styleable.DKForegroundView_dk_normal_color, Color.TRANSPARENT);
+		//		int pressedColor = a.getColor(R.styleable.DKForegroundView_dk_pressed_color, Color.WHITE);
+		//		a.recycle();
 
-//		int[][] states = {{-android.R.attr.state_pressed}, {android.R.attr.state_pressed}};
-//		int[] colors = {Color.TRANSPARENT, Color.WHITE};
-//		ColorStateList colorStates = new ColorStateList(states, colors);
-
-		// Even user declare foreground at attribute (xml), we still create foreground by default
-		Drawable foreground = getForeground(); // is of own or super
-		if (foreground == null) {
-			foreground = acquireDefaultForeground();
-			setForeground(foreground);
-		}
+		//		int[][] states = {{-android.R.attr.state_pressed}, {android.R.attr.state_pressed}};
+		//		int[] colors = {Color.TRANSPARENT, Color.WHITE};
+		//		ColorStateList colorStates = new ColorStateList(states, colors);
 	}
 
-	// By default, this provides `RippleDrawable` foreground for newer api (21+),
-	// and `DkRippleDrawable` foreground for older api (20-).
-	@Nullable
-	protected Drawable acquireDefaultForeground() {
-		int[][] states = {
-			{android.R.attr.state_pressed}, // pressed state
-//			{android.R.attr.state_focused}, // focused state
-//			{android.R.attr.state_activated}, // activated state
-			{android.R.attr.state_empty}, // normal state
-		};
-		int[] colors = {
-			DkConfig.colorAccent(getContext()), // pressed color
-//			Color.BLUE, // focused color
-//			Color.YELLOW, // activated color
-			Color.TRANSPARENT, // normal color
-		};
-		ColorStateList colorStateList = new ColorStateList(states, colors);
-
-		if (isHotspotAvailableAtSuper) {
-			return new RippleDrawable(colorStateList, null, null);
-		}
-		return new DkRippleDrawable(colorStateList);
-	}
-
+	// By default, update bounds of foreground to fit with layout
 	@Override
 	protected void onSizeChanged(int width, int height, int oldwidth, int oldheight) {
-		super.onSizeChanged(width, height, oldwidth, oldheight);
+		// Create default foreground if not exist
+		if (createDefaultForegroundIfNotExist && getForeground() == null) {
+			setDefaultForeground();
+		}
 
 		if (! isForegroundAvailableAtSuper) {
 			Drawable foreground = this.foreground;
@@ -107,8 +87,11 @@ public class DkConstraintLayoutCompat extends ConstraintLayout {
 				foreground.setBounds(0, 0, width, height);
 			}
 		}
+
+		super.onSizeChanged(width, height, oldwidth, oldheight);
 	}
 
+	// In `View.draw()` steps, this called to draw own content
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
@@ -121,6 +104,7 @@ public class DkConstraintLayoutCompat extends ConstraintLayout {
 		}
 	}
 
+	// In `View.draw()` steps, this called to draw child views
 	@Override
 	protected void dispatchDraw(Canvas canvas) {
 		super.dispatchDraw(canvas);
@@ -134,8 +118,8 @@ public class DkConstraintLayoutCompat extends ConstraintLayout {
 	}
 
 	@Override
-	protected boolean verifyDrawable(@NonNull Drawable something) {
-		return super.verifyDrawable(something) || something == foreground;
+	protected boolean verifyDrawable(@NonNull Drawable drawable) {
+		return super.verifyDrawable(drawable) || drawable == foreground;
 	}
 	
 	// Override from api 16
@@ -154,6 +138,37 @@ public class DkConstraintLayoutCompat extends ConstraintLayout {
 			return super.getForeground();
 		}
 		return foreground;
+	}
+
+	public void setDefaultForeground() {
+		setDefaultForeground(DkConfig.colorAccent(getContext()));
+	}
+
+	public void setDefaultForeground(int pressedColor) {
+		Drawable foreground;
+
+		int[][] states = {
+			{android.R.attr.state_pressed}, // pressed state
+			//			{android.R.attr.state_focused}, // focused state
+			//			{android.R.attr.state_activated}, // activated state
+			{android.R.attr.state_empty}, // normal state
+		};
+		int[] colors = {
+			pressedColor, // pressed color
+			//			Color.BLUE, // focused color
+			//			Color.YELLOW, // activated color
+			Color.TRANSPARENT, // normal color
+		};
+		ColorStateList colorStateList = new ColorStateList(states, colors);
+
+		if (isHotspotAvailableAtSuper) {
+			foreground = new RippleDrawable(colorStateList, null, null);
+		}
+		else {
+			foreground = new DkRippleDrawable(colorStateList);
+		}
+
+		setForeground(foreground);
 	}
 
 	// Override from api 23
@@ -197,12 +212,11 @@ public class DkConstraintLayoutCompat extends ConstraintLayout {
 		invalidate();
 	}
 
-	// Override from api 23
+	// Override from api 14 (for compat view) or api 23 (new layout)
 	protected void drawableStateChanged() {
-		if (isForegroundAvailableAtSuper) {
-			super.drawableStateChanged();
-		}
-		else {
+		super.drawableStateChanged();
+
+		if (! isForegroundAvailableAtSuper) {
 			Drawable foreground = this.foreground;
 			if (foreground != null && foreground.isStateful()) {
 				foreground.setState(getDrawableState());
@@ -221,7 +235,6 @@ public class DkConstraintLayoutCompat extends ConstraintLayout {
 		if (! isForegroundAvailableAtSuper) {
 			// For older version, foreground should be instance of `DkDrawable`
 			Drawable foreground = this.getForeground();
-
 			if (foreground instanceof DkDrawable) {
 				((DkDrawable) foreground).setHotspot(x, y);
 			}
@@ -329,4 +342,16 @@ public class DkConstraintLayoutCompat extends ConstraintLayout {
 			drawableHotspotChanged(x, y);
 		}
 	}
+
+	// region Get/Set
+
+	public boolean isCreateDefaultForegroundIfNotExist() {
+		return createDefaultForegroundIfNotExist;
+	}
+
+	public void setCreateDefaultForegroundIfNotExist(boolean createDefaultForegroundIfNotExist) {
+		this.createDefaultForegroundIfNotExist = createDefaultForegroundIfNotExist;
+	}
+
+	// endregion Get/Set
 }

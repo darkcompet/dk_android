@@ -24,13 +24,12 @@ import androidx.lifecycle.ViewModelStoreOwner;
 
 import tool.compet.appbundle.DkActivity;
 import tool.compet.appbundle.DkApp;
-import tool.compet.appbundle.binder.DkBinder;
-import tool.compet.appbundle.navigator.DkFragmentNavigator;
 import tool.compet.appbundle.R;
-import tool.compet.appbundle.topic.TheActivityTopicController;
-import tool.compet.appbundle.dialog.DkConfirmDialog;
+import tool.compet.appbundle.binder.DkBinder;
 import tool.compet.appbundle.floatingbar.DkSnackbar;
 import tool.compet.appbundle.floatingbar.DkToastbar;
+import tool.compet.appbundle.navigator.DkFragmentNavigator;
+import tool.compet.appbundle.topic.TheActivityTopicController;
 import tool.compet.core.BuildConfig;
 import tool.compet.core.DkLogs;
 
@@ -137,6 +136,7 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends A
 		// Set content view
 		int layoutId = layoutResourceId();
 		if (layoutId > 0) {
+			// Pass `null` to indicate don't attach this layout to parent
 			layout = View.inflate(this, layoutId, null);
 			setContentView(layout);
 
@@ -151,6 +151,7 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends A
 				new AlertDialog.Builder(this)
 					.setTitle(R.string.error)
 					.setMessage(message)
+					.setCancelable(true)
 					.setPositiveButton(R.string.close, ((dialog, which) -> {
 						dialog.dismiss();
 					}))
@@ -370,16 +371,20 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends A
 
 	// region Scoped topic
 
-	// Target a topic in hostOwner
-
-	// Obtain topic controller and then clear its materials
+	/**
+	 * Obtain topic controller and then clear its materials.
+	 * It is strongly recommended to use this at entry point (for eg,. when open new page).
+	 */
 	public TheActivityTopicController cleanTopic(String topicId) {
 		return new TheActivityTopicController(topicId, host, this).clear();
 	}
 
-	// Obtain topic provider
+	/**
+	 * Obtain topic controller.
+	 * Lets use it after we have called `cleanTopic()`.
+	 */
 	public TheActivityTopicController refTopic(String topicId) {
-		return new TheActivityTopicController(topicId, this, this);
+		return new TheActivityTopicController(topicId, host, this);
 	}
 
 	// endregion Scoped topic

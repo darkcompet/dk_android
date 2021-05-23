@@ -19,11 +19,11 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.view.ViewCompat;
 
-import tool.compet.appbundle.compact.DkCompactDialog;
 import tool.compet.appbundle.R;
+import tool.compet.appbundle.compact.DkCompactDialog;
 import tool.compet.core.BuildConfig;
 import tool.compet.core.DkConfig;
 import tool.compet.core.DkLogs;
@@ -67,7 +67,7 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 	protected ViewGroup vFullground;
 
 	// Background (card view)
-	protected CardView vBackground;
+	protected ConstraintLayout vBackground;
 	private Integer backgroundColor;
 	private Drawable backgroundDrawable;
 
@@ -592,7 +592,7 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 			return;
 		}
 		if (backgroundColor != null) {
-			vBackground.setCardBackgroundColor(backgroundColor);
+			vBackground.setBackgroundColor(backgroundColor);
 		}
 		if (backgroundDrawable != null) {
 			ViewCompat.setBackground(vBackground, backgroundDrawable);

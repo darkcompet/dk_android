@@ -12,12 +12,11 @@ import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
-import android.graphics.RadialGradient;
 import android.graphics.Rect;
-import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
 
 import androidx.annotation.NonNull;
@@ -39,15 +38,17 @@ public class DkRippleDrawable extends Drawable implements DkDrawable {
 	private final AnimatorSet rippleExitAnimatorSet = new AnimatorSet();
 	protected Paint ripplePaint;
 	protected float rippleAnimRadius; // radius while animating
-	private int rippleColor;
-	private boolean rippleActive;
+	private int rippleColor; // orginal color of ripple background
+	private boolean rippleActive; // indicate ripple is active or not
 	private float rippleAnimOpacity; // opacity while animating
-	private long radiusAnimDuration = 2500;
-	private long opacityEnterAnimDuration = 1000;
-	private long opacityExitAnimDuration = radiusAnimDuration - opacityEnterAnimDuration;
-	private long opacityExitAnimDelay = opacityEnterAnimDuration;
+	private long radiusAnimDuration = 225; // expand radius duration
+	private long opacityAnimDuration = 225; // opacity hold duration
+	private long opacityEnterAnimDuration = 75; // up opacity duration
+	private long opacityExitAnimDuration = opacityAnimDuration - opacityEnterAnimDuration; // down opacity duration
+	private long opacityExitAnimDelay = opacityEnterAnimDuration; // delay time before animate exit-opacity
 	private float startAnimRadius; // calculated when redraw
 	private float endAnimRadius; // calculated when redraw
+	private long enterRippleTime; // to calculate exit-anim duration
 
 	public DkRippleDrawable() {
 		rippleColor = Color.LTGRAY;
@@ -100,10 +101,10 @@ public class DkRippleDrawable extends Drawable implements DkDrawable {
 			rippleActive = active;
 
 			if (active) {
-				animateRippleEnterAnimation();
+				enterRipple();
 			}
 			else {
-				animateRippleExitAnimation();
+				exitRipple();
 			}
 		}
 	}
@@ -119,7 +120,7 @@ public class DkRippleDrawable extends Drawable implements DkDrawable {
 			// If we just became visible, ensure the background and ripple
 			// visibilities are consistent with their internal states
 			if (rippleActive) {
-				animateRippleEnterAnimation();
+				enterRipple();
 			}
 
 			// Skip animations, just show the correct final states
@@ -169,12 +170,14 @@ public class DkRippleDrawable extends Drawable implements DkDrawable {
 		hotspotY = y;
 	}
 
-	@Override
+	// Override from api 21
 	public void setHotspotBounds(int left, int top, int right, int bottom) {
 		// Don't really need, but just give to super a chance to handle
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 			super.setHotspotBounds(left, top, right, bottom);
 		}
+
+//		rippleBounds.set(left, top, right, bottom);
 	}
 
 	@Override
@@ -182,6 +185,8 @@ public class DkRippleDrawable extends Drawable implements DkDrawable {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 			super.getHotspotBounds(outRect);
 		}
+
+//		rippleBounds.set(outRect);
 	}
 
 	// Own ripple drawable will change its apperance based on state
@@ -195,7 +200,7 @@ public class DkRippleDrawable extends Drawable implements DkDrawable {
 		final float animRadius = DkMaths.clamp(rippleAnimRadius, startAnimRadius, endAnimRadius);
 
 		if (animRadius > 0) {
-			final Paint ripplePaint = updateRipplePaint();
+			final Paint ripplePaint = acquireRipplePaint();
 			final int originalAlpha = ripplePaint.getAlpha();
 			// Plus 0.5 to round the opacity 1 unit if it has 0.5+ unit
 			final int animAlpha = (int) (rippleAnimOpacity * originalAlpha + 0.5f);
@@ -214,7 +219,7 @@ public class DkRippleDrawable extends Drawable implements DkDrawable {
 
 	// region Private
 
-	private Paint updateRipplePaint() {
+	private Paint acquireRipplePaint() {
 		Paint ripplePaint = this.ripplePaint;
 		int color = this.rippleColor;
 		// Grab the color for the current state and cut the alpha channel in
@@ -246,17 +251,21 @@ public class DkRippleDrawable extends Drawable implements DkDrawable {
 		return Color.argb(alpha, red, green, blue);
 	}
 
-	private void animateRippleEnterAnimation() {
-		// Complete all running animations (jump them to final state) and clear them from animation set
+	// Enter (show) ripple with animation
+	private void enterRipple() {
+		// Complete all running enter-animations (jump them to final state) and clear them from animation set
 		rippleEnterAnimatorSet.end();
 		rippleEnterAnimatorSet.removeAllListeners();
+
+		// Remember enter time
+		enterRippleTime = AnimationUtils.currentAnimationTimeMillis();
 
 		// Create radius animation
 		final Rect bounds = getBounds();
 		float fromRadius = calcAnimationStartRadius(bounds);
 		float toRadius = calcAnimationEndRadius(hotspotX, hotspotY, bounds);
 		ValueAnimator radiusAnimator = ValueAnimator.ofFloat(fromRadius, toRadius);
-		radiusAnimator.setDuration(getRadiusAnimDuration());
+		radiusAnimator.setDuration(radiusAnimDuration);
 		radiusAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
 		radiusAnimator.addUpdateListener(animation -> {
 			rippleAnimRadius = (float) animation.getAnimatedValue();
@@ -265,9 +274,9 @@ public class DkRippleDrawable extends Drawable implements DkDrawable {
 
 		// Create opacity animation
 		float fromOpacity = 0f;
-		float toOpacity = 0.5f;
+		float toOpacity = 0.25f;
 		ValueAnimator opacityAnimator = ValueAnimator.ofFloat(fromOpacity, toOpacity);
-		opacityAnimator.setDuration(getOpacityEnterAnimDuration());
+		opacityAnimator.setDuration(opacityEnterAnimDuration);
 		opacityAnimator.setInterpolator(new LinearInterpolator());
 		opacityAnimator.addUpdateListener(animation -> {
 			rippleAnimOpacity = (float) animation.getAnimatedValue();
@@ -279,16 +288,22 @@ public class DkRippleDrawable extends Drawable implements DkDrawable {
 		rippleEnterAnimatorSet.start();
 	}
 
-	private void animateRippleExitAnimation() {
+	// Exit (hide) ripple with animation
+	private void exitRipple() {
+		// Complete all running exit-animations (jump them to final state) and clear them from animation set
 		rippleExitAnimatorSet.end();
 		rippleExitAnimatorSet.removeAllListeners();
 
+		// Delay duration until enter-anim completed
+		long elapsed = AnimationUtils.currentAnimationTimeMillis() - enterRippleTime;
+		long opacityExitDelay = Math.max(0, radiusAnimDuration - elapsed);
+
 		// Hide ripple color by down opaque to zero (transparent)
-		float fromOpacity = 0.5f;
+		float fromOpacity = 0.25f;
 		float toOpacity = 0f;
 		ValueAnimator opacityAnimator = ValueAnimator.ofFloat(fromOpacity, toOpacity);
-		opacityAnimator.setStartDelay(getOpacityExitAnimDelay());
-		opacityAnimator.setDuration(getOpacityExitAnimDuration());
+		opacityAnimator.setStartDelay(opacityExitDelay);
+		opacityAnimator.setDuration(opacityExitAnimDuration);
 		opacityAnimator.setInterpolator(new LinearInterpolator());
 		opacityAnimator.addUpdateListener(animation -> {
 			rippleAnimOpacity = (float) animation.getAnimatedValue();
@@ -329,6 +344,7 @@ public class DkRippleDrawable extends Drawable implements DkDrawable {
 
 	public void setRippleColor(int rippleColor) {
 		this.rippleColor = rippleColor;
+		invalidateSelf();
 	}
 
 	public int getRippleColor() {
@@ -341,6 +357,7 @@ public class DkRippleDrawable extends Drawable implements DkDrawable {
 
 	public void setRadiusAnimDuration(long radiusAnimDuration) {
 		this.radiusAnimDuration = radiusAnimDuration;
+		invalidateSelf();
 	}
 
 	public long getOpacityEnterAnimDuration() {
@@ -349,6 +366,7 @@ public class DkRippleDrawable extends Drawable implements DkDrawable {
 
 	public void setOpacityEnterAnimDuration(long opacityAnimDuration) {
 		this.opacityEnterAnimDuration = opacityAnimDuration;
+		invalidateSelf();
 	}
 
 	public long getOpacityExitAnimDuration() {
@@ -358,6 +376,7 @@ public class DkRippleDrawable extends Drawable implements DkDrawable {
 	// Should set value equals to: `radiusAnimDuration` - `opacityEnterAnimDuration`
 	public void setOpacityExitAnimDuration(long opacityExitAnimDuration) {
 		this.opacityExitAnimDuration = opacityExitAnimDuration;
+		invalidateSelf();
 	}
 
 	public long getOpacityExitAnimDelay() {
@@ -367,6 +386,7 @@ public class DkRippleDrawable extends Drawable implements DkDrawable {
 	// Should set value equals to: `opacityEnterAnimDuration`
 	public void setOpacityExitAnimDelay(long opacityExitAnimDelay) {
 		this.opacityExitAnimDelay = opacityExitAnimDelay;
+		invalidateSelf();
 	}
 
 	// endregion Get/Set

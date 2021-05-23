@@ -103,6 +103,10 @@ public abstract class DkCompactFragment<VL extends DkCompactViewLogic> extends F
 			DkLogs.complain(this, "Must have a parent navigator own this fragment `%s`", getClass().getName());
 		}
 
+		if (BuildConfig.DEBUG) {
+			DkLogs.debug(this, "Parent: `%s` -> Child: `%s`", parent == null ? host.getClass().getName() : parent.getClass().getName(), getClass().getName());
+		}
+
 		return owner;
 	}
 
@@ -119,7 +123,7 @@ public abstract class DkCompactFragment<VL extends DkCompactViewLogic> extends F
 		if (this.context == null) {
 			this.context = context;
 		}
-		if (this.app == null) {
+		if (this.app == null && this.host != null) {
 			this.app = (DkApp) this.host.getApplication();
 		}
 
@@ -171,6 +175,7 @@ public abstract class DkCompactFragment<VL extends DkCompactViewLogic> extends F
 
 		int layoutId = layoutResourceId();
 		if (layoutId > 0) {
+			// Pass `false` to indicate don't attach this layout to parent
 			layout = inflater.inflate(layoutId, container, false);
 
 			// Bind views
@@ -375,7 +380,7 @@ public abstract class DkCompactFragment<VL extends DkCompactViewLogic> extends F
 	 */
 	@Override
 	public boolean close() {
-		return getParentNavigator().beginTransaction().remove(this).commit();
+		return getParentNavigator().beginTransaction().remove(getClass().getName()).commit();
 	}
 
 	// region ViewModel
@@ -405,12 +410,18 @@ public abstract class DkCompactFragment<VL extends DkCompactViewLogic> extends F
 
 	// region Scoped topic
 
-	// Obtain topic controller and then clear its materials
+	/**
+	 * Obtain topic controller and then clear its materials.
+	 * It is strongly recommended to use this at entry point (for eg,. when open new page).
+	 */
 	public TheFragmentTopicController cleanTopic(String topicId) {
 		return new TheFragmentTopicController(topicId, host, this).clear();
 	}
 
-	// Obtain topic controller
+	/**
+	 * Obtain topic controller.
+	 * Lets use it after we have called `cleanTopic()`.
+	 */
 	public TheFragmentTopicController refTopic(String topicId) {
 		return new TheFragmentTopicController(topicId, host, this);
 	}
