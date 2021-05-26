@@ -11,23 +11,31 @@ import androidx.lifecycle.ViewModelStoreOwner;
 import tool.compet.core.DkLogs;
 
 public class DkTopicProvider {
-	// Like app/activity
+	// Long-live view, for eg,. app/activity
 	private final ViewModelStoreOwner hostOwner;
-	// clientOwner Like activity/fragment
+	// Short-live view, for eg,. activity/fragment
+	private final ViewModelStoreOwner clientOwner;
 
-	public DkTopicProvider(@NonNull ViewModelStoreOwner hostOwner) {
+	public DkTopicProvider(@NonNull ViewModelStoreOwner hostOwner, @NonNull ViewModelStoreOwner clientOwner) {
 		this.hostOwner = hostOwner;
+		this.clientOwner = clientOwner;
 	}
 
 	// Get or Create a topic from host, also make client listen to the topic
-	public <M> M register(ViewModelStoreOwner clientOwner, boolean clientIsOwner, String topicId, String modelKey, Class<M> modelType) {
-		if (clientOwner == null) {
-			throw new RuntimeException("Client must be present");
-		}
+	public void registerClient(String topicId) {
 		try {
-			TheHost host = obtainTheHostFromHostOwner();
-			TheClient client = obtainTheClientFromClientOwner(clientOwner);
-			return host.register(client, clientIsOwner, topicId, modelKey, modelType);
+			theHost().registerClient(topicId, theClient());
+		}
+		catch (Exception e) {
+			DkLogs.error(DkTopicProvider.class, e);
+			throw new RuntimeException(e);
+		}
+	}
+
+	// Get or Create a topic from host, also make client listen to the topic
+	public <M> M obtainModel(String topicId, String modelKey, Class<M> modelType) {
+		try {
+			return theHost().obtainModel(topicId, modelKey, modelType);
 		}
 		catch (Exception e) {
 			DkLogs.error(DkTopicProvider.class, e);
@@ -36,34 +44,31 @@ public class DkTopicProvider {
 	}
 
 	// Remove client from topic
-	public void unregister(ViewModelStoreOwner clientOwner, String topicId) {
-		TheHost host = obtainTheHostFromHostOwner();
-		TheClient client = obtainTheClientFromClientOwner(clientOwner);
-		host.unregister(client, topicId);
+	public void unregisterClient(String topicId) {
+		theHost().unregisterClient(topicId, theClient());
 	}
 
 	public void removeTopic(String topicId) {
-		TheHost host = obtainTheHostFromHostOwner();
-		host.removeTopic(topicId);
+		theHost().removeTopic(topicId);
 	}
 
 	/**
-	 * Host is an instance which be held by hostOwner
-	 * Note that, hostOwners which have same type will share same TheHost object.
+	 * Host is an instance which be held by `hostOwner`
+	 * Note that, `hostOwners` which have same type will share same TheHost object.
 	 * <p>
 	 * Normally, host is long-live than client.
 	 */
-	private TheHost obtainTheHostFromHostOwner() {
+	private TheHost theHost() {
 		return new ViewModelProvider(hostOwner).get(TheHost.class);
 	}
 
 	/**
-	 * Client is an instance which be held by clientOwner
-	 * Note that, clientOwners which have same type will share same TheClient object.
+	 * Client is an instance which be held by `clientOwner`/
+	 * Note that, `clientOwners` which have same type will share same TheClient object.
 	 * <p>
 	 * Normally, client is short-live than host.
 	 */
-	private TheClient obtainTheClientFromClientOwner(ViewModelStoreOwner clientOwner) {
+	private TheClient theClient() {
 		return new ViewModelProvider(clientOwner).get(TheClient.class);
 	}
 }

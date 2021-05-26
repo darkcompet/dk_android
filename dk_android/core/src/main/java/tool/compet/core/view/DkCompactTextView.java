@@ -15,18 +15,18 @@ import tool.compet.core.DkConfig;
 
 /**
  * This extends compat-version and provided some optional below features:
- * - corner-rounded view.
- * - xxx
+ * - [Optional] corner-rounded view (default: true)
+ * - [Optional] foreground with ripple animation
  */
 public class DkCompactTextView extends DkCompatTextView {
+	//-- For corner-rounded feature
 	protected boolean roundEnabled = true;
 	protected int roundColor;
 	protected float roundStrokeWidth;
 	protected float[] roundRadiusArr; // top-left, top-right, bottom-right, bottom-left
-
-	protected final Path clipRoundPath = new Path();
-	protected final Path roundPath = new Path();
-	protected final Paint roundPaint = new Paint();
+	protected Path clipRoundPath;
+	protected Path roundPath;
+	protected Paint roundPaint;
 
 	public DkCompactTextView(Context context) {
 		super(context);
@@ -44,53 +44,74 @@ public class DkCompactTextView extends DkCompatTextView {
 	}
 
 	private void init(Context context) {
-		final float density = DkConfig.density();
-
-		roundPaint.setAntiAlias(true);
-		roundPaint.setStyle(Paint.Style.STROKE);
-
-		roundColor = DkConfig.colorAccent(context);
-		roundStrokeWidth = 1f * density;
-
-		float roundRadius = 12 * density;
-		roundRadiusArr = new float[] {
-			roundRadius, roundRadius,
-			roundRadius, roundRadius,
-			roundRadius, roundRadius,
-			roundRadius, roundRadius,
-		};
 	}
 
 	@Override
 	public void draw(Canvas canvas) {
 		if (roundEnabled) {
-			// Clip path requires draw on software
-			setLayerType(LAYER_TYPE_SOFTWARE, null);
-
-			final int w = getWidth();
-			final int h = getHeight();
-			final float density = DkConfig.density();
-
-			// Clip round-path
-			clipRoundPath.reset();
-			clipRoundPath.addRoundRect(new RectF(0, 0, w, h), roundRadiusArr, Path.Direction.CCW);
-
-			canvas.clipPath(clipRoundPath);
-
-			// Draw round-corner if required
-			if (roundStrokeWidth >= 0f) {
-				roundPaint.setColor(roundColor);
-				roundPaint.setStrokeWidth(roundStrokeWidth);
-
-				roundPath.reset();
-				roundPath.addRoundRect(new RectF(density, density, w - density, h - density), roundRadiusArr, Path.Direction.CCW);
-
-				canvas.drawPath(roundPath, roundPaint);
-			}
+			drawRoundedCorner(canvas);
 		}
 
 		super.draw(canvas);
 	}
+
+	// region Private
+
+	private void initForRoundedCorner() {
+		if (clipRoundPath == null) {
+			clipRoundPath = new Path();
+		}
+		if (roundPath == null) {
+			roundPath = new Path();
+		}
+		if (roundPaint == null) {
+			final float density = DkConfig.density();
+			roundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+			roundPaint.setStyle(Paint.Style.STROKE);
+
+			roundColor = DkConfig.colorAccent(getContext());
+			roundStrokeWidth = 1f * density;
+
+			float roundRadius = 12 * density;
+			roundRadiusArr = new float[]{
+				roundRadius, roundRadius,
+				roundRadius, roundRadius,
+				roundRadius, roundRadius,
+				roundRadius, roundRadius,
+			};
+		}
+	}
+
+	private void drawRoundedCorner(Canvas canvas) {
+		// Init & Refresh
+		initForRoundedCorner();
+
+		// Clip path requires draw on software
+		setLayerType(LAYER_TYPE_SOFTWARE, null);
+
+		final int w = getWidth();
+		final int h = getHeight();
+		final float density = DkConfig.density();
+
+		// Clip round-path
+		clipRoundPath.reset();
+		clipRoundPath.addRoundRect(new RectF(0, 0, w, h), roundRadiusArr, Path.Direction.CCW);
+
+		canvas.clipPath(clipRoundPath);
+
+		// Draw round-corner if required
+		if (roundStrokeWidth >= 0f) {
+			roundPaint.setColor(roundColor);
+			roundPaint.setStrokeWidth(roundStrokeWidth);
+
+			roundPath.reset();
+			roundPath.addRoundRect(new RectF(density, density, w - density, h - density), roundRadiusArr, Path.Direction.CCW);
+
+			canvas.drawPath(roundPath, roundPaint);
+		}
+	}
+
+	// endregion Private
 
 	// region Get/Set
 

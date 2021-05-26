@@ -19,7 +19,6 @@ public class TheBaseTopicController<T> {
 	protected int scope;
 	protected final FragmentActivity host;
 	protected final ViewModelStoreOwner client;
-	protected boolean clientIsOwner;
 
 	TheBaseTopicController(String topicId, FragmentActivity host, ViewModelStoreOwner client) {
 		this.topicId = topicId;
@@ -43,8 +42,11 @@ public class TheBaseTopicController<T> {
 		return (T) this;
 	}
 
-	public T setClientIsOwner(boolean clientIsOwner) {
-		this.clientIsOwner = clientIsOwner;
+	/**
+	 * Make the client as topic-owner.
+	 */
+	public T registerClient() {
+		topicProvider().registerClient(topicId);
 		return (T) this;
 	}
 
@@ -53,17 +55,19 @@ public class TheBaseTopicController<T> {
 	}
 
 	/**
-	 * Register the client to the topic, and obtain model from that topic (create new if not exist).
+	 * Obtain a model from given topic.
+	 * If not exist the topic, then create new topic.
+	 * If not exist the model in the topic, then create and register new model inside the topic.
 	 */
 	public <M> M obtain(String modelKey, Class<M> modelType) {
-		return topicProvider().register(client, clientIsOwner, topicId, modelKey, modelType);
+		return topicProvider().obtainModel(topicId, modelKey, modelType);
 	}
 
 	/**
 	 * Remove a client from the topic.
 	 */
-	public void removeClient(ViewModelStoreOwner clientOwner) {
-		topicProvider().unregister(clientOwner, topicId);
+	public void unregisterClient() {
+		topicProvider().unregisterClient(topicId);
 	}
 
 	/**
@@ -80,16 +84,16 @@ public class TheBaseTopicController<T> {
 			Application app = host.getApplication();
 
 			if (app instanceof ViewModelStoreOwner) {
-				return new DkTopicProvider((ViewModelStoreOwner) app);
+				return new DkTopicProvider((ViewModelStoreOwner) app, client);
 			}
 
 			throw new RuntimeException("App must be subclass of `ViewModelStoreOwner`");
 		}
 		else if (scope == SCOPE_HOST) {
-			return new DkTopicProvider(host);
+			return new DkTopicProvider(host, client);
 		}
 		else if (scope == SCOPE_OWN) {
-			return new DkTopicProvider(client);
+			return new DkTopicProvider(client, client);
 		}
 
 		throw new RuntimeException("Invalid scope level: " + scope);

@@ -26,32 +26,20 @@ public class TheHost extends ViewModel implements TheClient.Listener {
 	private final ArrayMap<String, MyTopic> allTopics = new ArrayMap<>();
 
 	/**
-	 * Register client to the topic, this will create new topic if not exists.
+	 * Obtain a model from the topic.
 	 *
 	 * @param topicId   Topic unique id
 	 * @param modelKey  Model name to separate models in the topic.
 	 * @param modelType Model type which be held in the topic
-	 * @param client    For eg,. activity or fragment...
 	 * @return Model object inside the topic
 	 */
 
-	<M> M register(TheClient client, boolean clientIsOwner, String topicId, String modelKey, Class<M> modelType) throws Exception {
-		// Add topic into host
+	<M> M obtainModel(String topicId, String modelKey, Class<M> modelType) throws Exception {
+		// Get or Create topic
 		MyTopic topic = allTopics.get(topicId);
-
-		// Register new topic
 		if (topic == null) {
 			topic = new MyTopic(topicId);
 			allTopics.put(topicId, topic);
-		}
-
-		// When all owners of the topic were left, the topic and its material will be cleared
-		if (clientIsOwner) {
-			// Listen leave-event of this client
-			client.addListener(this);
-
-			// Make topic remember this owner (client)
-			topic.registerClient(client);
 		}
 
 		// Get or Create model from topic
@@ -59,10 +47,29 @@ public class TheHost extends ViewModel implements TheClient.Listener {
 	}
 
 	/**
+	 * Make the client become topic-owner.
+	 * When all owners of the topic were left, the topic and its material will be cleared.
+	 *
+	 * @param client For eg,. activity or fragment...
+	 */
+	void registerClient(String topicId, TheClient client) {
+		// Get or Create topic
+		MyTopic topic = allTopics.get(topicId);
+		if (topic == null) {
+			topic = new MyTopic(topicId);
+			allTopics.put(topicId, topic);
+		}
+
+		// Listen leave-event of this client and Make topic remember this owner (client)
+		client.addListener(this);
+		topic.registerClient(client);
+	}
+
+	/**
 	 * Remove the client from topic. If no client listening the topic,
 	 * then host will remove the topic from itself.
 	 */
-	void unregister(TheClient client, String topicId) {
+	void unregisterClient(String topicId, TheClient client) {
 		MyTopic topic = allTopics.get(topicId);
 
 		if (topic != null) {
@@ -95,13 +102,12 @@ public class TheHost extends ViewModel implements TheClient.Listener {
 	@Override
 	public void onClientDisconnect(TheClient client) {
 		for (int index = allTopics.size() - 1; index >= 0; --index) {
-			String topicId = allTopics.keyAt(index);
 			MyTopic topic = allTopics.valueAt(index);
 
-			// Try to remove client from this topic
+			// Remove client from this topic
 			topic.unregisterClient(client);
 
-			// Cleanup and Delete topic which is no more listened by client
+			// Forget topic which is no more listened by client
 			if (topic.clientCount() == 0) {
 				topic.clear();
 				allTopics.removeAt(index);
@@ -111,6 +117,7 @@ public class TheHost extends ViewModel implements TheClient.Listener {
 
 	public void removeTopic(String topicId) {
 		MyTopic topic = allTopics.get(topicId);
+
 		if (topic != null) {
 			topic.clear();
 			allTopics.remove(topicId);

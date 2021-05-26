@@ -413,7 +413,7 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment impleme
 	 * When all owners of the topic were destroyed, topic and its material will be cleared.
 	 */
 	public TheFragmentTopicController joinTopic(String topicId) {
-		return new TheFragmentTopicController(topicId, host, this).setClientIsOwner(true);
+		return new TheFragmentTopicController(topicId, host, this).registerClient();
 	}
 
 	/**

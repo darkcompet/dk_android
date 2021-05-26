@@ -8,30 +8,30 @@ import tool.compet.core.DkExecutorService;
 
 @SuppressWarnings("unchecked")
 public class DkSchedulers {
-	private static DkScheduler IO_SCHEDULER;
-	private static DkScheduler MAIN_SCHEDULER;
+	private static DkScheduler ioScheduler;
+	private static DkScheduler mainScheduler;
 
 	// Background thread scheduler
 	public static <T> DkScheduler<T> io() {
-		if (IO_SCHEDULER == null) {
+		if (ioScheduler == null) {
 			synchronized (DkSchedulers.class) {
-				if (IO_SCHEDULER == null) {
-					IO_SCHEDULER = new MyIoScheduler<>(DkExecutorService.getIns());
+				if (ioScheduler == null) {
+					ioScheduler = new MyIoScheduler<>(DkExecutorService.getIns());
 				}
 			}
 		}
-		return (DkScheduler<T>) IO_SCHEDULER;
+		return (DkScheduler<T>) ioScheduler;
 	}
 
 	// Android main thread scheduler
 	public static <T> DkScheduler<T> main() {
-		if (MAIN_SCHEDULER == null) {
+		if (mainScheduler == null) {
 			synchronized (DkSchedulers.class) {
-				if (MAIN_SCHEDULER == null) {
-					MAIN_SCHEDULER = new MyMainScheduler<>();
+				if (mainScheduler == null) {
+					mainScheduler = new MyMainScheduler<>();
 				}
 			}
 		}
-		return (DkScheduler<T>) MAIN_SCHEDULER;
+		return (DkScheduler<T>) mainScheduler;
 	}
 }

@@ -411,7 +411,7 @@ public abstract class DkCompactFragment<VL extends DkCompactViewLogic> extends F
 	 * When all owners of the topic were destroyed, topic and its material will be cleared.
 	 */
 	public TheFragmentTopicController joinTopic(String topicId) {
-		return new TheFragmentTopicController(topicId, host, this).setClientIsOwner(true);
+		return new TheFragmentTopicController(topicId, host, this).registerClient();
 	}
 
 	/**

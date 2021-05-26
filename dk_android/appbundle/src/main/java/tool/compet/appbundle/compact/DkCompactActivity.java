@@ -30,7 +30,6 @@ import tool.compet.appbundle.floatingbar.DkSnackbar;
 import tool.compet.appbundle.floatingbar.DkToastbar;
 import tool.compet.appbundle.navigator.DkFragmentNavigator;
 import tool.compet.appbundle.topic.TheActivityTopicController;
-import tool.compet.appbundle.topic.TheFragmentTopicController;
 import tool.compet.core.BuildConfig;
 import tool.compet.core.DkLogs;
 
@@ -380,7 +379,7 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends A
 	 * When all owners of the topic were destroyed, topic and its material will be cleared.
 	 */
 	public TheActivityTopicController joinTopic(String topicId) {
-		return new TheActivityTopicController(topicId, host, this).setClientIsOwner(true);
+		return new TheActivityTopicController(topicId, host, this).registerClient();
 	}
 
 	/**
