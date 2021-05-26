@@ -20,14 +20,14 @@ public class DkTopicProvider {
 	}
 
 	// Get or Create a topic from host, also make client listen to the topic
-	public <M> M register(ViewModelStoreOwner clientOwner, String topicId, String modelKey, Class<M> modelType) {
+	public <M> M register(ViewModelStoreOwner clientOwner, boolean clientIsOwner, String topicId, String modelKey, Class<M> modelType) {
 		if (clientOwner == null) {
 			throw new RuntimeException("Client must be present");
 		}
 		try {
 			TheHost host = obtainTheHostFromHostOwner();
 			TheClient client = obtainTheClientFromClientOwner(clientOwner);
-			return host.register(client, topicId, modelKey, modelType);
+			return host.register(client, clientIsOwner, topicId, modelKey, modelType);
 		}
 		catch (Exception e) {
 			DkLogs.error(DkTopicProvider.class, e);

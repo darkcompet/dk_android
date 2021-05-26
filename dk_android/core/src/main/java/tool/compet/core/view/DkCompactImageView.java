@@ -14,9 +14,11 @@ import android.util.AttributeSet;
 import tool.compet.core.DkConfig;
 
 /**
- * This provided corner-rounded view.
+ * This extends compat-version and provided some optional below features:
+ * - corner-rounded view.
+ * - xxx
  */
-public class DkRoundedRadioButton extends DkCompatRadioButton {
+public class DkCompactImageView extends DkCompatImageView {
 	protected boolean roundEnabled = true;
 	protected int roundColor;
 	protected float roundStrokeWidth;
@@ -26,17 +28,17 @@ public class DkRoundedRadioButton extends DkCompatRadioButton {
 	protected final Path roundPath = new Path();
 	protected final Paint roundPaint = new Paint();
 
-	public DkRoundedRadioButton(Context context) {
+	public DkCompactImageView(Context context) {
 		super(context);
 		init(context);
 	}
 
-	public DkRoundedRadioButton(Context context, AttributeSet attrs) {
+	public DkCompactImageView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		init(context);
 	}
 
-	public DkRoundedRadioButton(Context context, AttributeSet attrs, int defStyleAttr) {
+	public DkCompactImageView(Context context, AttributeSet attrs, int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
 		init(context);
 	}

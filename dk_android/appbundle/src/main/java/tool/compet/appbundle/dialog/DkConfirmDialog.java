@@ -540,7 +540,7 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 		outState.putBoolean("DkConfirmDialog.isDismissOnTouchOutside", isDismissOnTouchOutside);
 		outState.putBoolean("DkConfirmDialog.isFullScreen", isFullScreen);
 
-		ConfirmTopic confirmTopic = refTopic(CONFIRM_TOPIC).obtain(ConfirmTopic.class);
+		ConfirmTopic confirmTopic = viewTopic(CONFIRM_TOPIC).obtain(ConfirmTopic.class);
 		confirmTopic.cancelCb = this.cancelCb;
 		confirmTopic.resetCb = this.resetCb;
 		confirmTopic.okCb = this.okCb;
@@ -575,7 +575,7 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 			isDismissOnTouchOutside = savedInstanceState.getBoolean("DkConfirmDialog.isDismissOnTouchOutside");
 			isFullScreen = savedInstanceState.getBoolean("DkConfirmDialog.isFullScreen");
 
-			ConfirmTopic confirmTopic = refTopic(CONFIRM_TOPIC).obtain(ConfirmTopic.class);
+			ConfirmTopic confirmTopic = viewTopic(CONFIRM_TOPIC).obtain(ConfirmTopic.class);
 			this.cancelCb = confirmTopic.cancelCb;
 			this.resetCb = confirmTopic.resetCb;
 			this.okCb = confirmTopic.okCb;

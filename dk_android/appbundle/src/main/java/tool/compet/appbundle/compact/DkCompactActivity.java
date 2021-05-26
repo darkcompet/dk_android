@@ -30,6 +30,7 @@ import tool.compet.appbundle.floatingbar.DkSnackbar;
 import tool.compet.appbundle.floatingbar.DkToastbar;
 import tool.compet.appbundle.navigator.DkFragmentNavigator;
 import tool.compet.appbundle.topic.TheActivityTopicController;
+import tool.compet.appbundle.topic.TheFragmentTopicController;
 import tool.compet.core.BuildConfig;
 import tool.compet.core.DkLogs;
 
@@ -295,6 +296,9 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends A
 		return this;
 	}
 
+	/**
+	 * Finish this view by tell parent finish this.
+	 */
 	@Override
 	public boolean close() {
 		finish();
@@ -372,18 +376,17 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends A
 	// region Scoped topic
 
 	/**
-	 * Obtain topic controller and then clear its materials.
-	 * It is strongly recommended to use this at entry point (for eg,. when open new page).
+	 * Obtain the topic controller and Make this view becomes an owner of the topic.
+	 * When all owners of the topic were destroyed, topic and its material will be cleared.
 	 */
-	public TheActivityTopicController cleanTopic(String topicId) {
-		return new TheActivityTopicController(topicId, host, this).clear();
+	public TheActivityTopicController joinTopic(String topicId) {
+		return new TheActivityTopicController(topicId, host, this).setClientIsOwner(true);
 	}
 
 	/**
-	 * Obtain topic controller.
-	 * Lets use it after we have called `cleanTopic()`.
+	 * Just obtain the topic controller.
 	 */
-	public TheActivityTopicController refTopic(String topicId) {
+	public TheActivityTopicController viewTopic(String topicId) {
 		return new TheActivityTopicController(topicId, host, this);
 	}
 

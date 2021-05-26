@@ -12,7 +12,7 @@ import androidx.fragment.app.FragmentTransaction;
 import tool.compet.appbundle.DkFragment;
 import tool.compet.core.DkLogs;
 
-class MyFragmentTransactor {
+public class TheFragmentTransactor {
 	private final int containerId;
 	private final FragmentManager fragmentManager;
 	private final FragmentTransaction transaction;
@@ -22,18 +22,18 @@ class MyFragmentTransactor {
 	private int reattachAnim;
 	private int detachAnim;
 
-	MyFragmentTransactor(DkFragmentNavigator navigator) {
+	TheFragmentTransactor(DkFragmentNavigator navigator) {
 		this.containerId = navigator.containerId;
 		this.fragmentManager = navigator.fm;
 		this.transaction = navigator.fm.beginTransaction();
 		this.backstack = navigator.backstack;
 	}
 
-	public MyFragmentTransactor setAnims(int enterAnim) {
+	public TheFragmentTransactor setAnims(int enterAnim) {
 		return setAnims(enterAnim, 0, 0, 0);
 	}
 
-	public MyFragmentTransactor setAnims(int enterAnim, int exitAnim) {
+	public TheFragmentTransactor setAnims(int enterAnim, int exitAnim) {
 		return setAnims(enterAnim, exitAnim, 0, 0);
 	}
 
@@ -43,7 +43,7 @@ class MyFragmentTransactor {
 	 * @param reattachAnim animation or animator resId for reattached action.
 	 * @param detachAnim animation or animator resId for detached action.
 	 */
-	public MyFragmentTransactor setAnims(int addAnim, int removeAnim, int reattachAnim, int detachAnim) {
+	public TheFragmentTransactor setAnims(int addAnim, int removeAnim, int reattachAnim, int detachAnim) {
 		this.addAnim = addAnim;
 		this.removeAnim = removeAnim;
 		this.reattachAnim = reattachAnim;
@@ -55,14 +55,14 @@ class MyFragmentTransactor {
 	/**
 	 * Add a fragment if instance of it is not found in backstack.
 	 */
-	public MyFragmentTransactor addIfAbsent(Class<? extends Fragment> fragClass) {
+	public TheFragmentTransactor addIfAbsent(Class<? extends Fragment> fragClass) {
 		return backstack.contains(calcBackStackTag(fragClass)) ? this : performAdd(fragClass, true);
 	}
 
 	/**
 	 * Bring a fragment (child) to UI top if exist, otherwise add new fragment.
 	 */
-	public MyFragmentTransactor bringToTopOrAdd(Class<? extends Fragment> fragClass) {
+	public TheFragmentTransactor bringToTopOrAdd(Class<? extends Fragment> fragClass) {
 		String tag = calcBackStackTag(fragClass);
 		int index = backstack.indexOf(tag);
 		if (index < 0) {
@@ -78,14 +78,14 @@ class MyFragmentTransactor {
 	/**
 	 * Init and Add a fragment to last (top UI) of child list.
 	 */
-	public MyFragmentTransactor add(Class<? extends Fragment> fragClass) {
+	public TheFragmentTransactor add(Class<? extends Fragment> fragClass) {
 		return performAdd(fragClass, true);
 	}
 
 	/**
 	 * Remove top fragment and add a fragment.
 	 */
-	public MyFragmentTransactor replaceTop(Class<? extends Fragment> fragClass) {
+	public TheFragmentTransactor replaceTop(Class<? extends Fragment> fragClass) {
 		int lastIndex = backstack.size() - 1;
 
 		if (lastIndex >= 0) {
@@ -98,7 +98,7 @@ class MyFragmentTransactor {
 	/**
 	 * Remove all existing fragments and add a fragment.
 	 */
-	public MyFragmentTransactor replaceAll(Class<? extends Fragment> fragClass) {
+	public TheFragmentTransactor replaceAll(Class<? extends Fragment> fragClass) {
 		int lastIndex = backstack.size() - 1;
 
 		if (lastIndex >= 0) {
@@ -108,14 +108,14 @@ class MyFragmentTransactor {
 		return performAdd(fragClass, false);
 	}
 
-	public MyFragmentTransactor back() {
+	public TheFragmentTransactor back() {
 		return back(1);
 	}
 
 	/**
 	 * Perform back with given `times`. That is, `times` fragments will be removed.
 	 */
-	public MyFragmentTransactor back(int times) {
+	public TheFragmentTransactor back(int times) {
 		int lastIndex = backstack.size() - 1;
 		if (lastIndex < 0) {
 			DkLogs.warning(this, "Backstack empty -> could not back");
@@ -124,43 +124,43 @@ class MyFragmentTransactor {
 		return performRemoveRange(lastIndex - times + 1, lastIndex, true);
 	}
 
-	public MyFragmentTransactor remove(Class<? extends Fragment> fragClass) {
+	public TheFragmentTransactor remove(Class<? extends Fragment> fragClass) {
 		return remove(calcBackStackTag(fragClass));
 	}
 
 	/**
 	 * Remove from fragment manager a fragment which has tag equals to given `tag`.
 	 */
-	public MyFragmentTransactor remove(String tag) {
+	public TheFragmentTransactor remove(String tag) {
 		int index = backstack.indexOf(tag);
 		return performRemoveRange(index, index, true);
 	}
 
-	public MyFragmentTransactor removeRange(String fromTag, String toTag) {
+	public TheFragmentTransactor removeRange(String fromTag, String toTag) {
 		return performRemoveRange(backstack.indexOf(fromTag), backstack.indexOf(toTag), true);
 	}
 
-	public MyFragmentTransactor removeAllAfter(Class<? extends Fragment> fragClass) {
+	public TheFragmentTransactor removeAllAfter(Class<? extends Fragment> fragClass) {
 		return removeAllAfter(calcBackStackTag(fragClass));
 	}
 
-	public MyFragmentTransactor removeAllAfter(Fragment fragment) {
+	public TheFragmentTransactor removeAllAfter(Fragment fragment) {
 		return removeAllAfter(calcBackStackTag(fragment));
 	}
 
 	/**
 	 * Remove all fragments which be located after given fragment by tag.
 	 */
-	public MyFragmentTransactor removeAllAfter(String tag) {
+	public TheFragmentTransactor removeAllAfter(String tag) {
 		int index = backstack.indexOf(tag);
 		if (index < 0) {
-			DkLogs.warning(this, "Could not remove fragments after tag `%s` since not found", tag);
+			DkLogs.warning(this, "Tag `%s` not found -> skip remove range", tag);
 			return this;
 		}
 		return performRemoveRange(index + 1, backstack.size() - 1, true);
 	}
 
-	public MyFragmentTransactor removeAll() {
+	public TheFragmentTransactor removeAll() {
 		// Note: other fragment exists in this stack, for eg,. `SupportLifecycleFragmentImpl`
 		for (Fragment child : fragmentManager.getFragments()) {
 			transaction.setCustomAnimations(removeAnim, 0);
@@ -215,7 +215,7 @@ class MyFragmentTransactor {
 
 	// region Private
 
-	private MyFragmentTransactor performAdd(Class<? extends Fragment> fragClass, boolean notifyTopInactive) {
+	private TheFragmentTransactor performAdd(Class<? extends Fragment> fragClass, boolean notifyTopInactive) {
 		Fragment fragment = instantiate(fragClass);
 
 		if (notifyTopInactive) {
@@ -240,7 +240,7 @@ class MyFragmentTransactor {
 		return (obj instanceof Class) ? ((Class) obj).getName() : obj.getClass().getName();
 	}
 
-	private MyFragmentTransactor performRemoveRange(int fromIndex, int toIndex, boolean notifyTopActive) {
+	private TheFragmentTransactor performRemoveRange(int fromIndex, int toIndex, boolean notifyTopActive) {
 		final int lastIndex = backstack.size() - 1;
 
 		// Fix range
@@ -253,7 +253,7 @@ class MyFragmentTransactor {
 
 		// Skip if invalid range
 		if (fromIndex > toIndex) {
-			DkLogs.warning(this, "Skip remove range of fragments since invalid range `%d -> %d`", fromIndex, toIndex);
+			DkLogs.warning(this, "Invalid range `%d -> %d` -> skip remove range", fromIndex, toIndex);
 			return this;
 		}
 
@@ -289,7 +289,7 @@ class MyFragmentTransactor {
 	}
 
 	// This makes fragment view be destroyed but the its state is still managed by fragment manager.
-	private MyFragmentTransactor performDetach(Fragment fragment) {
+	private TheFragmentTransactor performDetach(Fragment fragment) {
 		transaction.setCustomAnimations(detachAnim, 0);
 		transaction.detach(fragment);
 
@@ -297,7 +297,7 @@ class MyFragmentTransactor {
 	}
 
 	// Re-attach the fragment which was detached from UI before.
-	private MyFragmentTransactor performReattach(Fragment fragment, boolean notifyTopInactive) {
+	private TheFragmentTransactor performReattach(Fragment fragment, boolean notifyTopInactive) {
 		if (notifyTopInactive) {
 			notifyFragmentInactive(backstack.size() - 1);
 		}

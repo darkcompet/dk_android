@@ -10,7 +10,7 @@
 	android:clickable="true"
 	android:focusable="true">
 
-	<tool.compet.core.view.DkRoundedConstraintLayout
+	<tool.compet.core.view.DkCompactConstraintLayout
 		android:id="@+id/dk_background"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
@@ -128,6 +128,6 @@
 
 		</androidx.constraintlayout.widget.ConstraintLayout>
 
-	</tool.compet.core.view.DkRoundedConstraintLayout>
+	</tool.compet.core.view.DkCompactConstraintLayout>
 
 </FrameLayout>

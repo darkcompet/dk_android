@@ -18,12 +18,13 @@ public class TheBaseTopicController<T> {
 	protected final String topicId;
 	protected int scope;
 	protected final FragmentActivity host;
-	protected final ViewModelStoreOwner clientOwner;
+	protected final ViewModelStoreOwner client;
+	protected boolean clientIsOwner;
 
-	TheBaseTopicController(String topicId, FragmentActivity host, ViewModelStoreOwner clientOwner) {
+	TheBaseTopicController(String topicId, FragmentActivity host, ViewModelStoreOwner client) {
 		this.topicId = topicId;
 		this.host = host;
-		this.clientOwner = clientOwner;
+		this.client = client;
 	}
 
 	public T atAppScope() {
@@ -42,6 +43,11 @@ public class TheBaseTopicController<T> {
 		return (T) this;
 	}
 
+	public T setClientIsOwner(boolean clientIsOwner) {
+		this.clientIsOwner = clientIsOwner;
+		return (T) this;
+	}
+
 	public <M> M obtain(Class<M> modelType) {
 		return obtain(modelType.getName(), modelType);
 	}
@@ -50,7 +56,7 @@ public class TheBaseTopicController<T> {
 	 * Register the client to the topic, and obtain model from that topic (create new if not exist).
 	 */
 	public <M> M obtain(String modelKey, Class<M> modelType) {
-		return topicProvider().register(clientOwner, topicId, modelKey, modelType);
+		return topicProvider().register(client, clientIsOwner, topicId, modelKey, modelType);
 	}
 
 	/**
@@ -83,7 +89,7 @@ public class TheBaseTopicController<T> {
 			return new DkTopicProvider(host);
 		}
 		else if (scope == SCOPE_OWN) {
-			return new DkTopicProvider(clientOwner);
+			return new DkTopicProvider(client);
 		}
 
 		throw new RuntimeException("Invalid scope level: " + scope);

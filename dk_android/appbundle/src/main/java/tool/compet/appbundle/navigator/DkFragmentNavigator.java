@@ -49,8 +49,8 @@ public class DkFragmentNavigator implements MyBackStack.OnStackChangeListener {
 		}
 	}
 
-	public MyFragmentTransactor beginTransaction() {
-		return new MyFragmentTransactor(this);
+	public TheFragmentTransactor beginTransaction() {
+		return new TheFragmentTransactor(this);
 	}
 
 	/**

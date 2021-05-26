@@ -23,14 +23,14 @@ import androidx.lifecycle.ViewModelStoreOwner;
 
 import tool.compet.appbundle.BuildConfig;
 import tool.compet.appbundle.DkApp;
-import tool.compet.appbundle.binder.DkBinder;
 import tool.compet.appbundle.DkFragment;
-import tool.compet.appbundle.navigator.DkFragmentNavigator;
-import tool.compet.appbundle.topic.TheFragmentTopicController;
+import tool.compet.appbundle.binder.DkBinder;
 import tool.compet.appbundle.floatingbar.DkSnackbar;
 import tool.compet.appbundle.floatingbar.DkToastbar;
 import tool.compet.appbundle.floatingbar.DkUrgentSnackbar;
 import tool.compet.appbundle.floatingbar.DkUrgentToastbar;
+import tool.compet.appbundle.navigator.DkFragmentNavigator;
+import tool.compet.appbundle.topic.TheFragmentTopicController;
 import tool.compet.core.DkLogs;
 
 /**
@@ -101,10 +101,6 @@ public abstract class DkCompactFragment<VL extends DkCompactViewLogic> extends F
 
 		if (owner == null) {
 			DkLogs.complain(this, "Must have a parent navigator own this fragment `%s`", getClass().getName());
-		}
-
-		if (BuildConfig.DEBUG) {
-			DkLogs.debug(this, "Parent: `%s` -> Child: `%s`", parent == null ? host.getClass().getName() : parent.getClass().getName(), getClass().getName());
 		}
 
 		return owner;
@@ -411,18 +407,17 @@ public abstract class DkCompactFragment<VL extends DkCompactViewLogic> extends F
 	// region Scoped topic
 
 	/**
-	 * Obtain topic controller and then clear its materials.
-	 * It is strongly recommended to use this at entry point (for eg,. when open new page).
+	 * Obtain the topic controller and Make this view becomes an owner of the topic.
+	 * When all owners of the topic were destroyed, topic and its material will be cleared.
 	 */
-	public TheFragmentTopicController cleanTopic(String topicId) {
-		return new TheFragmentTopicController(topicId, host, this).clear();
+	public TheFragmentTopicController joinTopic(String topicId) {
+		return new TheFragmentTopicController(topicId, host, this).setClientIsOwner(true);
 	}
 
 	/**
-	 * Obtain topic controller.
-	 * Lets use it after we have called `cleanTopic()`.
+	 * Just obtain the topic controller.
 	 */
-	public TheFragmentTopicController refTopic(String topicId) {
+	public TheFragmentTopicController viewTopic(String topicId) {
 		return new TheFragmentTopicController(topicId, host, this);
 	}
 

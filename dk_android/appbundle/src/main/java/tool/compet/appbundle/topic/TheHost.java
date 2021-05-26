@@ -35,19 +35,24 @@ public class TheHost extends ViewModel implements TheClient.Listener {
 	 * @return Model object inside the topic
 	 */
 
-	<M> M register(TheClient client, String topicId, String modelKey, Class<M> modelType) throws Exception {
+	<M> M register(TheClient client, boolean clientIsOwner, String topicId, String modelKey, Class<M> modelType) throws Exception {
 		// Add topic into host
 		MyTopic topic = allTopics.get(topicId);
+
+		// Register new topic
 		if (topic == null) {
 			topic = new MyTopic(topicId);
 			allTopics.put(topicId, topic);
 		}
 
-		// Listen onCleared() event from this client
-		client.addListener(this);
+		// When all owners of the topic were left, the topic and its material will be cleared
+		if (clientIsOwner) {
+			// Listen leave-event of this client
+			client.addListener(this);
 
-		// Add client to topic
-		topic.registerClient(client);
+			// Make topic remember this owner (client)
+			topic.registerClient(client);
+		}
 
 		// Get or Create model from topic
 		return topic.getOrCreateModel(modelKey, modelType);

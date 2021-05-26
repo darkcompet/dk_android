@@ -14,9 +14,11 @@ import android.util.AttributeSet;
 import tool.compet.core.DkConfig;
 
 /**
- * This provided corner-rounded view.
+ * This extends compat-version and provided some optional below features:
+ * - corner-rounded view.
+ * - xxx
  */
-public class DkRoundedImageView extends DkCompatImageView {
+public class DkCompactTextView extends DkCompatTextView {
 	protected boolean roundEnabled = true;
 	protected int roundColor;
 	protected float roundStrokeWidth;
@@ -26,17 +28,17 @@ public class DkRoundedImageView extends DkCompatImageView {
 	protected final Path roundPath = new Path();
 	protected final Paint roundPaint = new Paint();
 
-	public DkRoundedImageView(Context context) {
+	public DkCompactTextView(Context context) {
 		super(context);
 		init(context);
 	}
 
-	public DkRoundedImageView(Context context, AttributeSet attrs) {
+	public DkCompactTextView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		init(context);
 	}
 
-	public DkRoundedImageView(Context context, AttributeSet attrs, int defStyleAttr) {
+	public DkCompactTextView(Context context, AttributeSet attrs, int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
 		init(context);
 	}

@@ -62,6 +62,26 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment impleme
 	protected Context context;
 	protected View layout;
 
+	public DkFragmentNavigator getParentNavigator() {
+		Fragment parent = getParentFragment();
+		DkFragmentNavigator owner = null;
+
+		if (parent == null) {
+			if (host instanceof DkCompactActivity) {
+				owner = ((DkCompactActivity) host).getChildNavigator();
+			}
+		}
+		else if (parent instanceof DkCompactFragment) {
+			owner = ((DkCompactFragment) parent).getChildNavigator();
+		}
+
+		if (owner == null) {
+			DkLogs.complain(this, "Must have a parent navigator own this fragment `%s`", getClass().getName());
+		}
+
+		return owner;
+	}
+
 	@Override
 	public void onAttach(@NonNull Context context) {
 		if (BuildConfig.DEBUG) {
@@ -348,63 +368,17 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment impleme
 		}
 	}
 
-	public DkFragmentNavigator getParentNavigator() {
-		Fragment parent = getParentFragment();
-		DkFragmentNavigator owner = null;
-
-		if (parent == null) {
-			if (host instanceof DkCompactActivity) {
-				owner = ((DkCompactActivity) host).getChildNavigator();
-			}
-		}
-		else if (parent instanceof DkCompactFragment) {
-			owner = ((DkCompactFragment) parent).getChildNavigator();
-		}
-
-		if (owner == null) {
-			DkLogs.complain(this, "Must have a parent navigator own this fragment `%s`", getClass().getName());
-		}
-
-		if (BuildConfig.DEBUG) {
-			DkLogs.debug(this, "Parent: `%s` -> Child: `%s`", parent == null ? host.getClass().getName() : parent.getClass().getName(), getClass().getName());
-		}
-
-		return owner;
-	}
-
+	/**
+	 * Finish this view by tell parent remove this from navigator.
+	 */
+	@Override
 	public boolean close() {
 		return getParentNavigator().beginTransaction().remove(getClass().getName()).commit();
 	}
 
-//	@Override
-	public void xdismiss() {
+	@Override // from super fragment
+	public void dismiss() {
 		close();
-	}
-
-	/**
-	 * Close (dismiss) the dialog.
-	 */
-//	@Override
-	public boolean xclose() {
-		boolean ok = false;
-		// Execute all pending transactions first
-		try {
-			getParentFragmentManager().executePendingTransactions();
-		}
-		catch (Exception e) {
-			DkLogs.error(this, e);
-		}
-		// Perform dismiss actual
-		finally {
-			try {
-				super.dismiss();
-				ok = true;
-			}
-			catch (Exception e) {
-				DkLogs.error(this, e);
-			}
-		}
-		return ok;
 	}
 
 	// region ViewModel
@@ -435,18 +409,17 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment impleme
 	// region Scoped topic
 
 	/**
-	 * Obtain topic controller and then clear its materials.
-	 * It is strongly recommended to use this at entry point (for eg,. when open new page).
+	 * Obtain the topic controller and Make this view becomes an owner of the topic.
+	 * When all owners of the topic were destroyed, topic and its material will be cleared.
 	 */
-	public TheFragmentTopicController cleanTopic(String topicId) {
-		return new TheFragmentTopicController(topicId, host, this).clear();
+	public TheFragmentTopicController joinTopic(String topicId) {
+		return new TheFragmentTopicController(topicId, host, this).setClientIsOwner(true);
 	}
 
 	/**
-	 * Obtain topic controller.
-	 * Lets use it after we have called `cleanTopic()`.
+	 * Just obtain the topic controller.
 	 */
-	public TheFragmentTopicController refTopic(String topicId) {
+	public TheFragmentTopicController viewTopic(String topicId) {
 		return new TheFragmentTopicController(topicId, host, this);
 	}
 
