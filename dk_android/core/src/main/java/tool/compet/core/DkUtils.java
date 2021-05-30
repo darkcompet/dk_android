@@ -409,7 +409,7 @@ public class DkUtils {
 		AlarmManager alarm = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
 		if (alarm != null) {
-			alarm.set(AlarmManager.RTC, System.currentTimeMillis() + 1000, pendingIntent);
+			alarm.set(AlarmManager.RTC, System.currentTimeMillis() + 200, pendingIntent);
 		}
 
 		Runtime.getRuntime().exit(0);

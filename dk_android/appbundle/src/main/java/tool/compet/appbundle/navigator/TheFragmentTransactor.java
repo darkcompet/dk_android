@@ -83,7 +83,7 @@ public class TheFragmentTransactor {
 	}
 
 	/**
-	 * Remove top fragment and add a fragment.
+	 * Remove only top fragment and add a fragment.
 	 */
 	public TheFragmentTransactor replaceTop(Class<? extends Fragment> fragClass) {
 		int lastIndex = backstack.size() - 1;
@@ -98,7 +98,7 @@ public class TheFragmentTransactor {
 	/**
 	 * Remove all existing fragments and add a fragment.
 	 */
-	public TheFragmentTransactor replaceAll(Class<? extends Fragment> fragClass) {
+	public TheFragmentTransactor replace(Class<? extends Fragment> fragClass) {
 		int lastIndex = backstack.size() - 1;
 
 		if (lastIndex >= 0) {

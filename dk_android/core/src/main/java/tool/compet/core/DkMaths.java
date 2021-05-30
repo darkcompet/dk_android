@@ -12,14 +12,15 @@ import java.util.Random;
  * This class, provides common basic operations for math.
  */
 public final class DkMaths {
+	// For better memory performance, use it instead of declaring other static instances
 	public static final Random random = new Random();
 
-	public static boolean parseBoolean(@Nullable String s) {
-		return "1".equals(s) || "true".equals(s);
+	public static boolean parseBoolean(@Nullable String text) {
+		return "1".equals(text) || "true".equalsIgnoreCase(text);
 	}
 
-	public static short parseShort(@Nullable String s) {
-		return (short) parseInt(s);
+	public static short parseShort(@Nullable String text) {
+		return (short) parseInt(text);
 	}
 
 	public static int parseInt(@Nullable String text) {

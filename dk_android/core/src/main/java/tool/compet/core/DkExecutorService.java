@@ -17,12 +17,13 @@ public class DkExecutorService {
 	private final ScheduledThreadPoolExecutor executor;
 
 	public DkExecutorService(int corePoolSize, int maxPoolSize, long aliveTime, TimeUnit unit) {
-		executor = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(corePoolSize);
+		ScheduledThreadPoolExecutor executor = this.executor = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(corePoolSize);
 		executor.setMaximumPoolSize(maxPoolSize);
 		executor.setKeepAliveTime(aliveTime, unit);
 	}
 
 	public static void install() {
+		// By default, we need 2 to 4 processors
 		int corePoolSize = Math.max(2, Math.min(4, Runtime.getRuntime().availableProcessors() - 1));
 		install(corePoolSize, 1 + (corePoolSize << 1), 1, TimeUnit.MINUTES);
 	}

@@ -29,6 +29,33 @@ import tool.compet.core.DkLogs;
 import tool.compet.core.DkRunner2;
 
 public class DkBillingManager implements PurchasesUpdatedListener {
+	// Called when billingClient complete
+	@Override
+	public void onPurchasesUpdated(@NonNull BillingResult billingResult, @Nullable List<Purchase> purchasesList) {
+		if (purchaseListener == null) {
+			return;
+		}
+		final int responseCode = billingResult.getResponseCode();
+		if (responseCode == BillingClient.BillingResponseCode.OK) {
+			List<Purchase> purchases = new ArrayList<>();
+
+			if (purchasesList != null) {
+				for (Purchase purchase : purchasesList) {
+					if (verifyPurchase(purchase)) {
+						purchases.add(purchase);
+					}
+				}
+			}
+			purchaseListener.onPurchasesUpdated(purchases);
+		}
+		else if (responseCode == BillingClient.BillingResponseCode.USER_CANCELED) {
+			purchaseListener.onPurchaseCancelled();
+		}
+		else {
+			purchaseListener.onPurchaseFailed(responseCode);
+		}
+	}
+
 	/**
 	 * This is listener when purchase is responsed if #purchase() or #subscribe() called before.
 	 * About history purchases fetching, you can call some method like #queryAllPurchases()...
@@ -66,7 +93,7 @@ public class DkBillingManager implements PurchasesUpdatedListener {
 	private PurchaseListener purchaseListener;
 	private HashSet<String> revokedTokens;
 
-	public DkBillingManager(Context context, String publicKey, PurchaseListener purchaseListener) {
+	public DkBillingManager(Context context, String publicKey, @Nullable PurchaseListener purchaseListener) {
 		this.billingClient = BillingClient.newBuilder(context)
 			.setListener(this)
 			.enablePendingPurchases()
@@ -111,42 +138,17 @@ public class DkBillingManager implements PurchasesUpdatedListener {
 				.build();
 
 			billingClient.querySkuDetailsAsync(skuDetailsParams, (billingResult, skuDetailsList) -> {
-				if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
+				if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK && skuDetailsList != null) {
 					for (SkuDetails skuDetails : skuDetailsList) {
 						BillingFlowParams billingFlowParams = BillingFlowParams.newBuilder()
 							.setSkuDetails(skuDetails)
 							.build();
+
 						billingClient.launchBillingFlow(host, billingFlowParams);
 					}
 				}
 			});
 		});
-	}
-
-	@Override
-	public void onPurchasesUpdated(@NonNull BillingResult billingResult, @Nullable List<Purchase> purchases) {
-		if (purchaseListener == null) {
-			return;
-		}
-		final int responseCode = billingResult.getResponseCode();
-		if (responseCode == BillingClient.BillingResponseCode.OK) {
-			List<Purchase> list = new ArrayList<>();
-
-			if (purchases != null) {
-				for (Purchase p : purchases) {
-					if (verifyPurchase(p)) {
-						list.add(p);
-					}
-				}
-			}
-			purchaseListener.onPurchasesUpdated(list);
-		}
-		else if (responseCode == BillingClient.BillingResponseCode.USER_CANCELED) {
-			purchaseListener.onPurchaseCancelled();
-		}
-		else {
-			purchaseListener.onPurchaseFailed(responseCode);
-		}
 	}
 
 	/**
@@ -227,7 +229,7 @@ public class DkBillingManager implements PurchasesUpdatedListener {
 	}
 
 	/**
-	 * This purchase is not needed anymore, so mark it as invalid item.
+	 * Mark the purchase is invalid item (for eg,. it is not needed check anymore).
 	 */
 	public void revokeAsync(String purchaseToken) {
 		if (revokedTokens == null) {
@@ -244,6 +246,7 @@ public class DkBillingManager implements PurchasesUpdatedListener {
 			ConsumeParams consumeParams = ConsumeParams.newBuilder()
 				.setPurchaseToken(purchaseToken)
 				.build();
+
 			billingClient.consumeAsync(consumeParams, (responseCode, retPurchaseToken) -> {
 				if (purchaseListener != null) {
 					purchaseListener.onPurchaseRevoked(responseCode.getResponseCode(), retPurchaseToken);
@@ -271,6 +274,8 @@ public class DkBillingManager implements PurchasesUpdatedListener {
 		return billingClient.isFeatureSupported(feature).getResponseCode() == BillingClient.BillingResponseCode.OK;
 	}
 
+	// region: Private
+
 	private void executeService(Runnable command) {
 		if (isConnected()) {
 			command.run();
@@ -293,7 +298,7 @@ public class DkBillingManager implements PurchasesUpdatedListener {
 
 	private Purchase.PurchasesResult queryPurchaseHistories(String skuType) {
 		if (billingClient == null) {
-			DkLogs.warning(this, "Stop query purchase histories since billingClient is null");
+			DkLogs.warning(this, "Stop query purchase histories since `billingClient` is null");
 			return null;
 		}
 		return billingClient.queryPurchases(skuType);
@@ -308,4 +313,6 @@ public class DkBillingManager implements PurchasesUpdatedListener {
 		}
 		return false;
 	}
+
+	// endregion: Private
 }

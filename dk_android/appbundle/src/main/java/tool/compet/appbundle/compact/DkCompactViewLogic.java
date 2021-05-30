@@ -86,7 +86,7 @@ public abstract class DkCompactViewLogic<V extends DkCompactView> {
 	 * the action at next coming time (maybe at #onResume()).
 	 */
 	protected void sendToView(DkRunner1<V> command) {
-		if (view != null && lifeCycleState >= STATE_VIEW_CREATED) {
+		if (view != null) {
 			command.run(view);
 		}
 		else {

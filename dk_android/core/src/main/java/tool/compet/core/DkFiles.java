@@ -4,9 +4,6 @@
 
 package tool.compet.core;
 
-import android.content.Context;
-import android.os.Environment;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -27,7 +24,9 @@ import java.util.List;
  * This class, provides common basic operations on file, directory.
  */
 public class DkFiles {
-	// region Java core
+	public static boolean exists(String filePath) {
+		return new File(filePath).exists();
+	}
 
 	public static boolean createFile(String filePath) {
 		return createFile(new File(filePath));
@@ -39,15 +38,13 @@ public class DkFiles {
 	 * @return true if file was existed, or new file was created. Otherwise false.
 	 */
 	public static boolean createFile(File file) {
-		if (file.exists()) return true;
-
 		try {
+			if (file.exists()) {
+				return true;
+			}
 			File parent = file.getParentFile();
-
-			if (parent != null && ! parent.exists() && parent.mkdirs()) {
-				if (BuildConfig.DEBUG) {
-					DkLogs.info(DkFiles.class, "Created new directory: " + parent.getPath());
-				}
+			if (parent != null && ! parent.exists() && ! parent.mkdirs()) {
+				return false;
 			}
 			return file.createNewFile();
 		}
@@ -66,14 +63,12 @@ public class DkFiles {
 	 * @return true if new directory was created or given directory was existed, otherwise false.
 	 */
 	public static boolean createDir(File dir) {
-		if (dir.exists()) return true;
-
+		if (dir.exists()) {
+			return true;
+		}
 		File parent = dir.getParentFile();
-
-		if (parent != null && ! parent.exists() && parent.mkdirs()) {
-			if (BuildConfig.DEBUG) {
-				DkLogs.info(DkFiles.class, "Created new directory: " + parent.getPath());
-			}
+		if (parent != null && ! parent.exists() && ! parent.mkdirs()) {
+			return false;
 		}
 		return dir.mkdir();
 	}
@@ -85,19 +80,20 @@ public class DkFiles {
 	/**
 	 * Delete file or directory. Note that, Java does not delete dirty folder,
 	 * so first, we need delete dirs on the parent path of this file.
-	 * @return true if file not exist or file was deleted. Otherwise false.
+	 * @return true if file not exist or file was deleted successful. Otherwise false.
 	 */
 	public static boolean delete(File file) {
 		if (file == null || ! file.exists()) {
 			return true;
 		}
-		if (! file.isDirectory()) {
+		if (file.isFile()) {
 			return file.delete();
 		}
 
 		File[] children = file.listFiles();
 
 		if (children != null) {
+			// Rule: delete all children files before delete directory
 			for (File child : children) {
 				delete(child);
 			}
@@ -105,14 +101,14 @@ public class DkFiles {
 		return file.delete();
 	}
 
-	public static void save(String utf8Chars, String filePath, boolean append) throws IOException {
-		save(utf8Chars == null ? "".getBytes() : utf8Chars.getBytes(), filePath, append);
+	public static void store(String utf8Chars, String filePath, boolean append) throws IOException {
+		store(utf8Chars == null ? "".getBytes() : utf8Chars.getBytes(), filePath, append);
 	}
 
 	/**
 	 * Save data to the file.
 	 */
-	public static void save(byte[] data, String filePath, boolean append) throws IOException {
+	public static void store(byte[] data, String filePath, boolean append) throws IOException {
 		createFile(filePath);
 
 		OutputStream os = new FileOutputStream(filePath, append);
@@ -124,7 +120,7 @@ public class DkFiles {
 		createFile(filePath);
 
 		String line;
-		StringBuilder sb = new StringBuilder();
+		StringBuilder sb = new StringBuilder(256);
 		BufferedReader br = new BufferedReader(new FileReader(filePath));
 
 		while ((line = br.readLine()) != null) {
@@ -136,9 +132,14 @@ public class DkFiles {
 		return sb.toString();
 	}
 
+	/**
+	 * @return Null if file not found. Otherwise byte array.
+	 */
 	public static byte[] loadAsBytes(String filePath) {
 		try {
-			createFile(filePath);
+			if (! exists(filePath)) {
+				return null;
+			}
 			return loadAsBytes(new FileInputStream(filePath));
 		}
 		catch (FileNotFoundException e) {
@@ -146,6 +147,9 @@ public class DkFiles {
 		}
 	}
 
+	/**
+	 * @return Null if file not found. Otherwise byte array.
+	 */
 	public static byte[] loadAsBytes(InputStream is) {
 		try {
 			int capacity = 2 << 13;
@@ -232,46 +236,10 @@ public class DkFiles {
 				sb.append(name);
 			}
 			else {
-				sb.append(File.separator).append(name);
+				sb.append(File.separatorChar).append(name);
 			}
 		}
 
 		return sb.toString();
 	}
-
-	// endregion Java core
-
-	// region Android core
-
-	/**
-	 * Returns internal root directory of current app.
-	 */
-	public static File getInternalDir(Context context) {
-		return context.getFilesDir();
-	}
-
-	/**
-	 * Returns external root directory of current device.
-	 */
-	public static File getExternalDir() {
-		return Environment.getExternalStorageDirectory();
-	}
-
-	/**
-	 * Check external storage is available to write.
-	 */
-	public static boolean isExternalStorageWritable() {
-		String state = Environment.getExternalStorageState();
-		return state.equals(Environment.MEDIA_MOUNTED);
-	}
-
-	/**
-	 * Check external storage is available for read.
-	 */
-	public static boolean isExternalStorageReadable() {
-		String state = Environment.getExternalStorageState();
-		return (state.equals(Environment.MEDIA_MOUNTED) || state.equals(Environment.MEDIA_MOUNTED_READ_ONLY));
-	}
-
-	// endregion Android core
 }

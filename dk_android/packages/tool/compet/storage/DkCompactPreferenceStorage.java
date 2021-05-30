@@ -39,11 +39,11 @@ public class DkCompactPreferenceStorage {
 	// Store/Load integer
 	//
 
-	public void setInt(String key, int value) {
+	public void storeInt(String key, int value) {
 		preference.edit().putString(key, String.valueOf(value)).commit();
 	}
 
-	public void setIntAsync(String key, int value) {
+	public void applyInt(String key, int value) {
 		preference.edit().putString(key, String.valueOf(value)).apply();
 	}
 
@@ -60,11 +60,11 @@ public class DkCompactPreferenceStorage {
 	// Store/Load float
 	//
 
-	public void setFloat(String key, float value) {
+	public void storeFloat(String key, float value) {
 		preference.edit().putString(key, String.valueOf(value)).commit();
 	}
 
-	public void setFloatAsync(String key, float value) {
+	public void applyFloat(String key, float value) {
 		preference.edit().putString(key, String.valueOf(value)).apply();
 	}
 
@@ -81,11 +81,11 @@ public class DkCompactPreferenceStorage {
 	// Store/Load double
 	//
 
-	public void setDouble(String key, double value) {
+	public void storeDouble(String key, double value) {
 		preference.edit().putString(key, String.valueOf(value)).commit();
 	}
 
-	public void setDoubleAsync(String key, double value) {
+	public void applyDouble(String key, double value) {
 		preference.edit().putString(key, String.valueOf(value)).apply();
 	}
 
@@ -102,11 +102,11 @@ public class DkCompactPreferenceStorage {
 	// Store/Load boolean
 	//
 
-	public void setBoolean(String key, boolean value) {
+	public void storeBoolean(String key, boolean value) {
 		preference.edit().putString(key, String.valueOf(value)).commit();
 	}
 
-	public void setBooleanAsync(String key, boolean value) {
+	public void applyBoolean(String key, boolean value) {
 		preference.edit().putString(key, String.valueOf(value)).apply();
 	}
 
@@ -123,11 +123,11 @@ public class DkCompactPreferenceStorage {
 	// Store/Load long
 	//
 
-	public void setLong(String key, long value) {
+	public void storeLong(String key, long value) {
 		preference.edit().putString(key, String.valueOf(value)).commit();
 	}
 
-	public void setLongAsync(String key, long value) {
+	public void applyLong(String key, long value) {
 		preference.edit().putString(key, String.valueOf(value)).apply();
 	}
 
@@ -144,11 +144,11 @@ public class DkCompactPreferenceStorage {
 	// Store/Load string
 	//
 
-	public void setString(String key, String value) {
+	public void storeString(String key, String value) {
 		preference.edit().putString(key, value).commit();
 	}
 
-	public void setStringAsync(String key, String value) {
+	public void applyString(String key, String value) {
 		preference.edit().putString(key, value).apply();
 	}
 
@@ -178,11 +178,11 @@ public class DkCompactPreferenceStorage {
 	// Store/Load string set
 	//
 
-	public void setStringSet(String key, Set<String> values) {
+	public void storeStringSet(String key, Set<String> values) {
 		preference.edit().putStringSet(key, values).commit();
 	}
 
-	public void setStringSetAsync(String key, Set<String> values) {
+	public void applyStringSet(String key, Set<String> values) {
 		preference.edit().putStringSet(key, values).apply();
 	}
 
@@ -216,8 +216,12 @@ public class DkCompactPreferenceStorage {
 		return DkJsonHelper.getIns().json2obj(getString(key), resClass);
 	}
 
-	public void setJsonObject(String key, Object value) {
-		setString(key, DkJsonHelper.getIns().obj2json(value));
+	public void storeJsonObject(String key, Object value) {
+		storeString(key, DkJsonHelper.getIns().obj2json(value));
+	}
+
+	public void applyJsonObject(String key, Object value) {
+		applyString(key, DkJsonHelper.getIns().obj2json(value));
 	}
 
 	//
@@ -228,7 +232,7 @@ public class DkCompactPreferenceStorage {
 		preference.edit().remove(key).commit();
 	}
 
-	public void deleteAsync(String key) {
+	public void applyDelete(String key) {
 		preference.edit().remove(key).apply();
 	}
 
@@ -236,7 +240,7 @@ public class DkCompactPreferenceStorage {
 		preference.edit().clear().commit();
 	}
 
-	public void clearAsync() {
+	public void applyClear() {
 		preference.edit().clear().apply();
 	}
 

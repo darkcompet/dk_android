@@ -53,11 +53,11 @@ public final class DkBitmaps {
 		return new int[] {opts.outWidth, opts.outHeight};
 	}
 
-	public static boolean save(Bitmap input, String filePath) throws IOException {
-		return save(input, new File(filePath));
+	public static boolean store(Bitmap input, String filePath) throws IOException {
+		return store(input, new File(filePath));
 	}
 
-	public static boolean save(@NonNull Bitmap bitmap, File file) throws IOException {
+	public static boolean store(@NonNull Bitmap bitmap, File file) throws IOException {
 		if (! file.exists()) {
 			DkFiles.createFile(file);
 		}

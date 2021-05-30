@@ -18,6 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStoreOwner;
@@ -147,7 +148,9 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends A
 		}
 
 		if (BuildConfig.DEBUG) {
-			DkLogs.errorCallbackAtMainThread.observe(this, message -> {
+			// Observe log to show at active state of the view
+			MutableLiveData<String> log = new MutableLiveData<>();
+			log.observe(this, message -> {
 				new AlertDialog.Builder(this)
 					.setTitle(R.string.error)
 					.setMessage(message)
@@ -156,13 +159,14 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends A
 						dialog.dismiss();
 					}))
 					.show();
-//				new DkConfirmDialog()
-//					.setTitle(R.string.error)
-//					.setMessage(message)
-//					.setOkButton(R.string.ok)
-//					.setFullScreen(true)
-//					.show(getSupportFragmentManager());
 			});
+
+			// Show log via livedata
+			DkLogs.logCallback = (type, message) -> {
+				if (DkLogs.TYPE_ERROR.equals(type) || DkLogs.TYPE_WARNING.equals(type)) {
+					log.setValue(message);
+				}
+			};
 		}
 	}
 

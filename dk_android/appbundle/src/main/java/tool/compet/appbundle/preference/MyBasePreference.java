@@ -13,8 +13,12 @@ abstract class MyBasePreference<P> implements DkPreference<P> {
 	// Control enabled/disabled state by this
 	protected boolean enabled = true;
 
-	protected String groupId; // id of group which contains this preference
-	protected String key; // preference key in storage
+	// Id of group which contains this preference, that is, it is parent preference id
+	protected String groupId;
+	// Preference key in storage
+	protected String key;
+	// Index in preference list
+	protected int index; //todo should init when bind view holder?
 
 	// Init below fields when add a preference
 	protected Context context; // to get resource value
@@ -58,6 +62,7 @@ abstract class MyBasePreference<P> implements DkPreference<P> {
 	 */
 	public void notifyDataChanged() {
 		// For now, just update all items
+		// but for better performance, we should update only index of this preference
 		listener.notifyDataSetChanged();
 	}
 }

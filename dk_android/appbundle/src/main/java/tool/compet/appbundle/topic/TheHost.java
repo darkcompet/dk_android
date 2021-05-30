@@ -7,8 +7,6 @@ package tool.compet.appbundle.topic;
 import androidx.collection.ArrayMap;
 import androidx.lifecycle.ViewModel;
 
-import tool.compet.core.DkLogs;
-
 /**
  * This is subclass of ViewModel, is stored in a {@link androidx.lifecycle.ViewModelStoreOwner} object
  * (like {@link androidx.fragment.app.FragmentActivity}, {@link androidx.fragment.app.Fragment}...).
@@ -86,10 +84,6 @@ public class TheHost extends ViewModel implements TheClient.Listener {
 	@Override
 	protected void onCleared() {
 		super.onCleared();
-
-		if (allTopics.size() > 0) {
-			DkLogs.warning(this, "NG, host `%s` is cleared while still have %d clients", getClass().getSimpleName(), allTopics.size());
-		}
 
 		// Cleanup all topics
 		for (int index = allTopics.size() - 1; index >= 0; --index) {

@@ -6,45 +6,42 @@ package tool.compet.boommenu;
 
 import android.graphics.Color;
 
-import java.util.ArrayList;
-import java.util.Random;
-
-import tool.compet.core.DkLogs;
+import tool.compet.core.DkIntArrayList;
+import tool.compet.core.DkMaths;
 
 class MyColorGenerator {
-	private static final Random rnd = new Random();
-	private static final int[] colors = new int[72];
+	private static final int[] availableColors = new int[72];
 
 	static {
-		float[] hsl = new float[]{0f, 1f, 0.5f};
+		float[] hsl = new float[] {0f, 1f, 0.5f};
 
-		for (int i = colors.length - 1; i >= 0; --i) {
-			hsl[0] = (i << 2) + i;
-			hsl[1] = (i & 1) == 0 ? 0.2f : 0.8f;
-			colors[i] = Color.HSVToColor(hsl);
+		for (int index = availableColors.length - 1; index >= 0; --index) {
+			hsl[0] = (index << 2) + index;
+			hsl[1] = (index & 1) == 0 ? 0.2f : 0.8f;
+
+			availableColors[index] = Color.HSVToColor(hsl);
 		}
 	}
 
-	private final ArrayList<Integer> usableColors = new ArrayList<>(colors.length);
+	private final DkIntArrayList usableColors = new DkIntArrayList(availableColors.length);
 
-	public MyColorGenerator() {
-		for (int color : colors) {
-			usableColors.add(color);
+	private DkIntArrayList acquireUsableColors() {
+		DkIntArrayList usableColors = this.usableColors;
+		if (usableColors.size() == 0) {
+			usableColors.addAll(availableColors);
 		}
+		return usableColors;
 	}
 
 	public int nextNormalColor() {
-		ArrayList<Integer> usableColors = this.usableColors;
-		final int N = usableColors.size();
+		DkIntArrayList usableColors = acquireUsableColors();
+		final int colorCount = usableColors.size();
 
-		if (N == 0) {
-			DkLogs.complain(this, "You can generate at most %d colors", colors.length);
-		}
-
-		int nextIndex = rnd.nextInt(N);
+		int nextIndex = DkMaths.random.nextInt(colorCount);
 		int color = usableColors.get(nextIndex);
-		int lastIndex = N - 1;
+		int lastIndex = colorCount - 1;
 
+		// Fast remove next color
 		usableColors.set(nextIndex, usableColors.get(lastIndex));
 		usableColors.remove(lastIndex);
 
