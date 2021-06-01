@@ -11,6 +11,7 @@ import android.graphics.Path;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 
+import tool.compet.core.DkViewCompats;
 import tool.compet.core.DkConfig;
 
 /**
@@ -86,9 +87,6 @@ public class DkCompactConstraintLayout extends DkCompatConstraintLayout {
 		// Init & Refresh
 		initForRoundedCorner();
 
-		// Clip path requires draw on software
-		setLayerType(LAYER_TYPE_SOFTWARE, null);
-
 		final int w = getWidth();
 		final int h = getHeight();
 		final float density = DkConfig.density();
@@ -97,7 +95,7 @@ public class DkCompactConstraintLayout extends DkCompatConstraintLayout {
 		clipRoundPath.reset();
 		clipRoundPath.addRoundRect(new RectF(0, 0, w, h), roundRadiusArr, Path.Direction.CCW);
 
-		canvas.clipPath(clipRoundPath);
+		DkViewCompats.clipPath(this, canvas, clipRoundPath);
 
 		// Draw round-corner if required
 		if (roundStrokeWidth >= 0f) {

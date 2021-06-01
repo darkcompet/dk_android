@@ -30,7 +30,7 @@ import tool.compet.appbundle.floatingbar.DkToastbar;
 import tool.compet.appbundle.floatingbar.DkUrgentSnackbar;
 import tool.compet.appbundle.floatingbar.DkUrgentToastbar;
 import tool.compet.appbundle.navigator.DkFragmentNavigator;
-import tool.compet.appbundle.topic.TheFragmentTopicController;
+import tool.compet.appbundle.topic.DkTopicOwner;
 import tool.compet.core.DkLogs;
 
 /**
@@ -410,15 +410,15 @@ public abstract class DkCompactFragment<VL extends DkCompactViewLogic> extends F
 	 * Obtain the topic controller and Make this view becomes an owner of the topic.
 	 * When all owners of the topic were destroyed, topic and its material will be cleared.
 	 */
-	public TheFragmentTopicController joinTopic(String topicId) {
-		return new TheFragmentTopicController(topicId, host, this).registerClient();
+	public DkTopicOwner joinTopic(String topicId) {
+		return new DkTopicOwner(topicId, host).registerClient(this);
 	}
 
 	/**
 	 * Just obtain the topic controller.
 	 */
-	public TheFragmentTopicController viewTopic(String topicId) {
-		return new TheFragmentTopicController(topicId, host, this);
+	public DkTopicOwner viewTopic(String topicId) {
+		return new DkTopicOwner(topicId, host);
 	}
 
 	// endregion Scoped topic

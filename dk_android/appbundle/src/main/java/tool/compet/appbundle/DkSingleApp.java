@@ -9,14 +9,14 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModelStore;
-import androidx.lifecycle.ViewModelStoreOwner;
 
 import java.util.Locale;
 
+import tool.compet.appbundle.topic.TheFragmentTopicController;
 import tool.compet.core.DkConfig;
 
 // Single application (lite version compares with multidex app).
-public class DkSingleApp extends Application implements DkApp, ViewModelStoreOwner {
+public class DkSingleApp extends Application implements DkApp {
 	protected static Context appContext;
 	protected ViewModelStore viewModelStore;
 
@@ -44,6 +44,7 @@ public class DkSingleApp extends Application implements DkApp, ViewModelStoreOwn
 //		Picasso.with().load().into();
 	}
 
+	// This makes the app become view model store owner
 	@NonNull
 	@Override
 	public ViewModelStore getViewModelStore() {
@@ -51,6 +52,21 @@ public class DkSingleApp extends Application implements DkApp, ViewModelStoreOwn
 			viewModelStore = new ViewModelStore();
 		}
 		return viewModelStore;
+	}
+
+	/**
+	 * Obtain the topic controller and Make this view becomes an owner of the topic.
+	 * When all owners of the topic were destroyed, topic and its material will be cleared.
+	 */
+	public TheFragmentTopicController joinTopic(String topicId) {
+		return new TheFragmentTopicController(topicId, this, this).registerClient();
+	}
+
+	/**
+	 * Just obtain the topic controller.
+	 */
+	public TheFragmentTopicController viewTopic(String topicId) {
+		return new TheFragmentTopicController(topicId, this, this);
 	}
 
 	/**

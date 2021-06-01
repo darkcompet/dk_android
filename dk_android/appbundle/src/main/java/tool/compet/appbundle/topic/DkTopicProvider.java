@@ -11,20 +11,18 @@ import androidx.lifecycle.ViewModelStoreOwner;
 import tool.compet.core.DkLogs;
 
 public class DkTopicProvider {
-	// Long-live view, for eg,. app/activity
-	private final ViewModelStoreOwner hostOwner;
-	// Short-live view, for eg,. activity/fragment
-	private final ViewModelStoreOwner clientOwner;
+	// Topic owner, for eg,. app/activity
+	private final ViewModelStoreOwner owner;
 
-	public DkTopicProvider(@NonNull ViewModelStoreOwner hostOwner, @NonNull ViewModelStoreOwner clientOwner) {
-		this.hostOwner = hostOwner;
-		this.clientOwner = clientOwner;
+	public DkTopicProvider(@NonNull ViewModelStoreOwner owner) {
+		this.owner = owner;
 	}
 
 	// Get or Create a topic from host, also make client listen to the topic
-	public void registerClient(String topicId) {
+	public DkTopicProvider registerClient(String topicId, ViewModelStoreOwner client) {
 		try {
-			theHost().registerClient(topicId, theClient());
+			theHost().registerClient(topicId, theClient(client));
+			return this;
 		}
 		catch (Exception e) {
 			DkLogs.error(DkTopicProvider.class, e);
@@ -44,12 +42,14 @@ public class DkTopicProvider {
 	}
 
 	// Remove client from topic
-	public void unregisterClient(String topicId) {
-		theHost().unregisterClient(topicId, theClient());
+	public DkTopicProvider unregisterClient(String topicId, ViewModelStoreOwner client) {
+		theHost().unregisterClient(topicId, theClient(client));
+		return this;
 	}
 
-	public void removeTopic(String topicId) {
+	public DkTopicProvider removeTopic(String topicId) {
 		theHost().removeTopic(topicId);
+		return this;
 	}
 
 	/**
@@ -59,7 +59,7 @@ public class DkTopicProvider {
 	 * Normally, host is long-live than client.
 	 */
 	private TheHost theHost() {
-		return new ViewModelProvider(hostOwner).get(TheHost.class);
+		return new ViewModelProvider(owner).get(TheHost.class);
 	}
 
 	/**
@@ -68,7 +68,7 @@ public class DkTopicProvider {
 	 * <p>
 	 * Normally, client is short-live than host.
 	 */
-	private TheClient theClient() {
-		return new ViewModelProvider(clientOwner).get(TheClient.class);
+	private TheClient theClient(ViewModelStoreOwner client) {
+		return new ViewModelProvider(client).get(TheClient.class);
 	}
 }

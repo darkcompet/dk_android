@@ -118,7 +118,7 @@ public class TheFragmentTransactor {
 	public TheFragmentTransactor back(int times) {
 		int lastIndex = backstack.size() - 1;
 		if (lastIndex < 0) {
-			DkLogs.warning(this, "Backstack empty -> could not back");
+			DkLogs.info(this, "Backstack empty -> could not back");
 			return this;
 		}
 		return performRemoveRange(lastIndex - times + 1, lastIndex, true);
@@ -154,7 +154,7 @@ public class TheFragmentTransactor {
 	public TheFragmentTransactor removeAllAfter(String tag) {
 		int index = backstack.indexOf(tag);
 		if (index < 0) {
-			DkLogs.warning(this, "Tag `%s` not found -> skip remove range", tag);
+			DkLogs.info(this, "Tag `%s` not found -> skip remove range", tag);
 			return this;
 		}
 		return performRemoveRange(index + 1, backstack.size() - 1, true);
@@ -253,7 +253,7 @@ public class TheFragmentTransactor {
 
 		// Skip if invalid range
 		if (fromIndex > toIndex) {
-			DkLogs.warning(this, "Invalid range `%d -> %d` -> skip remove range", fromIndex, toIndex);
+			DkLogs.info(this, "Invalid range `%d -> %d` -> skip remove range", fromIndex, toIndex);
 			return this;
 		}
 

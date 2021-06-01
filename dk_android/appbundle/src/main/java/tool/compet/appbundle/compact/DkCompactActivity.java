@@ -29,8 +29,10 @@ import tool.compet.appbundle.R;
 import tool.compet.appbundle.binder.DkBinder;
 import tool.compet.appbundle.floatingbar.DkSnackbar;
 import tool.compet.appbundle.floatingbar.DkToastbar;
+import tool.compet.appbundle.floatingbar.DkUrgentSnackbar;
+import tool.compet.appbundle.floatingbar.DkUrgentToastbar;
 import tool.compet.appbundle.navigator.DkFragmentNavigator;
-import tool.compet.appbundle.topic.TheActivityTopicController;
+import tool.compet.appbundle.topic.DkTopicOwner;
 import tool.compet.core.BuildConfig;
 import tool.compet.core.DkLogs;
 
@@ -382,36 +384,36 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends A
 	 * Obtain the topic controller and Make this view becomes an owner of the topic.
 	 * When all owners of the topic were destroyed, topic and its material will be cleared.
 	 */
-	public TheActivityTopicController joinTopic(String topicId) {
-		return new TheActivityTopicController(topicId, host, this).registerClient();
+	public DkTopicOwner joinTopic(String topicId) {
+		return new DkTopicOwner(topicId, app).registerClient(this);
 	}
 
 	/**
 	 * Just obtain the topic controller.
 	 */
-	public TheActivityTopicController viewTopic(String topicId) {
-		return new TheActivityTopicController(topicId, host, this);
+	public DkTopicOwner viewTopic(String topicId) {
+		return new DkTopicOwner(topicId, app);
 	}
 
 	// endregion Scoped topic
 
-	// region Utility
+	// region Floating bar
 
-	public void snack(int msgRes, int type) {
-		DkSnackbar.newIns(this).color(type).message(msgRes).show();
+	public DkSnackbar snackbar() {
+		return DkSnackbar.newIns(layout);
 	}
 
-	public void snack(String message, int type) {
-		DkSnackbar.newIns(this).color(type).message(message).show();
+	public DkSnackbar urgentSnackbar() {
+		return DkUrgentSnackbar.newIns(layout);
 	}
 
-	public void toast(int msgRes) {
-		DkToastbar.newIns(this).message(msgRes).show();
+	public DkToastbar toastbar() {
+		return DkToastbar.newIns(layout);
 	}
 
-	public void toast(String message) {
-		DkToastbar.newIns(this).message(message).show();
+	public DkToastbar urgentToastbar() {
+		return DkUrgentToastbar.newIns(layout);
 	}
 
-	// endregion Utility
+	// endregion Floating bar
 }

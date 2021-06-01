@@ -11,6 +11,8 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Handler;
@@ -26,12 +28,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-import tool.compet.core.graphics.DkColors;
-import tool.compet.core.view.DkDoubleFingerDetector;
-import tool.compet.core.graphics.DkBitmaps;
 import tool.compet.core.DkLogs;
 import tool.compet.core.DkMaths;
+import tool.compet.core.graphics.DkBitmaps;
+import tool.compet.core.graphics.DkColors;
 import tool.compet.core.stream.DkObservable;
+import tool.compet.core.view.DkDoubleFingerDetector;
 import tool.compet.core.view.DkViews;
 
 import static tool.compet.core.BuildConfig.DEBUG;
@@ -48,16 +50,19 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 	private final Context context;
 
 	private final MyCompassController controller;
-	private DkDoubleFingerDetector detector;
+	private DkDoubleFingerDetector gestureDetector;
 	private ValueAnimator countdownAnimator;
 	private DkCompassView.Listener listener;
 	private int compassMode = MODE_NORMAL;
 	private final Rect tmpRect = new Rect();
 
 	// Board
-	private int boardWidth, boardHeight;
-	private int oldBoardWidth, oldBoardHeight;
-	private int boardCenterX, boardCenterY;
+	private int boardWidth;
+	private int boardHeight;
+	private int oldBoardWidth;
+	private int oldBoardHeight;
+	private int boardCenterX;
+	private int boardCenterY;
 	private int boardInnerRadius;
 
 	// Compass
@@ -66,7 +71,8 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 	private boolean isBuildingCompass;
 	private boolean isFitCompassInsideBoard;
 	private boolean isBoardSizeChanged;
-	private int compassColor, compassSemiColor;
+	private int compassColor;
+	private int compassSemiColor;
 	private final Matrix compassBitmapMatrix = new Matrix();
 	private float compassCx, compassCy;
 	private double compassDegreesInNormalMode;
@@ -79,6 +85,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 	private List<DkCompassRing> buildCompassRings;
 	private Locale buildCompassLocale;
 
+	private final Paint compassPaint;
 	private final Paint linePaint;
 	private final Paint fillPaint;
 	private final Paint textPaint;
@@ -161,6 +168,9 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 		countdownAnimator = new ValueAnimator();
 		countdownAnimator.setDuration(1000);
 
+		compassPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+		compassPaint.setColorFilter(new PorterDuffColorFilter(compassColor, PorterDuff.Mode.SRC_ATOP));
+
 		linePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		linePaint.setStrokeWidth(3);
 		linePaint.setStyle(Paint.Style.STROKE);
@@ -172,7 +182,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 		fillPaint.setStrokeWidth(3);
 		fillPaint.setStyle(Paint.Style.FILL_AND_STROKE);
 
-		detector = new DkDoubleFingerDetector(context, this);
+		gestureDetector = new DkDoubleFingerDetector(context, this);
 
 		setOnTouchListener(this);
 	}
@@ -194,30 +204,30 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
 
-		// build compass if we got a request before
+		// Build compass if we got a request before
 		if (isRequestBuildCompass) {
 			isRequestBuildCompass = false;
 			buildCompassActual(buildCompassLocale);
 			return;
 		}
-		// wait until compass is built
+		// Wait until compass is built
 		if (isBuildingCompass) {
 			return;
 		}
 
-		// fit compass inside board
+		// Fit compass inside board
 		// omit event for layout-size-change
 		if (isFitCompassInsideBoard) {
 			isFitCompassInsideBoard = false;
 			isBoardSizeChanged = false;
-			calcAttributes();
+			updateMaterialsOnBoardSizeChanged();
 			fitCompassInsideBoard();
 		}
 
-		// translate compass
+		// Translate compass
 		if (isBoardSizeChanged) {
 			isBoardSizeChanged = false;
-			calcAttributes();
+			updateMaterialsOnBoardSizeChanged();
 			float newCx = compassCx * boardWidth / oldBoardWidth;
 			float newCy = compassCy * boardHeight / oldBoardHeight;
 			postTranslateCompassMatrix(newCx - compassCx, newCy - compassCy);
@@ -228,23 +238,23 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 		float handlerToCenter = distFromRotatorCenterToBoardCenter;
 		double animateDegrees = nextAnimateDegrees;
 
-		// reset before draw
+		// Reset before draw
 		linePaint.setColor(compassColor);
 		fillPaint.setColor(compassColor);
 
-		// draw Ox, Oy navigation-axis
+		// Draw Ox, Oy navigation-axis
 		canvas.drawLine(boardCx, naviArrowStartY, boardCx, naviArrowStopY, linePaint);
 		canvas.drawLine(0, boardCy, boardWidth, boardCy, linePaint);
 		canvas.drawPath(naviArrow, fillPaint);
 
-		// setup to draw from 0 degrees
+		// Setup to draw from 0 degrees
 		canvas.save();
 		canvas.rotate(-(float) animateDegrees, boardCx, boardCy);
 
 		boolean isHighlight = (handlerColor == compassColor);
 		Paint paint = isHighlight ? fillPaint : linePaint;
 
-		// draw rotator
+		// Draw rotator
 		if (isShowRotator && compassMode == MODE_ROTATE) {
 			canvas.save();
 			canvas.rotate((float) (animateDegrees + rotatorRotatedDegrees), boardCx, boardCy);
@@ -252,7 +262,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 			canvas.drawCircle(boardCx, boardCy - handlerToCenter, handlerRadius, paint);
 			canvas.restore();
 		}
-		// draw pointer
+		// Draw pointer
 		else if (isShowPointer && compassMode == MODE_POINT) {
 			final float arrowDim = boardInnerRadius / 15f;
 			final float startY = (float) (boardCy + handlerToCenter - this.rotatorRadius);
@@ -267,7 +277,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 			canvas.restore();
 		}
 
-		// draw 24 pointer lines
+		// Draw 24 pointer lines
 		if (isShow24PointerLines) {
 			final float defaultStrokeWidth = linePaint.getStrokeWidth();
 			linePaint.setStrokeWidth(defaultStrokeWidth / 2);
@@ -285,16 +295,16 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 
 		canvas.restore();
 
-		// for count down animation
+		// Count down animation
 		if (countdownAnimator.isRunning()) {
 			fillPaint.setColor((int) countdownAnimator.getAnimatedValue());
 			canvas.drawCircle(boardCx, boardCy, handlerRadius, fillPaint);
 		}
 
-		// draw compass
+		// Draw compass
 		if (compass != null) {
 			postRotateCompassMatrix(animateDegrees);
-			canvas.drawBitmap(compass, compassBitmapMatrix, linePaint);
+			canvas.drawBitmap(compass, compassBitmapMatrix, compassPaint);
 		}
 	}
 
@@ -329,19 +339,14 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 	 * @param degrees clockwise angle in degrees.
 	 */
 	public void rotate(double degrees) {
-		switch (compassMode) {
-			case MODE_NORMAL: {
-				compassDegreesInNormalMode = degrees;
-				break;
-			}
-			case MODE_ROTATE: {
-				compassDegreesInRotateMode = degrees;
-				break;
-			}
-			case MODE_POINT: {
-				compassDegreesInPointMode = degrees;
-				break;
-			}
+		if (compassMode == MODE_NORMAL) {
+			compassDegreesInNormalMode = degrees;
+		}
+		else if (compassMode == MODE_ROTATE) {
+			compassDegreesInRotateMode = degrees;
+		}
+		else if (compassMode == MODE_POINT) {
+			compassDegreesInPointMode = degrees;
 		}
 
 		nextAnimateDegrees = degrees;
@@ -356,7 +361,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 
 		if (isAdjustCompass) {
 			isRequestNextEvent = true;
-			detector.onTouchEvent(event);
+			gestureDetector.onTouchEvent(event);
 		}
 
 		switch (event.getActionMasked()) {
@@ -521,9 +526,10 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 			double radian = Math.toRadians(pointerDegrees);
 			double sin = Math.sin(radian), cos = Math.cos(radian);
 			double cx = boardCx - handlerToCenter * sin, cy = boardCy + handlerToCenter * cos;
+
 			return Math.hypot(x - cx, y - cy) <= rotatorRadius;
 		}
-		else if (compassMode == MODE_ROTATE && isShowRotator) {
+		if (compassMode == MODE_ROTATE && isShowRotator) {
 			double radian = Math.toRadians(rotatorRotatedDegrees);
 			double sin = Math.sin(radian);
 			double cos = Math.cos(radian);
@@ -534,6 +540,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 			}
 			cx = boardCx - handlerToCenter * sin;
 			cy = boardCy + handlerToCenter * cos;
+
 			return Math.hypot(x - cx, y - cy) <= rotatorRadius;
 		}
 		return false;
@@ -544,7 +551,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 
 		DkObservable
 			.fromCallable(() -> {
-				calcAttributes();
+				updateMaterialsOnBoardSizeChanged();
 				return buildCompassInternal(buildCompassRings, locale);
 			})
 			.scheduleInBackgroundAndObserveOnMainThread()
@@ -561,29 +568,29 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 			.subscribe();
 	}
 
-	private void calcAttributes() {
-		// board
+	private void updateMaterialsOnBoardSizeChanged() {
+		// Board
 		boardCenterX = boardWidth >> 1;
 		boardCenterY = boardHeight >> 1;
 		boardInnerRadius = Math.min(boardCenterX, boardCenterY);
 
-		// compass color
+		// Compass color
 		int cmpColor = compassColor;
 		linePaint.setColor(cmpColor);
 		textPaint.setColor(cmpColor);
 		fillPaint.setColor(cmpColor);
 
-		// rotator, pointer and navigation
+		// Rotator, pointer and navigation
 		int boardInnerRadius = this.boardInnerRadius;
 		int arrowTall = (boardInnerRadius >> 4) + (boardInnerRadius >> 8);
 		int boardPadding = boardCenterY - boardInnerRadius;
 		distFromRotatorCenterToBoardCenter = (boardInnerRadius >> 2) + (boardInnerRadius >> 3);
 		rotatorRadius = (boardInnerRadius >> 3) + (boardInnerRadius >> 4);
 
-		// pointer
+		// Pointer
 		pointerStopY = boardCenterY - Math.max(boardCenterX, boardCenterY) + arrowTall;
 
-		// navigation Ox, Oy
+		// Navigation Ox, Oy
 		naviArrowStartY = boardCenterY + boardInnerRadius + (boardPadding >> 1);
 		naviArrowStopY = boardCenterY - boardInnerRadius - (boardPadding >> 1);
 		naviArrow = DkCompassHelper.newArrowAt(boardCenterX, naviArrowStopY, arrowTall, arrowTall);
@@ -977,6 +984,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 	public DkCompassView setCompassColor(int color) {
 		compassColor = color;
 		compassSemiColor = handlerColor = DkColors.toSemiColor(color);
+		compassPaint.setColorFilter(new PorterDuffColorFilter(compassColor, PorterDuff.Mode.SRC_ATOP));
 
 		countdownAnimator.setIntValues(color, compassSemiColor);
 		countdownAnimator.setEvaluator(controller.getArgbEvaluator());

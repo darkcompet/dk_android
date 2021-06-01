@@ -4,8 +4,10 @@
 
 package tool.compet.appbundle;
 
+import androidx.lifecycle.ViewModelStoreOwner;
+
 /**
  * Application interface, single or multidex app should extend this to work with Dk libraries.
  */
-public interface DkApp {
+public interface DkApp extends ViewModelStoreOwner {
 }
