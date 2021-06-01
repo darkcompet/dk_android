@@ -15,92 +15,104 @@ import java.util.ArrayDeque;
 
 import tool.compet.core.DkLogs;
 
-public class MyFloatingbarManager {
-	private static final int TIMEOUT = 1;
-	private static final int FORCE = 2;
+class MyFloatingbarManager {
+	private static final int DISMISS_TIMEOUT = 1;
+	private static final int DISMISS_FORCE = 2;
 
 	private boolean isRunning;
-	private ArrayDeque<Record> queue = new ArrayDeque<>();
+	private final ArrayDeque<Order> orders = new ArrayDeque<>();
 
-	private Handler handler = new Handler(Looper.getMainLooper(), msg -> {
-		if (msg.what == TIMEOUT) {
-			dismissInternal((Record) msg.obj, TIMEOUT);
+	private final Handler dismissHandler = new Handler(Looper.getMainLooper(), msg -> {
+		if (msg.what == DISMISS_TIMEOUT) {
+			dismissInternal((Order) msg.obj, DISMISS_TIMEOUT);
 		}
 		return false;
 	});
 
+	// Show bar by enqueue it first, then callback when it is ready to display
 	void show(long duration, Callback callback) {
-		Record tail = queue.peekLast();
+		Order tail = orders.peekLast();
 
+		// Update duration if same record
 		if (tail != null && callback == tail.callback.get()) {
-			// just update duration for same record
 			tail.duration = duration;
 		}
+		// Enqueue new record
 		else {
-			// enqueue new record
-			queue.addLast(new Record(duration, callback));
+			orders.addLast(new Order(duration, callback));
 		}
 
-		if (!isRunning) {
+		if (! isRunning) {
 			isRunning = true;
 			showNext();
 		}
 	}
 
+	// Dismiss bar
 	void dismiss(Callback callback) {
-		Record record = findRecordFromQueue(callback);
-		if (record != null) {
-			dismissInternal(record, FORCE);
+		Order order = findOrderFromQueue(callback);
+		if (order != null) {
+			dismissInternal(order, DISMISS_FORCE);
 		}
 	}
 
-	void dismissAll() {
-		for (Record record : queue) {
-			dismissInternal(record, FORCE);
+	// Dismiss all current bars immediately
+	void dismissAllNow() {
+		// Cancel all events
+		dismissHandler.removeCallbacksAndMessages(null);
+
+		// Tell orders dismiss all bars
+		for (Order order : orders) {
+			if (! order.dismissNow()) {
+				onDismissed(order);
+			}
 		}
 	}
 
 	void onViewShown(Callback callback) {
-		Record record = findRecordFromQueue(callback);
-		if (record != null) {
-			// start display-timeout for this bar
-			handler.removeCallbacksAndMessages(record);
-			handler.sendMessageDelayed(Message.obtain(handler, TIMEOUT, record), record.duration);
+		Order order = findOrderFromQueue(callback);
+
+		// Schedule dismiss this bar after duration (~2s)
+		if (order != null) {
+			dismissHandler.removeCallbacksAndMessages(order);
+			dismissHandler.sendMessageDelayed(Message.obtain(dismissHandler, DISMISS_TIMEOUT, order), order.duration);
 		}
 	}
 
 	void onViewDismissed(@Nullable Callback callback) {
-		onDismissed(findRecordFromQueue(callback));
+		// Jump to final phase
+		onDismissed(findOrderFromQueue(callback));
 	}
 
 	/**
 	 * Try to show next until some record (bar) is shown successfully.
 	 */
 	private void showNext() {
-		Record next = queue.peekFirst();
+		Order nextOrder = orders.peekFirst();
 
-		if (next == null) {
+		// No order to do, waiting for user action
+		if (nextOrder == null) {
 			isRunning = false;
 			return;
 		}
-		if (!next.show()) {
-			// consider this bar is dismissed if failed to show
-			onDismissed(next);
+		// Show next bar, if cannot, jump to final phase (remove order and show next)
+		if (! nextOrder.show()) {
+			onDismissed(nextOrder);
 		}
 	}
 
-	private void dismissInternal(Record record, int type) {
+	private void dismissInternal(Order order, int type) {
 		switch (type) {
-			case TIMEOUT: {
-				// we don't dismiss bar for infinite-duration-timeout type
-				if (record.duration == DkFloatingbar.INFINITE_DURATION) {
+			case DISMISS_TIMEOUT: {
+				// We don't dismiss bar for infinite-duration-timeout type
+				if (order.duration == DkFloatingbar.INFINITE_DURATION) {
 					return;
 				}
 				break;
 			}
-			case FORCE: {
-				// remove timeout since this record is forced to dismiss
-				handler.removeCallbacksAndMessages(record);
+			case DISMISS_FORCE: {
+				// Remove timeout since this record is forced to dismiss
+				dismissHandler.removeCallbacksAndMessages(order);
 				break;
 			}
 			default: {
@@ -108,49 +120,48 @@ public class MyFloatingbarManager {
 			}
 		}
 
-		if (!record.dismiss()) {
-			onDismissed(record);
+		// Tell bar dismiss itself
+		if (! order.dismiss()) {
+			// Jump to final phase if we cannot dismiss bar
+			onDismissed(order);
 		}
 	}
 
 	/**
-	 * This is last phase when a bar is dismissed. We cleanup this record first.
-	 * Then show next bar even thought this record is not existed.
-	 * <p></p>
-	 * In worst case, if this method is not called at sometime after bar is shown,
-	 * then next bar will not be shown, so user need to call dismiss() from
-	 * current showing bar to manual dismiss it.
+	 * This is last phase when a bar is dismissed.
+	 * We remove this order, then show next bar.
 	 */
-	private void onDismissed(Record record) {
-		if (record != null) {
-			queue.removeFirstOccurrence(record);
+	private void onDismissed(Order order) {
+		if (order != null) {
+			orders.removeFirstOccurrence(order);
 		}
 		showNext();
 	}
 
-	private Record findRecordFromQueue(Callback callback) {
-		for (Record record : queue) {
-			if (callback == record.callback.get()) {
-				return record;
+	private Order findOrderFromQueue(Callback callback) {
+		for (Order order : orders) {
+			if (callback == order.callback.get()) {
+				return order;
 			}
 		}
-
-		DkLogs.warning(this, "Not found record for callback: " + callback);
-
 		return null;
 	}
 
+	// Callback to tell bar show/dismiss view
 	interface Callback {
 		void show();
 
 		void dismiss();
+
+		void dismissNow();
 	}
 
-	static class Record {
+	// Order to display a bar
+	static class Order {
 		long duration;
 		WeakReference<Callback> callback;
 
-		Record(long duration, Callback callback) {
+		Order(long duration, Callback callback) {
 			this.duration = duration;
 			this.callback = new WeakReference<>(callback);
 		}
@@ -173,9 +184,23 @@ public class MyFloatingbarManager {
 			return false;
 		}
 
+		boolean dismissNow() {
+			Callback cb = callback.get();
+			if (cb != null) {
+				cb.dismissNow();
+				return true;
+			}
+			return false;
+		}
+
 		@Override
-		public boolean equals(Object obj) {
-			return obj instanceof Record && callback.get() == ((Record) obj).callback.get();
+		public boolean equals(Object other) {
+			return other instanceof Order && callback.get() == ((Order) other).callback.get();
+		}
+
+		@Override
+		public String toString() {
+			return "Order{" + "callback: " + callback.get().toString() + ", duration: " + duration + '}';
 		}
 	}
 }

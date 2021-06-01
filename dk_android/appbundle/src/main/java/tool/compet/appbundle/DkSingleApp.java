@@ -12,7 +12,7 @@ import androidx.lifecycle.ViewModelStore;
 
 import java.util.Locale;
 
-import tool.compet.appbundle.topic.TheFragmentTopicController;
+import tool.compet.appbundle.topic.DkTopicOwner;
 import tool.compet.core.DkConfig;
 
 // Single application (lite version compares with multidex app).
@@ -58,15 +58,15 @@ public class DkSingleApp extends Application implements DkApp {
 	 * Obtain the topic controller and Make this view becomes an owner of the topic.
 	 * When all owners of the topic were destroyed, topic and its material will be cleared.
 	 */
-	public TheFragmentTopicController joinTopic(String topicId) {
-		return new TheFragmentTopicController(topicId, this, this).registerClient();
+	public DkTopicOwner joinTopic(String topicId) {
+		return new DkTopicOwner(topicId, this).registerClient(this);
 	}
 
 	/**
 	 * Just obtain the topic controller.
 	 */
-	public TheFragmentTopicController viewTopic(String topicId) {
-		return new TheFragmentTopicController(topicId, this, this);
+	public DkTopicOwner viewTopic(String topicId) {
+		return new DkTopicOwner(topicId, this);
 	}
 
 	/**

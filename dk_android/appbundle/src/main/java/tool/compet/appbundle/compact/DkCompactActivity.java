@@ -29,8 +29,6 @@ import tool.compet.appbundle.R;
 import tool.compet.appbundle.binder.DkBinder;
 import tool.compet.appbundle.floatingbar.DkSnackbar;
 import tool.compet.appbundle.floatingbar.DkToastbar;
-import tool.compet.appbundle.floatingbar.DkUrgentSnackbar;
-import tool.compet.appbundle.floatingbar.DkUrgentToastbar;
 import tool.compet.appbundle.navigator.DkFragmentNavigator;
 import tool.compet.appbundle.topic.DkTopicOwner;
 import tool.compet.core.BuildConfig;
@@ -403,16 +401,8 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends A
 		return DkSnackbar.newIns(layout);
 	}
 
-	public DkSnackbar urgentSnackbar() {
-		return DkUrgentSnackbar.newIns(layout);
-	}
-
 	public DkToastbar toastbar() {
 		return DkToastbar.newIns(layout);
-	}
-
-	public DkToastbar urgentToastbar() {
-		return DkUrgentToastbar.newIns(layout);
 	}
 
 	// endregion Floating bar

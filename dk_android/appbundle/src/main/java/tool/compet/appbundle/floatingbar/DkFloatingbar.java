@@ -18,6 +18,7 @@ import android.view.ViewParent;
 import android.view.accessibility.AccessibilityManager;
 import android.view.animation.Interpolator;
 
+import androidx.annotation.NonNull;
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 
 import tool.compet.core.DkRunner;
@@ -61,6 +62,9 @@ public abstract class DkFloatingbar<B> implements View.OnTouchListener {
 	// Animation
 	protected static Interpolator fastOutSlowIn = new FastOutSlowInInterpolator();
 
+	protected ValueAnimator inAnimator;
+	protected ValueAnimator outAnimator;
+
 	private final AccessibilityManager accessibilityManager;
 	// Animation poster
 	private static final Handler handler;
@@ -81,7 +85,10 @@ public abstract class DkFloatingbar<B> implements View.OnTouchListener {
 		});
 	}
 
+	static int callbackId;
 	private final MyFloatingbarManager.Callback actionCallback = new MyFloatingbarManager.Callback() {
+		final int id = ++callbackId;
+
 		@Override
 		public void show() {
 			handler.sendMessageDelayed(Message.obtain(handler, MSG_SHOW, DkFloatingbar.this), 0);
@@ -90,6 +97,26 @@ public abstract class DkFloatingbar<B> implements View.OnTouchListener {
 		@Override
 		public void dismiss() {
 			handler.sendMessageDelayed(Message.obtain(handler, MSG_DISMISS, DkFloatingbar.this), 0);
+		}
+
+		@Override
+		public void dismissNow() {
+			handler.removeCallbacksAndMessages(null);
+
+			if (inAnimator != null) {
+				inAnimator.end();
+			}
+			if (outAnimator != null) {
+				outAnimator.end();
+			}
+
+			onViewDismissed();
+		}
+
+		@NonNull
+		@Override
+		public String toString() {
+			return "id=" + id;
 		}
 	};
 
@@ -104,6 +131,11 @@ public abstract class DkFloatingbar<B> implements View.OnTouchListener {
 	public void show() {
 		// Just tell manager schedule to show this bar
 		manager().show(duration, actionCallback);
+	}
+
+	public void showNow() {
+		manager().dismissAllNow();
+		show();
 	}
 
 	public void dismiss() {
@@ -161,24 +193,28 @@ public abstract class DkFloatingbar<B> implements View.OnTouchListener {
 		int height = bar.getHeight();
 		bar.setTranslationY(height);
 
-		ValueAnimator va = new ValueAnimator();
-		va.setIntValues(height, 0);
-		va.setDuration(200);
-		va.setInterpolator(fastOutSlowIn);
+		if (inAnimator == null) {
+			inAnimator = new ValueAnimator();
+		}
+		inAnimator.setIntValues(height, 0);
+		inAnimator.setDuration(200);
+		inAnimator.setInterpolator(fastOutSlowIn);
 
-		return va;
+		return inAnimator;
 	}
 
 	/**
 	 * Override this method to setup initial state of bar and customize ValueAnimator for out-animation.
 	 */
 	protected ValueAnimator prepareOutAnimation() {
-		ValueAnimator va = new ValueAnimator();
-		va.setIntValues(0, bar.getHeight());
-		va.setDuration(200);
-		va.setInterpolator(fastOutSlowIn);
+		if (outAnimator == null) {
+			outAnimator  = new ValueAnimator();
+		}
+		outAnimator.setIntValues(0, bar.getHeight());
+		outAnimator.setDuration(200);
+		outAnimator.setInterpolator(fastOutSlowIn);
 
-		return va;
+		return outAnimator;
 	}
 
 	/**
@@ -204,7 +240,7 @@ public abstract class DkFloatingbar<B> implements View.OnTouchListener {
 	}
 
 	private void onViewShown() {
-		// tell manager when this view is shown
+		// Tell manager when this view is shown
 		manager().onViewShown(actionCallback);
 
 		if (onShownCallback != null) {
