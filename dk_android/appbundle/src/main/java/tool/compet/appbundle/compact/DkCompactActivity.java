@@ -17,7 +17,6 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
@@ -61,8 +60,6 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends A
 
 	// Current app
 	protected DkApp app;
-	// Current fragment activity
-	protected FragmentActivity host;
 	// Current context
 	protected Context context;
 	// Layout of this view (normally is ViewGroup, but sometime, user maybe layout with single view)
@@ -70,8 +67,7 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends A
 	// Child navigator
 	protected DkFragmentNavigator childNavigator;
 	// ViewLogic (to instantiate it, subclass just provide generic type of ViewLogic when extends this view)
-	@MyInjectViewLogic
-	protected VL viewLogic;
+	@MyInjectViewLogic protected VL viewLogic;
 
 	/**
 	 * Must provide id of fragent container via {@link DkCompactFragment#fragmentContainerId()}.
@@ -122,7 +118,6 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends A
 		super.onCreate(savedInstanceState);
 
 		app = (DkApp) getApplication();
-		host = this;
 		context = this;
 
 		// Must run after #super.onCreate()
@@ -147,6 +142,7 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends A
 			}
 		}
 
+		// Debug log as visual
 		if (BuildConfig.DEBUG) {
 			// Observe log to show at active state of the view
 			MutableLiveData<String> log = new MutableLiveData<>();
@@ -163,8 +159,8 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends A
 
 			// Show log via livedata
 			DkLogs.logCallback = (type, message) -> {
-				if (DkLogs.TYPE_ERROR.equals(type) || DkLogs.TYPE_WARNING.equals(type)) {
-					log.setValue(message);
+				if (DkLogs.TYPE_WARNING.equals(type) || DkLogs.TYPE_ERROR.equals(type) || DkLogs.TYPE_EMERGENCY.equals(type)) {
+					log.postValue(message);
 				}
 			};
 		}
@@ -243,7 +239,6 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends A
 		}
 
 		this.app = null;
-		this.host = null;
 		this.context = null;
 		this.layout = null;
 
@@ -379,18 +374,33 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends A
 	// region Scoped topic
 
 	/**
-	 * Obtain the topic controller and Make this view becomes an owner of the topic.
-	 * When all owners of the topic were destroyed, topic and its material will be cleared.
+	 * Obtain the topic owner at app scope.
+	 * When all owners of the topic were destroyed, the topic and its material will be cleared.
 	 */
-	public DkTopicOwner joinTopic(String topicId) {
+	public DkTopicOwner joinTopicAtAppScope(String topicId) {
 		return new DkTopicOwner(topicId, app).registerClient(this);
 	}
 
 	/**
-	 * Just obtain the topic controller.
+	 * Obtain the topic owner at own scope.
+	 * When all owners of the topic were destroyed, the topic and its material will be cleared.
 	 */
-	public DkTopicOwner viewTopic(String topicId) {
+	public DkTopicOwner joinTopicAtOwnScope(String topicId) {
+		return new DkTopicOwner(topicId, this).registerClient(this);
+	}
+
+	/**
+	 * Just obtain the topic owner at app scope.
+	 */
+	public DkTopicOwner viewTopicAtAppScope(String topicId) {
 		return new DkTopicOwner(topicId, app);
+	}
+
+	/**
+	 * Just obtain the topic owner at own scope.
+	 */
+	public DkTopicOwner viewTopicAtOwnScope(String topicId) {
+		return new DkTopicOwner(topicId, this);
 	}
 
 	// endregion Scoped topic

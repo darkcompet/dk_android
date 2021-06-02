@@ -317,7 +317,7 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment impleme
 	 * After call dismiss(), this method will be called soon.
 	 * It is useful to listen dismiss event of the dialog.
 	 */
-	@Override
+	@Override // from framework dialog-fragment
 	public void onDismiss(@NonNull DialogInterface dialog) {
 		// Notify parent fragment goto inactive state
 		Fragment parent = getParentFragment();
@@ -338,16 +338,27 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment impleme
 	}
 
 	/**
-	 * Show dialog by transaction adding it via fragment manager.
+	 * Show dialog via `DialogFragment` way.
 	 *
 	 * @param fm Fragment manager (normally this is of current fragment, activity...)
 	 */
-	public void show(FragmentManager fm) {
-		this.show(fm, TAG);
+	public boolean show(FragmentManager fm) {
+		return this.showActual(fm, TAG);
+	}
+
+	/**
+	 * Show dialog via `DkFragmentNavigator` way.
+	 */
+	public boolean show(DkFragmentNavigator navigator) {
+		return navigator.beginTransaction().add(getClass()).commit();
 	}
 
 	@Override
 	public void show(@NonNull FragmentManager fm, String tag) {
+		showActual(fm, tag);
+	}
+
+	private boolean showActual(@NonNull FragmentManager fm, String tag) {
 		// Execute all pending transactions first
 		try {
 			notifyParentInactive();
@@ -356,27 +367,32 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment impleme
 		catch (Exception e) {
 			DkLogs.error(this, e);
 		}
+
 		// Show actual
-		finally {
-			try {
-				// perform transaction inside parent FM
-				super.show(fm, tag);
-			}
-			catch (Exception e) {
-				DkLogs.error(this, e);
-			}
+		try {
+			// perform transaction inside parent FM
+			super.show(fm, tag);
+			return true;
 		}
+		catch (Exception e) {
+			DkLogs.error(this, e);
+		}
+
+		return false;
 	}
 
 	/**
 	 * Finish this view by tell parent remove this from navigator.
 	 */
-	@Override
+	@Override // from dk fragment
 	public boolean close() {
-		return getParentNavigator().beginTransaction().remove(getClass().getName()).commit();
+		return getParentNavigator().beginTransaction().remove(getClass()).commit();
 	}
 
-	@Override // from super fragment
+	/**
+	 * We override `dismiss()` to call own `DkFragment.close()`.
+	 */
+	@Override // from framework dialog-fragment
 	public void dismiss() {
 		close();
 	}
@@ -409,18 +425,48 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment impleme
 	// region Scoped topic
 
 	/**
-	 * Obtain the topic controller and Make this view becomes an owner of the topic.
-	 * When all owners of the topic were destroyed, topic and its material will be cleared.
+	 * Obtain the topic owner at app scope.
+	 * When all owners of the topic were destroyed, the topic and its material will be cleared.
 	 */
-	public DkTopicOwner joinTopic(String topicId) {
+	public DkTopicOwner joinTopicAtAppScope(String topicId) {
+		return new DkTopicOwner(topicId, app).registerClient(this);
+	}
+
+	/**
+	 * Obtain the topic owner at host scope.
+	 * When all owners of the topic were destroyed, the topic and its material will be cleared.
+	 */
+	public DkTopicOwner joinTopicAtHostScope(String topicId) {
 		return new DkTopicOwner(topicId, host).registerClient(this);
 	}
 
 	/**
-	 * Just obtain the topic controller.
+	 * Obtain the topic owner at own scope.
+	 * When all owners of the topic were destroyed, the topic and its material will be cleared.
 	 */
-	public DkTopicOwner viewTopic(String topicId) {
+	public DkTopicOwner joinTopicAtOwnScope(String topicId) {
+		return new DkTopicOwner(topicId, this).registerClient(this);
+	}
+
+	/**
+	 * Just obtain the topic owner at app scope.
+	 */
+	public DkTopicOwner viewTopicAtAppScope(String topicId) {
+		return new DkTopicOwner(topicId, app);
+	}
+
+	/**
+	 * Just obtain the topic owner at host scope.
+	 */
+	public DkTopicOwner viewTopicAtHostScope(String topicId) {
 		return new DkTopicOwner(topicId, host);
+	}
+
+	/**
+	 * Just obtain the topic owner at own scope.
+	 */
+	public DkTopicOwner viewTopicAtOwnScope(String topicId) {
+		return new DkTopicOwner(topicId, this);
 	}
 
 	// endregion Scoped topic

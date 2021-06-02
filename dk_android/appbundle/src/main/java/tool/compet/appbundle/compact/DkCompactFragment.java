@@ -405,18 +405,48 @@ public abstract class DkCompactFragment<VL extends DkCompactViewLogic> extends F
 	// region Scoped topic
 
 	/**
-	 * Obtain the topic controller and Make this view becomes an owner of the topic.
-	 * When all owners of the topic were destroyed, topic and its material will be cleared.
+	 * Obtain the topic owner at app scope.
+	 * When all owners of the topic were destroyed, the topic and its material will be cleared.
 	 */
-	public DkTopicOwner joinTopic(String topicId) {
+	public DkTopicOwner joinTopicAtAppScope(String topicId) {
+		return new DkTopicOwner(topicId, app).registerClient(this);
+	}
+
+	/**
+	 * Obtain the topic owner at host scope.
+	 * When all owners of the topic were destroyed, the topic and its material will be cleared.
+	 */
+	public DkTopicOwner joinTopicAtHostScope(String topicId) {
 		return new DkTopicOwner(topicId, host).registerClient(this);
 	}
 
 	/**
-	 * Just obtain the topic controller.
+	 * Obtain the topic owner at own scope.
+	 * When all owners of the topic were destroyed, the topic and its material will be cleared.
 	 */
-	public DkTopicOwner viewTopic(String topicId) {
+	public DkTopicOwner joinTopicAtOwnScope(String topicId) {
+		return new DkTopicOwner(topicId, this).registerClient(this);
+	}
+
+	/**
+	 * Just obtain the topic owner at app scope.
+	 */
+	public DkTopicOwner viewTopicAtAppScope(String topicId) {
+		return new DkTopicOwner(topicId, app);
+	}
+
+	/**
+	 * Just obtain the topic owner at host scope.
+	 */
+	public DkTopicOwner viewTopicAtHostScope(String topicId) {
 		return new DkTopicOwner(topicId, host);
+	}
+
+	/**
+	 * Just obtain the topic owner at own scope.
+	 */
+	public DkTopicOwner viewTopicAtOwnScope(String topicId) {
+		return new DkTopicOwner(topicId, this);
 	}
 
 	// endregion Scoped topic

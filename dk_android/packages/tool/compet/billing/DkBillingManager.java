@@ -29,38 +29,10 @@ import tool.compet.core.DkLogs;
 import tool.compet.core.DkRunner2;
 
 public class DkBillingManager implements PurchasesUpdatedListener {
-	// Called when billingClient complete
-	@Override
-	public void onPurchasesUpdated(@NonNull BillingResult billingResult, @Nullable List<Purchase> purchasesList) {
-		if (purchaseListener == null) {
-			return;
-		}
-		final int responseCode = billingResult.getResponseCode();
-		if (responseCode == BillingClient.BillingResponseCode.OK) {
-			List<Purchase> purchases = new ArrayList<>();
-
-			if (purchasesList != null) {
-				for (Purchase purchase : purchasesList) {
-					if (verifyPurchase(purchase)) {
-						purchases.add(purchase);
-					}
-				}
-			}
-			purchaseListener.onPurchasesUpdated(purchases);
-		}
-		else if (responseCode == BillingClient.BillingResponseCode.USER_CANCELED) {
-			purchaseListener.onPurchaseCancelled();
-		}
-		else {
-			purchaseListener.onPurchaseFailed(responseCode);
-		}
-	}
-
 	/**
-	 * This is listener when purchase is responsed if #purchase() or #subscribe() called before.
-	 * About history purchases fetching, you can call some method like #queryAllPurchases()...
-	 * and handle result manually or handle via #PurchaseListener.onPurchasesUpdated() if
-	 * you consider history purchases should be acted as newly purchases.
+	 * This is listener when purchase is responsed if `purchase()` or `subscribe()` called before.
+	 * About history purchases reference, you can call some method like `queryAllPurchases()`...
+	 * and handle result manually.
 	 */
 	public interface PurchaseListener {
 		/**
@@ -88,17 +60,50 @@ public class DkBillingManager implements PurchasesUpdatedListener {
 		void onPurchaseRevoked(int responseCode, String purchaseToken);
 	}
 
+	// Called when purchase flow finished, we callback to caller at this time
+	@Override
+	public void onPurchasesUpdated(@NonNull BillingResult billingResult, @Nullable List<Purchase> purchasesList) {
+		if (purchaseListener == null) {
+			return;
+		}
+		final int responseCode = billingResult.getResponseCode();
+		if (responseCode == BillingClient.BillingResponseCode.OK) {
+			List<Purchase> purchases = new ArrayList<>();
+
+			if (purchasesList != null) {
+				for (Purchase purchase : purchasesList) {
+					if (verifyPurchase(purchase)) {
+						purchases.add(purchase);
+					}
+				}
+			}
+			purchaseListener.onPurchasesUpdated(purchases);
+		}
+		else if (responseCode == BillingClient.BillingResponseCode.USER_CANCELED) {
+			purchaseListener.onPurchaseCancelled();
+		}
+		else {
+			purchaseListener.onPurchaseFailed(responseCode);
+		}
+	}
+
 	private BillingClient billingClient;
 	private final String publicKey;
-	private PurchaseListener purchaseListener;
 	private HashSet<String> revokedTokens;
 
+	// Caller can set this to listen event when purchase finish
+	@Nullable private PurchaseListener purchaseListener;
+//	private BillingClientConnectionListener
+
 	public DkBillingManager(Context context, String publicKey, @Nullable PurchaseListener purchaseListener) {
+		// Setup billing client object
 		this.billingClient = BillingClient.newBuilder(context)
 			.setListener(this)
 			.enablePendingPurchases()
 			.build();
+		// This key is used for security validation
 		this.publicKey = publicKey;
+		// Remeber purchase listener from caller
 		this.purchaseListener = purchaseListener;
 		// Start connection
 		this.billingClient.startConnection(new BillingClientStateListener() {
@@ -113,23 +118,29 @@ public class DkBillingManager implements PurchasesUpdatedListener {
 	}
 
 	/**
-	 * For in-app purchase.
+	 * Purchase in-app. When done, we callback at given `purchaseListener`.
 	 */
 	public void purchase(Activity host, String sku) {
 		purchase(host, sku, BillingClient.SkuType.INAPP);
 	}
 
 	/**
-	 * For subscription.
+	 * Subscribe app. When done, we callback at given `purchaseListener`.
 	 */
 	public void subscribe(Activity host, String sku) {
 		purchase(host, sku, BillingClient.SkuType.SUBS);
 	}
 
+	/**
+	 * Purchase app. When done, we callback at given `purchaseListener`.
+	 */
 	public void purchase(Activity host, String sku, String skuType) {
 		purchase(host, Collections.singletonList(sku), skuType);
 	}
 
+	/**
+	 * Purchase app. When done, we callback at given `purchaseListener`.
+	 */
 	public void purchase(Activity host, List<String> skuList, String skuType) {
 		executeService(() -> {
 			SkuDetailsParams skuDetailsParams = SkuDetailsParams.newBuilder()
@@ -144,6 +155,7 @@ public class DkBillingManager implements PurchasesUpdatedListener {
 							.setSkuDetails(skuDetails)
 							.build();
 
+						// Start purchase flow
 						billingClient.launchBillingFlow(host, billingFlowParams);
 					}
 				}
@@ -152,11 +164,11 @@ public class DkBillingManager implements PurchasesUpdatedListener {
 	}
 
 	/**
-	 * For convenience, this method NOT call #onPurchasesUpdated() to update result.
-	 * You must handle returned value from this method.
+	 * Note that, this method does NOT callback at given `purchaseListener`.
+	 * You should handle the result from this method directly.
 	 * <p></p>
-	 * Query active purchases which user bought via in-app. Note that, for purchase which
-	 * has been cancelled or expired will not be listed in result.
+	 * Query active purchases which user bought via in-app. That is, a purchase which
+	 * has been `cancelled` or `expired` will NOT be listed in result.
 	 */
 	public List<Purchase> queryInAppPurchases() {
 		Purchase.PurchasesResult result = queryPurchaseHistories(BillingClient.SkuType.INAPP);
@@ -169,11 +181,11 @@ public class DkBillingManager implements PurchasesUpdatedListener {
 	}
 
 	/**
-	 * For convenience, this method NOT call #onPurchasesUpdated() to update result.
-	 * You must handle returned value from this method.
+	 * Note that, this method does NOT callback at given `purchaseListener`.
+	 * You should handle the result from this method directly.
 	 * <p></p>
-	 * Query active purchases which user subscribed. Note that, for purchase which
-	 * has been cancelled or expired will not be listed in result.
+	 * Query active purchases which user subscribed. That is, a purchase which
+	 * has been `cancelled` or `expired` will NOT be listed in result.
 	 */
 	public List<Purchase> querySubscriptionPurchases() {
 		if (!isFeatureSupported(BillingClient.FeatureType.SUBSCRIPTIONS)) {
@@ -187,11 +199,11 @@ public class DkBillingManager implements PurchasesUpdatedListener {
 	}
 
 	/**
-	 * For convenience, this method NOT call #onPurchasesUpdated() to update result.
-	 * You must handle returned value from this method.
+	 * Note that, this method does NOT callback at given `purchaseListener`.
+	 * You should handle the result from this method directly.
 	 * <p></p>
-	 * Query all active purchases which user bought in-app or subscribed. Note that, for purchase which
-	 * has been cancelled or expired will not be listed in result.
+	 * Query all active purchases which user bought `in-app` or `subscribed`. That is, a purchase which
+	 * has been `cancelled` or `expired` will not be listed in result.
 	 */
 	public List<Purchase> queryAllPurchases() {
 		List<Purchase> purchases = new ArrayList<>();
@@ -209,7 +221,8 @@ public class DkBillingManager implements PurchasesUpdatedListener {
 	}
 
 	/**
-	 * Query information for sku (product id).
+	 * Async query information for sku (product id).
+	 * Note that, this method does NOT callback at given `purchaseListener`.
 	 *
 	 * @param skuType  BillingClient.SkuType.INAPP or BillingClient.SkuType.SUBS
 	 * @param skuList  List of sku which you want to know.
@@ -229,9 +242,10 @@ public class DkBillingManager implements PurchasesUpdatedListener {
 	}
 
 	/**
-	 * Mark the purchase is invalid item (for eg,. it is not needed check anymore).
+	 * Async mark the purchase is invalid item (for eg,. it is not needed check anymore).
+	 * Note that, this method does NOT callback at given `purchaseListener`.
 	 */
-	public void revokeAsync(String purchaseToken) {
+	public void revokeAsync(String purchaseToken, @Nullable PurchaseListener purchaseListener) {
 		if (revokedTokens == null) {
 			revokedTokens = new HashSet<>();
 		}

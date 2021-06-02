@@ -20,19 +20,19 @@ import tool.compet.core.DkMaths;
  * other types (int, double...) then we will get an exception when load them with other type.
  */
 @SuppressLint("ApplySharedPref")
-public class DkCompactPreferenceStorage {
-	protected final SharedPreferences preference;
+public class DkSharedPreferences {
+	protected final SharedPreferences preferences;
 
-	public DkCompactPreferenceStorage(Context context, String prefName) {
-		this.preference = context.getSharedPreferences(prefName, Context.MODE_PRIVATE);
+	public DkSharedPreferences(Context context, String prefName) {
+		this.preferences = context.getSharedPreferences(prefName, Context.MODE_PRIVATE);
 	}
 
-	public DkCompactPreferenceStorage(Context context, String prefName, int prefMode) {
-		this.preference = context.getSharedPreferences(prefName, prefMode);
+	public DkSharedPreferences(Context context, String prefName, int prefMode) {
+		this.preferences = context.getSharedPreferences(prefName, prefMode);
 	}
 
 	public boolean exists(String key) {
-		return preference.contains(key);
+		return preferences.contains(key);
 	}
 
 	//
@@ -40,11 +40,11 @@ public class DkCompactPreferenceStorage {
 	//
 
 	public void storeInt(String key, int value) {
-		preference.edit().putString(key, String.valueOf(value)).commit();
+		preferences.edit().putString(key, String.valueOf(value)).commit();
 	}
 
 	public void applyInt(String key, int value) {
-		preference.edit().putString(key, String.valueOf(value)).apply();
+		preferences.edit().putString(key, String.valueOf(value)).apply();
 	}
 
 	public int getInt(String key) {
@@ -61,11 +61,11 @@ public class DkCompactPreferenceStorage {
 	//
 
 	public void storeFloat(String key, float value) {
-		preference.edit().putString(key, String.valueOf(value)).commit();
+		preferences.edit().putString(key, String.valueOf(value)).commit();
 	}
 
 	public void applyFloat(String key, float value) {
-		preference.edit().putString(key, String.valueOf(value)).apply();
+		preferences.edit().putString(key, String.valueOf(value)).apply();
 	}
 
 	public float getFloat(String key) {
@@ -82,11 +82,11 @@ public class DkCompactPreferenceStorage {
 	//
 
 	public void storeDouble(String key, double value) {
-		preference.edit().putString(key, String.valueOf(value)).commit();
+		preferences.edit().putString(key, String.valueOf(value)).commit();
 	}
 
 	public void applyDouble(String key, double value) {
-		preference.edit().putString(key, String.valueOf(value)).apply();
+		preferences.edit().putString(key, String.valueOf(value)).apply();
 	}
 
 	public double getDouble(String key) {
@@ -103,11 +103,11 @@ public class DkCompactPreferenceStorage {
 	//
 
 	public void storeBoolean(String key, boolean value) {
-		preference.edit().putString(key, String.valueOf(value)).commit();
+		preferences.edit().putString(key, String.valueOf(value)).commit();
 	}
 
 	public void applyBoolean(String key, boolean value) {
-		preference.edit().putString(key, String.valueOf(value)).apply();
+		preferences.edit().putString(key, String.valueOf(value)).apply();
 	}
 
 	public boolean getBoolean(String key) {
@@ -124,11 +124,11 @@ public class DkCompactPreferenceStorage {
 	//
 
 	public void storeLong(String key, long value) {
-		preference.edit().putString(key, String.valueOf(value)).commit();
+		preferences.edit().putString(key, String.valueOf(value)).commit();
 	}
 
 	public void applyLong(String key, long value) {
-		preference.edit().putString(key, String.valueOf(value)).apply();
+		preferences.edit().putString(key, String.valueOf(value)).apply();
 	}
 
 	public long getLong(String key) {
@@ -145,17 +145,17 @@ public class DkCompactPreferenceStorage {
 	//
 
 	public void storeString(String key, String value) {
-		preference.edit().putString(key, value).commit();
+		preferences.edit().putString(key, value).commit();
 	}
 
 	public void applyString(String key, String value) {
-		preference.edit().putString(key, value).apply();
+		preferences.edit().putString(key, value).apply();
 	}
 
 	public String getString(String key) {
 		try {
 			// We perform try/catch to archive back-compability (load other types will cause exception)
-			return preference.getString(key, null);
+			return preferences.getString(key, null);
 		}
 		catch (Exception e) {
 			DkLogs.error(this, e);
@@ -166,7 +166,7 @@ public class DkCompactPreferenceStorage {
 	public String getString(String key, String defaultValue) {
 		try {
 			// We perform try/catch to archive back-compability (load other types will cause exception)
-			return preference.getString(key, defaultValue);
+			return preferences.getString(key, defaultValue);
 		}
 		catch (Exception e) {
 			DkLogs.error(this, e);
@@ -179,17 +179,17 @@ public class DkCompactPreferenceStorage {
 	//
 
 	public void storeStringSet(String key, Set<String> values) {
-		preference.edit().putStringSet(key, values).commit();
+		preferences.edit().putStringSet(key, values).commit();
 	}
 
 	public void applyStringSet(String key, Set<String> values) {
-		preference.edit().putStringSet(key, values).apply();
+		preferences.edit().putStringSet(key, values).apply();
 	}
 
 	public Set<String> getStringSet(String key) {
 		try {
 			// We perform try/catch to archive back-compability (load other types will cause exception)
-			return preference.getStringSet(key, null);
+			return preferences.getStringSet(key, null);
 		}
 		catch (Exception e) {
 			DkLogs.error(this, e);
@@ -200,7 +200,7 @@ public class DkCompactPreferenceStorage {
 	public Set<String> getStringSet(String key, Set<String> defaultValue) {
 		try {
 			// We perform try/catch to archive back-compability (load other types will cause exception)
-			return preference.getStringSet(key, defaultValue);
+			return preferences.getStringSet(key, defaultValue);
 		}
 		catch (Exception e) {
 			DkLogs.error(this, e);
@@ -229,22 +229,22 @@ public class DkCompactPreferenceStorage {
 	//
 
 	public void delete(String key) {
-		preference.edit().remove(key).commit();
+		preferences.edit().remove(key).commit();
 	}
 
 	public void applyDelete(String key) {
-		preference.edit().remove(key).apply();
+		preferences.edit().remove(key).apply();
 	}
 
 	public void clear() {
-		preference.edit().clear().commit();
+		preferences.edit().clear().commit();
 	}
 
 	public void applyClear() {
-		preference.edit().clear().apply();
+		preferences.edit().clear().apply();
 	}
 
 	public void commit() {
-		preference.edit().commit();
+		preferences.edit().commit();
 	}
 }

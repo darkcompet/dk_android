@@ -13,6 +13,7 @@ public class DkLogger {
 	public interface LogType {
 		String TYPE_DEBUG = "debug";
 		String TYPE_INFO = "info";
+		String TYPE_NOTICE = "notice";
 		String TYPE_WARNING = "warning";
 		String TYPE_ERROR = "error";
 		String TYPE_EMERGENCY = "emergency";
@@ -45,6 +46,13 @@ public class DkLogger {
 	 */
 	public void info(@Nullable Object where, @Nullable String format, Object... args) {
 		log(LogType.TYPE_INFO, where, format, args);
+	}
+
+	/**
+	 * Log notice.
+	 */
+	public void notice(@Nullable Object where, @Nullable String format, Object... args) {
+		log(LogType.TYPE_NOTICE, where, format, args);
 	}
 
 	/**
