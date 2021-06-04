@@ -18,7 +18,6 @@ import android.view.ViewParent;
 import android.view.accessibility.AccessibilityManager;
 import android.view.animation.Interpolator;
 
-import androidx.annotation.NonNull;
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 
 import tool.compet.core.DkRunner;
@@ -85,10 +84,7 @@ public abstract class DkFloatingbar<B> implements View.OnTouchListener {
 		});
 	}
 
-	static int callbackId;
 	private final MyFloatingbarManager.Callback actionCallback = new MyFloatingbarManager.Callback() {
-		final int id = ++callbackId;
-
 		@Override
 		public void show() {
 			handler.sendMessageDelayed(Message.obtain(handler, MSG_SHOW, DkFloatingbar.this), 0);
@@ -111,12 +107,6 @@ public abstract class DkFloatingbar<B> implements View.OnTouchListener {
 			}
 
 			onViewDismissed();
-		}
-
-		@NonNull
-		@Override
-		public String toString() {
-			return "id=" + id;
 		}
 	};
 

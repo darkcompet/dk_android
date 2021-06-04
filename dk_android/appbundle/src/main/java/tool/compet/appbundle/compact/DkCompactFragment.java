@@ -28,11 +28,12 @@ import tool.compet.appbundle.binder.DkBinder;
 import tool.compet.appbundle.floatingbar.DkSnackbar;
 import tool.compet.appbundle.floatingbar.DkToastbar;
 import tool.compet.appbundle.navigator.DkFragmentNavigator;
+import tool.compet.appbundle.navigator.DkNavigatorOwner;
 import tool.compet.appbundle.topic.DkTopicOwner;
 import tool.compet.core.DkLogs;
 
 /**
- * Compact fragment which provides a lot of optional features:
+ * This is standard fragment which provides a lot of optional features:
  * - Debug logs in lifecycle methods
  * - [Optional] ViewModel store owner (overcome configuration-change)
  * - [Optional] Bind layout, views with DkBinder, enable/disable via `enableBindingView()`
@@ -41,8 +42,8 @@ import tool.compet.core.DkLogs;
  * - [Optional] ViewLogic design pattern (coupling View and ViewLogic), enable/disable via `enableViewLogicDesignPattern()`
  * - [Optional] Floating bar to show message (snackbar, toastbar, ...)
  */
-public abstract class DkCompactFragment<VL extends DkCompactViewLogic> extends Fragment
-	implements DkFragment, DkFragmentNavigator.Callback, DkCompactView {
+public abstract class DkCompactFragment<L extends DkCompactLogic, D> extends Fragment
+	implements DkFragment, DkFragmentNavigator.Callback, DkCompactView, DkNavigatorOwner {
 
 	// Allow init ViewLogic which couples with this View
 	protected boolean enableViewLogicDesignPattern() {
@@ -64,44 +65,49 @@ public abstract class DkCompactFragment<VL extends DkCompactViewLogic> extends F
 	protected View layout;
 	// Child navigator
 	protected DkFragmentNavigator childNavigator;
-	// ViewLogic (to instantiate it, subclass just provide generic type of ViewLogic when extends this view)
-	@MyInjectViewLogic
-	protected VL viewLogic;
+	// Logic for View (to instantiate it, subclass just provide generic type of logic when extends this view)
+	@MyInjectLogic protected L logic;
+	// Data for View (to instantiate it, subclass just provide generic type of data when extends this view)
+	@MyInjectData protected D data;
 
 	// region Navigator
 
 	/**
 	 * Must provide id of fragent container via {@link DkCompactFragment#fragmentContainerId()}.
 	 */
+	@Override // from `DkNavigatorOwner`
 	public DkFragmentNavigator getChildNavigator() {
 		if (childNavigator == null) {
 			int containerId = fragmentContainerId();
+
 			if (containerId <= 0) {
-				DkLogs.complain(this, "Must provide fragmentContainerId (%d) inside layout", containerId);
+				DkLogs.complain(this, "Must provide `fragmentContainerId()`");
 			}
+
 			childNavigator = new DkFragmentNavigator(containerId, getChildFragmentManager(), this);
 		}
 		return childNavigator;
 	}
 
+	@Override // from `DkNavigatorOwner`
 	public DkFragmentNavigator getParentNavigator() {
 		Fragment parent = getParentFragment();
-		DkFragmentNavigator owner = null;
+		DkFragmentNavigator parentNavigator = null;
 
 		if (parent == null) {
-			if (host instanceof DkCompactActivity) {
-				owner = ((DkCompactActivity) host).getChildNavigator();
+			if (host instanceof DkNavigatorOwner) {
+				parentNavigator = ((DkNavigatorOwner) host).getChildNavigator();
 			}
 		}
-		else if (parent instanceof DkCompactFragment) {
-			owner = ((DkCompactFragment) parent).getChildNavigator();
+		else if (parent instanceof DkNavigatorOwner) {
+			parentNavigator = ((DkNavigatorOwner) parent).getChildNavigator();
 		}
 
-		if (owner == null) {
+		if (parentNavigator == null) {
 			DkLogs.complain(this, "Must have a parent navigator own this fragment `%s`", getClass().getName());
 		}
 
-		return owner;
+		return parentNavigator;
 	}
 
 	// endregion Navigator
@@ -153,10 +159,10 @@ public abstract class DkCompactFragment<VL extends DkCompactViewLogic> extends F
 
 		// Must run after #super.onCreate()
 		if (enableViewLogicDesignPattern()) {
-			viewLogic = new MyCompactInjector(this).injectViewLogic();
+			MyCompactRegistry.wire(this);
 
-			if (viewLogic != null) {
-				viewLogic.onCreate(host, savedInstanceState);
+			if (logic != null) {
+				logic.onCreate(host, savedInstanceState);
 			}
 		}
 	}
@@ -187,8 +193,8 @@ public abstract class DkCompactFragment<VL extends DkCompactViewLogic> extends F
 			DkLogs.info(this, "onViewCreated");
 		}
 		super.onViewCreated(view, savedInstanceState);
-		if (viewLogic != null) {
-			viewLogic.onViewCreated(host, savedInstanceState);
+		if (logic != null) {
+			logic.onViewCreated(host, savedInstanceState);
 		}
 	}
 
@@ -198,8 +204,8 @@ public abstract class DkCompactFragment<VL extends DkCompactViewLogic> extends F
 			DkLogs.info(this, "onActivityCreated");
 		}
 		super.onActivityCreated(savedInstanceState);
-		if (viewLogic != null) {
-			viewLogic.onActivityCreated(host, savedInstanceState);
+		if (logic != null) {
+			logic.onActivityCreated(host, savedInstanceState);
 		}
 	}
 
@@ -209,8 +215,8 @@ public abstract class DkCompactFragment<VL extends DkCompactViewLogic> extends F
 			DkLogs.info(this, "onStart");
 		}
 		super.onStart();
-		if (viewLogic != null) {
-			viewLogic.onStart(host);
+		if (logic != null) {
+			logic.onStart(host);
 		}
 	}
 
@@ -225,8 +231,8 @@ public abstract class DkCompactFragment<VL extends DkCompactViewLogic> extends F
 		if (BuildConfig.DEBUG) {
 			DkLogs.info(this, isResume ? "onResume" : "onFront");
 		}
-		if (viewLogic != null) {
-			viewLogic.onActive(host, isResume);
+		if (logic != null) {
+			logic.onActive(host, isResume);
 		}
 	}
 
@@ -241,8 +247,8 @@ public abstract class DkCompactFragment<VL extends DkCompactViewLogic> extends F
 		if (BuildConfig.DEBUG) {
 			DkLogs.info(this, isPause ? "onPause" : "onBehind");
 		}
-		if (viewLogic != null) {
-			viewLogic.onInactive(host, isPause);
+		if (logic != null) {
+			logic.onInactive(host, isPause);
 		}
 	}
 
@@ -251,8 +257,8 @@ public abstract class DkCompactFragment<VL extends DkCompactViewLogic> extends F
 		if (BuildConfig.DEBUG) {
 			DkLogs.info(this, "onStop");
 		}
-		if (viewLogic != null) {
-			viewLogic.onStop(host);
+		if (logic != null) {
+			logic.onStop(host);
 		}
 		super.onStop();
 	}
@@ -270,9 +276,9 @@ public abstract class DkCompactFragment<VL extends DkCompactViewLogic> extends F
 		if (BuildConfig.DEBUG) {
 			DkLogs.info(this, "onDestroy");
 		}
-		if (viewLogic != null) {
-			viewLogic.onDestroy(host);
-			viewLogic = null;
+		if (logic != null) {
+			logic.onDestroy(host);
+			logic = null;
 		}
 		super.onDestroy();
 	}
@@ -296,8 +302,8 @@ public abstract class DkCompactFragment<VL extends DkCompactViewLogic> extends F
 		if (BuildConfig.DEBUG) {
 			DkLogs.info(this, "onActivityResult");
 		}
-		if (viewLogic != null) {
-			viewLogic.onActivityResult(host, requestCode, resultCode, data);
+		if (logic != null) {
+			logic.onActivityResult(host, requestCode, resultCode, data);
 		}
 		super.onActivityResult(requestCode, resultCode, data);
 	}
@@ -307,8 +313,8 @@ public abstract class DkCompactFragment<VL extends DkCompactViewLogic> extends F
 		if (BuildConfig.DEBUG) {
 			DkLogs.info(this, "onActivityResult");
 		}
-		if (viewLogic != null) {
-			viewLogic.onRequestPermissionsResult(host, requestCode, permissions, grantResults);
+		if (logic != null) {
+			logic.onRequestPermissionsResult(host, requestCode, permissions, grantResults);
 		}
 		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 	}
@@ -318,8 +324,8 @@ public abstract class DkCompactFragment<VL extends DkCompactViewLogic> extends F
 		if (BuildConfig.DEBUG) {
 			DkLogs.info(this, "onLowMemory");
 		}
-		if (viewLogic != null) {
-			viewLogic.onLowMemory(host);
+		if (logic != null) {
+			logic.onLowMemory(host);
 		}
 		super.onLowMemory();
 	}
@@ -337,8 +343,8 @@ public abstract class DkCompactFragment<VL extends DkCompactViewLogic> extends F
 		if (childNavigator != null) {
 			childNavigator.saveState(outState);
 		}
-		if (viewLogic != null) {
-			viewLogic.onSaveInstanceState(host, outState);
+		if (logic != null) {
+			logic.onSaveInstanceState(host, outState);
 		}
 		super.onSaveInstanceState(outState);
 	}
@@ -370,9 +376,23 @@ public abstract class DkCompactFragment<VL extends DkCompactViewLogic> extends F
 	}
 
 	/**
-	 * Finish this view by tell parent remove this from navigator.
+	 * Open dialog via parent navigator.
 	 */
-	@Override
+	public boolean open(DkFragmentNavigator navigator) {
+		return navigator.beginTransaction().add(getClass()).commit();
+	}
+
+	/**
+	 * Open dialog via parent navigator.
+	 */
+	public boolean open(DkFragmentNavigator navigator, int enterAnimRes, int exitAnimRes) {
+		return navigator.beginTransaction().setAnims(enterAnimRes, exitAnimRes).add(getClass()).commit();
+	}
+
+	/**
+	 * Close this view by tell parent navigator remove this.
+	 */
+	@Override // from `DkFragment`
 	public boolean close() {
 		return getParentNavigator().beginTransaction().remove(getClass().getName()).commit();
 	}
@@ -408,7 +428,7 @@ public abstract class DkCompactFragment<VL extends DkCompactViewLogic> extends F
 	 * Obtain the topic owner at app scope.
 	 * When all owners of the topic were destroyed, the topic and its material will be cleared.
 	 */
-	public DkTopicOwner joinTopicAtAppScope(String topicId) {
+	public DkTopicOwner joinAppTopic(String topicId) {
 		return new DkTopicOwner(topicId, app).registerClient(this);
 	}
 
@@ -416,7 +436,7 @@ public abstract class DkCompactFragment<VL extends DkCompactViewLogic> extends F
 	 * Obtain the topic owner at host scope.
 	 * When all owners of the topic were destroyed, the topic and its material will be cleared.
 	 */
-	public DkTopicOwner joinTopicAtHostScope(String topicId) {
+	public DkTopicOwner joinHostTopic(String topicId) {
 		return new DkTopicOwner(topicId, host).registerClient(this);
 	}
 
@@ -424,28 +444,28 @@ public abstract class DkCompactFragment<VL extends DkCompactViewLogic> extends F
 	 * Obtain the topic owner at own scope.
 	 * When all owners of the topic were destroyed, the topic and its material will be cleared.
 	 */
-	public DkTopicOwner joinTopicAtOwnScope(String topicId) {
+	public DkTopicOwner joinOwnTopic(String topicId) {
 		return new DkTopicOwner(topicId, this).registerClient(this);
 	}
 
 	/**
 	 * Just obtain the topic owner at app scope.
 	 */
-	public DkTopicOwner viewTopicAtAppScope(String topicId) {
+	public DkTopicOwner viewAppTopic(String topicId) {
 		return new DkTopicOwner(topicId, app);
 	}
 
 	/**
 	 * Just obtain the topic owner at host scope.
 	 */
-	public DkTopicOwner viewTopicAtHostScope(String topicId) {
+	public DkTopicOwner viewHostTopic(String topicId) {
 		return new DkTopicOwner(topicId, host);
 	}
 
 	/**
 	 * Just obtain the topic owner at own scope.
 	 */
-	public DkTopicOwner viewTopicAtOwnScope(String topicId) {
+	public DkTopicOwner viewOwnTopic(String topicId) {
 		return new DkTopicOwner(topicId, this);
 	}
 

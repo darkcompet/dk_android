@@ -48,7 +48,7 @@ class MyFloatingbarManager {
 		}
 	}
 
-	// Dismiss bar
+	// Dismiss the bar
 	void dismiss(Callback callback) {
 		Order order = findOrderFromQueue(callback);
 		if (order != null) {
@@ -64,6 +64,7 @@ class MyFloatingbarManager {
 		// Tell orders dismiss all bars
 		for (Order order : orders) {
 			if (! order.dismissNow()) {
+				// When order cannot dismiss, we help it
 				onDismissed(order);
 			}
 		}

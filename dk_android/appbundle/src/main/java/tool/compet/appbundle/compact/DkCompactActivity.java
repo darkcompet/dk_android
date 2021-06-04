@@ -29,24 +29,25 @@ import tool.compet.appbundle.binder.DkBinder;
 import tool.compet.appbundle.floatingbar.DkSnackbar;
 import tool.compet.appbundle.floatingbar.DkToastbar;
 import tool.compet.appbundle.navigator.DkFragmentNavigator;
+import tool.compet.appbundle.navigator.DkNavigatorOwner;
 import tool.compet.appbundle.topic.DkTopicOwner;
 import tool.compet.core.BuildConfig;
 import tool.compet.core.DkLogs;
 
 /**
- * This is base activity and provides below basic features:
- * - Basic lifecycle methods
- * - Navigator (we can forward, backward, dismiss... page easily)
- * - ViewModel (overcome configuration-change)
- * - Message display (snack, toast...)
- * - Scoped topic (pass data between/under fragments, activities, app)
+ * This is standard activity and provides below basic features:
+ * - Debug log in lifecycle methods.
+ * - [Optional] Navigator (we can forward, backward, dismiss... page easily)
+ * - [Optional] ViewModel (overcome configuration-change)
+ * - [Optional] Message display (snack, toast...)
+ * - [Optional] Scoped topic (pass data between/under fragments, activities, app)
  *
  * <p></p>
  * Be aware of lifecycle in Activity: if activity is not going to be destroyed and
  * returns to foreground after onStop(), then onRestart() -> onStart() will be called respectively.
  */
-public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends AppCompatActivity
-	implements DkActivity, DkFragmentNavigator.Callback, DkCompactView {
+public abstract class DkCompactActivity<L extends DkCompactLogic, D> extends AppCompatActivity
+	implements DkActivity, DkFragmentNavigator.Callback, DkCompactView, DkNavigatorOwner {
 
 	// Allow init ViewLogic which couples with this View
 	protected boolean enableViewLogicDesignPattern() {
@@ -66,25 +67,32 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends A
 	protected View layout;
 	// Child navigator
 	protected DkFragmentNavigator childNavigator;
-	// ViewLogic (to instantiate it, subclass just provide generic type of ViewLogic when extends this view)
-	@MyInjectViewLogic protected VL viewLogic;
+	// Logic for View (to instantiate it, subclass just provide generic type of logic when extends this view)
+	@MyInjectLogic protected L logic;
+	// Data for View (to instantiate it, subclass just provide generic type of data when extends this view)
+	@MyInjectData protected D data;
 
 	/**
 	 * Must provide id of fragent container via {@link DkCompactFragment#fragmentContainerId()}.
 	 */
-	@Override
+	@Override // from `DkNavigatorOwner`
 	public DkFragmentNavigator getChildNavigator() {
 		if (childNavigator == null) {
 			int containerId = fragmentContainerId();
 
 			if (containerId <= 0) {
-				DkLogs.complain(this, "Must provide fragmentContainerId (%s)", containerId);
+				DkLogs.complain(this, "Must provide `fragmentContainerId()`");
 			}
 
 			childNavigator = new DkFragmentNavigator(containerId, getSupportFragmentManager(), this);
 		}
 
 		return childNavigator;
+	}
+
+	@Override // from `DkNavigatorOwner`
+	public DkFragmentNavigator getParentNavigator() {
+		throw new RuntimeException("By default, activity does not provide parent navigator");
 	}
 
 	/**
@@ -122,10 +130,10 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends A
 
 		// Must run after #super.onCreate()
 		if (enableViewLogicDesignPattern()) {
-			viewLogic = new MyCompactInjector(this).injectViewLogic();
+			MyCompactRegistry.wire(this);
 
-			if (viewLogic != null) {
-				viewLogic.onCreate(this, savedInstanceState);
+			if (logic != null) {
+				logic.onCreate(this, savedInstanceState);
 			}
 		}
 
@@ -173,8 +181,8 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends A
 			DkLogs.info(this, "onPostCreate");
 		}
 		super.onPostCreate(savedInstanceState);
-		if (viewLogic != null) {
-			viewLogic.onPostCreate(this, savedInstanceState);
+		if (logic != null) {
+			logic.onPostCreate(this, savedInstanceState);
 		}
 	}
 
@@ -184,8 +192,8 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends A
 			DkLogs.info(this, "onStart");
 		}
 		super.onStart();
-		if (viewLogic != null) {
-			viewLogic.onStart(this);
+		if (logic != null) {
+			logic.onStart(this);
 		}
 	}
 
@@ -211,8 +219,8 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends A
 			DkLogs.info(this, "onStop");
 		}
 		super.onStop();
-		if (viewLogic != null) {
-			viewLogic.onRestart(this);
+		if (logic != null) {
+			logic.onRestart(this);
 		}
 	}
 
@@ -223,8 +231,8 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends A
 			DkLogs.info(this, "onRestart");
 		}
 		super.onRestart();
-		if (viewLogic != null) {
-			viewLogic.onRestart(this);
+		if (logic != null) {
+			logic.onRestart(this);
 		}
 	}
 
@@ -233,9 +241,9 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends A
 		if (BuildConfig.DEBUG) {
 			DkLogs.info(this, "onDestroy");
 		}
-		if (viewLogic != null) {
-			viewLogic.onDestroy(this);
-			viewLogic = null;
+		if (logic != null) {
+			logic.onDestroy(this);
+			logic = null;
 		}
 
 		this.app = null;
@@ -251,8 +259,8 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends A
 			DkLogs.info(this, "onLowMemory");
 		}
 		super.onLowMemory();
-		if (viewLogic != null) {
-			viewLogic.onLowMemory(this);
+		if (logic != null) {
+			logic.onLowMemory(this);
 		}
 	}
 
@@ -262,8 +270,8 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends A
 			DkLogs.info(this, "onConfigurationChanged");
 		}
 		super.onConfigurationChanged(newConfig);
-		if (viewLogic != null) {
-			viewLogic.onConfigurationChanged(this, newConfig);
+		if (logic != null) {
+			logic.onConfigurationChanged(this, newConfig);
 		}
 	}
 
@@ -272,8 +280,8 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends A
 		if (BuildConfig.DEBUG) {
 			DkLogs.info(this, "onRestoreInstanceState");
 		}
-		if (viewLogic != null) {
-			viewLogic.onActivityResult(this, requestCode, resultCode, data);
+		if (logic != null) {
+			logic.onActivityResult(this, requestCode, resultCode, data);
 		}
 		super.onActivityResult(requestCode, resultCode, data);
 	}
@@ -283,8 +291,8 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends A
 		if (BuildConfig.DEBUG) {
 			DkLogs.info(this, "onRequestPermissionsResult");
 		}
-		if (viewLogic != null) {
-			viewLogic.onRequestPermissionsResult(this, rc, perms, res);
+		if (logic != null) {
+			logic.onRequestPermissionsResult(this, rc, perms, res);
 		}
 		super.onRequestPermissionsResult(rc, perms, res);
 	}
@@ -308,8 +316,8 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends A
 		if (BuildConfig.DEBUG) {
 			DkLogs.info(this, isResume ? "onResume" : "onActive");
 		}
-		if (viewLogic != null) {
-			viewLogic.onActive(this, isResume);
+		if (logic != null) {
+			logic.onActive(this, isResume);
 		}
 	}
 
@@ -318,8 +326,8 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends A
 		if (BuildConfig.DEBUG) {
 			DkLogs.info(this, isPause ? "onPause" : "onInactive");
 		}
-		if (viewLogic != null) {
-			viewLogic.onInactive(this, isPause);
+		if (logic != null) {
+			logic.onInactive(this, isPause);
 		}
 	}
 
@@ -331,8 +339,8 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends A
 		if (childNavigator != null) {
 			childNavigator.saveState(outState);
 		}
-		if (viewLogic != null) {
-			viewLogic.onSaveInstanceState(this, outState);
+		if (logic != null) {
+			logic.onSaveInstanceState(this, outState);
 		}
 		super.onSaveInstanceState(outState);
 	}
@@ -345,8 +353,8 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends A
 		if (childNavigator != null) {
 			childNavigator.restoreState(savedInstanceState);
 		}
-		if (viewLogic != null) {
-			viewLogic.onRestoreInstanceState(this, savedInstanceState);
+		if (logic != null) {
+			logic.onRestoreInstanceState(this, savedInstanceState);
 		}
 		super.onRestoreInstanceState(savedInstanceState);
 	}
@@ -354,12 +362,12 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends A
 	// region ViewModel
 
 	// Get or Create new ViewModel instance which be owned by this activity.
-	public <M extends ViewModel> M getOwnViewModel(String key, Class<M> modelType) {
+	public <M extends ViewModel> M obtainOwnViewModel(String key, Class<M> modelType) {
 		return new ViewModelProvider(this).get(key, modelType);
 	}
 
 	// Get or Create new ViewModel instance which be owned by current app.
-	public <M extends ViewModel> M getAppViewModel(String key, Class<M> modelType) {
+	public <M extends ViewModel> M obtainAppViewModel(String key, Class<M> modelType) {
 		Application app = getApplication();
 
 		if (app instanceof ViewModelStoreOwner) {
@@ -377,7 +385,7 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends A
 	 * Obtain the topic owner at app scope.
 	 * When all owners of the topic were destroyed, the topic and its material will be cleared.
 	 */
-	public DkTopicOwner joinTopicAtAppScope(String topicId) {
+	public DkTopicOwner joinAppTopic(String topicId) {
 		return new DkTopicOwner(topicId, app).registerClient(this);
 	}
 
@@ -385,21 +393,21 @@ public abstract class DkCompactActivity<VL extends DkCompactViewLogic> extends A
 	 * Obtain the topic owner at own scope.
 	 * When all owners of the topic were destroyed, the topic and its material will be cleared.
 	 */
-	public DkTopicOwner joinTopicAtOwnScope(String topicId) {
+	public DkTopicOwner joinOwnTopic(String topicId) {
 		return new DkTopicOwner(topicId, this).registerClient(this);
 	}
 
 	/**
 	 * Just obtain the topic owner at app scope.
 	 */
-	public DkTopicOwner viewTopicAtAppScope(String topicId) {
+	public DkTopicOwner viewAppTopic(String topicId) {
 		return new DkTopicOwner(topicId, app);
 	}
 
 	/**
 	 * Just obtain the topic owner at own scope.
 	 */
-	public DkTopicOwner viewTopicAtOwnScope(String topicId) {
+	public DkTopicOwner viewOwnTopic(String topicId) {
 		return new DkTopicOwner(topicId, this);
 	}
 

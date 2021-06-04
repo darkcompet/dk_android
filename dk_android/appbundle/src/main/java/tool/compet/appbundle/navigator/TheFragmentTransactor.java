@@ -9,6 +9,9 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import tool.compet.appbundle.DkFragment;
 import tool.compet.core.DkLogs;
 
@@ -183,6 +186,7 @@ public class TheFragmentTransactor {
 	 */
 	public boolean commit() {
 		try {
+			applyOperations();
 			transaction.commitNow();
 			return true;
 		}
@@ -204,6 +208,7 @@ public class TheFragmentTransactor {
 	 */
 	public boolean commitAllowingStateLoss() {
 		try {
+			applyOperations();
 			transaction.commitNowAllowingStateLoss();
 			return true;
 		}
@@ -226,14 +231,43 @@ public class TheFragmentTransactor {
 			}
 		}
 
-		MyKeyState key = new MyKeyState(calcBackStackTag(fragment));
-
-		backstack.add(key);
-
-		transaction.setCustomAnimations(addAnim, 0);
-		transaction.add(containerId, fragment, key.tag);
+		// Add operation
+		Op op = new Op(CMD_ADD, fragment);
+		op.enterAnimRes = addAnim;
+		op.exitAnimRes = removeAnim;
+		ops.add(op);
 
 		return this;
+	}
+
+	final int CMD_ADD = 1;
+	final int CMD_REMOVE = 2;
+	List<Op> ops = new ArrayList<>();
+	static class Op {
+		int cmd;
+		Fragment fragment;
+
+		int enterAnimRes;
+		int exitAnimRes;
+
+		Op(int cmd, Fragment fragment) {
+			this.cmd = cmd;
+			this.fragment = fragment;
+		}
+	}
+	private void applyOperations() {
+		for (Op op : ops) {
+			if (op.cmd == CMD_ADD) {
+				MyKeyState key = new MyKeyState(calcBackStackTag(op.fragment));
+				backstack.add(key);
+
+				transaction.setCustomAnimations(op.enterAnimRes, op.exitAnimRes);
+				transaction.add(containerId, op.fragment, key.tag);
+			}
+			else if (op.cmd == CMD_REMOVE) {
+				//
+			}
+		}
 	}
 
 	private String calcBackStackTag(Object obj) {

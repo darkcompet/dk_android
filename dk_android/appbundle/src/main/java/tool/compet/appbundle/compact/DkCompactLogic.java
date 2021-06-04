@@ -14,25 +14,25 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.ViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import tool.compet.appbundle.BuildConfig;
 import tool.compet.core.DkLogs;
 import tool.compet.core.DkRunner1;
-
-import static tool.compet.core.BuildConfig.DEBUG;
 
 /**
  * Compact design pattern ViewLogic component. This will update View by access #view object or
  * call #sendToView() to obtain non-null #view when does not know #view is null or not.
  * <p></p>
  * This ViewLogic object can overcome configuration change, so to communicate between Screens,
- * you should use #view.getHostTopic() to obtain scoped-topic for a group of screens you wanna share.
+ * you should use #view.obtainHostTopic() to obtain scoped-topic for a group of screens you wanna share.
  * Note that, state of view maybe changed multiple times since lifecycle or configuration maybe
  * often occured.
  */
-public abstract class DkCompactViewLogic<V extends DkCompactView> {
+public abstract class DkCompactLogic<V extends DkCompactView, D> extends ViewModel {
 	// Lifecycle state of the view
 	protected int lifeCycleState = STATE_INVALID;
 	// Lifecycle state value of `lifeCycleState`
@@ -52,6 +52,8 @@ public abstract class DkCompactViewLogic<V extends DkCompactView> {
 	// Only use this field directly if you know the view is still available, otherwise lets use `sendToView()` instead.
 	// @Nullable
 	protected V view;
+	// @Nullable
+	protected D data;
 
 	protected boolean isActivityOwner;
 	protected boolean isFragmentOwner;
@@ -132,7 +134,7 @@ public abstract class DkCompactViewLogic<V extends DkCompactView> {
 			for (DkRunner1<V> action : pendingCommands) {
 				action.run(view);
 			}
-			if (DEBUG) {
+			if (BuildConfig.DEBUG) {
 				DkLogs.info(this, "Executed %d pending actions", pendingCommands.size());
 			}
 			pendingCommands = null;
@@ -154,7 +156,7 @@ public abstract class DkCompactViewLogic<V extends DkCompactView> {
 		if (isFragmentOwner) {
 			DkLogs.complain(this, "Only ViewLogic of Activity can call this");
 		}
-		else if (isActivityOwner) {
+		if (isActivityOwner) {
 			isCalledOnRestart = true;
 		}
 	}
@@ -166,6 +168,11 @@ public abstract class DkCompactViewLogic<V extends DkCompactView> {
 		detachView();
 	}
 
+	@Override // be called when the associated view was destroyed
+	protected void onCleared() {
+		super.onCleared();
+	}
+
 	@CallSuper
 	protected void onLowMemory(FragmentActivity host) {
 	}
@@ -175,7 +182,7 @@ public abstract class DkCompactViewLogic<V extends DkCompactView> {
 		if (isFragmentOwner) {
 			DkLogs.complain(this, "Only ViewLogic of Activity can call this");
 		}
-		else if (isActivityOwner) {
+		if (isActivityOwner) {
 			isCalledOnConfigurationChanged = true;
 		}
 	}
@@ -189,7 +196,7 @@ public abstract class DkCompactViewLogic<V extends DkCompactView> {
 		if (isFragmentOwner) {
 			DkLogs.complain(this, "Only ViewLogic of Activity can call this");
 		}
-		else if (isActivityOwner) {
+		if (isActivityOwner) {
 			isCalledOnRestoreInstanceState = true;
 		}
 	}

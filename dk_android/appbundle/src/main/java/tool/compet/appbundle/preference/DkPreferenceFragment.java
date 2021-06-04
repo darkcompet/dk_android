@@ -16,12 +16,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import tool.compet.appbundle.compact.DkCompactFragment;
-import tool.compet.appbundle.compact.DkCompactViewLogic;
+import tool.compet.appbundle.compact.DkCompactLogic;
 
 /**
  * Subclass can extend this to implement preference via Fragment.
  */
-public abstract class DkPreferenceFragment<VL extends DkCompactViewLogic> extends DkCompactFragment<VL> implements DkPreferenceView {
+public abstract class DkPreferenceFragment<VL extends DkCompactLogic, VD>
+	extends DkCompactFragment<VL, VD>
+	implements DkPreferenceView {
 	/**
 	 * Caller must provide preference view id (id of recycler view)
 	 */

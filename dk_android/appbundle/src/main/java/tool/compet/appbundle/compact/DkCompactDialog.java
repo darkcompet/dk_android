@@ -41,6 +41,7 @@ import tool.compet.appbundle.DkApp;
 import tool.compet.appbundle.DkDialogFragment;
 import tool.compet.appbundle.DkFragment;
 import tool.compet.appbundle.navigator.DkFragmentNavigator;
+import tool.compet.appbundle.navigator.DkNavigatorOwner;
 import tool.compet.appbundle.topic.DkTopicOwner;
 import tool.compet.core.DkLogs;
 import tool.compet.core.DkRunner2;
@@ -50,11 +51,13 @@ import tool.compet.core.view.DkInterpolatorProvider;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
 /**
- * This provides some below features:
- * - ViewLogic which can overcome configuration changes.
+ * This is standard dialog and provides some below features:
+ * - [Optional] ViewLogic design pattern which can overcome configuration changes.
  */
 @SuppressWarnings("unchecked")
-public abstract class DkCompactDialog<D> extends AppCompatDialogFragment implements DkDialogFragment {
+public abstract class DkCompactDialog<D> extends AppCompatDialogFragment
+	implements DkDialogFragment, DkNavigatorOwner {
+
 	public static final String TAG = DkCompactDialog.class.getName();
 
 	protected DkApp app;
@@ -62,17 +65,23 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment impleme
 	protected Context context;
 	protected View layout;
 
+	@Override // from `DkNavigatorOwner`
+	public DkFragmentNavigator getChildNavigator() {
+		throw new RuntimeException("By default, dialog does not provide child navigator");
+	}
+
+	@Override // from `DkNavigatorOwner`
 	public DkFragmentNavigator getParentNavigator() {
 		Fragment parent = getParentFragment();
 		DkFragmentNavigator owner = null;
 
 		if (parent == null) {
-			if (host instanceof DkCompactActivity) {
-				owner = ((DkCompactActivity) host).getChildNavigator();
+			if (host instanceof DkNavigatorOwner) {
+				owner = ((DkNavigatorOwner) host).getChildNavigator();
 			}
 		}
-		else if (parent instanceof DkCompactFragment) {
-			owner = ((DkCompactFragment) parent).getChildNavigator();
+		else if (parent instanceof DkNavigatorOwner) {
+			owner = ((DkNavigatorOwner) parent).getChildNavigator();
 		}
 
 		if (owner == null) {
@@ -314,6 +323,21 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment impleme
 	}
 
 	/**
+	 * Open dialog via `DkFragmentNavigator` way.
+	 */
+	public boolean open(DkFragmentNavigator navigator) {
+		return navigator.beginTransaction().add(getClass()).commit();
+	}
+
+	/**
+	 * Close dialog by tell parent remove this.
+	 */
+	@Override // from dk fragment
+	public boolean close() {
+		return getParentNavigator().beginTransaction().remove(getClass()).commit();
+	}
+
+	/**
 	 * After call dismiss(), this method will be called soon.
 	 * It is useful to listen dismiss event of the dialog.
 	 */
@@ -346,13 +370,6 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment impleme
 		return this.showActual(fm, TAG);
 	}
 
-	/**
-	 * Show dialog via `DkFragmentNavigator` way.
-	 */
-	public boolean show(DkFragmentNavigator navigator) {
-		return navigator.beginTransaction().add(getClass()).commit();
-	}
-
 	@Override
 	public void show(@NonNull FragmentManager fm, String tag) {
 		showActual(fm, tag);
@@ -379,14 +396,6 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment impleme
 		}
 
 		return false;
-	}
-
-	/**
-	 * Finish this view by tell parent remove this from navigator.
-	 */
-	@Override // from dk fragment
-	public boolean close() {
-		return getParentNavigator().beginTransaction().remove(getClass()).commit();
 	}
 
 	/**
@@ -428,7 +437,7 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment impleme
 	 * Obtain the topic owner at app scope.
 	 * When all owners of the topic were destroyed, the topic and its material will be cleared.
 	 */
-	public DkTopicOwner joinTopicAtAppScope(String topicId) {
+	public DkTopicOwner joinAppTopic(String topicId) {
 		return new DkTopicOwner(topicId, app).registerClient(this);
 	}
 
@@ -436,7 +445,7 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment impleme
 	 * Obtain the topic owner at host scope.
 	 * When all owners of the topic were destroyed, the topic and its material will be cleared.
 	 */
-	public DkTopicOwner joinTopicAtHostScope(String topicId) {
+	public DkTopicOwner joinHostTopic(String topicId) {
 		return new DkTopicOwner(topicId, host).registerClient(this);
 	}
 
@@ -444,28 +453,28 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment impleme
 	 * Obtain the topic owner at own scope.
 	 * When all owners of the topic were destroyed, the topic and its material will be cleared.
 	 */
-	public DkTopicOwner joinTopicAtOwnScope(String topicId) {
+	public DkTopicOwner joinOwnTopic(String topicId) {
 		return new DkTopicOwner(topicId, this).registerClient(this);
 	}
 
 	/**
 	 * Just obtain the topic owner at app scope.
 	 */
-	public DkTopicOwner viewTopicAtAppScope(String topicId) {
+	public DkTopicOwner viewAppTopic(String topicId) {
 		return new DkTopicOwner(topicId, app);
 	}
 
 	/**
 	 * Just obtain the topic owner at host scope.
 	 */
-	public DkTopicOwner viewTopicAtHostScope(String topicId) {
+	public DkTopicOwner viewHostTopic(String topicId) {
 		return new DkTopicOwner(topicId, host);
 	}
 
 	/**
 	 * Just obtain the topic owner at own scope.
 	 */
-	public DkTopicOwner viewTopicAtOwnScope(String topicId) {
+	public DkTopicOwner viewOwnTopic(String topicId) {
 		return new DkTopicOwner(topicId, this);
 	}
 

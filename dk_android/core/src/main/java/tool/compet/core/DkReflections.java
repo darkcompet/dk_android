@@ -71,6 +71,20 @@ public class DkReflections {
 	}
 
 	/**
+	 * At subclass, this get generic-class of super class.
+	 *
+	 * @return For eg, returned class of class {@code HomeFragment extends BaseFragment<ViewLogic>}is {@code ViewLogic.class}.
+	 */
+	public static Type[] getAllGenericOfSuperClass(Class subClass) {
+		Type type = subClass.getGenericSuperclass();
+
+		if (type instanceof ParameterizedType) {
+			return ((ParameterizedType) type).getActualTypeArguments();
+		}
+		return null;
+	}
+
+	/**
 	 * Get last class of generic type of return type of given method.
 	 *
 	 * @return For eg, returned class of method {@code List<SparseArray<String>> foo()} is {@code String.class}.
