@@ -154,7 +154,7 @@ public abstract class DkCompactFragment<L extends DkCompactLogic, D> extends Fra
 		if (BuildConfig.DEBUG) {
 			DkLogs.info(this, "onCreate");
 		}
-		super.setRetainInstance(isRetainInstance()); // retain instance while configuration changes
+//		super.setRetainInstance(isRetainInstance()); // retain instance while configuration changes
 		super.onCreate(savedInstanceState);
 
 		// Must run after #super.onCreate()
@@ -165,6 +165,30 @@ public abstract class DkCompactFragment<L extends DkCompactLogic, D> extends Fra
 				logic.onCreate(host, savedInstanceState);
 			}
 		}
+
+//		registerForActivityResult(new ActivityResultContract<String, Boolean>() {
+//			@NonNull
+//			@Override
+//			public Intent createIntent(@NonNull Context context, String input) {
+//				return null;
+//			}
+//
+//			@Override
+//			public Boolean parseResult(int resultCode, @Nullable Intent intent) {
+//				return null;
+//			}
+//		}, new ActivityResultCallback<Boolean>() {
+//			@Override
+//			public void onActivityResult(Boolean result) {
+//			}
+//		});
+//
+//		registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), new ActivityResultCallback<Map<String, Boolean>>() {
+//			@Override
+//			public void onActivityResult(Map<String, Boolean> result) {
+//
+//			}
+//		});
 	}
 
 	@Override
@@ -198,16 +222,16 @@ public abstract class DkCompactFragment<L extends DkCompactLogic, D> extends Fra
 		}
 	}
 
-	@Override
-	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-		if (BuildConfig.DEBUG) {
-			DkLogs.info(this, "onActivityCreated");
-		}
-		super.onActivityCreated(savedInstanceState);
-		if (logic != null) {
-			logic.onActivityCreated(host, savedInstanceState);
-		}
-	}
+//	@Override
+//	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+//		if (BuildConfig.DEBUG) {
+//			DkLogs.info(this, "onActivityCreated");
+//		}
+//		super.onActivityCreated(savedInstanceState);
+//		if (logic != null) {
+//			logic.onActivityCreated(host, savedInstanceState);
+//		}
+//	}
 
 	@Override
 	public void onStart() {
@@ -279,6 +303,7 @@ public abstract class DkCompactFragment<L extends DkCompactLogic, D> extends Fra
 		if (logic != null) {
 			logic.onDestroy(host);
 			logic = null;
+			data = null;
 		}
 		super.onDestroy();
 	}
@@ -379,14 +404,14 @@ public abstract class DkCompactFragment<L extends DkCompactLogic, D> extends Fra
 	 * Open dialog via parent navigator.
 	 */
 	public boolean open(DkFragmentNavigator navigator) {
-		return navigator.beginTransaction().add(getClass()).commit();
+		return navigator.beginTransaction().add(this).commit();
 	}
 
 	/**
 	 * Open dialog via parent navigator.
 	 */
 	public boolean open(DkFragmentNavigator navigator, int enterAnimRes, int exitAnimRes) {
-		return navigator.beginTransaction().setAnims(enterAnimRes, exitAnimRes).add(getClass()).commit();
+		return navigator.beginTransaction().setAnims(enterAnimRes, exitAnimRes).add(this).commit();
 	}
 
 	/**
@@ -397,6 +422,10 @@ public abstract class DkCompactFragment<L extends DkCompactLogic, D> extends Fra
 		return getParentNavigator().beginTransaction().remove(getClass().getName()).commit();
 	}
 
+	public Fragment instantiateFragment(Class<? extends Fragment> fragClass) {
+		return getParentFragmentManager().getFragmentFactory().instantiate(context.getClassLoader(), fragClass.getName());
+	}
+
 	// region ViewModel
 
 	// Get or Create new ViewModel instance which be owned by this Fragment.
@@ -404,7 +433,7 @@ public abstract class DkCompactFragment<L extends DkCompactLogic, D> extends Fra
 		return new ViewModelProvider(this).get(key, modelType);
 	}
 
-	// Get or Create new ViewModel instance which be owned by Activity which this contains this Fragment.
+	// Get or Create new ViewModel instance which be owned by Activity which hosts this Fragment.
 	public <M extends ViewModel> M obtainHostViewModel(String key, Class<M> modelType) {
 		return new ViewModelProvider(host).get(key, modelType);
 	}

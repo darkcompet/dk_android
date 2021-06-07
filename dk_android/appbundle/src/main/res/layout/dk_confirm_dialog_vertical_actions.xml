@@ -10,12 +10,15 @@
 	android:clickable="true"
 	android:focusable="true">
 
+	<!-- Rounded dialog -->
+
 	<tool.compet.core.view.DkCompactConstraintLayout
 		android:id="@+id/dk_background"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center"
-		android:layout_margin="0dp">
+		android:layout_margin="0dp"
+		android:background="@color/white">
 
 		<!-- Header -->
 

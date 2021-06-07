@@ -84,8 +84,11 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 	// Body
 	protected ViewGroup vBody;
 	protected int bodyLayoutResId; // store in instance state
-	protected float widthWeight = 4f; // store in instance state
-	protected float heightWeight = 3f; // store in instance state
+	protected float widthWeight; // store in instance state
+	protected float heightWeight; // store in instance state
+	protected boolean dimensionRatioBasedOnWidth = true; // store in instance state
+	protected float widthRatio; // store in instance state
+	protected float heightRatio; // store in instance state
 	// Content: message
 	protected TextView vMessage;
 	protected int messageTextResId; // store in instance state
@@ -179,9 +182,7 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 			switch (event.getActionMasked()) {
 				case MotionEvent.ACTION_DOWN:
 					return true;
-				case MotionEvent.ACTION_UP:
-				case MotionEvent.ACTION_CANCEL:
-				case MotionEvent.ACTION_OUTSIDE: {
+				case MotionEvent.ACTION_UP: {
 					if (! DkViews.isInsideView(event, vBackground)) {
 						onClickOutside();
 					}
@@ -221,12 +222,17 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 		if (isFullScreen) {
 			bkgLayoutParams.width = bkgLayoutParams.height = MATCH_PARENT;
 		}
-		else {
-			int[] displaySize = DkConfig.displaySize();
-			int ds = Math.min(displaySize[0], displaySize[1]);
-			bkgLayoutParams.width = (ds >> 2) + (ds >> 1); // 0.75 * deviceSize
-			if (widthWeight > 0) {
-				bkgLayoutParams.height = (int) (bkgLayoutParams.width * heightWeight / widthWeight);
+		if (widthWeight != 0 && heightWeight != 0) {
+			int[] dimensions = DkConfig.displaySize();
+			bkgLayoutParams.width = (int) (dimensions[0] * widthWeight);
+			bkgLayoutParams.height = (int) (dimensions[1] * heightWeight);
+		}
+		if (widthRatio != 0 && heightRatio != 0) {
+			if (dimensionRatioBasedOnWidth) {
+				bkgLayoutParams.height = (int) (bkgLayoutParams.width * heightRatio / widthRatio);
+			}
+			else {
+				bkgLayoutParams.width = (int) (bkgLayoutParams.height * widthRatio / heightRatio);
 			}
 		}
 		vBackground.setLayoutParams(bkgLayoutParams);
@@ -259,7 +265,7 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 		}
 
 		if (isDismissOnClickButton) {
-			dismiss();
+			close();
 		}
 	}
 
@@ -397,9 +403,16 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 		return (D) this;
 	}
 
-	public D setDimensionRatio(float widthWeight, float heightWeight) {
+	public D setDimensionWeight(float widthWeight, float heightWeight) {
 		this.widthWeight = widthWeight;
 		this.heightWeight = heightWeight;
+		return (D) this;
+	}
+
+	public D setDimensionRatio(float widthRatio, float heightRatio, boolean basedOnWidth) {
+		this.widthRatio = widthRatio;
+		this.heightRatio = heightRatio;
+		this.dimensionRatioBasedOnWidth = basedOnWidth;
 		return (D) this;
 	}
 
@@ -488,7 +501,7 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 	 */
 	protected void onClickOutside() {
 		if (isDismissOnTouchOutside) {
-			dismiss();
+			close();
 		}
 	}
 

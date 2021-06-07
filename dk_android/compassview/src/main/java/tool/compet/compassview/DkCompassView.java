@@ -554,7 +554,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 				updateMaterialsOnBoardSizeChanged();
 				return buildCompassInternal(buildCompassRings, locale);
 			})
-			.scheduleInBackgroundAndObserveOnMainThread()
+			.scheduleInBackgroundAndObserveOnForeground()
 			.doOnNext(bitmap -> {
 				compass = bitmap;
 				isFitCompassInsideBoard = true;

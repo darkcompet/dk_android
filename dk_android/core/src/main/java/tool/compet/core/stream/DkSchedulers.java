@@ -9,7 +9,7 @@ import tool.compet.core.DkExecutorService;
 @SuppressWarnings("unchecked")
 public class DkSchedulers {
 	private static DkScheduler ioScheduler;
-	private static DkScheduler mainScheduler;
+	private static DkScheduler uiScheduler;
 
 	// Background thread scheduler
 	public static <T> DkScheduler<T> io() {
@@ -23,15 +23,15 @@ public class DkSchedulers {
 		return (DkScheduler<T>) ioScheduler;
 	}
 
-	// Android main thread scheduler
-	public static <T> DkScheduler<T> main() {
-		if (mainScheduler == null) {
+	// Android ui thread scheduler
+	public static <T> DkScheduler<T> ui() {
+		if (uiScheduler == null) {
 			synchronized (DkSchedulers.class) {
-				if (mainScheduler == null) {
-					mainScheduler = new MyMainScheduler<>();
+				if (uiScheduler == null) {
+					uiScheduler = new MyUiScheduler<>();
 				}
 			}
 		}
-		return (DkScheduler<T>) mainScheduler;
+		return (DkScheduler<T>) uiScheduler;
 	}
 }

@@ -15,11 +15,11 @@ import tool.compet.core.DkLogs;
 
 import static tool.compet.core.BuildConfig.DEBUG;
 
-class MyMainScheduler<T> implements DkScheduler<T> {
+class MyUiScheduler<T> implements DkScheduler<T> {
 	private final Handler handler;
 	private final ConcurrentHashMap<Callable<T>, Runnable> pendingCommands;
 
-	MyMainScheduler() {
+	MyUiScheduler() {
 		handler = new Handler(Looper.getMainLooper());
 		pendingCommands = new ConcurrentHashMap<>();
 	}

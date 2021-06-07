@@ -13,14 +13,14 @@ import java.security.spec.X509EncodedKeySpec;
 
 import tool.compet.core.DkLogs;
 
-import static tool.compet.core.DkObjects.isEmpty;
+import static tool.compet.core.DkObjects.empty;
 
 class MySecurity {
 	private static final String KEY_FACTORY_ALGORITHM = "RSA";
 	private static final String SIGNATURE_ALGORITHM = "SHA1withRSA";
 
 	static boolean verifyPurchase(String base64PublicKey, String signedData, String signature) {
-		if (isEmpty(signedData) || isEmpty(base64PublicKey) || isEmpty(signature)) {
+		if (empty(signedData) || empty(base64PublicKey) || empty(signature)) {
 			return false;
 		}
 		PublicKey key = generatePublicKey(base64PublicKey);

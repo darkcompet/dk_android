@@ -9,26 +9,26 @@ import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 
-class MyKeyState implements Parcelable {
+class MyTag implements Parcelable {
 	String tag;
 
-	public MyKeyState(String tag) {
+	public MyTag(String tag) {
 		this.tag = tag;
 	}
 
-	public MyKeyState(Parcel in) {
+	public MyTag(Parcel in) {
 		tag = in.readString();
 	}
 
-	public static final Creator<MyKeyState> CREATOR = new Creator<MyKeyState>() {
+	public static final Creator<MyTag> CREATOR = new Creator<MyTag>() {
 		@Override
-		public MyKeyState createFromParcel(Parcel in) {
-			return new MyKeyState(in);
+		public MyTag createFromParcel(Parcel in) {
+			return new MyTag(in);
 		}
 
 		@Override
-		public MyKeyState[] newArray(int size) {
-			return new MyKeyState[size];
+		public MyTag[] newArray(int size) {
+			return new MyTag[size];
 		}
 	};
 
@@ -45,6 +45,6 @@ class MyKeyState implements Parcelable {
 	@NonNull
 	@Override
 	public String toString() {
-		return "MyKeyState{" + "tag='" + tag + '\'' + '}';
+		return "MyTag{" + "tag='" + tag + '\'' + '}';
 	}
 }

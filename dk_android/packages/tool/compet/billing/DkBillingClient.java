@@ -28,16 +28,18 @@ import java.util.List;
 import tool.compet.core.DkLogs;
 import tool.compet.core.DkRunner2;
 
-public class DkBillingManager implements PurchasesUpdatedListener {
+/**
+ * Client billing (in-app, subscribe) for app.
+ */
+public class DkBillingClient implements PurchasesUpdatedListener {
 	/**
-	 * This is listener when purchase is responsed if `purchase()` or `subscribe()` called before.
-	 * About history purchases reference, you can call some method like `queryAllPurchases()`...
-	 * and handle result manually.
+	 * Caller should set this listener for new purchase which was called via `purchase()` or `subscribe()`.
 	 */
 	public interface PurchaseListener {
 		/**
-		 * Callback with list of active purchases. Depends on your request before, it can
-		 * include in-app or subscription which has been bought by user and still valid (not expired...).
+		 * Callback with list of `active` purchases.
+		 * - Purchase: can be in-app or subscribe type.
+		 * - Active purchase: item was bought by user and still valid (not expired...).
 		 */
 		void onPurchasesUpdated(@NonNull List<Purchase> purchases);
 
@@ -47,15 +49,15 @@ public class DkBillingManager implements PurchasesUpdatedListener {
 		void onPurchaseCancelled();
 
 		/**
-		 * Otherwise called if purchase failed
+		 * Called if purchase failed
 		 */
 		void onPurchaseFailed(int responseCode);
 
 		/**
-		 * Called when finished revoke a item. Note that, depends on #responceCode, revoking status
+		 * Called when finished revoke a item. Note that, depends on `responceCode`, revoking status
 		 * maybe success or failed.
 		 *
-		 * @param responseCode in BillingClient.BillingResponse.*
+		 * @param responseCode in `BillingClient.BillingResponse.*`
 		 */
 		void onPurchaseRevoked(int responseCode, String purchaseToken);
 	}
@@ -93,9 +95,8 @@ public class DkBillingManager implements PurchasesUpdatedListener {
 
 	// Caller can set this to listen event when purchase finish
 	@Nullable private PurchaseListener purchaseListener;
-//	private BillingClientConnectionListener
 
-	public DkBillingManager(Context context, String publicKey, @Nullable PurchaseListener purchaseListener) {
+	public DkBillingClient(Context context, String publicKey, @Nullable PurchaseListener purchaseListener) {
 		// Setup billing client object
 		this.billingClient = BillingClient.newBuilder(context)
 			.setListener(this)
@@ -243,9 +244,9 @@ public class DkBillingManager implements PurchasesUpdatedListener {
 
 	/**
 	 * Async mark the purchase is invalid item (for eg,. it is not needed check anymore).
-	 * Note that, this method does NOT callback at given `purchaseListener`.
+	 * Result will be callbacked at given `purchaseListener`.
 	 */
-	public void revokeAsync(String purchaseToken, @Nullable PurchaseListener purchaseListener) {
+	public void revokeAsync(String purchaseToken) {
 		if (revokedTokens == null) {
 			revokedTokens = new HashSet<>();
 		}
@@ -269,7 +270,13 @@ public class DkBillingManager implements PurchasesUpdatedListener {
 		});
 	}
 
-	public void setPurchaseListener(PurchaseListener purchaseListener) {
+	public void consumeAsync() {
+//		ConsumeParams consumeParams = ConsumeParams.newBuilder().setPurchaseToken().build();
+//		ConsumeResponseListener consumeListener;
+//		billingClient.consumeAsync(consumeParams, consumeListener);
+	}
+
+	public void setPurchaseListener(@Nullable PurchaseListener purchaseListener) {
 		this.purchaseListener = purchaseListener;
 	}
 

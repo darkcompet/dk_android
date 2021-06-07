@@ -42,8 +42,9 @@ public interface DkFragment {
 
 	/**
 	 * Specify whether this fragment should be retained instance during configuration changed.
+	 * @deprecated Use ViewModel to overcome configuration changed instead.
 	 */
-	boolean isRetainInstance();
+//	boolean isRetainInstance();
 
 	/**
 	 * Indicates the fragment is resumsed or come to front.

@@ -10,7 +10,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.List;
 
-import tool.compet.core.DkLogs;
 import tool.compet.core.DkReflections;
 import tool.compet.core.DkStrings;
 import tool.compet.core.reflection.DkReflectionFinder;
@@ -60,10 +59,8 @@ class MyCompactRegistry {
 			setFieldValue(viewLogicField, view, logic);
 			setFieldValue(viewDataField, view, data);
 
-			DkLogs.debug("MyCompactWirer~", "logicClass: %s, dataClass: %s", logicClass.getName(), dataClass.getName());
-
-			// Attach view to ViewLogic
-			logic.attachView(view);
+			// Attach view as soon as possible
+			logic.view = view;
 		}
 	}
 

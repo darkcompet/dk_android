@@ -35,7 +35,7 @@ public class DkLogs implements DkLogger.LogType {
 
 	/**
 	 * Debug log. Can't be invoked in production.
-	 * Note that, we should remove all debug code when release.
+	 * Notice: should remove all debug code when release.
 	 */
 	// todo: Remove all debug line which call this
 	public static void debug(@Nullable Object where, @Nullable String format, Object... args) {
@@ -47,12 +47,16 @@ public class DkLogs implements DkLogger.LogType {
 
 	/**
 	 * Log info. Can be invoked in production.
-	 * <p>
-	 * If sometime caller wanna log it only in local env, so caller can
-	 * wrap this function with DEBUG constant instead of call it directly.
 	 */
 	public static void info(@Nullable Object where, @Nullable String format, Object... args) {
 		logger.info(where, format, args);
+	}
+
+	/**
+	 * Log notice. Can be invoked in production.
+	 */
+	public static void notice(@Nullable Object where, @Nullable String format, Object... args) {
+		logger.notice(where, format, args);
 	}
 
 	/**

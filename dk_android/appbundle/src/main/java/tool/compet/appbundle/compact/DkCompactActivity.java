@@ -17,6 +17,7 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
@@ -244,6 +245,7 @@ public abstract class DkCompactActivity<L extends DkCompactLogic, D> extends App
 		if (logic != null) {
 			logic.onDestroy(this);
 			logic = null;
+			data = null;
 		}
 
 		this.app = null;
@@ -357,6 +359,10 @@ public abstract class DkCompactActivity<L extends DkCompactLogic, D> extends App
 			logic.onRestoreInstanceState(this, savedInstanceState);
 		}
 		super.onRestoreInstanceState(savedInstanceState);
+	}
+
+	public Fragment instantiateFragment(Class<? extends Fragment> fragClass) {
+		return getSupportFragmentManager().getFragmentFactory().instantiate(getClassLoader(), fragClass.getName());
 	}
 
 	// region ViewModel

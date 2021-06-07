@@ -17,7 +17,7 @@ import tool.compet.core.DkStrings;
  * Differ with stack of Activities, the important feature of this navigator is,
  * we can re-arrange fragments inside stack.
  */
-public class DkFragmentNavigator implements MyBackStack.OnStackChangeListener {
+public class DkFragmentNavigator implements MyTagManager.OnStackChangeListener {
 	public interface Callback {
 		void onActive(boolean isResume);
 
@@ -28,7 +28,7 @@ public class DkFragmentNavigator implements MyBackStack.OnStackChangeListener {
 
 	final int containerId;
 	final FragmentManager fm;
-	final MyBackStack backstack;
+	final MyTagManager tags;
 
 	private final Callback callback;
 
@@ -36,7 +36,7 @@ public class DkFragmentNavigator implements MyBackStack.OnStackChangeListener {
 		this.containerId = containerId;
 		this.fm = fm;
 		this.callback = cb;
-		this.backstack = new MyBackStack(this);
+		this.tags = new MyTagManager(this);
 	}
 
 	@Override
@@ -59,12 +59,12 @@ public class DkFragmentNavigator implements MyBackStack.OnStackChangeListener {
 	 * @return true if child fragment not exist or has dismissed successfully, otherwise false.
 	 */
 	public boolean handleOnBackPressed() {
-		int lastIndex = backstack.size() - 1;
+		int lastIndex = tags.size() - 1;
 		if (lastIndex < 0) {
 			return true;
 		}
 
-		Fragment lastChild = fm.findFragmentByTag(backstack.get(lastIndex).tag);
+		Fragment lastChild = fm.findFragmentByTag(tags.get(lastIndex).tag);
 		if (lastChild == null) {
 			return true;
 		}
@@ -81,7 +81,7 @@ public class DkFragmentNavigator implements MyBackStack.OnStackChangeListener {
 	 * @return NUmber of fragment inside backstack of the view.
 	 */
 	public int childCount() {
-		return backstack.size();
+		return tags.size();
 	}
 
 	/**
@@ -89,8 +89,8 @@ public class DkFragmentNavigator implements MyBackStack.OnStackChangeListener {
 	 */
 	public void restoreState(Bundle in) {
 		if (in != null) {
-			MyBackStackState state = in.getParcelable(KEY_BACKSTACK_STATE);
-			backstack.restoreStates(state);
+			MyTagManager.MyTagsParcelable state = in.getParcelable(KEY_BACKSTACK_STATE);
+			tags.restoreStates(state);
 		}
 	}
 
@@ -99,7 +99,7 @@ public class DkFragmentNavigator implements MyBackStack.OnStackChangeListener {
 	 */
 	public void saveState(Bundle out) {
 		if (out != null) {
-			out.putParcelable(KEY_BACKSTACK_STATE, backstack.saveStates());
+			out.putParcelable(KEY_BACKSTACK_STATE, tags.saveStates());
 		}
 	}
 }

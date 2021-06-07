@@ -135,14 +135,14 @@ public abstract class DkObservable<T> {
 		return scheduleIn(DkSchedulers.io(), 0, TimeUnit.MILLISECONDS, false);
 	}
 
-	public DkObservable<T> observeOnMainThread() {
-		return observeOn(DkSchedulers.main(), 0L, TimeUnit.MILLISECONDS, true);
+	public DkObservable<T> observeOnForeground() {
+		return observeOn(DkSchedulers.ui(), 0L, TimeUnit.MILLISECONDS, true);
 	}
 
-	public DkObservable<T> scheduleInBackgroundAndObserveOnMainThread() {
+	public DkObservable<T> scheduleInBackgroundAndObserveOnForeground() {
 		return this
 			.scheduleIn(DkSchedulers.io(), 0, TimeUnit.MILLISECONDS, false)
-			.observeOn(DkSchedulers.main(), 0L, TimeUnit.MILLISECONDS, true);
+			.observeOn(DkSchedulers.ui(), 0L, TimeUnit.MILLISECONDS, true);
 	}
 
 	public DkObservable<T> scheduleIn(DkScheduler<T> scheduler) {
@@ -226,7 +226,7 @@ public abstract class DkObservable<T> {
 	}
 
 	public void subscribeDefault() {
-		this.scheduleInBackgroundAndObserveOnMainThread().subscribe();
+		this.scheduleInBackgroundAndObserveOnForeground().subscribe();
 	}
 
 	public void subscribeAsync() {

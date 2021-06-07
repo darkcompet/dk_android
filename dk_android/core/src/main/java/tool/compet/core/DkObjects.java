@@ -26,17 +26,37 @@ public class DkObjects {
 	 * @param obj Object Any
 	 * @return boolean true if given object is null, empty string, 0-size array, list...
 	 */
-	public static boolean isEmpty(Object obj) {
-		if (obj == null) return true;
-		if (obj instanceof CharSequence) return ((CharSequence) obj).length() == 0;
-		if (obj instanceof Collection) return ((Collection) obj).size() == 0;
-		if (obj instanceof Map) return ((Map) obj).size() == 0;
-		if (obj.getClass().isArray()) return Array.getLength(obj) == 0;
+	public static boolean empty(Object obj) {
+		if (obj == null) {
+			return true;
+		}
+		if (obj instanceof CharSequence) {
+			return ((CharSequence) obj).length() == 0;
+		}
+		if (obj instanceof Collection) {
+			return ((Collection) obj).size() == 0;
+		}
+		if (obj instanceof Map) {
+			return ((Map) obj).size() == 0;
+		}
+		if (obj.getClass().isArray()) {
+			return Array.getLength(obj) == 0;
+		}
 
 		return false;
 	}
 
 	public static boolean equals(Object a, Object b) {
 		return a == b || (a != null && a.equals(b));
+	}
+
+	public static <T> T instantiate(Class<T> clazz) {
+		try {
+			// We don't need check security here -> so not need use `clazz.newInstance()`
+			return clazz.getConstructor().newInstance();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(DkStrings.format("Could not instantiate fragment `%s`, error: %s ", clazz.getName(), e.getMessage()));
+		}
 	}
 }

@@ -109,7 +109,7 @@ abstract class MyGrammar {
 	 * @return for eg,. "insert into `user` (`id`, `name`) values ('1', 'leo leo')"
 	 */
 	protected String compileInsertQuery(String tableName, Map<String, Object> params) {
-		if (DkObjects.isEmpty(params)) {
+		if (DkObjects.empty(params)) {
 			return DkConst.EMPTY_STRING;
 		}
 

@@ -10,9 +10,10 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.view.View;
 
-import tool.compet.core.DkViewCompats;
 import tool.compet.core.DkConfig;
+import tool.compet.core.DkLogs;
 
 /**
  * This extends compat-version and provided some optional below features:
@@ -49,6 +50,7 @@ public class DkCompactConstraintLayout extends DkCompatConstraintLayout {
 
 	@Override
 	public void draw(Canvas canvas) {
+		DkLogs.debug(this, "draw at constraint layot....");
 		if (roundEnabled) {
 			drawRoundedCorner(canvas);
 		}
@@ -95,7 +97,10 @@ public class DkCompactConstraintLayout extends DkCompatConstraintLayout {
 		clipRoundPath.reset();
 		clipRoundPath.addRoundRect(new RectF(0, 0, w, h), roundRadiusArr, Path.Direction.CCW);
 
-		DkViewCompats.clipPath(this, canvas, clipRoundPath);
+		//todo Buggy: setLayerType() makes redraw called repeatly !!!
+//		DkViewCompats.clipPath(this, canvas, clipRoundPath);
+//		int layerType = getLayerType();
+//		this.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 
 		// Draw round-corner if required
 		if (roundStrokeWidth >= 0f) {

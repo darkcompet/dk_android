@@ -56,12 +56,16 @@ public class DkFileLogger implements DkLogger.LogType {
 
 	/**
 	 * Log info. Can be invoked in production.
-	 * <p>
-	 * If sometime caller wanna log it only in local env, so caller can
-	 * wrap this function with DEBUG constant instead of call it directly.
 	 */
 	public void info(@Nullable Object where, @Nullable String format, Object... args) {
 		logger.info(where, format, args);
+	}
+
+	/**
+	 * Log notice. Can be invoked in production.
+	 */
+	public void notice(@Nullable Object where, @Nullable String format, Object... args) {
+		logger.notice(where, format, args);
 	}
 
 	/**

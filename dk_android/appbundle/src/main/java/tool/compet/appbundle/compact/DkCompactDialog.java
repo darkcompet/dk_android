@@ -45,6 +45,7 @@ import tool.compet.appbundle.navigator.DkNavigatorOwner;
 import tool.compet.appbundle.topic.DkTopicOwner;
 import tool.compet.core.DkLogs;
 import tool.compet.core.DkRunner2;
+import tool.compet.core.DkUtils;
 import tool.compet.core.view.DkAnimationConfiguration;
 import tool.compet.core.view.DkInterpolatorProvider;
 
@@ -133,7 +134,7 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment
 		if (BuildConfig.DEBUG) {
 			DkLogs.info(this, "onCreate");
 		}
-		super.setRetainInstance(isRetainInstance());
+//		super.setRetainInstance(isRetainInstance());
 		super.onCreate(savedInstanceState);
 	}
 
@@ -146,8 +147,8 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment
 		}
 		Dialog dialog = super.onCreateDialog(savedInstanceState);
 
-		dialog.setOnShowListener(this::onDialogShown);
-		dialog.setOnDismissListener(this::onDialogDismised);
+//		dialog.setOnShowListener(this::onDialogShown);
+//		dialog.setOnDismissListener(this::onDialogDismised);
 
 		return dialog;
 	}
@@ -326,38 +327,30 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment
 	 * Open dialog via `DkFragmentNavigator` way.
 	 */
 	public boolean open(DkFragmentNavigator navigator) {
-		return navigator.beginTransaction().add(getClass()).commit();
+		return navigator.beginTransaction().add(this).commit();
 	}
 
 	/**
 	 * Close dialog by tell parent remove this.
 	 */
-	@Override // from dk fragment
+	@Override // from `DkFragment`
 	public boolean close() {
-		return getParentNavigator().beginTransaction().remove(getClass()).commit();
+		return getParentNavigator().beginTransaction().remove(this).commit();
 	}
 
 	/**
-	 * After call dismiss(), this method will be called soon.
-	 * It is useful to listen dismiss event of the dialog.
+	 * Called when dialog was cancelled.
 	 */
-	@Override // from framework dialog-fragment
+	@Override // from `DialogFragment`
+	public void onCancel(@NonNull DialogInterface dialog) {
+		super.onCancel(dialog);
+	}
+
+	/**
+	 * Called when dialog was dismissed.
+	 */
+	@Override // from `DialogFragment`
 	public void onDismiss(@NonNull DialogInterface dialog) {
-		// Notify parent fragment goto inactive state
-		Fragment parent = getParentFragment();
-
-		// when null, parent is activity
-		if (parent == null) {
-			FragmentActivity activity = getActivity();
-			if (activity instanceof DkActivity) {
-				((DkActivity) activity).onActive(false);
-			}
-		}
-		// otherwise parent is fragment
-		else if (parent instanceof DkFragment) {
-			((DkFragment) parent).onActive(false);
-		}
-
 		super.onDismiss(dialog);
 	}
 
@@ -367,12 +360,12 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment
 	 * @param fm Fragment manager (normally this is of current fragment, activity...)
 	 */
 	public boolean show(FragmentManager fm) {
-		return this.showActual(fm, TAG);
+		throw new RuntimeException("For now do NOT use this");
 	}
 
 	@Override
 	public void show(@NonNull FragmentManager fm, String tag) {
-		showActual(fm, tag);
+		throw new RuntimeException("For now do NOT use this");
 	}
 
 	private boolean showActual(@NonNull FragmentManager fm, String tag) {
@@ -401,9 +394,13 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment
 	/**
 	 * We override `dismiss()` to call own `DkFragment.close()`.
 	 */
-	@Override // from framework dialog-fragment
+	@Override // from `DialogFragment`
 	public void dismiss() {
-		close();
+		DkUtils.complainAt(this, "For now do NOT use this");
+	}
+
+	public Fragment instantiateFragment(Class<? extends Fragment> fragClass) {
+		return getParentFragmentManager().getFragmentFactory().instantiate(context.getClassLoader(), fragClass.getName());
 	}
 
 	// region ViewModel
@@ -413,7 +410,7 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment
 		return new ViewModelProvider(this).get(key, modelType);
 	}
 
-	// Get or Create new ViewModel instance which be owned by Activity which this contains this Fragment.
+	// Get or Create new ViewModel instance which be owned by Activity which hosts this Fragment.
 	public <M extends ViewModel> M obtainHostViewModel(String key, Class<M> modelType) {
 		return new ViewModelProvider(host).get(key, modelType);
 	}

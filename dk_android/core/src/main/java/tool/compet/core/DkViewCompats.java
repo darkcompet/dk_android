@@ -24,13 +24,14 @@ public class DkViewCompats {
 	}
 
 	/**
-	 * This provides clip path for canvas since `canvas.clipPath()` works at api >= 18.
+	 * This provides clip path for canvas since `canvas.clipPath()` only works at api 18+.
+	 *
 	 * @param view View to be drawn.
 	 * @param canvas Canvas of the view.
 	 * @param path Path to be clipped.
 	 */
 	public static void clipPath(View view, Canvas canvas, Path path) {
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2) { // api 18+
+		if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN_MR1) { // api 17-
 			view.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 		}
 		canvas.clipPath(path);
