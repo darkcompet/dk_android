@@ -10,7 +10,6 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
@@ -41,7 +40,6 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static android.view.WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN;
@@ -129,28 +127,14 @@ public class DkUtils {
 
 	// region Android core ~
 
-	public static Activity scanForActivity(Context context) {
-		if (context == null) {
-			return null;
-		}
-		else if (context instanceof Activity) {
-			return (Activity) context;
-		}
-		else if (context instanceof ContextWrapper) {
-			return scanForActivity(((ContextWrapper) context).getBaseContext());
-		}
-
-		return null;
-	}
-
 	public static int getResourceId(String resName, Class<?> clazz) {
 		try {
 			return (int) clazz.getDeclaredField(resName).get(null);
 		}
 		catch (Exception e) {
 			DkLogs.error(DkLogs.class, e);
+			return -1;
 		}
-		return -1;
 	}
 
 	public static List<String> asset2lines(Context context, String fileName, boolean trim) {
@@ -184,7 +168,7 @@ public class DkUtils {
 	public static String stream2string(InputStream is) {
 		String line;
 		String ls = DkConst.LS;
-		StringBuilder sb = new StringBuilder();
+		StringBuilder sb = new StringBuilder(256);
 
 		try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
 			while ((line = br.readLine()) != null) {
@@ -196,6 +180,85 @@ public class DkUtils {
 		}
 
 		return sb.toString();
+	}
+
+	public static boolean checkPermission(Context context, String... permissions) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			for (String permission : permissions) {
+				if (context.checkSelfPermission(permission) != PERMISSION_GRANTED) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	public static void requestPermissions(Activity host, int requestCode, String[] permissions) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			host.requestPermissions(permissions, requestCode);
+		}
+	}
+
+	public static void restart(Context context, Class startActivity) {
+		Intent startIntent = new Intent(context, startActivity);
+		PendingIntent pendingIntent = PendingIntent.getActivity(context,
+			Process.myPid(),
+			startIntent,
+			PendingIntent.FLAG_CANCEL_CURRENT);
+
+		AlarmManager alarm = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+
+		if (alarm != null) {
+			alarm.set(AlarmManager.RTC, System.currentTimeMillis() + 200, pendingIntent);
+		}
+
+		Runtime.getRuntime().exit(0);
+	}
+
+	public static void setFullScreen(Activity host, boolean fullScreen) {
+		int addFlag = fullScreen ? FLAG_FULLSCREEN : FLAG_FORCE_NOT_FULLSCREEN;
+		int clearFlag = FLAG_FULLSCREEN + FLAG_FORCE_NOT_FULLSCREEN - addFlag;
+
+		Window window = host.getWindow();
+		if (window != null) {
+			window.addFlags(addFlag);
+			window.clearFlags(clearFlag);
+		}
+	}
+
+	public static void hideStatusBar(Activity host) {
+		if (Build.VERSION.SDK_INT < 16) {
+			host.getWindow().setFlags(FLAG_FULLSCREEN, FLAG_FULLSCREEN);
+		}
+		else {
+			View decorView = host.getWindow().getDecorView();
+			// Hide the status bar.
+			int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+			decorView.setSystemUiVisibility(uiOptions);
+			// Remember that you should never show the action bar if the
+			// status bar is hidden, so hide that too if necessary.
+			ActionBar actionBar = host.getActionBar();
+
+			if (actionBar != null) {
+				actionBar.hide();
+			}
+		}
+	}
+
+	/**
+	 * Dim system bars like: status bar, navigation bar...
+	 * Note that, once user touches some system bar, you need call this to dim again.
+	 */
+	public static void dimSystemBars(Activity host) {
+		View decorView = host.getWindow().getDecorView();
+		int uiOptions = View.SYSTEM_UI_FLAG_LOW_PROFILE;
+		decorView.setSystemUiVisibility(uiOptions);
+	}
+
+	public static void showSystemBars(Activity host) {
+		View decorView = host.getWindow().getDecorView();
+		// Clears all flags
+		decorView.setSystemUiVisibility(View.VISIBLE);
 	}
 
 	public static void sendEmail(Context context, String dstEmail, String subject, String message) {
@@ -295,10 +358,6 @@ public class DkUtils {
 		context.startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
 	}
 
-	public static String getSystemLanguage() {
-		return Locale.getDefault().getLanguage();
-	}
-
 	public static Intent getOpenIntentForFacebookUserPage(Context context, String userId) {
 		try {
 			context.getPackageManager().getPackageInfo("com.facebook.katana", 0);
@@ -380,85 +439,6 @@ public class DkUtils {
 			DkLogs.error(DkLogs.class, e);
 			return new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/search?q=pub:" + developerName));
 		}
-	}
-
-	public static boolean checkPermission(Context context, String... permissions) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			for (String permission : permissions) {
-				if (context.checkSelfPermission(permission) != PERMISSION_GRANTED) {
-					return false;
-				}
-			}
-		}
-		return true;
-	}
-
-	public static void requestPermissions(Activity host, int requestCode, String[] permissions) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			host.requestPermissions(permissions, requestCode);
-		}
-	}
-
-	public static void restart(Context context, Class startActivity) {
-		Intent startIntent = new Intent(context, startActivity);
-		PendingIntent pendingIntent = PendingIntent.getActivity(context,
-			Process.myPid(),
-			startIntent,
-			PendingIntent.FLAG_CANCEL_CURRENT);
-
-		AlarmManager alarm = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-
-		if (alarm != null) {
-			alarm.set(AlarmManager.RTC, System.currentTimeMillis() + 200, pendingIntent);
-		}
-
-		Runtime.getRuntime().exit(0);
-	}
-
-	public static void setFullScreen(Activity host, boolean fullScreen) {
-		int addFlag = fullScreen ? FLAG_FULLSCREEN : FLAG_FORCE_NOT_FULLSCREEN;
-		int clearFlag = FLAG_FULLSCREEN + FLAG_FORCE_NOT_FULLSCREEN - addFlag;
-
-		Window window = host.getWindow();
-		if (window != null) {
-			window.addFlags(addFlag);
-			window.clearFlags(clearFlag);
-		}
-	}
-
-	public static void hideStatusBar(Activity host) {
-		if (Build.VERSION.SDK_INT < 16) {
-			host.getWindow().setFlags(FLAG_FULLSCREEN, FLAG_FULLSCREEN);
-		}
-		else {
-			View decorView = host.getWindow().getDecorView();
-			// Hide the status bar.
-			int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
-			decorView.setSystemUiVisibility(uiOptions);
-			// Remember that you should never show the action bar if the
-			// status bar is hidden, so hide that too if necessary.
-			ActionBar actionBar = host.getActionBar();
-
-			if (actionBar != null) {
-				actionBar.hide();
-			}
-		}
-	}
-
-	/**
-	 * Dim system bars like: status bar, navigation bar...
-	 * Note that, once user touches some system bar, you need call this to dim again.
-	 */
-	public static void dimSystemBars(Activity host) {
-		View decorView = host.getWindow().getDecorView();
-		int uiOptions = View.SYSTEM_UI_FLAG_LOW_PROFILE;
-		decorView.setSystemUiVisibility(uiOptions);
-	}
-
-	public static void showSystemBars(Activity host) {
-		View decorView = host.getWindow().getDecorView();
-		// Clears all flags
-		decorView.setSystemUiVisibility(View.VISIBLE);
 	}
 
 	public static int getScreenRotation(Activity host) {

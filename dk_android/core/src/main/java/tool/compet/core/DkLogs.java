@@ -10,7 +10,6 @@ import androidx.annotation.Nullable;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Console log in Logcat. It provides log callback, benchmark...
@@ -116,7 +115,7 @@ public class DkLogs implements DkLogger.LogType {
 		String logTag = "xxx_" + logType;
 
 		if (logBackTrace) {
-			List<String> descriptions = new ArrayList<>();
+			ArrayList<String> descriptions = new ArrayList<>();
 			for (StackTraceElement elm : Thread.currentThread().getStackTrace()) {
 				String description = DkStrings.format("%s (%d) ==> %s.%s()", elm.getFileName(), elm.getLineNumber(), elm.getClassName(), elm.getMethodName());
 				descriptions.add(description);

@@ -24,6 +24,7 @@ public class DkConfig {
 	 * @return Device language code, for eg,. "vi", "en", "ja", ...
 	 */
 	public static String systemLang() {
+		// Or: Locale.getDefault().getLanguage()
 		return Resources.getSystem().getConfiguration().locale.getLanguage();
 	}
 

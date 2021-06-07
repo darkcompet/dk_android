@@ -7,7 +7,6 @@ package tool.compet.core;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class DkLogger {
 	public interface LogType {
@@ -135,7 +134,7 @@ public class DkLogger {
 	}
 
 	protected String makeBacktraceMessage() {
-		List<String> descriptions = new ArrayList<>();
+		ArrayList<String> descriptions = new ArrayList<>();
 		for (StackTraceElement elm : Thread.currentThread().getStackTrace()) {
 			String description = DkStrings.format("%s (%d) ==> %s.%s()", elm.getFileName(), elm.getLineNumber(), elm.getClassName(), elm.getMethodName());
 			descriptions.add(description);
