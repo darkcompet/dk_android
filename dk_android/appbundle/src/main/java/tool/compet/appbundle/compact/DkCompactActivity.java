@@ -34,6 +34,7 @@ import tool.compet.appbundle.navigator.DkNavigatorOwner;
 import tool.compet.appbundle.topic.DkTopicOwner;
 import tool.compet.core.BuildConfig;
 import tool.compet.core.DkLogs;
+import tool.compet.core.DkUtils;
 
 /**
  * This is standard activity and provides below basic features:
@@ -82,7 +83,7 @@ public abstract class DkCompactActivity<L extends DkCompactLogic, D> extends App
 			int containerId = fragmentContainerId();
 
 			if (containerId <= 0) {
-				DkLogs.complain(this, "Must provide `fragmentContainerId()`");
+				DkUtils.complainAt(this, "Must provide `fragmentContainerId()`");
 			}
 
 			childNavigator = new DkFragmentNavigator(containerId, getSupportFragmentManager(), this);

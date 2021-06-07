@@ -10,9 +10,10 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Objects;
 
-import tool.compet.core.DkTypeHelper;
 import tool.compet.core.DkLogs;
 import tool.compet.core.DkMaths;
+import tool.compet.core.DkTypeHelper;
+import tool.compet.core.DkUtils;
 import tool.compet.core.reflection.DkReflectionFinder;
 
 class MySqliteHelper {
@@ -32,7 +33,7 @@ class MySqliteHelper {
 
 		List<Field> fields = DkReflectionFinder.getIns().findFields(modelClass, DkColumnInfo.class);
 		if (fields.size() == 0) {
-			DkLogs.complain(MySqliteHelper.class, "Must annotate some fields with `@DkColumnInfo` in `%s`", modelClass.getName());
+			DkUtils.complainAt(MySqliteHelper.class, "Must annotate some fields with `@DkColumnInfo` in `%s`", modelClass.getName());
 		}
 
 		for (Field field : fields) {

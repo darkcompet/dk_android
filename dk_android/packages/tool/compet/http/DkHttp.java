@@ -16,8 +16,8 @@ import java.lang.reflect.Proxy;
 
 import tool.compet.core.DkJsonHelper;
 import tool.compet.core.DkLogs;
-import tool.compet.core.stream.DkObservable;
 import tool.compet.core.DkUtils;
+import tool.compet.core.stream.DkObservable;
 
 import static tool.compet.core.BuildConfig.DEBUG;
 
@@ -64,7 +64,7 @@ public class DkHttp {
 		DkServer server = DkJsonHelper.getIns().json2obj(json, DkServer.class);
 
 		if (server == null) {
-			DkLogs.complain(this, "Failed to parse server config file %s", filename);
+			DkUtils.complainAt(this, "Failed to parse server config file %s", filename);
 			return this;
 		}
 
@@ -188,7 +188,7 @@ public class DkHttp {
 
 	private void validateConfig() {
 		if (baseUrl == null) {
-			DkLogs.complain(this, "Must specify non-null baseUrl");
+			DkUtils.complainAt(this, "Must specify non-null baseUrl");
 		}
 		if (!baseUrl.endsWith("/")) {
 			baseUrl += '/';

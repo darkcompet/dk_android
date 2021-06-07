@@ -43,10 +43,10 @@ public abstract class DkPreferenceFragment<VL extends DkCompactLogic, VD>
 		}
 	};
 
-	@Override
-	public boolean isRetainInstance() {
-		return true; // over configuration change by default
-	}
+//	@Override
+//	public boolean isRetainInstance() {
+//		return true; // over configuration change by default
+//	}
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {

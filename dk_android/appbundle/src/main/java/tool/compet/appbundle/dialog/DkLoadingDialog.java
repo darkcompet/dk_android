@@ -44,10 +44,10 @@ public class DkLoadingDialog<D> extends DkCompactDialog<D> {
 		return false;
 	}
 
-	@Override
-	public boolean isRetainInstance() {
-		return false;
-	}
+//	@Override
+//	public boolean isRetainInstance() {
+//		return false;
+//	}
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {

@@ -86,7 +86,7 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment
 		}
 
 		if (owner == null) {
-			DkLogs.complain(this, "Must have a parent navigator own this fragment `%s`", getClass().getName());
+			DkUtils.complainAt(this, "Must have a parent navigator own this fragment `%s`", getClass().getName());
 		}
 
 		return owner;

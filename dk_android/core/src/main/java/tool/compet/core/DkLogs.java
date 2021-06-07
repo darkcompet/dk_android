@@ -14,6 +14,7 @@ import java.util.List;
 
 /**
  * Console log in Logcat. It provides log callback, benchmark...
+ * It provide debug log
  */
 public class DkLogs implements DkLogger.LogType {
 	private static final DkLogger logger = new DkLogger(DkLogs::logActual);
@@ -27,89 +28,88 @@ public class DkLogs implements DkLogger.LogType {
 	private static ArrayDeque<String> benchmarkTaskNames;
 
 	/**
-	 * Throw RuntimeException.
-	 */
-	public static void complain(@Nullable Object where, @Nullable String format, Object... args) {
-		throw new RuntimeException(logger.makePrefix(where) + DkStrings.format(format, args));
-	}
-
-	/**
-	 * Debug log. Can't be invoked in production.
+	 * Debug log. Only run at debug env (ignored at production env).
 	 * Notice: should remove all debug code when release.
 	 */
-	// todo: Remove all debug line which call this
 	public static void debug(@Nullable Object where, @Nullable String format, Object... args) {
-		if (! BuildConfig.DEBUG) {
-			DkUtils.complainAt(DkLogs.class, "Can not use debug-log at product version");
+		if (BuildConfig.DEBUG) {
+			logger.debug(where, format, args);
 		}
-		logger.debug(where, format, args);
 	}
 
 	/**
-	 * Log info. Can be invoked in production.
+	 * Log info. Only run at debug env (ignored at production env).
 	 */
 	public static void info(@Nullable Object where, @Nullable String format, Object... args) {
-		logger.info(where, format, args);
+		if (BuildConfig.DEBUG) {
+			logger.info(where, format, args);
+		}
 	}
 
 	/**
-	 * Log notice. Can be invoked in production.
+	 * Log notice. Only run at debug env (ignored at production env).
 	 */
 	public static void notice(@Nullable Object where, @Nullable String format, Object... args) {
-		logger.notice(where, format, args);
+		if (BuildConfig.DEBUG) {
+			logger.notice(where, format, args);
+		}
 	}
 
 	/**
-	 * Warning log. Can be invoked in production.
+	 * Warning log. Run at both debug and production env.
 	 */
 	public static void warning(@Nullable Object where, @Nullable String format, Object... args) {
 		logger.warning(where, format, args);
 	}
 
 	/**
-	 * Error log. Can be invoked in production.
+	 * Error log. Run at both debug and production env.
 	 */
 	public static void error(@Nullable Object where, @Nullable String format, Object... args) {
 		logger.error(where, format, args);
 	}
 
 	/**
-	 * Exception log. Can be invoked in production.
+	 * Exception log. Run at both debug and production env.
 	 */
 	public static void error(@Nullable Object where, Throwable e) {
 		error(where, e, null);
 	}
 
 	/**
-	 * Exception log. Can be invoked in production.
+	 * Exception log. Run at both debug and production env.
 	 */
 	public static void error(@Nullable Object where, Throwable e, @Nullable String format, Object... args) {
 		logger.error(where, e, format, args);
 	}
 
 	/**
-	 * Start benchmark. Can't be invoked in production.
+	 * Start benchmark. Only run at debug env (ignored at production env).
 	 */
 	public static void tick(@Nullable Object where, String task) {
-		if (benchmarkTaskNames == null) {
-			benchmarkTaskNames = new ArrayDeque<>();
-		}
+		if (BuildConfig.DEBUG) {
+			if (benchmarkTaskNames == null) {
+				benchmarkTaskNames = new ArrayDeque<>();
+			}
 
-		benchmarkTaskNames.push(task);
-		logger.debug(where, "Task [%s] was started", task);
-		benchmarkStartTime = System.currentTimeMillis();
+			benchmarkTaskNames.push(task);
+			logger.debug(where, "Task [%s] was started", task);
+			benchmarkStartTime = System.currentTimeMillis();
+		}
 	}
 
 	/**
-	 * End benchmark. Can't be invoked in production.
+	 * End benchmark. Only run at debug env (ignored at production env).
 	 */
 	public static void tock(@Nullable Object where) {
-		long elapsed = System.currentTimeMillis() - benchmarkStartTime;
-		logger.debug(where,
-			"Task [%s] end in: %d s %d ms",
-			benchmarkTaskNames.pop(),
-			elapsed / 1000,
-			(elapsed - 1000 * (elapsed / 1000)));
+		if (BuildConfig.DEBUG) {
+			long elapsed = System.currentTimeMillis() - benchmarkStartTime;
+			logger.debug(where,
+				"Task [%s] end in: %d s %d ms",
+				benchmarkTaskNames.pop(),
+				elapsed / 1000,
+				(elapsed - 1000 * (elapsed / 1000)));
+		}
 	}
 
 	private static void logActual(String logType, String message) {

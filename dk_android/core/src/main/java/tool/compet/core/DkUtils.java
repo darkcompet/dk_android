@@ -66,7 +66,7 @@ public class DkUtils {
 	public static void complainAt(Object where, String format, Object... args) {
 		String prefix = "~ ";
 		if (where != null) {
-			String loc = where instanceof Class ? ((Class) where).getName() : where.getClass().getName();
+			String loc = (where instanceof Class) ? ((Class) where).getName() : where.getClass().getName();
 			loc = loc.substring(loc.lastIndexOf('.') + 1);
 			prefix = loc + prefix;
 		}

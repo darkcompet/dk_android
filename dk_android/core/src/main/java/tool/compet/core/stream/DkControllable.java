@@ -6,7 +6,7 @@ package tool.compet.core.stream;
 
 import java.util.concurrent.Callable;
 
-import tool.compet.core.DkLogs;
+import tool.compet.core.DkUtils;
 
 /**
  * This node can pause, resume, cancel the task.
@@ -26,7 +26,7 @@ public class DkControllable<T> extends MyControllable implements Callable<T>, Dk
 	@Override
 	public void onSubscribe(DkControllable controllable) throws Exception {
 		if (controllable == this) {
-			DkLogs.complain(this, "Wrong implementation ! God observer must be parentless");
+			DkUtils.complainAt(this, "Wrong implementation ! God observer must be parentless");
 		}
 		this.parent = controllable;
 		this.child.onSubscribe(controllable);

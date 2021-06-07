@@ -7,6 +7,7 @@ package tool.compet.boommenu;
 import android.content.Context;
 
 import tool.compet.core.DkLogs;
+import tool.compet.core.DkUtils;
 
 /**
  * Item builder for custom view. Your view must be subclass of DkBaseItemView and don't forget
@@ -25,7 +26,7 @@ public class DkCustomItemBuilder extends DkItemBuilder<DkCustomItemBuilder> {
 			view = super.prepareView(context, layoutRes);
 
 			if (view == null) {
-				DkLogs.complain(this, "Must specify view or layoutRes of DkBaseItemView");
+				DkUtils.complainAt(this, "Must specify view or layoutRes of DkBaseItemView");
 			}
 		}
 

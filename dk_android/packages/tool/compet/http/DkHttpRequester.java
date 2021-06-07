@@ -14,10 +14,10 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import tool.compet.core.graphics.DkBitmaps;
 import tool.compet.core.DkJsonHelper;
 import tool.compet.core.DkLogs;
 import tool.compet.core.DkUtils;
+import tool.compet.core.graphics.DkBitmaps;
 
 import static tool.compet.core.BuildConfig.DEBUG;
 
@@ -106,7 +106,7 @@ public class DkHttpRequester<T> {
 					break;
 				}
 				default: {
-					DkLogs.complain(this, "Invalid request method: " + requestMethod);
+					DkUtils.complainAt(this, "Invalid request method: " + requestMethod);
 				}
 			}
 

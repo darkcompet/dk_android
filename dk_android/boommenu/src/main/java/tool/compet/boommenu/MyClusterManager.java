@@ -13,8 +13,8 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.List;
 
-import tool.compet.core.DkLogs;
 import tool.compet.core.DkMaths;
+import tool.compet.core.DkUtils;
 
 /**
  * This class, manages for cluster (items).
@@ -76,7 +76,7 @@ class MyClusterManager {
 		int N = itemBuilders.size();
 
 		if (N == 0) {
-			DkLogs.complain(this, "No item to build");
+			DkUtils.complainAt(this, "No item to build");
 		}
 
 		items.clear();
@@ -179,7 +179,7 @@ class MyClusterManager {
 				break;
 			}
 			default: {
-				DkLogs.complain(this, "Invalid emission type");
+				DkUtils.complainAt(this, "Invalid emission type");
 			}
 		}
 	}

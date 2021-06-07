@@ -14,11 +14,12 @@ import java.lang.reflect.Method;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 
-import tool.compet.core.graphics.DkBitmaps;
 import tool.compet.core.DkJsonHelper;
 import tool.compet.core.DkLogs;
 import tool.compet.core.DkReflections;
 import tool.compet.core.DkStrings;
+import tool.compet.core.DkUtils;
+import tool.compet.core.graphics.DkBitmaps;
 
 class MyServiceMethod<T> {
 	// Header key-value pairs
@@ -56,7 +57,7 @@ class MyServiceMethod<T> {
 		Annotation[] methodAnnotations = method.getDeclaredAnnotations();
 
 		if (methodAnnotations.length == 0) {
-			DkLogs.complain(this, "Must annotate each method with One of @DkGet, @DkPost...");
+			DkUtils.complainAt(this, "Must annotate each method with One of @DkGet, @DkPost...");
 		}
 
 		for (Annotation annotation : methodAnnotations) {
@@ -72,10 +73,10 @@ class MyServiceMethod<T> {
 		}
 
 		if (requestMethod == null) {
-			DkLogs.complain(this, "Missing request method annotation on the method: " + method);
+			DkUtils.complainAt(this, "Missing request method annotation on the method: " + method);
 		}
 		if (DkStrings.white(tmpRelativeUrl)) {
-			DkLogs.complain(this, "Invalid relative url: " + tmpRelativeUrl);
+			DkUtils.complainAt(this, "Invalid relative url: " + tmpRelativeUrl);
 		}
 
 		tmpRelativeUrl = DkStrings.trimMore(tmpRelativeUrl, '/');
@@ -87,7 +88,7 @@ class MyServiceMethod<T> {
 
 	private void parseOnMethod(DkGet getInfo) {
 		if (requestMethod != null) {
-			DkLogs.complain(this, "Can specify only one request method");
+			DkUtils.complainAt(this, "Can specify only one request method");
 		}
 
 		requestMethod = DkHttpConst.GET;
@@ -107,7 +108,7 @@ class MyServiceMethod<T> {
 
 	private void parseOnMethod(DkPost postInfo) {
 		if (requestMethod != null) {
-			DkLogs.complain(this, "Can specify only one request method");
+			DkUtils.complainAt(this, "Can specify only one request method");
 		}
 
 		requestMethod = DkHttpConst.POST;
@@ -194,7 +195,7 @@ class MyServiceMethod<T> {
 		String value = String.valueOf(paramValue);
 
 		if (!DkStrings.empty(headerInfo.value())) {
-			DkLogs.complain(this, "Don't use #value() in #DkHeader for params");
+			DkUtils.complainAt(this, "Don't use #value() in #DkHeader for params");
 		}
 
 		headers.put(key, value);

@@ -31,6 +31,7 @@ import tool.compet.appbundle.navigator.DkFragmentNavigator;
 import tool.compet.appbundle.navigator.DkNavigatorOwner;
 import tool.compet.appbundle.topic.DkTopicOwner;
 import tool.compet.core.DkLogs;
+import tool.compet.core.DkUtils;
 
 /**
  * This is standard fragment which provides a lot of optional features:
@@ -81,7 +82,7 @@ public abstract class DkCompactFragment<L extends DkCompactLogic, D> extends Fra
 			int containerId = fragmentContainerId();
 
 			if (containerId <= 0) {
-				DkLogs.complain(this, "Must provide `fragmentContainerId()`");
+				DkUtils.complainAt(this, "Must provide `fragmentContainerId()`");
 			}
 
 			childNavigator = new DkFragmentNavigator(containerId, getChildFragmentManager(), this);
@@ -104,7 +105,7 @@ public abstract class DkCompactFragment<L extends DkCompactLogic, D> extends Fra
 		}
 
 		if (parentNavigator == null) {
-			DkLogs.complain(this, "Must have a parent navigator own this fragment `%s`", getClass().getName());
+			DkUtils.complainAt(this, "Must have a parent navigator own this fragment `%s`", getClass().getName());
 		}
 
 		return parentNavigator;

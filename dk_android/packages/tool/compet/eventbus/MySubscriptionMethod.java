@@ -6,7 +6,7 @@ package tool.compet.eventbus;
 
 import java.lang.reflect.Method;
 
-import tool.compet.core.DkLogs;
+import tool.compet.core.DkUtils;
 
 class MySubscriptionMethod {
 	final Method method;
@@ -25,7 +25,7 @@ class MySubscriptionMethod {
 		}
 
 		if (paramType == null || paramType.isPrimitive()) {
-			DkLogs.complain(this, "Require non-primitive parameter.");
+			DkUtils.complainAt(this, "Require non-primitive parameter.");
 		}
 
 		DkSubscribe subscription = method.getAnnotation(DkSubscribe.class);

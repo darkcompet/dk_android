@@ -11,6 +11,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import tool.compet.core.DkLogs;
+import tool.compet.core.DkUtils;
 import tool.compet.core.reflection.DkReflectionFinder;
 
 /**
@@ -34,7 +35,7 @@ public class DkBinder {
 				}
 				catch (Exception e) {
 					DkLogs.error(DkBinder.class, e);
-					DkLogs.complain(DkBinder.class, "Could not initialize field %s inside class %s", field.getName(), target.getClass().getName());
+					DkUtils.complainAt(DkBinder.class, "Could not initialize field %s inside class %s", field.getName(), target.getClass().getName());
 				}
 			}
 		}
@@ -57,7 +58,7 @@ public class DkBinder {
 					}
 					catch (Exception e) {
 						DkLogs.error(DkBinder.class, e);
-						DkLogs.complain(DkBinder.class, "Could not invoke method `%s` inside class `%s`", method.getName(), target.getClass().getName());
+						DkUtils.complainAt(DkBinder.class, "Could not invoke method `%s` inside class `%s`", method.getName(), target.getClass().getName());
 					}
 				});
 			}

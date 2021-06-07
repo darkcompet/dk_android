@@ -22,6 +22,7 @@ import java.util.List;
 import tool.compet.appbundle.BuildConfig;
 import tool.compet.core.DkLogs;
 import tool.compet.core.DkRunner1;
+import tool.compet.core.DkUtils;
 
 /**
  * Compact design pattern ViewLogic component. This will update View by access #view object or
@@ -91,7 +92,7 @@ public abstract class DkCompactLogic<V extends DkCompactView, D> extends ViewMod
 	@CallSuper
 	public void onPostCreate(DkCompactActivity host, Bundle savedInstanceState) {
 		if (BuildConfig.DEBUG && ! (view instanceof Activity)) {
-			DkLogs.complain(this, "Only Logic of Activity can call this");
+			DkUtils.complainAt(this, "Only Logic of Activity can call this");
 		}
 		isCalledOnPostCreate = true;
 		isLayoutAvailable = true;
@@ -105,7 +106,7 @@ public abstract class DkCompactLogic<V extends DkCompactView, D> extends ViewMod
 	@CallSuper
 	protected void onViewCreated(FragmentActivity host, @Nullable Bundle savedInstanceState) {
 		if (BuildConfig.DEBUG && ! (view instanceof Fragment)) {
-			DkLogs.complain(this, "Only Logic of Fragment can call this");
+			DkUtils.complainAt(this, "Only Logic of Fragment can call this");
 		}
 		lifeCycleState = STATE_VIEW_CREATED;
 		isLayoutAvailable = true;
@@ -144,7 +145,7 @@ public abstract class DkCompactLogic<V extends DkCompactView, D> extends ViewMod
 	@CallSuper
 	protected void onRestart(FragmentActivity host) {
 		if (BuildConfig.DEBUG && ! (view instanceof Activity)) {
-			DkLogs.complain(this, "Only Logic of Activity can call this");
+			DkUtils.complainAt(this, "Only Logic of Activity can call this");
 		}
 		isCalledOnRestart = true;
 	}
@@ -169,7 +170,7 @@ public abstract class DkCompactLogic<V extends DkCompactView, D> extends ViewMod
 	@CallSuper
 	protected void onConfigurationChanged(FragmentActivity host, Configuration newConfig) {
 		if (BuildConfig.DEBUG && ! (view instanceof Activity)) {
-			DkLogs.complain(this, "Only Logic of Activity can call this");
+			DkUtils.complainAt(this, "Only Logic of Activity can call this");
 		}
 		isCalledOnConfigurationChanged = true;
 	}
@@ -181,7 +182,7 @@ public abstract class DkCompactLogic<V extends DkCompactView, D> extends ViewMod
 	@CallSuper
 	protected void onRestoreInstanceState(FragmentActivity host, Bundle savedInstanceState) {
 		if (BuildConfig.DEBUG && ! (view instanceof Activity)) {
-			DkLogs.complain(this, "Only Logic of Activity can call this");
+			DkUtils.complainAt(this, "Only Logic of Activity can call this");
 		}
 		isCalledOnRestoreInstanceState = true;
 	}
