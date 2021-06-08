@@ -9,11 +9,11 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 
 import tool.compet.core.DkConfig;
-import tool.compet.core.DkLogs;
 
 /**
  * This extends compat-version and provided some optional below features:
@@ -25,6 +25,7 @@ public class DkCompactConstraintLayout extends DkCompatConstraintLayout {
 	protected boolean roundEnabled = true;
 	protected int roundColor;
 	protected float roundStrokeWidth;
+	protected float roundRadius; // for all (4) corners
 	protected float[] roundRadiusArr; // top-left, top-right, bottom-right, bottom-left
 	protected Path clipRoundPath;
 	protected Path roundPath;
@@ -49,8 +50,15 @@ public class DkCompactConstraintLayout extends DkCompatConstraintLayout {
 	}
 
 	@Override
+	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+		if (roundEnabled) {
+			initForRoundedCorner(w, h);
+		}
+		super.onSizeChanged(w, h, oldw, oldh);
+	}
+
+	@Override
 	public void draw(Canvas canvas) {
-		DkLogs.debug(this, "draw at constraint layot....");
 		if (roundEnabled) {
 			drawRoundedCorner(canvas);
 		}
@@ -60,7 +68,7 @@ public class DkCompactConstraintLayout extends DkCompatConstraintLayout {
 
 	// region Private
 
-	private void initForRoundedCorner() {
+	private void initForRoundedCorner(int w, int h) {
 		if (clipRoundPath == null) {
 			clipRoundPath = new Path();
 		}
@@ -68,50 +76,36 @@ public class DkCompactConstraintLayout extends DkCompatConstraintLayout {
 			roundPath = new Path();
 		}
 		if (roundPaint == null) {
-			final float density = DkConfig.density();
 			roundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 			roundPaint.setStyle(Paint.Style.STROKE);
 
 			roundColor = DkConfig.colorAccent(getContext());
-			roundStrokeWidth = 1f * density;
-
-			float roundRadius = 12 * density;
-			roundRadiusArr = new float[]{
+			roundRadiusArr = new float[] {
 				roundRadius, roundRadius,
 				roundRadius, roundRadius,
 				roundRadius, roundRadius,
 				roundRadius, roundRadius,
 			};
 		}
-	}
-
-	private void drawRoundedCorner(Canvas canvas) {
-		// Init & Refresh
-		initForRoundedCorner();
-
-		final int w = getWidth();
-		final int h = getHeight();
-		final float density = DkConfig.density();
 
 		// Clip round-path
 		clipRoundPath.reset();
 		clipRoundPath.addRoundRect(new RectF(0, 0, w, h), roundRadiusArr, Path.Direction.CCW);
 
+		final float density = DkConfig.density();
+		roundPath.reset();
+		roundPath.addRoundRect(new RectF(density, density, w - density, h - density), roundRadiusArr, Path.Direction.CCW);
+
+		roundPaint.setColor(roundColor);
+		roundPaint.setStrokeWidth(roundStrokeWidth);
+	}
+
+	private void drawRoundedCorner(Canvas canvas) {
 		//todo Buggy: setLayerType() makes redraw called repeatly !!!
-//		DkViewCompats.clipPath(this, canvas, clipRoundPath);
-//		int layerType = getLayerType();
-//		this.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-
-		// Draw round-corner if required
-		if (roundStrokeWidth >= 0f) {
-			roundPaint.setColor(roundColor);
-			roundPaint.setStrokeWidth(roundStrokeWidth);
-
-			roundPath.reset();
-			roundPath.addRoundRect(new RectF(density, density, w - density, h - density), roundRadiusArr, Path.Direction.CCW);
-
-			canvas.drawPath(roundPath, roundPaint);
+		if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN_MR1) { // api 17-
+			this.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 		}
+		canvas.drawPath(roundPath, roundPaint);
 	}
 
 	// endregion Private
@@ -139,10 +133,14 @@ public class DkCompactConstraintLayout extends DkCompatConstraintLayout {
 	}
 
 	/**
-	 * @param roundStrokeWidth In pixel, so caller should pass value after multiplied with device density.
+	 * @param roundStrokeWidth In dp since we will multiply it with device density.
 	 */
 	public void setRoundStrokeWidth(float roundStrokeWidth) {
-		this.roundStrokeWidth = roundStrokeWidth;
+		this.roundStrokeWidth = roundStrokeWidth * DkConfig.density();
+	}
+
+	public void setRoundRadius(float roundRadius) {
+		this.roundRadius = roundRadius * DkConfig.density();
 	}
 
 	public float[] getRoundRadiusArr() {
