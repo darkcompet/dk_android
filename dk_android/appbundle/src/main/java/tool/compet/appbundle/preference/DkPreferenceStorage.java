@@ -11,39 +11,35 @@ public interface DkPreferenceStorage {
 
 	boolean getBoolean(String key);
 
-	void storeBoolean(String key, boolean value);
-
-	void applyBoolean(String key, boolean value);
+	void putBoolean(String key, boolean value);
 
 	int getInt(String key);
 
-	void storeInt(String key, int value);
+	void putInt(String key, int value);
 
 	long getLong(String key);
 
-	void storeLong(String key, long value);
+	void putLong(String key, long value);
 
 	float getFloat(String key);
 
-	void storeFloat(String key, float value);
+	void putFloat(String key, float value);
 
 	double getDouble(String key);
 
-	void storeDouble(String key, double value);
+	void putDouble(String key, double value);
 
 	String getString(String key);
 
-	void storeString(String key, String value);
-
-	void applyString(String key, String value);
+	void putString(String key, String value);
 
 	Set<String> getStringSet(String key);
 
-	void storeStringSet(String key, Set<String> values);
+	void putStringSet(String key, Set<String> values);
 
 	<T> T getJsonObject(String key, Class<T> resClass);
 
-	void storeJsonObject(String key, Object value);
+	void putJsonObject(String key, Object value);
 
 	void delete(String key);
 

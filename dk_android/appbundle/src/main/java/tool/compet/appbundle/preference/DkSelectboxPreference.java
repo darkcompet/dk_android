@@ -145,7 +145,7 @@ public class DkSelectboxPreference extends MyBasePreference<DkSelectboxPreferenc
 					selectedName = entryNames[which];
 					selectedValue = entryValueList.get(which);
 
-					storage.applyString(key, selectedValue);
+					storage.putString(key, selectedValue);
 					listener.onPreferenceChanged(key);
 
 					dlg.dismiss();

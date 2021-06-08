@@ -85,7 +85,7 @@ public class DkCheckBoxPreference extends MyBasePreference<DkCheckBoxPreference>
 			cbCheck.setOnCheckedChangeListener((buttonView, isChecked) -> {
 				checked = isChecked;
 
-				storage.applyBoolean(key, isChecked);
+				storage.putBoolean(key, isChecked);
 				listener.onPreferenceChanged(key);
 
 				notifyDataChanged();

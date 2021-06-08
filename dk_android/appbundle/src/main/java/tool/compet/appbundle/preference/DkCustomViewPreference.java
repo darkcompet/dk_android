@@ -47,6 +47,7 @@ public class DkCustomViewPreference extends MyBasePreference<DkCustomViewPrefere
 		return itemView;
 	}
 
+	// Subclass can override this to customize storage
 	@Override
 	public void decorateView(View view) {
 	}
