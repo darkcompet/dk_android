@@ -161,6 +161,7 @@ public abstract class DkCompactActivity<L extends DkCompactLogic, D> extends App
 					.setTitle(R.string.error)
 					.setMessage(message)
 					.setOkButton(R.string.close)
+					.setWidthPercent(0.75f)
 					.open(getChildNavigator());
 			});
 

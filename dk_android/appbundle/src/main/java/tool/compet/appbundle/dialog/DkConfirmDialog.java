@@ -24,9 +24,7 @@ import androidx.core.view.ViewCompat;
 
 import tool.compet.appbundle.R;
 import tool.compet.appbundle.compact.DkCompactDialog;
-import tool.compet.core.BuildConfig;
 import tool.compet.core.DkConfig;
-import tool.compet.core.DkLogs;
 import tool.compet.core.view.DkViews;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
@@ -84,8 +82,8 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 	// Body
 	protected ViewGroup vBody;
 	protected int bodyLayoutResId; // store in instance state
-	protected float widthWeight; // store in instance state
-	protected float heightWeight; // store in instance state
+	protected float widthPercent; // store in instance state
+	protected float heightPercent; // store in instance state
 	protected boolean dimensionRatioBasedOnWidth = true; // store in instance state
 	protected float widthRatio; // store in instance state
 	protected float heightRatio; // store in instance state
@@ -211,16 +209,18 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 
 		// Background (dialog) dimension
 		ViewGroup.LayoutParams bkgLayoutParams = vBackground.getLayoutParams();
+		final int[] dimensions = DkConfig.displaySize();
 		if (bkgLayoutParams == null) {
 			bkgLayoutParams = new FrameLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, Gravity.CENTER);
 		}
 		if (isFullScreen) {
 			bkgLayoutParams.width = bkgLayoutParams.height = MATCH_PARENT;
 		}
-		if (widthWeight != 0 && heightWeight != 0) {
-			int[] dimensions = DkConfig.displaySize();
-			bkgLayoutParams.width = (int) (dimensions[0] * widthWeight);
-			bkgLayoutParams.height = (int) (dimensions[1] * heightWeight);
+		if (widthPercent != 0) {
+			bkgLayoutParams.width = (int) (dimensions[0] * widthPercent);
+		}
+		if (heightPercent != 0) {
+			bkgLayoutParams.height = (int) (dimensions[1] * heightPercent);
 		}
 		if (widthRatio != 0 && heightRatio != 0) {
 			if (dimensionRatioBasedOnWidth) {
@@ -245,7 +245,7 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 		//        DkLogs.debug(this, "vForeground: %d, %d", vForeground.getWidth(), vForeground.getHeight());
 	}
 
-	@Override
+	@Override // from View.OnClickListener interface
 	public void onClick(View view) {
 		// Perform callback
 		final int viewId = view.getId();
@@ -264,16 +264,6 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 		if (isDismissOnClickButton) {
 			close();
 		}
-	}
-
-	@Override
-	public void onDismiss(@NonNull android.content.DialogInterface dialog) {
-		if (BuildConfig.DEBUG) {
-			DkLogs.info(this, "onDismiss");
-		}
-		onDismissDialog(dialog);
-
-		super.onDismiss(dialog);
 	}
 
 	// region Get/Set
@@ -400,12 +390,42 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 		return (D) this;
 	}
 
-	public D setDimensionWeight(float widthWeight, float heightWeight) {
-		this.widthWeight = widthWeight;
-		this.heightWeight = heightWeight;
+	/**
+	 * Set percent of width, height based on device size.
+	 * @param widthPercent Percent based on device width.
+	 */
+	public D setWidthPercent(float widthPercent) {
+		this.widthPercent = widthPercent;
 		return (D) this;
 	}
 
+	/**
+	 * Set percent of width, height based on device size.
+	 * @param heightPercent Percent based on device height.
+	 */
+	public D setHeightPercent(float heightPercent) {
+		this.heightPercent = heightPercent;
+		return (D) this;
+	}
+
+
+	/**
+	 * Set percent of width, height based on device size.
+	 * @param widthPercent Percent based on device width.
+	 * @param heightPercent Percent based on device height.
+	 */
+	public D setDimensionPercent(float widthPercent, float heightPercent) {
+		this.widthPercent = widthPercent;
+		this.heightPercent = heightPercent;
+		return (D) this;
+	}
+
+	/**
+	 * Set ratio between width and height.
+	 * @param widthRatio Ratio of width.
+	 * @param heightRatio Ratio of height.
+	 * @param basedOnWidth Base when calculate rate, true (based on width), false (based on height).
+	 */
 	public D setDimensionRatio(float widthRatio, float heightRatio, boolean basedOnWidth) {
 		this.widthRatio = widthRatio;
 		this.heightRatio = heightRatio;
@@ -413,6 +433,9 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 		return (D) this;
 	}
 
+	/**
+	 * This dialog provides some layout type, for eg,. vertical layout, horizontal layout...
+	 */
 	public D setLayoutType(int layoutType) {
 		this.layoutType = layoutType;
 		return (D) this;
@@ -502,13 +525,6 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 		}
 	}
 
-	/**
-	 * Call when start dismiss dialog.
-	 * Subclass can override this to here start dismiss event (is NOT dismissed-event)
-	 */
-	protected void onDismissDialog(android.content.DialogInterface dialog) {
-	}
-
 	// Subclass can override this to store something
 	protected void onStoreInstanceState(@NonNull Bundle outState) {
 		if (backgroundColor != null) {
@@ -525,11 +541,11 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 		if (bodyLayoutResId > 0) {
 			outState.putInt("DkConfirmDialog.bodyLayoutResId", bodyLayoutResId);
 		}
-		if (widthWeight > 0) {
-			outState.putFloat("DkConfirmDialog.widthWeight", widthWeight);
+		if (widthPercent > 0) {
+			outState.putFloat("DkConfirmDialog.widthWeight", widthPercent);
 		}
-		if (heightWeight > 0) {
-			outState.putFloat("DkConfirmDialog.heightWeight", heightWeight);
+		if (heightPercent > 0) {
+			outState.putFloat("DkConfirmDialog.heightWeight", heightPercent);
 		}
 
 		if (messageTextResId > 0) {
@@ -570,8 +586,8 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 			headerBackgroundColor = savedInstanceState.getInt("DkConfirmDialog.headerBackgroundColor");
 
 			bodyLayoutResId = savedInstanceState.getInt("DkConfirmDialog.bodyLayoutResId");
-			widthWeight = savedInstanceState.getFloat("DkConfirmDialog.widthWeight");
-			heightWeight = savedInstanceState.getFloat("DkConfirmDialog.heightWeight");
+			widthPercent = savedInstanceState.getFloat("DkConfirmDialog.widthWeight");
+			heightPercent = savedInstanceState.getFloat("DkConfirmDialog.heightWeight");
 
 			messageTextResId = savedInstanceState.getInt("DkConfirmDialog.messageTextResId");
 			message = savedInstanceState.getString("DkConfirmDialog.message");
