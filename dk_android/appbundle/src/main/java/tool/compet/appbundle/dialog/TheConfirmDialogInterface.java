@@ -5,5 +5,5 @@
 package tool.compet.appbundle.dialog;
 
 public interface TheConfirmDialogInterface {
-	void dismiss();
+	boolean close();
 }

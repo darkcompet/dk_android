@@ -4,15 +4,10 @@
 
 package tool.compet.appbundle.compact;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.Bundle;
 
 import androidx.annotation.CallSuper;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModel;
 
@@ -22,52 +17,50 @@ import java.util.List;
 import tool.compet.appbundle.BuildConfig;
 import tool.compet.core.DkLogs;
 import tool.compet.core.DkRunner1;
-import tool.compet.core.DkUtils;
 
 /**
- * Compact design pattern ViewLogic component. This will update View by access #view object or
- * call #sendToView() to obtain non-null #view when does not know #view is null or not.
+ * Compact design pattern `Logic` component. This will update `View` by access `view` object or
+ * call `sendToView()` to obtain non-null view when does not know view is null or not.
  * <p></p>
- * This ViewLogic object can overcome configuration change, so to communicate between Screens,
- * you should use #view.obtainHostTopic() to obtain scoped-topic for a group of screens you wanna share.
- * Note that, state of view maybe changed multiple times since lifecycle or configuration maybe
- * often occured.
+ * In theory, Logic should not aware type of the view, and should see view as a callback or listener.
+ * But for convenience, we declare view type for quickly access from editor.
+ * <p></p>
+ * This Logic object can overcome configuration change, so to communicate between pages,
+ * you should use `view.obtainHostTopic()` to obtain scoped-topic for pages you wanna share.
+ * <p></p>
+ * Note that, view lifecycle methods maybe called multiple times since lifecycle or configuration maybe
+ * often triggered.
  */
 public abstract class DkCompactLogic<V extends DkCompactView, D> extends ViewModel {
-	// Lifecycle state value of `lifeCycleState`
+	// Indicate state of this logic and view
 	protected static final int STATE_INVALID = 0;
-	protected static final int STATE_CREATE = 1;
-	protected static final int STATE_START = 2;
-	protected static final int STATE_VIEW_CREATED = 3;
-//	protected static final int STATE_ACTIVITY_CREATED = 4;
+	protected static final int STATE_INIT = 1;
+	protected static final int STATE_CREATE = 2;
+	protected static final int STATE_START = 3;
+	protected static final int STATE_VIEW_READY = 4;
 	protected static final int STATE_ACTIVE = 5;
 	protected static final int STATE_RESUME = 6;
 	protected static final int STATE_PAUSE = 7;
 	protected static final int STATE_INACTIVE = 8;
 	protected static final int STATE_STOP = 9;
 	protected static final int STATE_DESTROY = 10;
-	// Lifecycle state of the view
-	protected int lifeCycleState = STATE_INVALID;
+	protected int state = STATE_INVALID;
 
-	// Reference to the View, this field  will be attached and detached respectively at #onCreate(), #onDestroy().
-	// Only use this field directly if you know the view is still available, otherwise lets use `sendToView()` instead.
-	// @Nullable
+	/**
+	 * Reference to the View, this field  will be attached and detached respectively at #onCreate(), #onDestroy().
+	 * Only use this field directly if you know the view is still available, otherwise lets use `sendToView()` instead.
+	 * #Nullable
+	 */
 	protected V view;
-	// @Nullable
 	protected D data;
 
-	// This object overcomes configuration change, useful for viewLogics.
-	// Actions which sent to View when View was absent
-	// We need optimize this field since 2 consequence commands maybe update
-	// same part of View.
+	/**
+	 * This object overcomes configuration change, useful for viewLogics.
+	 * Actions which sent to View when View was absent
+	 * We need optimize this field since 2 consequence commands maybe update
+	 * same part of View.
+	 */
 	private List<DkRunner1<V>> pendingCommands;
-	private boolean isLayoutAvailable;
-
-	// Below fields are for ViewLogic of Activity
-	protected boolean isCalledOnRestart;
-	protected boolean isCalledOnConfigurationChanged;
-	protected boolean isCalledOnRestoreInstanceState;
-	protected boolean isCalledOnPostCreate;
 
 	/**
 	 * Use this method can avoid checking View is null or not at each invocation. As well the action
@@ -76,7 +69,7 @@ public abstract class DkCompactLogic<V extends DkCompactView, D> extends ViewMod
 	 */
 	protected void sendToView(DkRunner1<V> command) {
 		// View is not null, but layout maybe not yet ready, so we should see status of lifecycle state
-		if (view != null && isLayoutAvailable) {
+		if (view != null && state >= STATE_VIEW_READY && state < STATE_DESTROY) {
 			command.run(view);
 		}
 		else {
@@ -84,42 +77,48 @@ public abstract class DkCompactLogic<V extends DkCompactView, D> extends ViewMod
 		}
 	}
 
+	/**
+	 * Called only one time when create Logic and Data.
+	 * It is coupled with `onCleared()`.
+	 */
 	@CallSuper
-	protected void onCreate(FragmentActivity host, @Nullable Bundle savedInstanceState) {
-		lifeCycleState = STATE_CREATE;
+	protected void onInit(FragmentActivity host, @Nullable Bundle savedInstanceState) {
+		state = STATE_INIT;
 	}
 
+	/**
+	 * Called multiple times from View.
+	 * It is coupled with `onDestroy()`.
+	 */
 	@CallSuper
-	public void onPostCreate(DkCompactActivity host, Bundle savedInstanceState) {
-		if (BuildConfig.DEBUG && ! (view instanceof Activity)) {
-			DkUtils.complainAt(this, "Only Logic of Activity can call this");
-		}
-		isCalledOnPostCreate = true;
-		isLayoutAvailable = true;
+	protected void onViewCreate(FragmentActivity host, @Nullable Bundle savedInstanceState) {
+		state = STATE_CREATE;
 	}
 
+	/**
+	 * Called multiple times from View.
+	 * It is coupled with `onStop()`.
+	 */
 	@CallSuper
-	protected void onStart(FragmentActivity host) {
-		lifeCycleState = STATE_START;
+	protected void onViewStart(FragmentActivity host) {
+		state = STATE_START;
 	}
 
+	/**
+	 * Called multiple times from View.
+	 */
 	@CallSuper
-	protected void onViewCreated(FragmentActivity host, @Nullable Bundle savedInstanceState) {
-		if (BuildConfig.DEBUG && ! (view instanceof Fragment)) {
-			DkUtils.complainAt(this, "Only Logic of Fragment can call this");
-		}
-		lifeCycleState = STATE_VIEW_CREATED;
-		isLayoutAvailable = true;
+	protected void onViewReady(FragmentActivity host, @Nullable Bundle savedInstanceState) {
+		state = STATE_VIEW_READY;
 	}
 
-//	@CallSuper
-//	protected void onActivityCreated(FragmentActivity host, @Nullable Bundle savedInstanceState) {
-//		lifeCycleState = STATE_ACTIVITY_CREATED;
-//	}
-
+	/**
+	 * Called multiple times from View.
+	 * It is coupled with `onInactive()`.
+	 */
 	@CallSuper
-	protected void onActive(FragmentActivity host, boolean isResume) {
-		lifeCycleState = isResume ? STATE_RESUME : STATE_ACTIVE;
+	protected void onViewActive(FragmentActivity host, boolean isResume) {
+		state = isResume ? STATE_RESUME : STATE_ACTIVE;
 
 		if (isResume && view != null && pendingCommands != null) {
 			for (DkRunner1<V> action : pendingCommands) {
@@ -132,67 +131,54 @@ public abstract class DkCompactLogic<V extends DkCompactView, D> extends ViewMod
 		}
 	}
 
+	/**
+	 * Called multiple times from View.
+	 * It is coupled with `onActive()`.
+	 */
 	@CallSuper
-	protected void onInactive(FragmentActivity host, boolean isPause) {
-		lifeCycleState = isPause ? STATE_PAUSE : STATE_INACTIVE;
+	protected void onViewInactive(FragmentActivity host, boolean isPause) {
+		state = isPause ? STATE_PAUSE : STATE_INACTIVE;
 	}
 
+	/**
+	 * Called multiple times from View.
+	 * It is coupled with `onStart()`.
+	 */
 	@CallSuper
-	protected void onStop(FragmentActivity host) {
-		lifeCycleState = STATE_STOP;
+	protected void onViewStop(FragmentActivity host) {
+		state = STATE_STOP;
 	}
 
+	/**
+	 * Called multiple times from View.
+	 * It is coupled with `onCreate()`.
+	 */
 	@CallSuper
-	protected void onRestart(FragmentActivity host) {
-		if (BuildConfig.DEBUG && ! (view instanceof Activity)) {
-			DkUtils.complainAt(this, "Only Logic of Activity can call this");
-		}
-		isCalledOnRestart = true;
-	}
-
-	@CallSuper
-	protected void onDestroy(FragmentActivity host) {
-		lifeCycleState = STATE_DESTROY;
-		pendingCommands = null;
+	protected void onViewDestroy(FragmentActivity host) {
+		state = STATE_DESTROY;
 		view = null;
-		isLayoutAvailable = false;
 	}
 
-	@Override // be called when the associated view was destroyed
+	protected void onViewSaveInstanceState(Bundle outState) {
+	}
+
+	protected void onViewRestoreInstanceState(Bundle savedInstanceState) {
+	}
+
+	/**
+	 * Called only one time when this is destroyed. At this time, the view is also destroyed.
+	 * It is coupled with `onInit()`.
+	 */
+	@Override
 	protected void onCleared() {
 		super.onCleared();
 	}
 
+	/**
+	 * Called when the app is in low memory.
+	 */
 	@CallSuper
 	protected void onLowMemory(FragmentActivity host) {
-	}
-
-	@CallSuper
-	protected void onConfigurationChanged(FragmentActivity host, Configuration newConfig) {
-		if (BuildConfig.DEBUG && ! (view instanceof Activity)) {
-			DkUtils.complainAt(this, "Only Logic of Activity can call this");
-		}
-		isCalledOnConfigurationChanged = true;
-	}
-
-	@CallSuper
-	protected void onSaveInstanceState(FragmentActivity host, @NonNull Bundle outState) {
-	}
-
-	@CallSuper
-	protected void onRestoreInstanceState(FragmentActivity host, Bundle savedInstanceState) {
-		if (BuildConfig.DEBUG && ! (view instanceof Activity)) {
-			DkUtils.complainAt(this, "Only Logic of Activity can call this");
-		}
-		isCalledOnRestoreInstanceState = true;
-	}
-
-	@CallSuper
-	protected void onActivityResult(FragmentActivity host, int requestCode, int resultCode, Intent data) {
-	}
-
-	@CallSuper
-	protected void onRequestPermissionsResult(FragmentActivity host, int rc, @NonNull String[] perms, @NonNull int[] res) {
 	}
 
 	private void addPendingCommand(DkRunner1<V> command) {

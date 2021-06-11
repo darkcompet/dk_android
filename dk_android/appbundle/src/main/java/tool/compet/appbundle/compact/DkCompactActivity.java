@@ -5,7 +5,6 @@
 package tool.compet.appbundle.compact;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
@@ -27,6 +26,7 @@ import tool.compet.appbundle.DkActivity;
 import tool.compet.appbundle.DkApp;
 import tool.compet.appbundle.R;
 import tool.compet.appbundle.binder.DkBinder;
+import tool.compet.appbundle.dialog.DkConfirmDialog;
 import tool.compet.appbundle.floatingbar.DkSnackbar;
 import tool.compet.appbundle.floatingbar.DkToastbar;
 import tool.compet.appbundle.navigator.DkFragmentNavigator;
@@ -132,10 +132,10 @@ public abstract class DkCompactActivity<L extends DkCompactLogic, D> extends App
 
 		// Must run after #super.onCreate()
 		if (enableViewLogicDesignPattern()) {
-			MyCompactRegistry.wire(this);
+			MyCompactRegistry.init(this, this, savedInstanceState);
 
 			if (logic != null) {
-				logic.onCreate(this, savedInstanceState);
+				logic.onViewCreate(this, savedInstanceState);
 			}
 		}
 
@@ -155,22 +155,19 @@ public abstract class DkCompactActivity<L extends DkCompactLogic, D> extends App
 		// Debug log as visual
 		if (BuildConfig.DEBUG) {
 			// Observe log to show at active state of the view
-			MutableLiveData<String> log = new MutableLiveData<>();
-			log.observe(this, message -> {
-				new AlertDialog.Builder(this)
+			MutableLiveData<String> logLiveData = new MutableLiveData<>();
+			logLiveData.observe(this, message -> {
+				new DkConfirmDialog()
 					.setTitle(R.string.error)
 					.setMessage(message)
-					.setCancelable(true)
-					.setPositiveButton(R.string.close, ((dialog, which) -> {
-						dialog.dismiss();
-					}))
-					.show();
+					.setOkButton(R.string.close)
+					.open(getChildNavigator());
 			});
 
 			// Show log via livedata
 			DkLogs.logCallback = (type, message) -> {
 				if (DkLogs.TYPE_WARNING.equals(type) || DkLogs.TYPE_ERROR.equals(type) || DkLogs.TYPE_EMERGENCY.equals(type)) {
-					log.postValue(message);
+					logLiveData.postValue(message);
 				}
 			};
 		}
@@ -182,10 +179,25 @@ public abstract class DkCompactActivity<L extends DkCompactLogic, D> extends App
 		if (BuildConfig.DEBUG) {
 			DkLogs.info(this, "onPostCreate");
 		}
-		super.onPostCreate(savedInstanceState);
+		// Let Logic run first, so View can use latest data which be updated from Logic
 		if (logic != null) {
-			logic.onPostCreate(this, savedInstanceState);
+			logic.onViewReady(this, savedInstanceState);
 		}
+		super.onPostCreate(savedInstanceState);
+	}
+
+	@Override // onPostCreate() -> onRestoreInstanceState() -> onStart()
+	protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+		if (BuildConfig.DEBUG) {
+			DkLogs.info(this, "onRestoreInstanceState");
+		}
+		if (childNavigator != null) {
+			childNavigator.restoreState(savedInstanceState);
+		}
+		if (logic != null) {
+			logic.onViewRestoreInstanceState(savedInstanceState);
+		}
+		super.onRestoreInstanceState(savedInstanceState);
 	}
 
 	@Override
@@ -193,26 +205,56 @@ public abstract class DkCompactActivity<L extends DkCompactLogic, D> extends App
 		if (BuildConfig.DEBUG) {
 			DkLogs.info(this, "onStart");
 		}
-		super.onStart();
 		if (logic != null) {
-			logic.onStart(this);
+			logic.onViewStart(this);
+		}
+		super.onStart();
+	}
+
+	@Override
+	public void onActive(boolean isResume) {
+		if (BuildConfig.DEBUG) {
+			DkLogs.info(this, isResume ? "onResume" : "onActive");
+		}
+		if (logic != null) {
+			logic.onViewActive(this, isResume);
 		}
 	}
 
 	@Override
 	protected void onResume() {
-		if (BuildConfig.DEBUG) {
-			DkLogs.info(this, "onResume");
-		}
+		onActive(true);
 		super.onResume();
 	}
 
 	@Override
 	protected void onPause() {
-		if (BuildConfig.DEBUG) {
-			DkLogs.info(this, "onPause");
-		}
+		onInactive(true);
 		super.onPause();
+	}
+
+	@Override
+	public void onInactive(boolean isPause) {
+		if (BuildConfig.DEBUG) {
+			DkLogs.info(this, isPause ? "onPause" : "onInactive");
+		}
+		if (logic != null) {
+			logic.onViewInactive(this, isPause);
+		}
+	}
+
+	@Override // maybe called before onStop() or onDestroy()
+	protected void onSaveInstanceState(@NonNull Bundle outState) {
+		if (BuildConfig.DEBUG) {
+			DkLogs.info(this, "onSaveInstanceState");
+		}
+		if (childNavigator != null) {
+			childNavigator.saveState(outState);
+		}
+		if (logic != null) {
+			logic.onViewSaveInstanceState(outState);
+		}
+		super.onSaveInstanceState(outState);
 	}
 
 	@Override
@@ -220,10 +262,10 @@ public abstract class DkCompactActivity<L extends DkCompactLogic, D> extends App
 		if (BuildConfig.DEBUG) {
 			DkLogs.info(this, "onStop");
 		}
-		super.onStop();
 		if (logic != null) {
-			logic.onRestart(this);
+			logic.onViewStop(this);
 		}
+		super.onStop();
 	}
 
 	// after onStop() is onCreate() or onDestroy()
@@ -233,9 +275,6 @@ public abstract class DkCompactActivity<L extends DkCompactLogic, D> extends App
 			DkLogs.info(this, "onRestart");
 		}
 		super.onRestart();
-		if (logic != null) {
-			logic.onRestart(this);
-		}
 	}
 
 	@Override
@@ -244,7 +283,7 @@ public abstract class DkCompactActivity<L extends DkCompactLogic, D> extends App
 			DkLogs.info(this, "onDestroy");
 		}
 		if (logic != null) {
-			logic.onDestroy(this);
+			logic.onViewDestroy(this);
 			logic = null;
 			data = null;
 		}
@@ -261,10 +300,10 @@ public abstract class DkCompactActivity<L extends DkCompactLogic, D> extends App
 		if (BuildConfig.DEBUG) {
 			DkLogs.info(this, "onLowMemory");
 		}
-		super.onLowMemory();
 		if (logic != null) {
 			logic.onLowMemory(this);
 		}
+		super.onLowMemory();
 	}
 
 	@Override
@@ -273,31 +312,6 @@ public abstract class DkCompactActivity<L extends DkCompactLogic, D> extends App
 			DkLogs.info(this, "onConfigurationChanged");
 		}
 		super.onConfigurationChanged(newConfig);
-		if (logic != null) {
-			logic.onConfigurationChanged(this, newConfig);
-		}
-	}
-
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (BuildConfig.DEBUG) {
-			DkLogs.info(this, "onRestoreInstanceState");
-		}
-		if (logic != null) {
-			logic.onActivityResult(this, requestCode, resultCode, data);
-		}
-		super.onActivityResult(requestCode, resultCode, data);
-	}
-
-	@Override
-	public void onRequestPermissionsResult(int rc, @NonNull String[] perms, @NonNull int[] res) {
-		if (BuildConfig.DEBUG) {
-			DkLogs.info(this, "onRequestPermissionsResult");
-		}
-		if (logic != null) {
-			logic.onRequestPermissionsResult(this, rc, perms, res);
-		}
-		super.onRequestPermissionsResult(rc, perms, res);
 	}
 
 	@Override
@@ -312,54 +326,6 @@ public abstract class DkCompactActivity<L extends DkCompactLogic, D> extends App
 	public boolean close() {
 		finish();
 		return true;
-	}
-
-	@Override
-	public void onActive(boolean isResume) {
-		if (BuildConfig.DEBUG) {
-			DkLogs.info(this, isResume ? "onResume" : "onActive");
-		}
-		if (logic != null) {
-			logic.onActive(this, isResume);
-		}
-	}
-
-	@Override
-	public void onInactive(boolean isPause) {
-		if (BuildConfig.DEBUG) {
-			DkLogs.info(this, isPause ? "onPause" : "onInactive");
-		}
-		if (logic != null) {
-			logic.onInactive(this, isPause);
-		}
-	}
-
-	@Override
-	protected void onSaveInstanceState(@NonNull Bundle outState) {
-		if (BuildConfig.DEBUG) {
-			DkLogs.info(this, "onSaveInstanceState");
-		}
-		if (childNavigator != null) {
-			childNavigator.saveState(outState);
-		}
-		if (logic != null) {
-			logic.onSaveInstanceState(this, outState);
-		}
-		super.onSaveInstanceState(outState);
-	}
-
-	@Override
-	protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
-		if (BuildConfig.DEBUG) {
-			DkLogs.info(this, "onRestoreInstanceState");
-		}
-		if (childNavigator != null) {
-			childNavigator.restoreState(savedInstanceState);
-		}
-		if (logic != null) {
-			logic.onRestoreInstanceState(this, savedInstanceState);
-		}
-		super.onRestoreInstanceState(savedInstanceState);
 	}
 
 	public Fragment instantiateFragment(Class<? extends Fragment> fragClass) {

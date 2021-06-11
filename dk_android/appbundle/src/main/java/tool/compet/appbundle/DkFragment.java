@@ -41,12 +41,6 @@ public interface DkFragment {
 	boolean close();
 
 	/**
-	 * Specify whether this fragment should be retained instance during configuration changed.
-	 * @deprecated Use ViewModel to overcome configuration changed instead.
-	 */
-//	boolean isRetainInstance();
-
-	/**
 	 * Indicates the fragment is resumsed or come to front.
 	 *
 	 * @param isResume true if this fragment is in resume state, otherwise it is on front.

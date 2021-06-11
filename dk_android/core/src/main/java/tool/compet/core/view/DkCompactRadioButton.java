@@ -17,8 +17,8 @@ public class DkCompactRadioButton extends DkCompatRadioButton {
 	protected Context context;
 
 	// Rounded corner feature
-	private boolean isRoundCornerFeatureEnabled = true;
-	private TheCompactComponentRoundCorner cmpRoundCorner;
+	protected boolean isRoundCornerFeatureEnabled = true;
+	protected TheCompactFeatureRoundCorner cmpRoundCorner;
 
 	public DkCompactRadioButton(Context context) {
 		super(context);
@@ -37,15 +37,12 @@ public class DkCompactRadioButton extends DkCompatRadioButton {
 
 	private void init(Context context) {
 		this.context = context;
-		if (isRoundCornerFeatureEnabled()) {
-			cmpRoundCorner = new TheCompactComponentRoundCorner(context);
-		}
 	}
 
 	@Override
 	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 		if (isRoundCornerFeatureEnabled()) {
-			acquireRoundCornerComponent().onSizeChanged(w, h);
+			obtainRoundCornerComponent().onSizeChanged(w, h);
 		}
 		super.onSizeChanged(w, h, oldw, oldh);
 	}
@@ -53,7 +50,7 @@ public class DkCompactRadioButton extends DkCompatRadioButton {
 	@Override
 	public void draw(Canvas canvas) {
 		if (isRoundCornerFeatureEnabled()) {
-			acquireRoundCornerComponent().drawRoundedCorner(this, canvas);
+			obtainRoundCornerComponent().drawRoundedCorner(this, canvas);
 		}
 		super.draw(canvas);
 	}
@@ -66,14 +63,13 @@ public class DkCompactRadioButton extends DkCompatRadioButton {
 		return isRoundCornerFeatureEnabled;
 	}
 
-	// region Private
-
-	private TheCompactComponentRoundCorner acquireRoundCornerComponent() {
+	/**
+	 * Call this to obtain (prepare) rounded corner setting component (setting).
+	 */
+	public TheCompactFeatureRoundCorner obtainRoundCornerComponent() {
 		if (cmpRoundCorner == null) {
-			cmpRoundCorner = new TheCompactComponentRoundCorner(context);
+			cmpRoundCorner = new TheCompactFeatureRoundCorner(context);
 		}
 		return cmpRoundCorner;
 	}
-
-	// endregion Private
 }

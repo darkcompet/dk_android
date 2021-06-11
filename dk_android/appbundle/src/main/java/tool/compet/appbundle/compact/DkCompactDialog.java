@@ -12,7 +12,6 @@ import android.app.Application;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -53,7 +52,9 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
 /**
  * This is standard dialog and provides some below features:
- * - [Optional] ViewLogic design pattern which can overcome configuration changes.
+ * - [Optional] Navigator (back, next fragment)
+ * - [Optional] ViewModel (overcome configuration-changes)
+ * - [Optional] Scoped topic (for communication between host and other fragments)
  */
 @SuppressWarnings("unchecked")
 public abstract class DkCompactDialog<D> extends AppCompatDialogFragment
@@ -134,7 +135,6 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment
 		if (BuildConfig.DEBUG) {
 			DkLogs.info(this, "onCreate");
 		}
-//		super.setRetainInstance(isRetainInstance());
 		super.onCreate(savedInstanceState);
 	}
 
@@ -167,24 +167,6 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment
 		return super.onCreateView(inflater, container, savedInstanceState);
 	}
 
-	// onCreateView() -> onActivityCreated() -> onViewStateRestored()
-	// By default, dialog will set view which be created at onCreateView() at this time
-	@Override
-	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-		if (BuildConfig.DEBUG) {
-			DkLogs.info(this, "onActivityCreated");
-		}
-		super.onActivityCreated(savedInstanceState);
-	}
-
-	@Override
-	public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-		if (BuildConfig.DEBUG) {
-			DkLogs.info(this, "onViewStateRestored");
-		}
-		super.onViewStateRestored(savedInstanceState);
-	}
-
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		if (BuildConfig.DEBUG) {
@@ -192,6 +174,14 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment
 		}
 		this.layout = view;
 		super.onViewCreated(view, savedInstanceState);
+	}
+
+	@Override // onViewCreated() -> onViewStateRestored() -> onStart()
+	public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+		if (BuildConfig.DEBUG) {
+			DkLogs.info(this, "onViewStateRestored");
+		}
+		super.onViewStateRestored(savedInstanceState);
 	}
 	
 	/**
@@ -263,6 +253,14 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment
 		super.onDestroyView();
 	}
 
+	@Override // called before onDestroy()
+	public void onSaveInstanceState(@NonNull Bundle outState) {
+		if (BuildConfig.DEBUG) {
+			DkLogs.info(this, "onSaveInstanceState");
+		}
+		super.onSaveInstanceState(outState);
+	}
+
 	@Override
 	public void onDestroy() {
 		if (BuildConfig.DEBUG) {
@@ -287,35 +285,11 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment
 	}
 
 	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (BuildConfig.DEBUG) {
-			DkLogs.info(this, "onActivityResult");
-		}
-		super.onActivityResult(requestCode, resultCode, data);
-	}
-
-	@Override
-	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-		if (BuildConfig.DEBUG) {
-			DkLogs.info(this, "onActivityResult");
-		}
-		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-	}
-
-	@Override
 	public void onLowMemory() {
 		if (BuildConfig.DEBUG) {
 			DkLogs.info(this, "onLowMemory");
 		}
 		super.onLowMemory();
-	}
-
-	@Override
-	public void onSaveInstanceState(@NonNull Bundle outState) {
-		if (BuildConfig.DEBUG) {
-			DkLogs.info(this, "onSaveInstanceState");
-		}
-		super.onSaveInstanceState(outState);
 	}
 
 	@Override
@@ -335,7 +309,15 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment
 	 */
 	@Override // from `DkFragment`
 	public boolean close() {
-		return getParentNavigator().beginTransaction().remove(this).commit();
+		try {
+			// Need try catch here since this maybe cause exception (multiple time of calling this method)
+			DkFragmentNavigator parentNavigator = getParentNavigator();
+			return parentNavigator.beginTransaction().remove(this).commit();
+		}
+		catch (Exception e) {
+			DkLogs.error(this, e);
+			return false;
+		}
 	}
 
 	/**

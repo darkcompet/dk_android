@@ -88,7 +88,7 @@ public class DkInternalStorage {
 		relativeFilePath = DkStrings.trimMore(relativeFilePath, File.separatorChar);
 
 		if (scope == SCOPE_FILES) {
-			return DkStrings.join(File.separator, context.getFilesDir().getPath(), relativeFilePath);
+			return DkStrings.join(File.separatorChar, context.getFilesDir().getPath(), relativeFilePath);
 		}
 		if (scope == SCOPE_CACHE) {
 			return DkStrings.join(File.separatorChar, context.getCacheDir().getPath(), relativeFilePath);

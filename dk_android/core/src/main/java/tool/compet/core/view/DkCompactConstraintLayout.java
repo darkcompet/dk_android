@@ -17,8 +17,8 @@ public class DkCompactConstraintLayout extends DkCompatConstraintLayout {
 	protected Context context;
 
 	// Rounded corner feature
-	private boolean isRoundCornerFeatureEnabled = true;
-	private TheCompactComponentRoundCorner cmpRoundCorner;
+	protected boolean isRoundCornerFeatureEnabled = true;
+	protected TheCompactFeatureRoundCorner cmpRoundCorner;
 
 	public DkCompactConstraintLayout(Context context) {
 		super(context);
@@ -37,15 +37,12 @@ public class DkCompactConstraintLayout extends DkCompatConstraintLayout {
 
 	private void init(Context context) {
 		this.context = context;
-		if (isRoundCornerFeatureEnabled()) {
-			cmpRoundCorner = new TheCompactComponentRoundCorner(context);
-		}
 	}
 
 	@Override
 	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 		if (isRoundCornerFeatureEnabled()) {
-			acquireRoundCornerComponent().onSizeChanged(w, h);
+			obtainRoundCornerComponent().onSizeChanged(w, h);
 		}
 		super.onSizeChanged(w, h, oldw, oldh);
 	}
@@ -53,7 +50,7 @@ public class DkCompactConstraintLayout extends DkCompatConstraintLayout {
 	@Override
 	public void draw(Canvas canvas) {
 		if (isRoundCornerFeatureEnabled()) {
-			acquireRoundCornerComponent().drawRoundedCorner(this, canvas);
+			obtainRoundCornerComponent().drawRoundedCorner(this, canvas);
 		}
 		super.draw(canvas);
 	}
@@ -66,14 +63,13 @@ public class DkCompactConstraintLayout extends DkCompatConstraintLayout {
 		return isRoundCornerFeatureEnabled;
 	}
 
-	// region Private
-
-	private TheCompactComponentRoundCorner acquireRoundCornerComponent() {
+	/**
+	 * Call this to obtain (prepare) rounded corner setting component (setting).
+	 */
+	public TheCompactFeatureRoundCorner obtainRoundCornerComponent() {
 		if (cmpRoundCorner == null) {
-			cmpRoundCorner = new TheCompactComponentRoundCorner(context);
+			cmpRoundCorner = new TheCompactFeatureRoundCorner(context);
 		}
 		return cmpRoundCorner;
 	}
-
-	// endregion Private
 }

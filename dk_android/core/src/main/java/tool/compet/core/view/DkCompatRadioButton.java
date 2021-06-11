@@ -25,7 +25,7 @@ import tool.compet.core.graphics.drawable.DkDrawable;
 import tool.compet.core.graphics.drawable.DkRippleDrawable;
 
 /**
- * This is compatible view, for eg,. it provides backward-compatibility for `foreground`.
+ * This is compatible View, for eg,. it provides backward-compatibility for `foreground`.
  * You can call `setDefaultForeground()` to use default ripple-drawable to response user-touch.
  */
 public class DkCompatRadioButton extends AppCompatRadioButton {

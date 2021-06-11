@@ -131,11 +131,6 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 		return false;
 	}
 
-//	@Override
-//	public boolean isRetainInstance() {
-//		return false;
-//	}
-
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -252,7 +247,8 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 
 	@Override
 	public void onClick(View view) {
-		int viewId = view.getId();
+		// Perform callback
+		final int viewId = view.getId();
 
 		if (viewId == R.id.dk_cancel) {
 			onCancelButtonClick(view);
@@ -264,6 +260,7 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 			onOkButtonClick(view);
 		}
 
+		// Dismiss (close) the dialog
 		if (isDismissOnClickButton) {
 			close();
 		}

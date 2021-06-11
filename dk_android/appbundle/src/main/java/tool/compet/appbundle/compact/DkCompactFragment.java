@@ -7,7 +7,6 @@ package tool.compet.appbundle.compact;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,11 +35,11 @@ import tool.compet.core.DkUtils;
 /**
  * This is standard fragment which provides a lot of optional features:
  * - Debug logs in lifecycle methods
- * - [Optional] ViewModel store owner (overcome configuration-change)
+ * - [Optional] ViewModel (model which be overcomed configuration-changes)
  * - [Optional] Bind layout, views with DkBinder, enable/disable via `enableBindingView()`
  * - [Optional] Navigator (we can forward, backward, dismiss... page easily)
  * - [Optional] Scoped topic (pass data between/under fragments, activities, app)
- * - [Optional] ViewLogic design pattern (coupling View and ViewLogic), enable/disable via `enableViewLogicDesignPattern()`
+ * - [Optional] ViewLogic design pattern (coupling View and Logic), enable/disable via `enableViewLogicDesignPattern()`
  * - [Optional] Floating bar to show message (snackbar, toastbar, ...)
  */
 public abstract class DkCompactFragment<L extends DkCompactLogic, D> extends Fragment
@@ -160,36 +159,12 @@ public abstract class DkCompactFragment<L extends DkCompactLogic, D> extends Fra
 
 		// Must run after #super.onCreate()
 		if (enableViewLogicDesignPattern()) {
-			MyCompactRegistry.wire(this);
+			MyCompactRegistry.init(this, host, savedInstanceState);
 
 			if (logic != null) {
-				logic.onCreate(host, savedInstanceState);
+				logic.onViewCreate(host, savedInstanceState);
 			}
 		}
-
-//		registerForActivityResult(new ActivityResultContract<String, Boolean>() {
-//			@NonNull
-//			@Override
-//			public Intent createIntent(@NonNull Context context, String input) {
-//				return null;
-//			}
-//
-//			@Override
-//			public Boolean parseResult(int resultCode, @Nullable Intent intent) {
-//				return null;
-//			}
-//		}, new ActivityResultCallback<Boolean>() {
-//			@Override
-//			public void onActivityResult(Boolean result) {
-//			}
-//		});
-//
-//		registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), new ActivityResultCallback<Map<String, Boolean>>() {
-//			@Override
-//			public void onActivityResult(Map<String, Boolean> result) {
-//
-//			}
-//		});
 	}
 
 	@Override
@@ -217,32 +192,36 @@ public abstract class DkCompactFragment<L extends DkCompactLogic, D> extends Fra
 		if (BuildConfig.DEBUG) {
 			DkLogs.info(this, "onViewCreated");
 		}
-		super.onViewCreated(view, savedInstanceState);
+		// Let Logic run first, so View can use latest data which be updated from Logic
 		if (logic != null) {
-			logic.onViewCreated(host, savedInstanceState);
+			logic.onViewReady(host, savedInstanceState);
 		}
+		super.onViewCreated(view, savedInstanceState);
 	}
 
-//	@Override
-//	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-//		if (BuildConfig.DEBUG) {
-//			DkLogs.info(this, "onActivityCreated");
-//		}
-//		super.onActivityCreated(savedInstanceState);
-//		if (logic != null) {
-//			logic.onActivityCreated(host, savedInstanceState);
-//		}
-//	}
+	@Override // onViewCreated() -> onViewStateRestored() -> onStart()
+	public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+		if (BuildConfig.DEBUG) {
+			DkLogs.info(this, "onViewStateRestored");
+		}
+		if (childNavigator != null) {
+			childNavigator.restoreState(savedInstanceState);
+		}
+		if (logic != null) {
+			logic.onViewRestoreInstanceState(savedInstanceState);
+		}
+		super.onViewStateRestored(savedInstanceState);
+	}
 
 	@Override
 	public void onStart() {
 		if (BuildConfig.DEBUG) {
 			DkLogs.info(this, "onStart");
 		}
-		super.onStart();
 		if (logic != null) {
-			logic.onStart(host);
+			logic.onViewStart(host);
 		}
+		super.onStart();
 	}
 
 	@Override
@@ -257,7 +236,7 @@ public abstract class DkCompactFragment<L extends DkCompactLogic, D> extends Fra
 			DkLogs.info(this, isResume ? "onResume" : "onFront");
 		}
 		if (logic != null) {
-			logic.onActive(host, isResume);
+			logic.onViewActive(host, isResume);
 		}
 	}
 
@@ -273,7 +252,7 @@ public abstract class DkCompactFragment<L extends DkCompactLogic, D> extends Fra
 			DkLogs.info(this, isPause ? "onPause" : "onBehind");
 		}
 		if (logic != null) {
-			logic.onInactive(host, isPause);
+			logic.onViewInactive(host, isPause);
 		}
 	}
 
@@ -283,7 +262,7 @@ public abstract class DkCompactFragment<L extends DkCompactLogic, D> extends Fra
 			DkLogs.info(this, "onStop");
 		}
 		if (logic != null) {
-			logic.onStop(host);
+			logic.onViewStop(host);
 		}
 		super.onStop();
 	}
@@ -296,13 +275,27 @@ public abstract class DkCompactFragment<L extends DkCompactLogic, D> extends Fra
 		super.onDestroyView();
 	}
 
+	@Override // called before onDestroy()
+	public void onSaveInstanceState(@NonNull Bundle outState) {
+		if (BuildConfig.DEBUG) {
+			DkLogs.info(this, "onSaveInstanceState");
+		}
+		if (childNavigator != null) {
+			childNavigator.saveState(outState);
+		}
+		if (logic != null) {
+			logic.onViewSaveInstanceState(outState);
+		}
+		super.onSaveInstanceState(outState);
+	}
+
 	@Override
 	public void onDestroy() {
 		if (BuildConfig.DEBUG) {
 			DkLogs.info(this, "onDestroy");
 		}
 		if (logic != null) {
-			logic.onDestroy(host);
+			logic.onViewDestroy(host);
 			logic = null;
 			data = null;
 		}
@@ -324,28 +317,6 @@ public abstract class DkCompactFragment<L extends DkCompactLogic, D> extends Fra
 	}
 
 	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (BuildConfig.DEBUG) {
-			DkLogs.info(this, "onActivityResult");
-		}
-		if (logic != null) {
-			logic.onActivityResult(host, requestCode, resultCode, data);
-		}
-		super.onActivityResult(requestCode, resultCode, data);
-	}
-
-	@Override
-	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-		if (BuildConfig.DEBUG) {
-			DkLogs.info(this, "onActivityResult");
-		}
-		if (logic != null) {
-			logic.onRequestPermissionsResult(host, requestCode, permissions, grantResults);
-		}
-		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-	}
-
-	@Override
 	public void onLowMemory() {
 		if (BuildConfig.DEBUG) {
 			DkLogs.info(this, "onLowMemory");
@@ -359,31 +330,6 @@ public abstract class DkCompactFragment<L extends DkCompactLogic, D> extends Fra
 	@Override
 	public Fragment getFragment() {
 		return this;
-	}
-
-	@Override
-	public void onSaveInstanceState(@NonNull Bundle outState) {
-		if (BuildConfig.DEBUG) {
-			DkLogs.info(this, "onSaveInstanceState");
-		}
-		if (childNavigator != null) {
-			childNavigator.saveState(outState);
-		}
-		if (logic != null) {
-			logic.onSaveInstanceState(host, outState);
-		}
-		super.onSaveInstanceState(outState);
-	}
-
-	@Override
-	public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-		if (BuildConfig.DEBUG) {
-			DkLogs.info(this, "onViewStateRestored");
-		}
-		if (childNavigator != null) {
-			childNavigator.restoreState(savedInstanceState);
-		}
-		super.onViewStateRestored(savedInstanceState);
 	}
 
 	/**

@@ -17,7 +17,6 @@ import android.view.MotionEvent;
 import android.view.ViewConfiguration;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatTextView;
 
 import tool.compet.core.DkConfig;

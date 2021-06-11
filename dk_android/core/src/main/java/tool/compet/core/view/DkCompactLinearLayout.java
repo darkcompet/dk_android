@@ -13,24 +13,24 @@ import android.util.AttributeSet;
  * - [Optional] corner-rounded view (default: true)
  * - [Optional] foreground with ripple animation
  */
-public class DkCompactButton extends DkCompatButton {
+public class DkCompactLinearLayout extends DkCompatLinearLayout {
 	protected Context context;
 
 	// Rounded corner feature
 	protected boolean isRoundCornerFeatureEnabled = true;
 	protected TheCompactFeatureRoundCorner cmpRoundCorner;
 
-	public DkCompactButton(Context context) {
+	public DkCompactLinearLayout(Context context) {
 		super(context);
 		init(context);
 	}
 
-	public DkCompactButton(Context context, AttributeSet attrs) {
+	public DkCompactLinearLayout(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		init(context);
 	}
 
-	public DkCompactButton(Context context, AttributeSet attrs, int defStyleAttr) {
+	public DkCompactLinearLayout(Context context, AttributeSet attrs, int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
 		init(context);
 	}

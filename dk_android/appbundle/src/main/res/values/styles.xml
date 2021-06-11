@@ -1,7 +1,3 @@
-<!--
-  ~ Copyright (c) 2017-2020 DarkCompet. All rights reserved.
-  -->
-
 <resources>
 	<!-- Start BaseThem Light -->
 
@@ -81,8 +77,6 @@
 	<style name="Dk.LightTheme.Dialog" parent="Theme.AppCompat.Light.Dialog" />
 
 	<style name="Dk.LightTheme.Dialog.Alert" parent="Theme.AppCompat.Light.Dialog.Alert" />
-
-
 
 
 	<!--DarkTheme for app-->

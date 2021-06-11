@@ -36,14 +36,10 @@ public class DkSharedPreferences {
 	}
 
 	//
-	// Store/Load integer
+	// Integer
 	//
 
-	public void storeInt(String key, int value) {
-		preferences.edit().putString(key, String.valueOf(value)).commit();
-	}
-
-	public void applyInt(String key, int value) {
+	public void putInt(String key, int value) {
 		preferences.edit().putString(key, String.valueOf(value)).apply();
 	}
 
@@ -56,15 +52,15 @@ public class DkSharedPreferences {
 		return value == null ? defautValue : DkMaths.parseInt(value);
 	}
 
-	//
-	// Store/Load float
-	//
-
-	public void storeFloat(String key, float value) {
+	public void storeInt(String key, int value) {
 		preferences.edit().putString(key, String.valueOf(value)).commit();
 	}
 
-	public void applyFloat(String key, float value) {
+	//
+	// Float
+	//
+
+	public void putFloat(String key, float value) {
 		preferences.edit().putString(key, String.valueOf(value)).apply();
 	}
 
@@ -77,15 +73,15 @@ public class DkSharedPreferences {
 		return value == null ? defaultValue : DkMaths.parseFloat(value);
 	}
 
-	//
-	// Store/Load double
-	//
-
-	public void storeDouble(String key, double value) {
+	public void storeFloat(String key, float value) {
 		preferences.edit().putString(key, String.valueOf(value)).commit();
 	}
 
-	public void applyDouble(String key, double value) {
+	//
+	// Double
+	//
+
+	public void putDouble(String key, double value) {
 		preferences.edit().putString(key, String.valueOf(value)).apply();
 	}
 
@@ -98,15 +94,15 @@ public class DkSharedPreferences {
 		return value == null ? defaultValue : DkMaths.parseDouble(value);
 	}
 
-	//
-	// Store/Load boolean
-	//
-
-	public void storeBoolean(String key, boolean value) {
+	public void storeDouble(String key, double value) {
 		preferences.edit().putString(key, String.valueOf(value)).commit();
 	}
 
-	public void applyBoolean(String key, boolean value) {
+	//
+	// Boolean
+	//
+
+	public void putBoolean(String key, boolean value) {
 		preferences.edit().putString(key, String.valueOf(value)).apply();
 	}
 
@@ -119,15 +115,15 @@ public class DkSharedPreferences {
 		return value == null ? defaultValue : DkMaths.parseBoolean(value);
 	}
 
-	//
-	// Store/Load long
-	//
-
-	public void storeLong(String key, long value) {
+	public void storeBoolean(String key, boolean value) {
 		preferences.edit().putString(key, String.valueOf(value)).commit();
 	}
 
-	public void applyLong(String key, long value) {
+	//
+	// Long
+	//
+
+	public void putLong(String key, long value) {
 		preferences.edit().putString(key, String.valueOf(value)).apply();
 	}
 
@@ -140,15 +136,15 @@ public class DkSharedPreferences {
 		return value == null ? defaultValue : DkMaths.parseLong(value);
 	}
 
-	//
-	// Store/Load string
-	//
-
-	public void storeString(String key, String value) {
-		preferences.edit().putString(key, value).commit();
+	public void storeLong(String key, long value) {
+		preferences.edit().putString(key, String.valueOf(value)).commit();
 	}
 
-	public void applyString(String key, String value) {
+	//
+	// String
+	//
+
+	public void putString(String key, String value) {
 		preferences.edit().putString(key, value).apply();
 	}
 
@@ -174,15 +170,15 @@ public class DkSharedPreferences {
 		return defaultValue;
 	}
 
-	//
-	// Store/Load string set
-	//
-
-	public void storeStringSet(String key, Set<String> values) {
-		preferences.edit().putStringSet(key, values).commit();
+	public void storeString(String key, String value) {
+		preferences.edit().putString(key, value).commit();
 	}
 
-	public void applyStringSet(String key, Set<String> values) {
+	//
+	// String set
+	//
+
+	public void putStringSet(String key, Set<String> values) {
 		preferences.edit().putStringSet(key, values).apply();
 	}
 
@@ -208,9 +204,17 @@ public class DkSharedPreferences {
 		return defaultValue;
 	}
 
+	public void storeStringSet(String key, Set<String> values) {
+		preferences.edit().putStringSet(key, values).commit();
+	}
+
 	//
-	// Store/Load json
+	// Json object
 	//
+
+	public void putJsonObject(String key, Object value) {
+		putString(key, DkJsonHelper.getIns().obj2json(value));
+	}
 
 	public <T> T getJsonObject(String key, Class<T> resClass) {
 		return DkJsonHelper.getIns().json2obj(getString(key), resClass);
@@ -220,31 +224,27 @@ public class DkSharedPreferences {
 		storeString(key, DkJsonHelper.getIns().obj2json(value));
 	}
 
-	public void applyJsonObject(String key, Object value) {
-		applyString(key, DkJsonHelper.getIns().obj2json(value));
-	}
-
 	//
 	// CRUD
 	//
+
+	public SharedPreferences.Editor edit() {
+		return preferences.edit();
+	}
+
+	public void deleteAsync(String key) {
+		preferences.edit().remove(key).apply();
+	}
 
 	public void delete(String key) {
 		preferences.edit().remove(key).commit();
 	}
 
-	public void applyDelete(String key) {
-		preferences.edit().remove(key).apply();
+	public void clearAsync() {
+		preferences.edit().clear().apply();
 	}
 
 	public void clear() {
 		preferences.edit().clear().commit();
-	}
-
-	public void applyClear() {
-		preferences.edit().clear().apply();
-	}
-
-	public void commit() {
-		preferences.edit().commit();
 	}
 }

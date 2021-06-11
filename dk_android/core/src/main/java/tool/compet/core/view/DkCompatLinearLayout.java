@@ -17,7 +17,7 @@ import android.view.MotionEvent;
 import android.view.ViewConfiguration;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.AppCompatImageView;
+import androidx.appcompat.widget.LinearLayoutCompat;
 
 import tool.compet.core.DkConfig;
 import tool.compet.core.DkConst;
@@ -28,7 +28,7 @@ import tool.compet.core.graphics.drawable.DkRippleDrawable;
  * This is compatible View, for eg,. it provides backward-compatibility for `foreground`.
  * You can call `setDefaultForeground()` to use default ripple-drawable to response user-touch.
  */
-public class DkCompatImageView extends AppCompatImageView {
+public class DkCompatLinearLayout extends LinearLayoutCompat {
 	// By default, we try to create default foreground when size was changed
 	private boolean createDefaultForegroundIfNotExist = true;
 
@@ -41,18 +41,18 @@ public class DkCompatImageView extends AppCompatImageView {
 	protected boolean isPrePress;
 	protected PressAction prePressAction;
 
-	public DkCompatImageView(Context context) {
+	public DkCompatLinearLayout(Context context) {
 		super(context);
 		init(context);
 	}
 
-	public DkCompatImageView(Context context, AttributeSet attrs) {
+	public DkCompatLinearLayout(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		init(context);
 	}
 
 	@SuppressLint("CustomViewStyleable")
-	public DkCompatImageView(Context context, AttributeSet attrs, int defStyleAttr) {
+	public DkCompatLinearLayout(Context context, AttributeSet attrs, int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
 		init(context);
 	}

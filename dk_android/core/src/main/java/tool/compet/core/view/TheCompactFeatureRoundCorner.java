@@ -12,24 +12,23 @@ import android.graphics.RectF;
 import android.os.Build;
 import android.view.View;
 
+import tool.compet.core.BuildConfig;
 import tool.compet.core.DkConfig;
+import tool.compet.core.DkLogs;
 
 /**
  * Compact component for rounded corner feature.
  */
-public class TheCompactComponentRoundCorner {
-	private final Context context;
-
+public class TheCompactFeatureRoundCorner {
 	int roundColor;
+	boolean isCircle;
 	float roundStrokeWidth;
 	float[] roundRadiusArr; // top-left, top-right, bottom-right, bottom-left
 	Path clipRoundPath;
 	Path roundPath;
 	Paint roundPaint;
 
-	TheCompactComponentRoundCorner(Context context) {
-		this.context = context;
-
+	TheCompactFeatureRoundCorner(Context context) {
 		// Init with default values (user can change later if want)
 		this.clipRoundPath = new Path();
 		this.roundPath = new Path();
@@ -52,22 +51,34 @@ public class TheCompactComponentRoundCorner {
 	void onSizeChanged(int w, int h) {
 		// Clip round-path
 		clipRoundPath.reset();
-		clipRoundPath.addRoundRect(new RectF(0, 0, w, h), roundRadiusArr, Path.Direction.CCW);
+		if (isCircle) {
+			clipRoundPath.addCircle(w >> 1, h >> 1, Math.min(w, h) >> 1, Path.Direction.CCW);
+		}
+		else {
+			clipRoundPath.addRoundRect(new RectF(0, 0, w, h), roundRadiusArr, Path.Direction.CCW);
+		}
 
-		float margin = DkConfig.density();
-		roundPath.reset();
-		roundPath.addRoundRect(new RectF(margin, margin, w - margin, h - margin), roundRadiusArr, Path.Direction.CCW);
+		if (shouldDrawBorder()) {
+			float m = DkConfig.density();
+			roundPath.reset();
+			roundPath.addRoundRect(new RectF(m, m, w - m, h - m), roundRadiusArr, Path.Direction.CCW);
+		}
 	}
 
 	void drawRoundedCorner(View view, Canvas canvas) {
-		//todo Buggy: setLayerType() makes redraw called repeatly !!!
+		//todo Buggy: setLayerType(LAYER_TYPE_SOFTWARE) makes redraw called repeatly !!!
 		if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN_MR1) { // api 17-
 			view.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 		}
-		canvas.drawPath(roundPath, roundPaint);
-	}
+		canvas.clipPath(clipRoundPath);
+		if (shouldDrawBorder()) {
+			canvas.drawPath(roundPath, roundPaint);
+		}
 
-	// endregion Private
+		if (BuildConfig.DEBUG) {
+			DkLogs.notice(this, "Buggy if this appears multiple times");
+		}
+	}
 
 	// region Get/Set
 
@@ -108,5 +119,19 @@ public class TheCompactComponentRoundCorner {
 
 	public void setRoundRadiusArr(float[] roundRadiusArr) {
 		this.roundRadiusArr = roundRadiusArr;
+	}
+
+	public boolean isCircle() {
+		return isCircle;
+	}
+
+	public void setCircle(boolean circle) {
+		isCircle = circle;
+	}
+
+	// endregion Get/Set
+
+	private boolean shouldDrawBorder() {
+		return roundStrokeWidth > 0;
 	}
 }

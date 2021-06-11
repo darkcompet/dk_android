@@ -227,7 +227,7 @@ public class DkFiles {
 			return DkConst.EMPTY_STRING;
 		}
 
-		StringBuilder sb = new StringBuilder();
+		StringBuilder sb = new StringBuilder(64);
 		boolean first = true;
 
 		for (String name : names) {

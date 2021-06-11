@@ -17,8 +17,8 @@ public class DkCompactImageView extends DkCompatImageView {
 	protected Context context;
 
 	// Rounded corner feature
-	private boolean isRoundCornerFeatureEnabled = true;
-	private TheCompactComponentRoundCorner cmpRoundCorner;
+	protected boolean isRoundCornerFeatureEnabled = true;
+	protected TheCompactFeatureRoundCorner featureRoundCorner;
 
 	public DkCompactImageView(Context context) {
 		super(context);
@@ -37,15 +37,12 @@ public class DkCompactImageView extends DkCompatImageView {
 
 	private void init(Context context) {
 		this.context = context;
-		if (isRoundCornerFeatureEnabled()) {
-			cmpRoundCorner = new TheCompactComponentRoundCorner(context);
-		}
 	}
 
 	@Override
 	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 		if (isRoundCornerFeatureEnabled()) {
-			acquireRoundCornerComponent().onSizeChanged(w, h);
+			obtainRoundCornerFeature().onSizeChanged(w, h);
 		}
 		super.onSizeChanged(w, h, oldw, oldh);
 	}
@@ -53,7 +50,7 @@ public class DkCompactImageView extends DkCompatImageView {
 	@Override
 	public void draw(Canvas canvas) {
 		if (isRoundCornerFeatureEnabled()) {
-			acquireRoundCornerComponent().drawRoundedCorner(this, canvas);
+			obtainRoundCornerFeature().drawRoundedCorner(this, canvas);
 		}
 		super.draw(canvas);
 	}
@@ -66,14 +63,13 @@ public class DkCompactImageView extends DkCompatImageView {
 		return isRoundCornerFeatureEnabled;
 	}
 
-	// region Private
-
-	private TheCompactComponentRoundCorner acquireRoundCornerComponent() {
-		if (cmpRoundCorner == null) {
-			cmpRoundCorner = new TheCompactComponentRoundCorner(context);
+	/**
+	 * Call this to obtain (prepare) rounded corner feature (setting, component).
+	 */
+	public TheCompactFeatureRoundCorner obtainRoundCornerFeature() {
+		if (featureRoundCorner == null) {
+			featureRoundCorner = new TheCompactFeatureRoundCorner(context);
 		}
-		return cmpRoundCorner;
+		return featureRoundCorner;
 	}
-
-	// endregion Private
 }

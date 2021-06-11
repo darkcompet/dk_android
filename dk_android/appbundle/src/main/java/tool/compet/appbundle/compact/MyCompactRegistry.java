@@ -4,6 +4,10 @@
 
 package tool.compet.appbundle.compact;
 
+import android.os.Bundle;
+
+import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import java.lang.reflect.Field;
@@ -22,7 +26,7 @@ class MyCompactRegistry {
 	 * <p></p>
 	 * Note that, this method must be called after #super.onCreate() inside subclass of View.
 	 */
-	static <L extends DkCompactLogic, D> void wire(DkCompactView view) {
+	static <L extends DkCompactLogic, D> void init(DkCompactView view, FragmentActivity host, @Nullable Bundle savedInstanceState) {
 		Class viewClass = view.getClass();
 		List<Field> viewLogics = DkReflectionFinder.getIns().findFields(viewClass, MyInjectLogic.class);
 		List<Field> viewDatas = DkReflectionFinder.getIns().findFields(viewClass, MyInjectData.class);
@@ -49,8 +53,11 @@ class MyCompactRegistry {
 				throw new RuntimeException(DkStrings.format("ViewLogic `%s` must be subclass of `DkCompactViewLogic`", logicClass.toString()));
 			}
 
+			// Logic is ViewModelOwner, so it get aware of its destroy completely
 			L logic = new ViewModelProvider(view).get(logicClass.getName(), logicClass);
+			boolean isInitialLogic = false;
 			if (logic.data == null) {
+				isInitialLogic = true;
 				logic.data = instantiate(dataClass);
 			}
 			D data = (D) logic.data;
@@ -61,6 +68,11 @@ class MyCompactRegistry {
 
 			// Attach view as soon as possible
 			logic.view = view;
+
+			// Tell Logic init state
+			if (isInitialLogic) {
+				logic.onInit(host, savedInstanceState);
+			}
 		}
 	}
 
