@@ -20,8 +20,9 @@ public class DkSnackbar extends DkFloatingbar<DkSnackbar> {
 	public static final int DURATION_NORMAL = 3000;
 	public static final int DURATION_LONG = 4500;
 
-	// We handle all bars by a manager
+	// We handle all snackbars by a manager
 	private static MyFloatingbarManager manager;
+
 	private final TextView tvMessage;
 	private final Button btnAction;
 

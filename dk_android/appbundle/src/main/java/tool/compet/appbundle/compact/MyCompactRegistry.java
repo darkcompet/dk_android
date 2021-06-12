@@ -35,7 +35,7 @@ class MyCompactRegistry {
 			return; // Ignore since no field to process
 		}
 		if (viewLogics.size() != 1 || viewDatas.size() != 1) {
-			throw new RuntimeException("Must declare 1 ViewLogic and 1 ViewData inside View");
+			throw new RuntimeException("Must declare only 1 ViewLogic and 1 ViewData inside View");
 		}
 
 		final Field viewLogicField = viewLogics.get(0);
@@ -54,23 +54,21 @@ class MyCompactRegistry {
 			}
 
 			// Logic is ViewModelOwner, so it get aware of its destroy completely
-			L logic = new ViewModelProvider(view).get(logicClass.getName(), logicClass);
-			boolean isInitialLogic = false;
-			if (logic.data == null) {
-				isInitialLogic = true;
+			final L logic = new ViewModelProvider(view).get(logicClass.getName(), logicClass);
+			final boolean isInit = (logic.data == null);
+			if (isInit) {
 				logic.data = instantiate(dataClass);
 			}
-			D data = (D) logic.data;
 
 			// Set Logic and Data fields inside View
 			setFieldValue(viewLogicField, view, logic);
-			setFieldValue(viewDataField, view, data);
+			setFieldValue(viewDataField, view, logic.data);
 
 			// Attach view as soon as possible
 			logic.view = view;
 
 			// Tell Logic init state
-			if (isInitialLogic) {
+			if (isInit) {
 				logic.onInit(host, savedInstanceState);
 			}
 		}

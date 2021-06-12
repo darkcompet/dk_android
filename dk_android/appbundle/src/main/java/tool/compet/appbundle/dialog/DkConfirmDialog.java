@@ -36,7 +36,9 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
  * - Auto dismiss dialog when click to buttons or outside dialog
  */
 @SuppressWarnings("unchecked")
-public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<D> implements View.OnClickListener, TheConfirmDialogInterface {
+public class DkConfirmDialog<D extends DkConfirmDialog>
+	extends DkCompactDialog<D>
+	implements View.OnClickListener, TheConfirmDialogInterface {
 	// Callback
 	public interface ConfirmCallback {
 		void onClick(TheConfirmDialogInterface dialog, View button);
@@ -61,10 +63,10 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 	public static final int LAYOUT_TYPE_VERTICAL_ACTIONS = 2;
 	protected int layoutType = LAYOUT_TYPE_VERTICAL_ACTIONS;
 
-	// Fullground (dialog itself)
+	// Fullground (full screen, can touch outside to dismiss dialog)
 	protected ViewGroup vFullground;
 
-	// Background (card view)
+	// Background (rounded corner view, that is, dialog itself)
 	protected ConstraintLayout vBackground;
 	private Integer backgroundColor;
 	private Drawable backgroundDrawable;
@@ -105,8 +107,6 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 	private ConfirmCallback okCb; // store in ViewModel
 
 	// Setting
-	// private boolean mCancelable = true; // owned by `DialogFragment` (dismiss on back pressed...)
-	// private boolean mShowsDialog = true; // owned by `DialogFragment` (attach fragment's view into dialog or not)
 	protected boolean isDismissOnClickButton = true;
 	protected boolean isDismissOnTouchOutside = true;
 	protected boolean isFullScreen;
@@ -185,7 +185,7 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 			return false;
 		});
 
-		// Background (card view)
+		// Background (rounded corner view)
 		decorBackground();
 
 		// Header
@@ -231,18 +231,6 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 			}
 		}
 		vBackground.setLayoutParams(bkgLayoutParams);
-	}
-
-	@Override
-	public void onStart() {
-		super.onStart();
-
-		//        Dialog dialog = getDialog();
-		//        Window window = dialog.getWindow();
-		//        ViewGroup.LayoutParams bkgLayoutParams = vForeground.getLayoutParams();
-		//        DkLogs.debug(this, "bkgLayoutParams: %d, %d", bkgLayoutParams.width, bkgLayoutParams.height);
-		//        DkLogs.debug(this, "vForeground: %d, %d", vForeground.getMeasuredWidth(), vForeground.getMeasuredHeight());
-		//        DkLogs.debug(this, "vForeground: %d, %d", vForeground.getWidth(), vForeground.getHeight());
 	}
 
 	@Override // from View.OnClickListener interface
@@ -688,14 +676,12 @@ public class DkConfirmDialog<D extends DkConfirmDialog> extends DkCompactDialog<
 			}
 			DkViews.setTextSize(vMessage, 1.125f * vReset.getTextSize());
 			vMessage.setMovementMethod(new ScrollingMovementMethod());
-			vMessage.setVisibility(View.VISIBLE);
 			vMessage.setText(message);
+			vMessage.setVisibility(View.VISIBLE);
 		}
-		else {
-			if (bodyLayoutResId > 0) {
-				vBody.removeAllViews();
-				vBody.addView(View.inflate(context, bodyLayoutResId, null));
-			}
+		else if (bodyLayoutResId > 0) {
+			vBody.removeAllViews();
+			vBody.addView(View.inflate(context, bodyLayoutResId, null));
 		}
 	}
 

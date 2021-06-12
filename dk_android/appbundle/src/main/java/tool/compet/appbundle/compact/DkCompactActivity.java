@@ -12,6 +12,10 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.View;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -21,6 +25,8 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStoreOwner;
+
+import java.util.Map;
 
 import tool.compet.appbundle.DkActivity;
 import tool.compet.appbundle.DkApp;
@@ -43,12 +49,17 @@ import tool.compet.core.DkUtils;
  * - [Optional] ViewModel (overcome configuration-change)
  * - [Optional] Message display (snack, toast...)
  * - [Optional] Scoped topic (pass data between/under fragments, activities, app)
+ * - [Optional] ViewLogic design pattern (coupling View and Logic), enable/disable via `enableViewLogicDesignPattern()`.
+ * When use this pattern, should remember that, Logic and View should not wait opposite returned value,
+ * they should call opposite directly and receive result at passed-listener or other callback-method.
+ * - [Optional] Utility (floating bar, open activity or fragment, ...)
  *
  * <p></p>
  * Be aware of lifecycle in Activity: if activity is not going to be destroyed and
  * returns to foreground after onStop(), then onRestart() -> onStart() will be called respectively.
  */
-public abstract class DkCompactActivity<L extends DkCompactLogic, D> extends AppCompatActivity
+public abstract class DkCompactActivity<L extends DkCompactLogic, D>
+	extends AppCompatActivity
 	implements DkActivity, DkFragmentNavigator.Callback, DkCompactView, DkNavigatorOwner {
 
 	// Allow init ViewLogic which couples with this View
@@ -73,29 +84,6 @@ public abstract class DkCompactActivity<L extends DkCompactLogic, D> extends App
 	@MyInjectLogic protected L logic;
 	// Data for View (to instantiate it, subclass just provide generic type of data when extends this view)
 	@MyInjectData protected D data;
-
-	/**
-	 * Must provide id of fragent container via {@link DkCompactFragment#fragmentContainerId()}.
-	 */
-	@Override // from `DkNavigatorOwner`
-	public DkFragmentNavigator getChildNavigator() {
-		if (childNavigator == null) {
-			int containerId = fragmentContainerId();
-
-			if (containerId <= 0) {
-				DkUtils.complainAt(this, "Must provide `fragmentContainerId()`");
-			}
-
-			childNavigator = new DkFragmentNavigator(containerId, getSupportFragmentManager(), this);
-		}
-
-		return childNavigator;
-	}
-
-	@Override // from `DkNavigatorOwner`
-	public DkFragmentNavigator getParentNavigator() {
-		throw new RuntimeException("By default, activity does not provide parent navigator");
-	}
 
 	/**
 	 * Subclass should use getIntent() in onResume() instead since we called #setIntent() here
@@ -196,7 +184,7 @@ public abstract class DkCompactActivity<L extends DkCompactLogic, D> extends App
 			childNavigator.restoreState(savedInstanceState);
 		}
 		if (logic != null) {
-			logic.onViewRestoreInstanceState(savedInstanceState);
+			logic.onViewRestoreInstanceState(this, savedInstanceState);
 		}
 		super.onRestoreInstanceState(savedInstanceState);
 	}
@@ -253,7 +241,7 @@ public abstract class DkCompactActivity<L extends DkCompactLogic, D> extends App
 			childNavigator.saveState(outState);
 		}
 		if (logic != null) {
-			logic.onViewSaveInstanceState(outState);
+			logic.onViewSaveInstanceState(this, outState);
 		}
 		super.onSaveInstanceState(outState);
 	}
@@ -333,6 +321,33 @@ public abstract class DkCompactActivity<L extends DkCompactLogic, D> extends App
 		return getSupportFragmentManager().getFragmentFactory().instantiate(getClassLoader(), fragClass.getName());
 	}
 
+	// region Navigator
+
+	/**
+	 * Must provide id of fragent container via {@link DkCompactFragment#fragmentContainerId()}.
+	 */
+	@Override // from `DkNavigatorOwner`
+	public DkFragmentNavigator getChildNavigator() {
+		if (childNavigator == null) {
+			int containerId = fragmentContainerId();
+
+			if (containerId <= 0) {
+				DkUtils.complainAt(this, "Must provide `fragmentContainerId()`");
+			}
+
+			childNavigator = new DkFragmentNavigator(containerId, getSupportFragmentManager(), this);
+		}
+
+		return childNavigator;
+	}
+
+	@Override // from `DkNavigatorOwner`
+	public DkFragmentNavigator getParentNavigator() {
+		throw new RuntimeException("By default, activity does not provide parent navigator");
+	}
+
+	// endregion Navigator
+
 	// region ViewModel
 
 	// Get or Create new ViewModel instance which be owned by this activity.
@@ -387,7 +402,37 @@ public abstract class DkCompactActivity<L extends DkCompactLogic, D> extends App
 
 	// endregion Scoped topic
 
-	// region Floating bar
+	// region Utility
+
+	/**
+	 * Start an activity and listen result callback from it.
+	 * @param input Intent which declare input data and target activity.
+	 * @param resultCallback Result callback from target activity.
+	 */
+	protected void startActivityForResult(Intent input, ActivityResultCallback<ActivityResult> resultCallback) {
+		ActivityResultLauncher<Intent> launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), resultCallback);
+		launcher.launch(input);
+	}
+
+	/**
+	 * Start an activity and listen result callback from it.
+	 * @param permission Permission to be requested.
+	 * @param resultCallback Result callback from target activity.
+	 */
+	protected void requestPermission(String permission, ActivityResultCallback<Boolean> resultCallback) {
+		ActivityResultLauncher<String> launcher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), resultCallback);
+		launcher.launch(permission);
+	}
+
+	/**
+	 * Start an activity and listen result callback from it.
+	 * @param permissions Permission list to be requested.
+	 * @param resultCallback Result callback from target activity.
+	 */
+	protected void requestPermissions(String[] permissions, ActivityResultCallback<Map<String, Boolean>> resultCallback) {
+		ActivityResultLauncher<String[]> launcher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), resultCallback);
+		launcher.launch(permissions);
+	}
 
 	public DkSnackbar snackbar() {
 		return DkSnackbar.newIns(layout);
@@ -397,5 +442,5 @@ public abstract class DkCompactActivity<L extends DkCompactLogic, D> extends App
 		return DkToastbar.newIns(layout);
 	}
 
-	// endregion Floating bar
+	// endregion Utility
 }

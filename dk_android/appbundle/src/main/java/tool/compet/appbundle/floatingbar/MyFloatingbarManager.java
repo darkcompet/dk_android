@@ -57,7 +57,7 @@ class MyFloatingbarManager {
 	}
 
 	// Dismiss all current bars immediately
-	void dismissAllNow() {
+	void dismissAllImmediate() {
 		// Cancel all events
 		dismissHandler.removeCallbacksAndMessages(null);
 

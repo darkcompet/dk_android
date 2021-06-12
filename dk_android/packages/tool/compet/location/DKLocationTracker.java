@@ -61,7 +61,7 @@ public class DkLocationTracker {
 	 * Note: before call this, should check 2 permissions: DkConst.ACCESS_FINE_LOCATION, DkConst.ACCESS_COARSE_LOCATION.
 	 */
 	public Location start(Context context) {
-		if (!DkUtils.checkPermission(context, DkConst.ACCESS_FINE_LOCATION, DkConst.ACCESS_COARSE_LOCATION)) {
+		if (! DkUtils.checkPermission(context, DkConst.ACCESS_FINE_LOCATION, DkConst.ACCESS_COARSE_LOCATION)) {
 			return null;
 		}
 		String bestProviderName = locationManager.getBestProvider(criteria, true);

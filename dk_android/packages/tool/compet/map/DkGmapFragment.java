@@ -59,12 +59,12 @@ public abstract class DkGmapFragment extends SupportMapFragment implements OnMap
 	}
 
 	@Override
-	public void getMapAsync(OnMapReadyCallback onMapReadyCallback) {
+	public void getMapAsync(@NonNull OnMapReadyCallback onMapReadyCallback) {
 		super.getMapAsync(this);
 	}
 
 	@Override
-	public void onMapReady(final GoogleMap map) {
+	public void onMapReady(@NonNull final GoogleMap map) {
 		if (this.map == null) {
 			this.map = map;
 		}

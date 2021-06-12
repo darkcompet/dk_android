@@ -123,8 +123,11 @@ public abstract class DkFloatingbar<B> implements View.OnTouchListener {
 		manager().show(duration, actionCallback);
 	}
 
-	public void showNow() {
-		manager().dismissAllNow();
+	/**
+	 * Close current bars of this bar-type (snackbar or toastbar), then show new bar immediate.
+	 */
+	public void showImmediate() {
+		manager().dismissAllImmediate();
 		show();
 	}
 

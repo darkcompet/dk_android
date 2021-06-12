@@ -6,6 +6,8 @@ package tool.compet.appbundle;
 
 import androidx.fragment.app.Fragment;
 
+import tool.compet.appbundle.navigator.DkFragmentNavigator;
+
 /**
  * Fragment interface, a fragment can implement this to work with Dk library.
  */
@@ -32,6 +34,13 @@ public interface DkFragment {
 	 * @return true if this fragment will handle this event, otherwise false.
 	 */
 	boolean onBackPressed();
+
+	/**
+	 * Open (show) itself.
+	 *
+	 * @return true if open succeed, otherwise failed.
+	 */
+	boolean open(DkFragmentNavigator navigator);
 
 	/**
 	 * Dismiss (finish) itself.

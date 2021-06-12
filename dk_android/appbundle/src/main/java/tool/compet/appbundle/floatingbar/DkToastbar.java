@@ -26,7 +26,9 @@ public class DkToastbar extends DkFloatingbar<DkToastbar> {
 	public static final int DURATION_NORMAL = 2000;
 	public static final int DURATION_LONG = 3500;
 
+	// We handle all snackbars by a manager
 	private static MyFloatingbarManager manager;
+
 	private final TextView tvMessage;
 
 	protected DkToastbar(Context context, ViewGroup parent, View bar) {

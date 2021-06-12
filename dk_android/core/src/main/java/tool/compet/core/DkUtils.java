@@ -8,10 +8,10 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -22,7 +22,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.PowerManager;
 import android.os.Process;
-import android.provider.MediaStore;
 import android.provider.MediaStore.Images.Media;
 import android.provider.Settings;
 import android.view.Surface;
@@ -41,7 +40,6 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static android.view.WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN;
 import static android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN;
 
@@ -182,24 +180,7 @@ public class DkUtils {
 		return sb.toString();
 	}
 
-	public static boolean checkPermission(Context context, String... permissions) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			for (String permission : permissions) {
-				if (context.checkSelfPermission(permission) != PERMISSION_GRANTED) {
-					return false;
-				}
-			}
-		}
-		return true;
-	}
-
-	public static void requestPermissions(Activity host, int requestCode, String[] permissions) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			host.requestPermissions(permissions, requestCode);
-		}
-	}
-
-	public static void restart(Context context, Class startActivity) {
+	public static void restartApp(Context context, Class startActivity) {
 		Intent startIntent = new Intent(context, startActivity);
 		PendingIntent pendingIntent = PendingIntent.getActivity(context,
 			Process.myPid(),
@@ -252,6 +233,7 @@ public class DkUtils {
 	public static void dimSystemBars(Activity host) {
 		View decorView = host.getWindow().getDecorView();
 		int uiOptions = View.SYSTEM_UI_FLAG_LOW_PROFILE;
+
 		decorView.setSystemUiVisibility(uiOptions);
 	}
 
@@ -315,14 +297,14 @@ public class DkUtils {
 		return rotate;
 	}
 
-	public static String getGalleryPhotoPath(Context context, Intent data) {
+	public static String getGalleryPhotoPath(Context context, @Nullable Intent data) {
 		if (data == null) {
 			return null;
 		}
 		return getPathFromUri(context, data.getData());
 	}
 
-	public static String getPathFromUri(Context context, Uri uri) {
+	public static String getPathFromUri(Context context, @Nullable Uri uri) {
 		if (uri == null) {
 			return null;
 		}
@@ -358,49 +340,30 @@ public class DkUtils {
 		context.startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
 	}
 
-	public static Intent getOpenIntentForFacebookUserPage(Context context, String userId) {
-		try {
-			context.getPackageManager().getPackageInfo("com.facebook.katana", 0);
-		}
-		catch (Exception e) {
-			DkLogs.error(DkLogs.class, e);
-			return null;
-		}
-
-		try {
-			return new Intent(Intent.ACTION_VIEW, Uri.parse("fb://profile/" + userId));
-		}
-		catch (Exception e) {
-			DkLogs.error(DkLogs.class, e);
-			return new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.facebook.com/arkverse"));
-		}
-	}
-
 	/**
 	 * @return intent for app in local. If null, intent of app on play store will be returned.
 	 */
 	public static Intent getOpenIntentForAppInLocal(Context context, String packageName) {
 		Intent intent = context.getPackageManager().getLaunchIntentForPackage(packageName);
-
 		if (intent == null) {
-			intent = getOpenIntentForAppInPlayStore(packageName);
+			intent = intentForOpenAppInPlayStore(packageName);
 		}
-
 		intent.setFlags(0);
 
 		return intent;
 	}
 
-	public static Intent getOpenIntentForAppInPlayStore(String packageName) {
+	public static Intent intentForOpenAppInPlayStore(String packageName) {
 		Intent intent = new Intent(Intent.ACTION_VIEW);
 		intent.setData(Uri.parse("market://details?id=" + packageName));
 		intent.setFlags(0);
+
 		return intent;
 	}
 
-	public static void rateApp(Context context) {
+	public static Intent intentForRateApp(Context context) {
 		Uri uri = Uri.parse("market://details?id=" + context.getPackageName());
-		Intent goToMarket = new Intent(Intent.ACTION_VIEW, uri);
+		Intent intent = new Intent(Intent.ACTION_VIEW, uri);
 		int flags = Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_MULTIPLE_TASK;
 
 		if (Build.VERSION.SDK_INT >= 21) {
@@ -411,16 +374,17 @@ public class DkUtils {
 		}
 
 		try {
-			goToMarket.addFlags(flags);
-			context.startActivity(goToMarket);
+			intent.addFlags(flags);
+
+			return intent;
 		}
 		catch (Exception e) {
 			DkLogs.error(DkLogs.class, e);
-			context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google" + ".com/store/apps/details?id=" + context.getPackageName())));
+			return new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google" + ".com/store/apps/details?id=" + context.getPackageName()));
 		}
 	}
 
-	public static Intent getOpenIntentForPlayStoreAppList(String developerName) {
+	public static Intent intentForOpenPlayStoreAppList(String developerName) {
 		Uri uri = Uri.parse("market://search?q=pub:" + developerName);
 		Intent intent = new Intent(Intent.ACTION_VIEW, uri);
 		int flags = Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_MULTIPLE_TASK;
@@ -488,19 +452,19 @@ public class DkUtils {
 
 		shareIntent.putExtra(Intent.EXTRA_TITLE, title);
 		shareIntent.putExtra(Intent.EXTRA_TEXT, message);
+
 		context.startActivity(shareIntent);
 
 		return true;
 	}
 
 	/**
-	 * @return false if WRITE_EXTERNAL_STORAGE permission is required, otherwise true.
+	 * Caller must grant permission `DkConst.WRITE_EXTERNAL_STORAGE`.
 	 */
 	public static boolean share(Activity host, String message, Iterable<Bitmap> bitmaps) {
-		if (!checkPermission(host, DkConst.WRITE_EXTERNAL_STORAGE)) {
+		if (! DkUtils.checkPermission(host, DkConst.WRITE_EXTERNAL_STORAGE)) {
 			return false;
 		}
-
 		Intent intent = new Intent();
 		intent.setAction(Intent.ACTION_SEND);
 		intent.setType("text/plain");
@@ -526,42 +490,28 @@ public class DkUtils {
 		return true;
 	}
 
-	/**
-	 * Get bitmap from intent with below code:
-	 * Bitmap bitmap = (Bitmap) intentData.getExtras().get("data");
-	 */
-	public static Uri startCamera(Activity host, int requestCode) {
-		final ContentValues values = new ContentValues();
-		values.put(MediaStore.MediaColumns.TITLE, "new photo");
-		values.put(MediaStore.Images.ImageColumns.DESCRIPTION, "from camera");
-		Uri photoUri = host.getContentResolver().insert(Media.EXTERNAL_CONTENT_URI, values);
-
-		final Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-		intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
-		host.getWindow().clearFlags(FLAG_FORCE_NOT_FULLSCREEN);
-		host.startActivityForResult(intent, requestCode);
-
-		return photoUri;
-	}
-
-	public static void startGallery(Activity host, int requestCode) {
-		final Intent intent = new Intent();
-		intent.setType("image/*");
-		intent.setAction(Intent.ACTION_GET_CONTENT);
-		intent.addCategory(Intent.CATEGORY_OPENABLE);
-		host.startActivityForResult(intent, requestCode);
-	}
-
-	public static void uninstallPackage(Activity host, String pkgName, int requestCode) {
+	public static Intent intentForUninstallPackage(Activity host, String packageName) {
 		Intent intent = new Intent(Intent.ACTION_UNINSTALL_PACKAGE);
-		intent.setData(Uri.parse("package:" + pkgName));
+		intent.setData(Uri.parse("package:" + packageName));
 		intent.putExtra(Intent.EXTRA_RETURN_RESULT, true);
-		host.startActivityForResult(intent, requestCode);
+
+		return intent;
 	}
 
 	public static boolean isBatterySaveModeTurnOn(Context context) {
 		PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && powerManager.isPowerSaveMode();
+	}
+
+	public static boolean checkPermission(Context context, String... permissions) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && permissions != null) {
+			for (String permission : permissions) {
+				if (context.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 
 	// endregion Android core

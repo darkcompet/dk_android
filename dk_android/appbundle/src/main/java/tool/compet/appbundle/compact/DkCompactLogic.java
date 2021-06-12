@@ -88,7 +88,7 @@ public abstract class DkCompactLogic<V extends DkCompactView, D> extends ViewMod
 
 	/**
 	 * Called multiple times from View.
-	 * It is coupled with `onDestroy()`.
+	 * It is coupled with `onViewDestroy()`.
 	 */
 	@CallSuper
 	protected void onViewCreate(FragmentActivity host, @Nullable Bundle savedInstanceState) {
@@ -97,7 +97,7 @@ public abstract class DkCompactLogic<V extends DkCompactView, D> extends ViewMod
 
 	/**
 	 * Called multiple times from View.
-	 * It is coupled with `onStop()`.
+	 * It is coupled with `onViewStop()`.
 	 */
 	@CallSuper
 	protected void onViewStart(FragmentActivity host) {
@@ -105,7 +105,9 @@ public abstract class DkCompactLogic<V extends DkCompactView, D> extends ViewMod
 	}
 
 	/**
-	 * Called multiple times from View.
+	 * Called multiple times from View. The app should start send commands to View
+	 * from this time, any command before this time will not safe since `layout` inside
+	 * View is maybe not initialized.
 	 */
 	@CallSuper
 	protected void onViewReady(FragmentActivity host, @Nullable Bundle savedInstanceState) {
@@ -114,7 +116,7 @@ public abstract class DkCompactLogic<V extends DkCompactView, D> extends ViewMod
 
 	/**
 	 * Called multiple times from View.
-	 * It is coupled with `onInactive()`.
+	 * It is coupled with `onViewInactive()`.
 	 */
 	@CallSuper
 	protected void onViewActive(FragmentActivity host, boolean isResume) {
@@ -133,7 +135,7 @@ public abstract class DkCompactLogic<V extends DkCompactView, D> extends ViewMod
 
 	/**
 	 * Called multiple times from View.
-	 * It is coupled with `onActive()`.
+	 * It is coupled with `onViewActive()`.
 	 */
 	@CallSuper
 	protected void onViewInactive(FragmentActivity host, boolean isPause) {
@@ -142,7 +144,7 @@ public abstract class DkCompactLogic<V extends DkCompactView, D> extends ViewMod
 
 	/**
 	 * Called multiple times from View.
-	 * It is coupled with `onStart()`.
+	 * It is coupled with `onViewStart()`.
 	 */
 	@CallSuper
 	protected void onViewStop(FragmentActivity host) {
@@ -151,7 +153,7 @@ public abstract class DkCompactLogic<V extends DkCompactView, D> extends ViewMod
 
 	/**
 	 * Called multiple times from View.
-	 * It is coupled with `onCreate()`.
+	 * It is coupled with `onViewCreate()`.
 	 */
 	@CallSuper
 	protected void onViewDestroy(FragmentActivity host) {
@@ -159,10 +161,12 @@ public abstract class DkCompactLogic<V extends DkCompactView, D> extends ViewMod
 		view = null;
 	}
 
-	protected void onViewSaveInstanceState(Bundle outState) {
+	@CallSuper
+	protected void onViewSaveInstanceState(FragmentActivity host, Bundle outState) {
 	}
 
-	protected void onViewRestoreInstanceState(Bundle savedInstanceState) {
+	@CallSuper
+	protected void onViewRestoreInstanceState(FragmentActivity host, Bundle savedInstanceState) {
 	}
 
 	/**

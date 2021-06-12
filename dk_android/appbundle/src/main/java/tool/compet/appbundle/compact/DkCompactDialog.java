@@ -10,8 +10,10 @@ import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.Application;
 import android.app.Dialog;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -21,7 +23,12 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Interpolator;
+import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -34,11 +41,15 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStoreOwner;
 
+import java.util.Map;
+
 import tool.compet.appbundle.BuildConfig;
 import tool.compet.appbundle.DkActivity;
 import tool.compet.appbundle.DkApp;
 import tool.compet.appbundle.DkDialogFragment;
 import tool.compet.appbundle.DkFragment;
+import tool.compet.appbundle.floatingbar.DkSnackbar;
+import tool.compet.appbundle.floatingbar.DkToastbar;
 import tool.compet.appbundle.navigator.DkFragmentNavigator;
 import tool.compet.appbundle.navigator.DkNavigatorOwner;
 import tool.compet.appbundle.topic.DkTopicOwner;
@@ -55,10 +66,14 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
  * - [Optional] Navigator (back, next fragment)
  * - [Optional] ViewModel (overcome configuration-changes)
  * - [Optional] Scoped topic (for communication between host and other fragments)
+ *
+ * In theory, this does not provide ViewLogic design pattern since we consider
+ * a dialog as a view of its parent (activity or fragment).
  */
 @SuppressWarnings("unchecked")
-public abstract class DkCompactDialog<D> extends AppCompatDialogFragment
-	implements DkDialogFragment, DkNavigatorOwner {
+public abstract class DkCompactDialog<D>
+	extends AppCompatDialogFragment
+	implements DkDialogFragment, DkFragmentNavigator.Callback, DkNavigatorOwner {
 
 	public static final String TAG = DkCompactDialog.class.getName();
 
@@ -66,35 +81,14 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment
 	protected FragmentActivity host;
 	protected Context context;
 	protected View layout;
-
-	@Override // from `DkNavigatorOwner`
-	public DkFragmentNavigator getChildNavigator() {
-		throw new RuntimeException("By default, dialog does not provide child navigator");
-	}
-
-	@Override // from `DkNavigatorOwner`
-	public DkFragmentNavigator getParentNavigator() {
-		Fragment parent = getParentFragment();
-		DkFragmentNavigator owner = null;
-
-		if (parent == null) {
-			if (host instanceof DkNavigatorOwner) {
-				owner = ((DkNavigatorOwner) host).getChildNavigator();
-			}
-		}
-		else if (parent instanceof DkNavigatorOwner) {
-			owner = ((DkNavigatorOwner) parent).getChildNavigator();
-		}
-
-		if (owner == null) {
-			DkUtils.complainAt(this, "Must have a parent navigator own this fragment `%s`", getClass().getName());
-		}
-
-		return owner;
-	}
+	// Child navigator
+	protected DkFragmentNavigator childNavigator;
 
 	@Override
 	public void onAttach(@NonNull Context context) {
+		Toast.makeText(context, "", Toast.LENGTH_SHORT).show();
+		NotificationManager
+
 		if (BuildConfig.DEBUG) {
 			DkLogs.info(this, "onAttach (context)");
 		}
@@ -145,12 +139,7 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment
 		if (BuildConfig.DEBUG) {
 			DkLogs.info(this, "onCreateDialog");
 		}
-		Dialog dialog = super.onCreateDialog(savedInstanceState);
-
-//		dialog.setOnShowListener(this::onDialogShown);
-//		dialog.setOnDismissListener(this::onDialogDismised);
-
-		return dialog;
+		return super.onCreateDialog(savedInstanceState);
 	}
 
 	@Nullable
@@ -202,7 +191,7 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment
 
 			if (window != null) {
 				window.setLayout(MATCH_PARENT, MATCH_PARENT);
-				window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+				window.setBackgroundDrawable(new ColorDrawable(Color.YELLOW));
 
 				if (requestInputMethod()) {
 					window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
@@ -300,6 +289,7 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment
 	/**
 	 * Open dialog via `DkFragmentNavigator` way.
 	 */
+	@Override
 	public boolean open(DkFragmentNavigator navigator) {
 		return navigator.beginTransaction().add(this).commit();
 	}
@@ -310,9 +300,8 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment
 	@Override // from `DkFragment`
 	public boolean close() {
 		try {
-			// Need try catch here since this maybe cause exception (multiple time of calling this method)
-			DkFragmentNavigator parentNavigator = getParentNavigator();
-			return parentNavigator.beginTransaction().remove(this).commit();
+			// Need try catch `getParentNavigator()` since this maybe cause exception (multiple time of calling this method)
+			return getParentNavigator().beginTransaction().remove(this).commit();
 		}
 		catch (Exception e) {
 			DkLogs.error(this, e);
@@ -350,29 +339,6 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment
 		throw new RuntimeException("For now do NOT use this");
 	}
 
-	private boolean showActual(@NonNull FragmentManager fm, String tag) {
-		// Execute all pending transactions first
-		try {
-			notifyParentInactive();
-			fm.executePendingTransactions();
-		}
-		catch (Exception e) {
-			DkLogs.error(this, e);
-		}
-
-		// Show actual
-		try {
-			// perform transaction inside parent FM
-			super.show(fm, tag);
-			return true;
-		}
-		catch (Exception e) {
-			DkLogs.error(this, e);
-		}
-
-		return false;
-	}
-
 	/**
 	 * We override `dismiss()` to call own `DkFragment.close()`.
 	 */
@@ -381,9 +347,116 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment
 		DkUtils.complainAt(this, "For now do NOT use this");
 	}
 
-	public Fragment instantiateFragment(Class<? extends Fragment> fragClass) {
-		return getParentFragmentManager().getFragmentFactory().instantiate(context.getClassLoader(), fragClass.getName());
+	public static final int ANIM_ZOOM_IN = 1;
+	public static final int ANIM_SWIPE_DOWN = 2;
+	private static Interpolator animZoomInInterpolator;
+	private static Interpolator animSwipeDownInterpolator;
+
+	private ValueAnimator animator;
+	private boolean enableShowAnim = true; // whether has animation when show dialog
+	private int showAnimType = ANIM_ZOOM_IN;
+	private boolean enableDismissAnim; // whether has animation when dismiss dialog
+	private int dismissAnimType = -1;
+	private Interpolator animInterpolator;
+	private DkRunner2<ValueAnimator, View> animUpdater;
+
+	private Interpolator getAnimationInterpolator() {
+		if (animInterpolator == null) {
+			switch (showAnimType) {
+				case ANIM_ZOOM_IN: {
+					if (animZoomInInterpolator == null) {
+						animZoomInInterpolator = PathInterpolatorCompat.create(
+							0.78f, 1.27f,
+							0.87f, 1.06f);
+					}
+					animInterpolator = animZoomInInterpolator;
+					break;
+				}
+				case ANIM_SWIPE_DOWN: {
+					if (animSwipeDownInterpolator == null) {
+						animSwipeDownInterpolator = DkInterpolatorProvider.newElasticOut(true);
+					}
+					animInterpolator = animSwipeDownInterpolator;
+					break;
+				}
+				default: {
+					throw new RuntimeException("Invalid animType");
+				}
+			}
+		}
+		return animInterpolator;
 	}
+
+	private DkRunner2<ValueAnimator, View> getAnimationUpdater() {
+		if (animUpdater == null) {
+			switch (showAnimType) {
+				case ANIM_ZOOM_IN: {
+					animUpdater = (va, view) -> {
+						if (view != null) {
+							float sf = va.getAnimatedFraction();
+							view.setScaleX(sf);
+							view.setScaleY(sf);
+						}
+					};
+					break;
+				}
+				case ANIM_SWIPE_DOWN: {
+					animUpdater = (va, view) -> {
+						if (view != null) {
+							view.setY((va.getAnimatedFraction() - 1) * view.getHeight() / 2);
+						}
+					};
+					break;
+				}
+				default: {
+					throw new RuntimeException("Invalid animType");
+				}
+			}
+		}
+		return animUpdater;
+	}
+
+	// region Navigator
+
+	/**
+	 * Must provide id of fragent container via {@link DkCompactFragment#fragmentContainerId()}.
+	 */
+	@Override // from `DkNavigatorOwner`
+	public DkFragmentNavigator getChildNavigator() {
+		if (childNavigator == null) {
+			int containerId = fragmentContainerId();
+
+			if (containerId <= 0) {
+				DkUtils.complainAt(this, "Must provide `fragmentContainerId()`");
+			}
+
+			childNavigator = new DkFragmentNavigator(containerId, getChildFragmentManager(), this);
+		}
+		return childNavigator;
+	}
+
+	@Override // from `DkNavigatorOwner`
+	public DkFragmentNavigator getParentNavigator() {
+		Fragment parent = getParentFragment();
+		DkFragmentNavigator owner = null;
+
+		if (parent == null) {
+			if (host instanceof DkNavigatorOwner) {
+				owner = ((DkNavigatorOwner) host).getChildNavigator();
+			}
+		}
+		else if (parent instanceof DkNavigatorOwner) {
+			owner = ((DkNavigatorOwner) parent).getChildNavigator();
+		}
+
+		if (owner == null) {
+			DkUtils.complainAt(this, "Must have a parent navigator own this fragment `%s`", getClass().getName());
+		}
+
+		return owner;
+	}
+
+	// endregion Navigator
 
 	// region ViewModel
 
@@ -535,6 +608,52 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment
 
 	// endregion Protected (overridable)
 
+	// region Utility
+
+	public Fragment instantiateFragment(Class<? extends Fragment> fragClass) {
+		return getParentFragmentManager().getFragmentFactory().instantiate(context.getClassLoader(), fragClass.getName());
+	}
+
+	/**
+	 * Start an activity and listen result callback from it.
+	 * @param input Intent which declare input data and target activity.
+	 * @param resultCallback Result callback from target activity.
+	 */
+	protected void startActivityForResult(Intent input, ActivityResultCallback<ActivityResult> resultCallback) {
+		ActivityResultLauncher<Intent> launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), resultCallback);
+		launcher.launch(input);
+	}
+
+	/**
+	 * Start an activity and listen result callback from it.
+	 * @param permission Permission to be requested.
+	 * @param resultCallback Result callback from target activity.
+	 */
+	protected void requestPermission(String permission, ActivityResultCallback<Boolean> resultCallback) {
+		ActivityResultLauncher<String> launcher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), resultCallback);
+		launcher.launch(permission);
+	}
+
+	/**
+	 * Start an activity and listen result callback from it.
+	 * @param permissionList Permission list to be requested.
+	 * @param resultCallback Result callback from target activity.
+	 */
+	protected void requestPermissions(String[] permissionList, ActivityResultCallback<Map<String, Boolean>> resultCallback) {
+		ActivityResultLauncher<String[]> launcher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), resultCallback);
+		launcher.launch(permissionList);
+	}
+
+	public DkSnackbar snackbar() {
+		return DkSnackbar.newIns(layout);
+	}
+
+	public DkToastbar toastbar() {
+		return DkToastbar.newIns(layout);
+	}
+
+	// endregion Utility
+
 	// region Get/Set
 
 	public D setCancellable(boolean cancelable) {
@@ -543,75 +662,6 @@ public abstract class DkCompactDialog<D> extends AppCompatDialogFragment
 	}
 
 	// endregion Get/Set
-
-	public static final int ANIM_ZOOM_IN = 1;
-	public static final int ANIM_SWIPE_DOWN = 2;
-	private static Interpolator animZoomInInterpolator;
-	private static Interpolator animSwipeDownInterpolator;
-
-	private ValueAnimator animator;
-	private boolean enableShowAnim = true; // whether has animation when show dialog
-	private int showAnimType = ANIM_ZOOM_IN;
-	private boolean enableDismissAnim; // whether has animation when dismiss dialog
-	private int dismissAnimType = -1;
-	private Interpolator animInterpolator;
-	private DkRunner2<ValueAnimator, View> animUpdater;
-
-	private Interpolator getAnimationInterpolator() {
-		if (animInterpolator == null) {
-			switch (showAnimType) {
-				case ANIM_ZOOM_IN: {
-					if (animZoomInInterpolator == null) {
-						animZoomInInterpolator = PathInterpolatorCompat.create(
-							0.78f, 1.27f,
-							0.87f, 1.06f);
-					}
-					animInterpolator = animZoomInInterpolator;
-					break;
-				}
-				case ANIM_SWIPE_DOWN: {
-					if (animSwipeDownInterpolator == null) {
-						animSwipeDownInterpolator = DkInterpolatorProvider.newElasticOut(true);
-					}
-					animInterpolator = animSwipeDownInterpolator;
-					break;
-				}
-				default: {
-					throw new RuntimeException("Invalid animType");
-				}
-			}
-		}
-		return animInterpolator;
-	}
-
-	private DkRunner2<ValueAnimator, View> getAnimationUpdater() {
-		if (animUpdater == null) {
-			switch (showAnimType) {
-				case ANIM_ZOOM_IN: {
-					animUpdater = (va, view) -> {
-						if (view != null) {
-							float sf = va.getAnimatedFraction();
-							view.setScaleX(sf);
-							view.setScaleY(sf);
-						}
-					};
-					break;
-				}
-				case ANIM_SWIPE_DOWN: {
-					animUpdater = (va, view) -> {
-						if (view != null) {
-							view.setY((va.getAnimatedFraction() - 1) * view.getHeight() / 2);
-						}
-					};
-					break;
-				}
-				default: {
-					throw new RuntimeException("Invalid animType");
-				}
-			}
-		}
-		return animUpdater;
-	}
 
 	// region Private
 

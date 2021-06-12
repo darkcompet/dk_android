@@ -140,7 +140,7 @@ public class DkGpsTracker extends LocationCallback implements
 	}
 
 	public void start() {
-		if (!DkUtils.checkPermission(host, DkConst.ACCESS_FINE_LOCATION, DkConst.ACCESS_COARSE_LOCATION)) {
+		if (! DkUtils.checkPermission(host, DkConst.ACCESS_FINE_LOCATION, DkConst.ACCESS_COARSE_LOCATION)) {
 			DkLogs.warning(this, "Could not start gps tracker since lack of permission");
 			return;
 		}
