@@ -1,8 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-  ~ Copyright (c) 2017-2020 DarkCompet. All rights reserved.
-  -->
+<?xml version="1.0" encoding="utf-8"?>
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="wrap_content"
 	android:layout_height="wrap_content"
 	android:layout_gravity="bottom|center_horizontal"
@@ -10,12 +9,12 @@
 
 	<TextView
 		android:id="@+id/dk_tv_message"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
 		android:minWidth="48dp"
 		android:padding="8dp"
 		android:text="@string/hello"
 		android:textColor="@color/white"
-		android:gravity="center"></TextView>
+		android:gravity="center"/>
 
-</FrameLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

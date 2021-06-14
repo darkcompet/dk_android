@@ -21,8 +21,8 @@ import tool.compet.appbundle.compact.DkCompactLogic;
 /**
  * Subclass can extend this to implement preference via Fragment.
  */
-public abstract class DkPreferenceFragment<VL extends DkCompactLogic, VD>
-	extends DkCompactFragment<VL, VD>
+public abstract class DkPreferenceFragment<L extends DkCompactLogic, D>
+	extends DkCompactFragment<L, D>
 	implements DkPreferenceView {
 	/**
 	 * Caller must provide preference view id (id of recycler view)
@@ -42,11 +42,6 @@ public abstract class DkPreferenceFragment<VL extends DkCompactLogic, VD>
 			DkPreferenceFragment.this.preferenceAdapter.notifyDataSetChanged();
 		}
 	};
-
-//	@Override
-//	public boolean isRetainInstance() {
-//		return true; // over configuration change by default
-//	}
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {

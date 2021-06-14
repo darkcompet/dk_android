@@ -7,14 +7,16 @@ package tool.compet.appbundle.floatingbar;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import tool.compet.appbundle.R;
-import tool.compet.core.DkRunner;
 import tool.compet.core.DkConfig;
+import tool.compet.core.DkRunner;
+import tool.compet.core.graphics.drawable.DkDrawables;
 import tool.compet.core.view.DkViews;
 
 /**
@@ -37,7 +39,6 @@ public class DkToastbar extends DkFloatingbar<DkToastbar> {
 		duration = DURATION_NORMAL;
 
 		tvMessage = bar.findViewById(R.id.dk_tv_message);
-
 		// Make bar rounded
 		DkViews.changeBackgroundColor(bar, "#80000000", 16, DkConfig.density());
 	}
@@ -119,5 +120,44 @@ public class DkToastbar extends DkFloatingbar<DkToastbar> {
 		return this;
 	}
 
+	@Override
+	public DkToastbar asConfirm() {
+		setIcon(R.drawable.ic_confirm);
+		return super.asConfirm();
+	}
+
+	@Override
+	public DkToastbar asInfo() {
+		setIcon(R.drawable.ic_info);
+		return super.asInfo();
+	}
+
+	@Override
+	public DkToastbar asWarning() {
+		setIcon(R.drawable.ic_warning);
+		return super.asWarning();
+	}
+
+	@Override
+	public DkToastbar asSuccess() {
+		setIcon(R.drawable.ic_success);
+		return super.asSuccess();
+	}
+
+	@Override
+	public DkToastbar asError() {
+		setIcon(R.drawable.ic_error);
+		return super.asError();
+	}
+
 	// endregion Get/Set
+
+	// region Private
+
+	private void setIcon(int drawableResId) {
+		Drawable left = DkDrawables.loadDrawable(context, drawableResId);
+		tvMessage.setCompoundDrawables(left, null, null, null);
+	}
+
+	// endregion Private
 }

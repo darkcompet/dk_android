@@ -49,6 +49,11 @@ import tool.compet.core.DkRunner1;
  * Utility class for views.
  */
 public class DkViews {
+	/**
+	 * Calculate font size in pixel.
+	 * @param fontSize Font size in sp.
+	 * @return Font size in px.
+	 */
 	public static float fontSizeInPx(int fontSize) {
 		return fontSize * DkConfig.density();
 	}
@@ -119,7 +124,7 @@ public class DkViews {
 	}
 
 	public static float[] getTextViewDrawPoint(Rect bounds, float leftBottomX, float leftBottomY) {
-		return new float[]{leftBottomX - bounds.left, leftBottomY - bounds.bottom};
+		return new float[] {leftBottomX - bounds.left, leftBottomY - bounds.bottom};
 	}
 
 	/**
@@ -382,8 +387,7 @@ public class DkViews {
 		float x = event.getX();
 		float y = event.getY();
 
-		return x >= view.getLeft() && x <= view.getRight()
-			&& y >= view.getTop() && y <= view.getBottom();
+		return x >= view.getLeft() && x <= view.getRight() && y >= view.getTop() && y <= view.getBottom();
 	}
 
 	/**

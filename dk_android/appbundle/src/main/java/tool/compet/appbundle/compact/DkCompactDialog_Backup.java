@@ -34,9 +34,43 @@ import tool.compet.core.view.DkInterpolatorProvider;
  * a dialog as a view of its parent (activity or fragment).
  */
 @SuppressWarnings("unchecked")
-public abstract class DkCompactDialog<D>
+public abstract class DkCompactDialog_Backup<D>
 	extends DkCompactFragment
 	implements DkDialogFragment, DkFragmentNavigator.Callback, DkNavigatorOwner {
+
+	// onCreate() -> onCreateDialog() -> onCreateView()
+
+	// onViewCreated() -> onViewStateRestored() -> onStart()
+	
+	/**
+	 * This is time that window is displayed to user. We can get real size of window at this time.
+	 */
+//	@Override
+//	public void onStart() {
+//		if (BuildConfig.DEBUG) {
+//			DkLogs.info(this, "onStart");
+//		}
+//		super.onStart();
+//
+//		// At this time, window is displayed, so we can set size of the dialog
+//		Dialog dialog = getDialog();
+//
+//		if (dialog != null) {
+//			Window window = dialog.getWindow();
+//
+//			if (window != null) {
+//				window.setLayout(MATCH_PARENT, MATCH_PARENT);
+//				window.setBackgroundDrawable(new ColorDrawable(Color.YELLOW));
+//
+//				if (requestInputMethod()) {
+//					window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+//				}
+//			}
+//		}
+//	}
+
+
+	// onSaveInstanceState() -> onDestroy()
 
 	public static final int ANIM_ZOOM_IN = 1;
 	public static final int ANIM_SWIPE_DOWN = 2;
@@ -52,22 +86,6 @@ public abstract class DkCompactDialog<D>
 	private DkRunner2<ValueAnimator, View> animUpdater;
 
 	private boolean cancelable;
-
-	/**
-	 * By default, we disable binder for dialog.
-	 */
-	@Override
-	protected boolean enableBindingView() {
-		return false;
-	}
-
-	/**
-	 * By default, we disable ViewLogic design pattern for dialog.
-	 */
-	@Override
-	protected boolean enableViewLogicDesignPattern() {
-		return false;
-	}
 
 	private Interpolator getAnimationInterpolator() {
 		if (animInterpolator == null) {
@@ -211,6 +229,23 @@ public abstract class DkCompactDialog<D>
 	// endregion Get/Set
 
 	// region Private
+
+	private void notifyParentInactive() {
+		// Notify inactive for parent fragment
+		Fragment parent = getParentFragment();
+
+		// when null, parent is activity
+		if (parent == null) {
+			FragmentActivity host = getActivity();
+			if (host instanceof DkActivity) {
+				((DkActivity) host).onInactive(false);
+			}
+		}
+		// otherwise parent is fragment
+		else if (parent instanceof DkFragment) {
+			((DkFragment) parent).onInactive(false);
+		}
+	}
 
 	// endregion Private
 }

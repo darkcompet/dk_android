@@ -8,6 +8,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -23,8 +24,6 @@ import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 import tool.compet.core.DkRunner;
 import tool.compet.core.view.DkViews;
 
-import static android.graphics.Color.parseColor;
-
 /**
  * This class uses 2 inputs: a view (bar) and ancestor ViewGroup of the view.
  * Perform your own animation on the bar with support of animation setting.
@@ -39,17 +38,19 @@ public abstract class DkFloatingbar<B> implements View.OnTouchListener {
 	private static final int MSG_DISMISS = 2;
 
 	// Background color of bar (for each type)
-	public static final int TYPE_NORMAL = parseColor("#333333");
-	public static final int TYPE_ASK = parseColor("#009b8b");
-	public static final int TYPE_ERROR = parseColor("#ff0000");
-	public static final int TYPE_WARNING = parseColor("#ff9500");
-	public static final int TYPE_INFO = parseColor("#493ebb");
-	public static final int TYPE_SUCCESS = parseColor("#00bb4d");
+	public static final int TYPE_NORMAL = Color.parseColor("#333333");
+	public static final int TYPE_CONFIRM = Color.parseColor("#009b8b");
+	public static final int TYPE_ERROR = Color.parseColor("#ff0000");
+	public static final int TYPE_WARNING = Color.parseColor("#ff9500");
+	public static final int TYPE_INFO = Color.parseColor("#493ebb");
+	public static final int TYPE_SUCCESS = Color.parseColor("#00bb4d");
 
+	// Context from outside passed
+	protected final Context context;
 	// Use parent to animate this bar
 	protected final ViewGroup parent;
 	// Layout of the bar
-	protected View bar;
+	protected final View bar;
 	// Duration for each animation
 	protected long duration = INFINITE_DURATION;
 	// Specify whether this bar be dismiss on touch
@@ -111,11 +112,30 @@ public abstract class DkFloatingbar<B> implements View.OnTouchListener {
 	};
 
 	public DkFloatingbar(Context context, ViewGroup parent, View bar) {
+		this.context = context;
 		this.parent = parent;
 		this.bar = bar;
 		this.accessibilityManager = (AccessibilityManager) context.getSystemService(Context.ACCESSIBILITY_SERVICE);
 
 		bar.setOnTouchListener(this);
+	}
+
+	@Override
+	public boolean onTouch(View v, MotionEvent event) {
+		boolean dismissOnTouch = isDismissOnTouch;
+
+		switch (event.getActionMasked()) {
+			case MotionEvent.ACTION_DOWN: {
+				break;
+			}
+			case MotionEvent.ACTION_UP: {
+				if (dismissOnTouch && DkViews.isInsideView(event, v)) {
+					this.dismiss();
+				}
+				break;
+			}
+		}
+		return dismissOnTouch;
 	}
 
 	public void show() {
@@ -136,24 +156,6 @@ public abstract class DkFloatingbar<B> implements View.OnTouchListener {
 		manager().dismiss(actionCallback);
 	}
 
-	@Override
-	public boolean onTouch(View v, MotionEvent event) {
-		boolean eat = isDismissOnTouch;
-
-		switch (event.getActionMasked()) {
-			case MotionEvent.ACTION_DOWN: {
-				break;
-			}
-			case MotionEvent.ACTION_UP: {
-				if (eat && DkViews.isInsideView(event, v)) {
-					this.dismiss();
-				}
-				break;
-			}
-		}
-		return eat;
-	}
-
 	public B asError() {
 		return color(TYPE_ERROR);
 	}
@@ -162,8 +164,8 @@ public abstract class DkFloatingbar<B> implements View.OnTouchListener {
 		return color(TYPE_WARNING);
 	}
 
-	public B asAsk() {
-		return color(TYPE_ASK);
+	public B asConfirm() {
+		return color(TYPE_CONFIRM);
 	}
 
 	public B asSuccess() {
