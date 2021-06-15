@@ -14,14 +14,14 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import tool.compet.appbundle.compact.DkCompactDialog;
+import tool.compet.appbundle.compact.DkCompactDialogFragment;
 import tool.compet.appbundle.R;
 
 /**
  * You can use this to show or close waiting dialog, or extends this to customize behaviors.
  */
 @SuppressWarnings("unchecked")
-public class DkLoadingDialog<D> extends DkCompactDialog<D> {
+public class DkLoadingDialog<D> extends DkCompactDialogFragment<D> {
 	protected ProgressBar pbLoading;
 	protected TextView tvMessage;
 
@@ -44,11 +44,6 @@ public class DkLoadingDialog<D> extends DkCompactDialog<D> {
 		return false;
 	}
 
-//	@Override
-//	public boolean isRetainInstance() {
-//		return false;
-//	}
-
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		onRestoreState(savedInstanceState);
@@ -65,9 +60,9 @@ public class DkLoadingDialog<D> extends DkCompactDialog<D> {
 	 * Subclass can override this to customize which fields to persist to hard disk.
 	 */
 	protected void onSaveState(@NonNull Bundle outState) {
-		outState.putInt("DkPleaseWaitDialog.messageResId", messageResId);
-		outState.putString("DkPleaseWaitDialog.message", message);
-		outState.putInt("DkPleaseWaitDialog.filterColor", filterColor);
+		outState.putInt("DkLoadingDialog.messageResId", messageResId);
+		outState.putString("DkLoadingDialog.message", message);
+		outState.putInt("DkLoadingDialog.filterColor", filterColor);
 	}
 
 	/**
@@ -75,9 +70,9 @@ public class DkLoadingDialog<D> extends DkCompactDialog<D> {
 	 */
 	protected void onRestoreState(@Nullable Bundle savedInstanceState) {
 		if (savedInstanceState != null) {
-			messageResId = savedInstanceState.getInt("DkPleaseWaitDialog.messageResId");
-			message = savedInstanceState.getString("DkPleaseWaitDialog.message");
-			filterColor = savedInstanceState.getInt("DkPleaseWaitDialog.filterColor");
+			messageResId = savedInstanceState.getInt("DkLoadingDialog.messageResId");
+			message = savedInstanceState.getString("DkLoadingDialog.message");
+			filterColor = savedInstanceState.getInt("DkLoadingDialog.filterColor");
 		}
 	}
 
@@ -129,8 +124,8 @@ public class DkLoadingDialog<D> extends DkCompactDialog<D> {
 	 */
 	public D setColorFilter(@Nullable Integer color) {
 		this.filterColor = color;
-		if (pbLoading != null && filterColor != null) {
-			pbLoading.getIndeterminateDrawable().setColorFilter(filterColor, PorterDuff.Mode.MULTIPLY);
+		if (pbLoading != null && color != null) {
+			pbLoading.getIndeterminateDrawable().setColorFilter(color, PorterDuff.Mode.MULTIPLY);
 		}
 		return (D) this;
 	}

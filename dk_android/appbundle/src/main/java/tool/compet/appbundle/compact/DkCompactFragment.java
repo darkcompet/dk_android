@@ -122,7 +122,6 @@ public abstract class DkCompactFragment<L extends DkCompactLogic, D>
 		if (BuildConfig.DEBUG) {
 			DkLogs.info(this, "onCreate");
 		}
-//		super.setRetainInstance(isRetainInstance()); // retain instance while configuration changes
 		super.onCreate(savedInstanceState);
 
 		// Must run after #super.onCreate()

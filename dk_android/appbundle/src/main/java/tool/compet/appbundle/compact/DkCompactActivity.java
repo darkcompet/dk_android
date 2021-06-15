@@ -86,7 +86,7 @@ public abstract class DkCompactActivity<L extends DkCompactLogic, D>
 	@MyInjectData protected D data;
 
 	/**
-	 * Subclass should use getIntent() in onResume() instead since we called #setIntent() here
+	 * Subclass should use `getIntent()` in `onResume()` instead since we called `setIntent()` here.
 	 */
 	@Override
 	protected void onNewIntent(Intent intent) {
@@ -143,20 +143,20 @@ public abstract class DkCompactActivity<L extends DkCompactLogic, D>
 		// Debug log as visual
 		if (BuildConfig.DEBUG) {
 			// Observe log to show at active state of the view
-			MutableLiveData<String> logLiveData = new MutableLiveData<>();
-			logLiveData.observe(this, message -> {
+			MutableLiveData<String[]> logLiveData = new MutableLiveData<>();
+			logLiveData.observe(this, type_message -> {
 				new DkConfirmDialog()
-					.setTitle(R.string.error)
-					.setMessage(message)
+					.setTitle(type_message[0])
+					.setMessage(type_message[1])
 					.setOkButton(R.string.close)
-					.setWidthPercent(0.75f)
+					.setWidthPercent(0.85f)
 					.open(getChildNavigator());
 			});
 
 			// Show log via livedata
 			DkLogs.logCallback = (type, message) -> {
 				if (DkLogs.TYPE_WARNING.equals(type) || DkLogs.TYPE_ERROR.equals(type) || DkLogs.TYPE_EMERGENCY.equals(type)) {
-					logLiveData.postValue(message);
+					logLiveData.postValue(new String[] {type, message});
 				}
 			};
 		}

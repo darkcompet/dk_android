@@ -9,11 +9,9 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
-import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -23,7 +21,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.view.ViewCompat;
 
 import tool.compet.appbundle.R;
-import tool.compet.appbundle.compact.DkCompactDialog;
+import tool.compet.appbundle.compact.DkCompactDialogFragment;
 import tool.compet.core.DkConfig;
 import tool.compet.core.view.DkViews;
 
@@ -37,8 +35,9 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
  */
 @SuppressWarnings("unchecked")
 public class DkConfirmDialog<D extends DkConfirmDialog>
-	extends DkCompactDialog<D>
+	extends DkCompactDialogFragment<D>
 	implements View.OnClickListener, TheConfirmDialogInterface {
+
 	// Callback
 	public interface ConfirmCallback {
 		void onClick(TheConfirmDialogInterface dialog, View button);
@@ -78,6 +77,7 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 	protected TextView vSubTitle;
 	protected int iconResId; // store in instance state
 	protected int titleTextResId; // store in instance state
+	protected CharSequence title; // store in instance state
 	protected int subTitleTextResId; // store in instance state
 	protected Integer headerBackgroundColor; // store in instance state
 
@@ -208,10 +208,10 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 		decorOkButton();
 
 		// Background (dialog) dimension
-		ViewGroup.LayoutParams bkgLayoutParams = vBackground.getLayoutParams();
+		ConstraintLayout.LayoutParams bkgLayoutParams = (ConstraintLayout.LayoutParams) vBackground.getLayoutParams();
 		final int[] dimensions = DkConfig.displaySize();
 		if (bkgLayoutParams == null) {
-			bkgLayoutParams = new FrameLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, Gravity.CENTER);
+			bkgLayoutParams = new ConstraintLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
 		}
 		if (isFullScreen) {
 			bkgLayoutParams.width = bkgLayoutParams.height = MATCH_PARENT;
@@ -231,6 +231,13 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 			}
 		}
 		vBackground.setLayoutParams(bkgLayoutParams);
+	}
+
+	@Override // onViewCreated() -> onViewStateRestored() -> onStart()
+	public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+		onRestoreInstanceState(savedInstanceState);
+
+		super.onViewStateRestored(savedInstanceState);
 	}
 
 	@Override // from View.OnClickListener interface
@@ -274,6 +281,14 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 
 	public D setTitle(int titleResId) {
 		this.titleTextResId = titleResId;
+		if (vTitle != null) {
+			decorTitle();
+		}
+		return (D) this;
+	}
+
+	public D setTitle(CharSequence title) {
+		this.title = title;
 		if (vTitle != null) {
 			decorTitle();
 		}
@@ -521,6 +536,7 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 
 		outState.putInt("DkConfirmDialog.iconResId", iconResId);
 		outState.putInt("DkConfirmDialog.titleTextResId", titleTextResId);
+		outState.putCharSequence("DkConfirmDialog.title", title);
 		outState.putInt("DkConfirmDialog.subTitleTextResId", subTitleTextResId);
 		if (headerBackgroundColor != null) {
 			outState.putInt("DkConfirmDialog.headerBackgroundColor", headerBackgroundColor);
@@ -570,6 +586,7 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 
 			iconResId = savedInstanceState.getInt("DkConfirmDialog.iconResId");
 			titleTextResId = savedInstanceState.getInt("DkConfirmDialog.titleTextResId");
+			title = savedInstanceState.getCharSequence("DkConfirmDialog.title");
 			subTitleTextResId = savedInstanceState.getInt("DkConfirmDialog.subTitleTextResId");
 			headerBackgroundColor = savedInstanceState.getInt("DkConfirmDialog.headerBackgroundColor");
 
@@ -640,8 +657,11 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 			return;
 		}
 		if (titleTextResId > 0) {
+			title = context.getString(titleTextResId);
+		}
+		if (title != null) {
 			DkViews.setTextSize(vTitle, 1.25f * vReset.getTextSize());
-			vTitle.setText(titleTextResId);
+			vTitle.setText(title);
 			vTitle.setVisibility(View.VISIBLE);
 		}
 		else {

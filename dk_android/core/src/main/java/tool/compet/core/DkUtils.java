@@ -15,6 +15,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.media.ExifInterface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -27,6 +28,7 @@ import android.provider.Settings;
 import android.view.Surface;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.Nullable;
@@ -197,6 +199,8 @@ public class DkUtils {
 	}
 
 	public static void setFullScreen(Activity host, boolean fullScreen) {
+		// alter at onAttach(): host.getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+
 		int addFlag = fullScreen ? FLAG_FULLSCREEN : FLAG_FORCE_NOT_FULLSCREEN;
 		int clearFlag = FLAG_FULLSCREEN + FLAG_FORCE_NOT_FULLSCREEN - addFlag;
 
@@ -208,6 +212,8 @@ public class DkUtils {
 	}
 
 	public static void hideStatusBar(Activity host) {
+		// alter at onDetach(): host.getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+
 		if (Build.VERSION.SDK_INT < 16) {
 			host.getWindow().setFlags(FLAG_FULLSCREEN, FLAG_FULLSCREEN);
 		}
@@ -222,6 +228,55 @@ public class DkUtils {
 
 			if (actionBar != null) {
 				actionBar.hide();
+			}
+		}
+	}
+
+	public static void transparentStatusBar(Activity host, boolean isTransparent, boolean fullscreen) {
+		int defaultStatusBarColor = Color.TRANSPARENT;
+		final Window window = host.getWindow();
+
+		if (isTransparent) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) { // 16+
+				window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+			}
+
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) { // 21+
+				defaultStatusBarColor = window.getStatusBarColor();
+				window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+				window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+				// FOR TRANSPARENT NAVIGATION BAR
+				// window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+				window.setStatusBarColor(Color.TRANSPARENT);
+			}
+			else {
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+					window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+				}
+			}
+		}
+		else {
+			if (fullscreen) {
+				View decorView = window.getDecorView();
+				int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN;
+				decorView.setSystemUiVisibility(uiOptions);
+			}
+			else {
+				window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+					window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+					window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+					window.clearFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+					window.clearFlags(FLAG_FULLSCREEN);
+					window.setStatusBarColor(defaultStatusBarColor);
+
+				}
+				else {
+					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+						window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+					}
+				}
 			}
 		}
 	}
