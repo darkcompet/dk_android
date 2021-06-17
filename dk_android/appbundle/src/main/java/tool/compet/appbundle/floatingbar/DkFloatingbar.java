@@ -9,6 +9,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -177,7 +178,8 @@ public abstract class DkFloatingbar<B> implements View.OnTouchListener {
 	}
 
 	public B color(int color) {
-		bar.setBackgroundColor(color);
+		bar.getBackground().setColorFilter(color, PorterDuff.Mode.SRC_IN);
+//		bar.setBackgroundColor(color);
 		return (B) this;
 	}
 

@@ -28,13 +28,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
+import tool.compet.core.DkConfig;
 import tool.compet.core.DkLogs;
 import tool.compet.core.DkMaths;
 import tool.compet.core.graphics.DkBitmaps;
 import tool.compet.core.graphics.DkColors;
 import tool.compet.core.stream.DkObservable;
 import tool.compet.core.view.DkDoubleFingerDetector;
-import tool.compet.core.view.DkViews;
 
 import static tool.compet.core.BuildConfig.DEBUG;
 import static tool.compet.core.view.DkViews.getTextViewDrawPoint;
@@ -45,7 +45,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 	public static final int MODE_ROTATE = 2;
 	public static final int MODE_POINT = 3;
 
-	private static final float DEFAULT_WORD_TEXT_SIZE = DkViews.fontSizeInPx(12);
+	private static final float DEFAULT_WORD_TEXT_SIZE = 12 * DkConfig.scaledDensity();
 
 	private final Context context;
 
@@ -666,7 +666,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 				// word font size should between [1, 100]
 				int wordFontSize = Math.max(1, Math.min(100, ring.wordFontSize));
 
-				float ringTextSize = DkViews.fontSizeInPx(wordFontSize) - time;
+				float ringTextSize = wordFontSize * DkConfig.scaledDensity() - time;
 				if (ringTextSize < 1) {
 					ringTextSize = 1;
 					++numberUnnecessaryMeasureRing;

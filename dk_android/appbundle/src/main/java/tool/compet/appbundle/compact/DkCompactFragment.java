@@ -7,16 +7,11 @@ package tool.compet.appbundle.compact;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -24,8 +19,6 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStoreOwner;
-
-import java.util.Map;
 
 import tool.compet.appbundle.BuildConfig;
 import tool.compet.appbundle.DkApp;
@@ -48,7 +41,7 @@ import tool.compet.core.DkUtils;
  * - [Optional] Scoped topic (pass data between/under fragments, activities, app)
  * - [Optional] ViewLogic design pattern (coupling View and Logic), enable/disable via `enableViewLogicDesignPattern()`.
  * When use this pattern, should remember that, Logic and View should not wait opposite returned value,
- * they should call opposite directly and receive result at passed-listener or other callback-method.
+ * they should call opposite in one way and receive result at other callback-method from opposite.
  * - [Optional] Utility (floating bar, open activity or fragment, ...)
  */
 public abstract class DkCompactFragment<L extends DkCompactLogic, D>
@@ -464,36 +457,6 @@ public abstract class DkCompactFragment<L extends DkCompactLogic, D>
 
 	public Fragment instantiateFragment(Class<? extends Fragment> fragClass) {
 		return getParentFragmentManager().getFragmentFactory().instantiate(context.getClassLoader(), fragClass.getName());
-	}
-
-	/**
-	 * Start an activity and listen result callback from it.
-	 * @param input Intent which declare input data and target activity.
-	 * @param resultCallback Result callback from target activity.
-	 */
-	public void startActivityForResult(Intent input, ActivityResultCallback<ActivityResult> resultCallback) {
-		ActivityResultLauncher<Intent> launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), resultCallback);
-		launcher.launch(input);
-	}
-
-	/**
-	 * Start an activity and listen result callback from it.
-	 * @param permission Permission to be requested.
-	 * @param resultCallback Result callback from target activity.
-	 */
-	public void requestPermission(String permission, ActivityResultCallback<Boolean> resultCallback) {
-		ActivityResultLauncher<String> launcher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), resultCallback);
-		launcher.launch(permission);
-	}
-
-	/**
-	 * Start an activity and listen result callback from it.
-	 * @param permissionList Permission list to be requested.
-	 * @param resultCallback Result callback from target activity.
-	 */
-	public void requestPermissions(String[] permissionList, ActivityResultCallback<Map<String, Boolean>> resultCallback) {
-		ActivityResultLauncher<String[]> launcher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), resultCallback);
-		launcher.launch(permissionList);
 	}
 
 	public DkSnackbar snackbar() {

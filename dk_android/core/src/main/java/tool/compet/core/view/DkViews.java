@@ -7,7 +7,9 @@ package tool.compet.core.view;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.Typeface;
@@ -34,7 +36,6 @@ import android.view.animation.Animation;
 import android.view.animation.Transformation;
 import android.view.animation.TranslateAnimation;
 import android.webkit.WebView;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -42,20 +43,33 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.ViewCompat;
 
-import tool.compet.core.DkConfig;
 import tool.compet.core.DkRunner1;
 
 /**
  * Utility class for views.
  */
 public class DkViews {
+	public static void setBackground(View view, Drawable background) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) { // api 16+
+			view.setBackground(background);
+		}
+		else {
+			view.setBackgroundDrawable(background);
+		}
+	}
+
 	/**
-	 * Calculate font size in pixel.
-	 * @param fontSize Font size in sp.
-	 * @return Font size in px.
+	 * This provides clip path for canvas since `canvas.clipPath()` only works at api 18+.
+	 *
+	 * @param view View to be drawn.
+	 * @param canvas Canvas of the view.
+	 * @param path Path to be clipped.
 	 */
-	public static float fontSizeInPx(int fontSize) {
-		return fontSize * DkConfig.density();
+	public static void clipPath(View view, Canvas canvas, Path path) {
+		if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN_MR1) { // api 17-
+			view.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+		}
+		canvas.clipPath(path);
 	}
 
 	public static void setTextSize(TextView tv, float newSizeInPx) {
@@ -244,20 +258,7 @@ public class DkViews {
 		pb.getIndeterminateDrawable().setColorFilter(color, PorterDuff.Mode.MULTIPLY);
 	}
 
-	public static View getListViewItem(int pos, ListView listView) {
-		int firstItem = listView.getFirstVisiblePosition();
-		int lastItem = firstItem + listView.getChildCount() - 1;
-
-		if (pos < firstItem || pos > lastItem) {
-			return listView.getAdapter().getView(pos, null, listView);
-		}
-
-		int childIndex = pos - firstItem;
-
-		return listView.getChildAt(childIndex);
-	}
-
-	public static Bitmap getBitmapFromView(View view) {
+	public static Bitmap createBitmapFromView(View view) {
 		view.setDrawingCacheEnabled(true);
 		view.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_LOW);
 		view.buildDrawingCache();

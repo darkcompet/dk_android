@@ -7,7 +7,9 @@ package tool.compet.appbundle.floatingbar;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +19,6 @@ import tool.compet.appbundle.R;
 import tool.compet.core.DkConfig;
 import tool.compet.core.DkRunner;
 import tool.compet.core.graphics.drawable.DkDrawables;
-import tool.compet.core.view.DkViews;
 
 /**
  * Differ with Android Toast, this just show a floating text on the layout of current activity.
@@ -39,8 +40,8 @@ public class DkToastbar extends DkFloatingbar<DkToastbar> {
 		duration = DURATION_NORMAL;
 
 		tvMessage = bar.findViewById(R.id.dk_tv_message);
-		// Make bar rounded
-		DkViews.changeBackgroundColor(bar, "#80000000", 16, DkConfig.density());
+
+		bar.setBackgroundDrawable(makeBarBackground());
 	}
 
 	public static DkToastbar newIns(View view) {
@@ -92,6 +93,31 @@ public class DkToastbar extends DkFloatingbar<DkToastbar> {
 		float alpha = (float) animation.getAnimatedValue();
 		bar.setAlpha(alpha);
 	}
+
+	// region Protected
+
+	protected Drawable makeBarBackground() {
+		GradientDrawable drawable = new GradientDrawable();
+		drawable.setColor(Color.parseColor("#80000000"));
+		drawable.setShape(GradientDrawable.RECTANGLE);
+		drawable.setCornerRadius(16 * DkConfig.density());
+
+		return drawable;
+	}
+
+	// endregion Protected
+
+	// region Private
+
+	private void setIcon(int drawableResId) {
+		Drawable left = tvMessage.getCompoundDrawables()[0];
+		if (left == null) {
+			left = DkDrawables.loadDrawable(context, drawableResId);
+		}
+		tvMessage.setCompoundDrawables(left, null, null, null);
+	}
+
+	// endregion Private
 
 	// region Get/Set
 
@@ -151,13 +177,4 @@ public class DkToastbar extends DkFloatingbar<DkToastbar> {
 	}
 
 	// endregion Get/Set
-
-	// region Private
-
-	private void setIcon(int drawableResId) {
-		Drawable left = DkDrawables.loadDrawable(context, drawableResId);
-		tvMessage.setCompoundDrawables(left, null, null, null);
-	}
-
-	// endregion Private
 }

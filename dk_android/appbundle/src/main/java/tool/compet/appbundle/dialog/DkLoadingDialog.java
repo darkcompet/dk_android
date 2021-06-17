@@ -39,6 +39,7 @@ public class DkLoadingDialog<D> extends DkCompactDialogFragment<D> {
 		return 0;
 	}
 
+	// By default, loading dialog is not cancellable
 	@Override
 	public boolean onBackPressed() {
 		return false;

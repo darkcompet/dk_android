@@ -12,7 +12,6 @@ import android.text.method.ScrollingMovementMethod;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -23,10 +22,8 @@ import androidx.core.view.ViewCompat;
 import tool.compet.appbundle.R;
 import tool.compet.appbundle.compact.DkCompactDialogFragment;
 import tool.compet.core.DkConfig;
+import tool.compet.core.graphics.drawable.DkDrawables;
 import tool.compet.core.view.DkViews;
-
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 /**
  * By default,
@@ -66,15 +63,13 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 	protected ViewGroup vFullground;
 
 	// Background (rounded corner view, that is, dialog itself)
-	protected ConstraintLayout vBackground;
+	protected ViewGroup vBackground;
 	private Integer backgroundColor;
 	private Drawable backgroundDrawable;
 
 	// Header
 	protected View vHeader;
-	protected ImageView ivIcon;
 	protected TextView vTitle;
-	protected TextView vSubTitle;
 	protected int iconResId; // store in instance state
 	protected int titleTextResId; // store in instance state
 	protected CharSequence title; // store in instance state
@@ -84,7 +79,7 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 	// Body
 	protected ViewGroup vBody;
 	protected int bodyLayoutResId; // store in instance state
-	protected float widthPercent; // store in instance state
+	protected float widthPercent = 0.85f; // store in instance state
 	protected float heightPercent; // store in instance state
 	protected boolean dimensionRatioBasedOnWidth = true; // store in instance state
 	protected float widthRatio; // store in instance state
@@ -125,11 +120,6 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 	}
 
 	@Override
-	public boolean onBackPressed() {
-		return false;
-	}
-
-	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
@@ -163,9 +153,7 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 		vBody = view.findViewById(R.id.dk_body);
 
 		vHeader = view.findViewById(R.id.dk_header);
-		ivIcon = view.findViewById(R.id.dk_icon);
 		vTitle = view.findViewById(R.id.dk_title);
-		vSubTitle = view.findViewById(R.id.dk_subtitle);
 		vMessage = view.findViewById(R.id.dk_message);
 		vCancel = view.findViewById(R.id.dk_cancel);
 		vReset = view.findViewById(R.id.dk_reset);
@@ -192,7 +180,6 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 		decorHeader();
 		decorIcon();
 		decorTitle();
-		decorSubTitle();
 
 		// Body
 		decorBodyView();
@@ -208,13 +195,13 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 		decorOkButton();
 
 		// Background (dialog) dimension
-		ConstraintLayout.LayoutParams bkgLayoutParams = (ConstraintLayout.LayoutParams) vBackground.getLayoutParams();
+		ViewGroup.LayoutParams bkgLayoutParams = vBackground.getLayoutParams();
 		final int[] dimensions = DkConfig.displaySize();
 		if (bkgLayoutParams == null) {
-			bkgLayoutParams = new ConstraintLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
+			bkgLayoutParams = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 		}
 		if (isFullScreen) {
-			bkgLayoutParams.width = bkgLayoutParams.height = MATCH_PARENT;
+			bkgLayoutParams.width = bkgLayoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
 		}
 		if (widthPercent != 0) {
 			bkgLayoutParams.width = (int) (dimensions[0] * widthPercent);
@@ -273,7 +260,7 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 
 	public D setIcon(int iconResId) {
 		this.iconResId = iconResId;
-		if (ivIcon != null) {
+		if (vTitle != null) {
 			decorIcon();
 		}
 		return (D) this;
@@ -291,14 +278,6 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 		this.title = title;
 		if (vTitle != null) {
 			decorTitle();
-		}
-		return (D) this;
-	}
-
-	public D setSubTitle(int subTitleRes) {
-		this.subTitleTextResId = subTitleRes;
-		if (vSubTitle != null) {
-			decorSubTitle();
 		}
 		return (D) this;
 	}
@@ -640,15 +619,22 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 	}
 
 	private void decorIcon() {
-		if (ivIcon == null) {
+		if (vTitle == null) {
 			return;
 		}
 		if (iconResId > 0) {
-			ivIcon.setImageResource(iconResId);
-			ivIcon.setVisibility(View.VISIBLE);
-		}
-		else {
-			ivIcon.setVisibility(View.GONE);
+			if (layoutType == LAYOUT_TYPE_VERTICAL_ACTIONS) {
+				Drawable left = DkDrawables.loadDrawable(context, iconResId);
+				vTitle.setCompoundDrawables(left, null, null, null);
+			}
+			else if (layoutType == LAYOUT_TYPE_HORIZONTAL_ACTIONS) {
+				Drawable left = DkDrawables.loadDrawable(context, iconResId);
+				vTitle.setCompoundDrawables(left, null, null, null);
+			}
+
+			if (vTitle.getVisibility() != View.VISIBLE) {
+				vTitle.setVisibility(View.VISIBLE);
+			}
 		}
 	}
 
@@ -666,20 +652,6 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 		}
 		else {
 			vTitle.setVisibility(View.GONE);
-		}
-	}
-
-	private void decorSubTitle() {
-		if (vSubTitle == null) {
-			return;
-		}
-		if (subTitleTextResId > 0) {
-			DkViews.setTextSize(vSubTitle, 0.85f * vReset.getTextSize());
-			vSubTitle.setText(subTitleTextResId);
-			vSubTitle.setVisibility(View.VISIBLE);
-		}
-		else {
-			vSubTitle.setVisibility(View.GONE);
 		}
 	}
 

@@ -12,32 +12,43 @@
 
 	<!-- Rounded dialog -->
 
-	<tool.compet.core.view.DkCompactLinearLayout
+	<tool.compet.core.view.DkCompactConstraintLayout
 		android:id="@+id/dk_background"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center"
-		android:orientation="vertical"
 		android:background="?attr/dk_color_layout_bkg">
 
 		<!-- Header -->
 
-		<FrameLayout
+		<LinearLayout
 			android:id="@+id/dk_header"
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content">
+			android:layout_height="wrap_content"
+			android:orientation="vertical"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintTop_toTopOf="parent"
+			app:layout_constraintBottom_toTopOf="@id/dk_body">
 
 			<TextView
 				android:id="@+id/dk_title"
-				android:layout_width="wrap_content"
+				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:textColor="?attr/colorPrimaryDark"
 				android:textStyle="bold"
-				android:padding="12dp"
-				android:gravity="center"
-				android:layout_gravity="left|center_vertical"/>
+				android:gravity="left|center_vertical" />
 
-		</FrameLayout>
+			<TextView
+				style="@style/Widget.AppCompat.Button.Borderless.Colored"
+				android:id="@+id/dk_subtitle"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:textColor="?attr/colorPrimaryDark"
+				android:textStyle="bold"
+				android:gravity="left|center_vertical" />
+
+		</LinearLayout>
 
 		<!-- Body -->
 
@@ -45,7 +56,11 @@
 			android:id="@+id/dk_body"
 			android:layout_width="match_parent"
 			android:layout_height="0dp"
-			android:layout_weight="1">
+			app:layout_constraintHorizontal_weight="1"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/dk_header"
+			app:layout_constraintBottom_toTopOf="@id/dk_footer">
 
 			<TextView
 				android:id="@+id/dk_message"
@@ -64,7 +79,11 @@
 		<androidx.constraintlayout.widget.ConstraintLayout
 			android:id="@+id/dk_footer"
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content">
+			android:layout_height="wrap_content"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/dk_body"
+			app:layout_constraintBottom_toBottomOf="parent">
 
 			<Button
 				style="@style/Widget.AppCompat.Button.Borderless.Colored"
@@ -110,6 +129,6 @@
 
 		</androidx.constraintlayout.widget.ConstraintLayout>
 
-	</tool.compet.core.view.DkCompactLinearLayout>
+	</tool.compet.core.view.DkCompactConstraintLayout>
 
 </FrameLayout>

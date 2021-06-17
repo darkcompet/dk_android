@@ -12,10 +12,6 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.View;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,8 +21,6 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStoreOwner;
-
-import java.util.Map;
 
 import tool.compet.appbundle.DkActivity;
 import tool.compet.appbundle.DkApp;
@@ -51,7 +45,7 @@ import tool.compet.core.DkUtils;
  * - [Optional] Scoped topic (pass data between/under fragments, activities, app)
  * - [Optional] ViewLogic design pattern (coupling View and Logic), enable/disable via `enableViewLogicDesignPattern()`.
  * When use this pattern, should remember that, Logic and View should not wait opposite returned value,
- * they should call opposite directly and receive result at passed-listener or other callback-method.
+ * they should call opposite in one way and receive result at other callback-method from oppposite.
  * - [Optional] Utility (floating bar, open activity or fragment, ...)
  *
  * <p></p>
@@ -149,7 +143,6 @@ public abstract class DkCompactActivity<L extends DkCompactLogic, D>
 					.setTitle(type_message[0])
 					.setMessage(type_message[1])
 					.setOkButton(R.string.close)
-					.setWidthPercent(0.85f)
 					.open(getChildNavigator());
 			});
 
@@ -403,36 +396,6 @@ public abstract class DkCompactActivity<L extends DkCompactLogic, D>
 	// endregion Scoped topic
 
 	// region Utility
-
-	/**
-	 * Start an activity and listen result callback from it.
-	 * @param input Intent which declare input data and target activity.
-	 * @param resultCallback Result callback from target activity.
-	 */
-	protected void startActivityForResult(Intent input, ActivityResultCallback<ActivityResult> resultCallback) {
-		ActivityResultLauncher<Intent> launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), resultCallback);
-		launcher.launch(input);
-	}
-
-	/**
-	 * Start an activity and listen result callback from it.
-	 * @param permission Permission to be requested.
-	 * @param resultCallback Result callback from target activity.
-	 */
-	protected void requestPermission(String permission, ActivityResultCallback<Boolean> resultCallback) {
-		ActivityResultLauncher<String> launcher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), resultCallback);
-		launcher.launch(permission);
-	}
-
-	/**
-	 * Start an activity and listen result callback from it.
-	 * @param permissions Permission list to be requested.
-	 * @param resultCallback Result callback from target activity.
-	 */
-	protected void requestPermissions(String[] permissions, ActivityResultCallback<Map<String, Boolean>> resultCallback) {
-		ActivityResultLauncher<String[]> launcher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), resultCallback);
-		launcher.launch(permissions);
-	}
 
 	public DkSnackbar snackbar() {
 		return DkSnackbar.newIns(layout);

@@ -16,10 +16,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import tool.compet.core.BuildConfig;
 import tool.compet.core.DkLogs;
 import tool.compet.core.reflection.DkReflectionFinder;
 
-import static tool.compet.core.BuildConfig.DEBUG;
 import static tool.compet.database.MyConst.ROWID;
 
 /**
@@ -100,7 +100,7 @@ public abstract class DkSqliteDao<M> extends TheDao<M> { // M: table model
 	}
 
 	public Cursor rawQuery(String query) {
-		if (DEBUG) {
+		if (BuildConfig.DEBUG) {
 			DkLogs.info(this, "rawQuery: " + query);
 		}
 		return getReadableDatabase().rawQuery(query, null);
@@ -132,7 +132,7 @@ public abstract class DkSqliteDao<M> extends TheDao<M> { // M: table model
 
 	@Override
 	public void execQuery(String query) {
-		if (DEBUG) {
+		if (BuildConfig.DEBUG) {
 			DkLogs.info(this, "execQuery: " + query);
 		}
 		getWritableDatabase().execSQL(query);

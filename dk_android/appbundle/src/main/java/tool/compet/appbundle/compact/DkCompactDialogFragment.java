@@ -4,6 +4,11 @@
 
 package tool.compet.appbundle.compact;
 
+import android.os.Bundle;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import tool.compet.appbundle.DkDialogFragment;
 import tool.compet.appbundle.navigator.DkFragmentNavigator;
 import tool.compet.appbundle.navigator.DkNavigatorOwner;
@@ -22,7 +27,7 @@ public abstract class DkCompactDialogFragment<D>
 	extends DkCompactFragment
 	implements DkDialogFragment, DkFragmentNavigator.Callback, DkNavigatorOwner {
 
-	private boolean cancelable;
+	protected boolean cancelable;
 
 	/**
 	 * By default, we disable binder for dialog.
@@ -40,9 +45,23 @@ public abstract class DkCompactDialogFragment<D>
 		return false;
 	}
 
+	@Override
+	public void onSaveInstanceState(@NonNull Bundle outState) {
+		super.onSaveInstanceState(outState);
+	}
+
+	@Override
+	public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+		super.onViewStateRestored(savedInstanceState);
+	}
+
 	// region Protected (overridable)
 
 	// endregion Protected (overridable)
+
+	// region Private
+
+	// endregion Private
 
 	// region Get/Set
 
@@ -52,8 +71,4 @@ public abstract class DkCompactDialogFragment<D>
 	}
 
 	// endregion Get/Set
-
-	// region Private
-
-	// endregion Private
 }
