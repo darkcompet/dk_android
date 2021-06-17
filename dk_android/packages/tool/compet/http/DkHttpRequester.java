@@ -155,7 +155,7 @@ public class DkHttpRequester<T> {
 	private T decodeResponse(InputStream inputStream, Class<T> responseClass) {
 		T response;
 
-		if (Bitmap.class.equals(responseClass)) {
+		if (Bitmap.class.isAssignableFrom(responseClass)) {
 			response = (T) DkBitmaps.load(inputStream);
 		}
 		else {
