@@ -15,28 +15,28 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
-import tool.compet.core.graphics.DkBitmaps;
 import tool.compet.core.DkLogs;
+import tool.compet.core.graphics.DkBitmaps;
 
 import static tool.compet.core.BuildConfig.DEBUG;
 
 /**
- * Thread-safeのメモリキャッシュクラスです。各オブジェクトには優先度と期限が付きますので、
- * キャッシュしたオブジェクトを優先度と期限によって削除できます。
+ * Thread-safe memory cache (LruCache).
+ * Each cache-entry has own priority, expired time.
  */
-public class DkLruCache {
+public class DkMemoryCache {
 	public interface Listener {
 		void onRemoved(String key, @Nullable Snapshot snapshot);
 	}
 
-	private static DkLruCache INS;
+	private static DkMemoryCache INS;
 
 	private long size;
 	private long maxSize;
 	private final TreeMap<String, Snapshot> cache;
 	private final ArrayList<Listener> listeners = new ArrayList<>();
 
-	private DkLruCache() {
+	private DkMemoryCache() {
 		maxSize = Runtime.getRuntime().maxMemory() >> 2;
 		cache = new TreeMap<>();
 
@@ -45,18 +45,18 @@ public class DkLruCache {
 		}
 	}
 
-	public static DkLruCache getIns() {
+	public static DkMemoryCache getIns() {
 		if (INS == null) {
-			synchronized (DkLruCache.class) {
+			synchronized (DkMemoryCache.class) {
 				if (INS == null) {
-					INS = new DkLruCache();
+					INS = new DkMemoryCache();
 				}
 			}
 		}
 		return INS;
 	}
 
-	public DkLruCache setMaxSize(long maxSize) {
+	public DkMemoryCache setMaxSize(long maxSize) {
 		if (maxSize <= 0) {
 			maxSize = 1;
 		}

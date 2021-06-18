@@ -5,13 +5,13 @@
 package tool.compet.core;
 
 /**
- * This class is performance-better version of ArrayList for Integer type.
+ * This class is performance-better version of ArrayList for long type.
  */
 public class DkLongArrayList {
-	// Current snapshot of element data (changed if perform insert/delete...)
+	// Current snapshot of elements (changed if perform insert/delete...)
 	private long[] arr;
 
-	// Current element count (changed if perform insert/delete...)
+	// Current elements count (changed if perform insert/delete...)
 	private int size;
 
 	public DkLongArrayList() {
@@ -30,7 +30,7 @@ public class DkLongArrayList {
 	}
 
 	/**
-	 * @return Left-most element which equals to given `value`.
+	 * @return Left-most element which equals to given `element`.
 	 */
 	public int indexOf(long element) {
 		long[] arr = this.arr;
@@ -43,7 +43,7 @@ public class DkLongArrayList {
 	}
 
 	/**
-	 * @return Right-most element which equals to given `value`.
+	 * @return Right-most element which equals to given `element`.
 	 */
 	public int lastIndexOf(long element) {
 		long[] arr = this.arr;
@@ -68,14 +68,16 @@ public class DkLongArrayList {
 
 	/**
 	 * Add (insert at) new `element` at given `index` of array list.
-	 * Note that, caller must pass valid `index` in range [0, size].
+	 *
+	 * @param index Must in range [0, size].
 	 */
 	public void add(int index, long element) {
 		int newSize = size + 1;
 		if (newSize >= arr.length) {
 			growCapacity(newSize);
 		}
-		if (index < size) { // only copy if it is insertion (not append to last)
+		// Shift right elements at `index`
+		if (index < size) {
 			System.arraycopy(arr, index, arr, index + 1, size - index);
 		}
 		arr[index] = element;
@@ -94,29 +96,42 @@ public class DkLongArrayList {
 	}
 
 	public void addAll(long[] elements) {
-		addAll(size, elements);
+		addRange(size, elements, 0, elements.length);
+	}
+
+	public void addAll(int index, long[] elements) {
+		addRange(index, elements, 0, elements.length);
+	}
+
+	public void addRange(long[] elements, int startIndex, int endIndex) {
+		addRange(size, elements, startIndex, endIndex);
 	}
 
 	/**
-	 * Add (insert at) new `elements` from given `index` of array list.
-	 * Note that, caller must pass valid `index` in range [0, size].
+	 * Add a range of `elements` at given `index`.
+	 * Caller must pass valid `index` in range [0, size].
+	 *
+	 * @param index Insert position. Must in range [0, size).
+	 * @param elements Data to copy.
+	 * @param startIndex Start-index of copy-range inclusive.
+	 * @param endIndex End-index of copy-range exclusive.
 	 */
-	public void addAll(int index, long[] elements) {
+	public void addRange(int index, long[] elements, int startIndex, int endIndex) {
 		final int oldSize = size;
-		final int more = elements.length;
-		final int newSize = oldSize + more;
+		final int addMore = endIndex - startIndex;
+		final int newSize = oldSize + addMore;
 
 		if (newSize >= arr.length) {
 			growCapacity(newSize);
 		}
 
-		// Move elements in [index, oldSize -1] to `more` steps
+		// Move elements in [index, oldSize) to `addMore` steps
 		if (oldSize > index) {
-			System.arraycopy(arr, index, arr, index + more, oldSize - index);
+			System.arraycopy(arr, index, arr, index + addMore, oldSize - index);
 		}
 
-		// Insert `more` elements to [index, index + more - 1]
-		System.arraycopy(elements, 0, arr, index, more);
+		// Insert `addMore` elements to [index, index + addMore)
+		System.arraycopy(elements, startIndex, arr, index, addMore);
 
 		size = newSize;
 	}
@@ -127,8 +142,9 @@ public class DkLongArrayList {
 
 	/**
 	 * This copy last element into element at given `index`.
-	 * Use it if you do NOT care order of elements after remove.
-	 * Note that, caller must pass valid `index` in range [0, size - 1].
+	 * Use it if you do NOT care about order of elements after removed.
+	 *
+	 * @param index Must in range [0, size).
 	 */
 	public void fastRemove(int index) {
 		int lastIndex = size - 1;
@@ -139,7 +155,7 @@ public class DkLongArrayList {
 	}
 
 	/**
-	 * Remove left-most element which equals to given `value`.
+	 * Remove left-most element which equals to given `element`.
 	 */
 	public void removeElement(long element) {
 		remove(indexOf(element));
@@ -147,7 +163,8 @@ public class DkLongArrayList {
 
 	/**
 	 * Remove element at given `index`.
-	 * Note that, caller must pass valid `index` in range [0, size - 1].
+	 *
+	 * @param index Must in range [0, size).
 	 */
 	public void remove(int index) {
 		System.arraycopy(arr, index + 1, arr, index, size - 1 - index);
@@ -163,7 +180,8 @@ public class DkLongArrayList {
 
 	/**
 	 * Get value of element at given `index`.
-	 * Note that, caller must pass valid `index` in range [0, size - 1].
+	 *
+	 * @param index Must in range [0, size).
 	 */
 	public long get(int index) {
 		return arr[index];
@@ -171,7 +189,8 @@ public class DkLongArrayList {
 
 	/**
 	 * Set value to element at given `index`.
-	 * Note that, caller must pass valid `index` in range [0, size - 1].
+	 *
+	 * @param index Must in range [0, size).
 	 */
 	public void set(int index, long element) {
 		arr[index] = element;
@@ -184,6 +203,9 @@ public class DkLongArrayList {
 		return indexOf(element) >= 0;
 	}
 
+	/**
+	 * Grows up if current internal array length is smaller than given `minCapacity`.
+	 */
 	public void ensureCapacity(int minCapacity) {
 		if (arr.length <= minCapacity) {
 			growCapacity(minCapacity);
@@ -191,23 +213,32 @@ public class DkLongArrayList {
 	}
 
 	/**
-	 * Get current snapshot of internal array. Since capacity of internal array maybe bigger than actual size,
-	 * so caller should also use `size()` of current array to handle with number of elements.
+	 * Get current snapshot of internal array. Because capacity of internal array maybe bigger than actual size of it,
+	 * so caller take care of checking iteration-index with `size()` of result-array when take an action.
 	 */
 	public long[] getCurrentArray() {
 		return arr;
 	}
 
+	/**
+	 * @return Clone new array from internal array in range [0, size).
+	 */
 	public long[] toArray() {
 		long[] result = new long[size];
 		System.arraycopy(arr, 0, result, 0, size);
 		return result;
 	}
 
+	/**
+	 * This takes high cost for boxing-unboxing primitive value with object, so should not use as possible.
+	 *
+	 * @return Iterable over array in range [0, size).
+	 */
 	public Iterable<?> toIterable() {
 		return DkArrays.asList(toArray());
 	}
 
+	// Make internal array bigger, and assure its capacity greater than given `minCapacity`.
 	private void growCapacity(int minCapacity) {
 		int newCapacity = MyArrayHelper.calcNextCapacity(arr.length, minCapacity, Integer.MAX_VALUE - 8);
 
@@ -215,6 +246,6 @@ public class DkLongArrayList {
 		long[] newArr = new long[newCapacity];
 		System.arraycopy(arr, 0, newArr, 0, size);
 
-		this.arr = newArr;
+		arr = newArr;
 	}
 }

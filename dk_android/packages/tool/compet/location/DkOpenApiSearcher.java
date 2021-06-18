@@ -14,7 +14,7 @@ import java.util.List;
 
 import tool.compet.core.DkLogs;
 import tool.compet.core.DkStrings;
-import tool.compet.http.DkHttpRequester;
+import tool.compet.http.DkHttpClient;
 
 /**
  * Search location (address, elevation...) with open api.
@@ -35,11 +35,10 @@ public class DkOpenApiSearcher {
 		String link = DkStrings.format(format, latitude, longitude);
 		String data;
 
-		DkHttpRequester<String> requester = new DkHttpRequester<>();
 		try {
-			data = requester//.addToHeader("Content-Type", "application/x-www-form-urlencoded")
-				.request(link, String.class)
-				.response;
+			data = new DkHttpClient(link)
+				//.addToHeader("Content-Type", "application/x-www-form-urlencoded")
+				.execute().body().string();
 		}
 		catch (Exception e) {
 			DkLogs.error(DkOpenApiSearcher.class, e);

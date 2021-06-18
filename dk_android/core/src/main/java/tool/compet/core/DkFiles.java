@@ -132,6 +132,20 @@ public class DkFiles {
 		return sb.toString();
 	}
 
+	public static List<String> loadAsUtf8Lines(File file) throws Exception {
+		List<String> lines = new ArrayList<>();
+		BufferedReader reader = newUtf8Reader(file);
+		String readLine;
+
+		while ((readLine = reader.readLine()) != null) {
+			lines.add(readLine);
+		}
+
+		reader.close();
+
+		return lines;
+	}
+
 	/**
 	 * @return Null if file not found. Otherwise byte array.
 	 */
@@ -152,12 +166,13 @@ public class DkFiles {
 	 */
 	public static byte[] loadAsBytes(InputStream is) {
 		try {
-			int capacity = 2 << 13;
+			int capacity = 2 << 12;
 			DkByteArrayList result = new DkByteArrayList(capacity);
 			byte[] buffer = new byte[capacity];
+			int readCount;
 
-			while (is.read(buffer) != -1) {
-				result.addAll(buffer);
+			while ((readCount = is.read(buffer)) != -1) {
+				result.addRange(buffer, 0, readCount);
 			}
 
 			return result.toArray();
@@ -206,20 +221,6 @@ public class DkFiles {
 		int endIndex = name.lastIndexOf(".");
 
 		return endIndex < 0 ? name : name.substring(0, endIndex);
-	}
-
-	public static List<String> readFileAsUtf8Lines(File file) throws Exception {
-		List<String> lines = new ArrayList<>();
-		BufferedReader reader = newUtf8Reader(file);
-		String readLine;
-
-		while ((readLine = reader.readLine()) != null) {
-			lines.add(readLine);
-		}
-
-		reader.close();
-
-		return lines;
 	}
 
 	public static String makePath(String... names) {

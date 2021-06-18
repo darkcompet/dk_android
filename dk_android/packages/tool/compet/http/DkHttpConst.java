@@ -5,9 +5,14 @@
 package tool.compet.http;
 
 public interface DkHttpConst {
-	// Request method
+	// Http request methods
 	String GET = "GET";
 	String POST = "POST";
+	String HEAD = "HEAD";
+	String OPTIONS = "OPTIONS";
+	String PUT = "PUT";
+	String DELETE = "DELETE";
+	String TRACE = "TRACE";
 
 	// Authentication method
 	String AUTHORIZATION = "Authorization";

@@ -15,7 +15,7 @@ import java.util.List;
 
 import tool.compet.core.DkLogs;
 import tool.compet.core.DkStrings;
-import tool.compet.http.DkHttpRequester;
+import tool.compet.http.DkHttpClient;
 
 import static java.util.Locale.US;
 import static tool.compet.core.BuildConfig.DEBUG;
@@ -127,8 +127,7 @@ public class DkPaidApiSearcher implements DkPaidApiConst {
 
 	private String getResponse(String link) {
 		try {
-			DkHttpRequester<String> req = new DkHttpRequester<>();
-			return req.request(link, String.class).response;
+			return new DkHttpClient().execute().body().string();
 		}
 		catch (Exception e) {
 			DkLogs.error(DkLocations.class, e);
@@ -146,12 +145,13 @@ public class DkPaidApiSearcher implements DkPaidApiConst {
 		String link = DkStrings.format(format, gmapKey, latitude, longitude);
 		String data;
 
-		DkHttpRequester<String> requester = new DkHttpRequester<>();
 		try {
-			data = requester
-				.addToHeader("Content-Type", "application/x-www-form-urlencoded")
-				.request(link, String.class)
-				.response;
+			data = new DkHttpClient(link)
+				.addToHeader(
+					"Content-Type",
+					"application/x-www-form-urlencoded"
+				)
+				.execute().body().string();
 		}
 		catch (Exception e) {
 			DkLogs.error(DkPaidApiSearcher.class, e);

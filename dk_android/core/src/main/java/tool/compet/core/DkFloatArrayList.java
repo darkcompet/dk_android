@@ -5,24 +5,24 @@
 package tool.compet.core;
 
 /**
- * This class is performance-better version of ArrayList for int type.
+ * This class is performance-better version of ArrayList for float type.
  */
-public class DkIntArrayList {
+public class DkFloatArrayList {
 	// Current snapshot of elements (changed if perform insert/delete...)
-	private int[] arr;
+	private float[] arr;
 
 	// Current elements count (changed if perform insert/delete...)
 	private int size;
 
-	public DkIntArrayList() {
+	public DkFloatArrayList() {
 		this(10);
 	}
 
-	public DkIntArrayList(int capacity) {
+	public DkFloatArrayList(int capacity) {
 		if (capacity <= 0) {
 			capacity = 10;
 		}
-		this.arr = new int[capacity];
+		this.arr = new float[capacity];
 	}
 
 	public int size() {
@@ -32,8 +32,8 @@ public class DkIntArrayList {
 	/**
 	 * @return Left-most element which equals to given `element`.
 	 */
-	public int indexOf(int element) {
-		int[] arr = this.arr;
+	public int indexOf(float element) {
+		float[] arr = this.arr;
 		for (int index = 0, N = size; index < N; ++index) {
 			if (arr[index] == element) {
 				return index;
@@ -45,8 +45,8 @@ public class DkIntArrayList {
 	/**
 	 * @return Right-most element which equals to given `element`.
 	 */
-	public int lastIndexOf(int element) {
-		int[] arr = this.arr;
+	public int lastIndexOf(float element) {
+		float[] arr = this.arr;
 		for (int index = size - 1; index >= 0; --index) {
 			if (arr[index] == element) {
 				return index;
@@ -58,7 +58,7 @@ public class DkIntArrayList {
 	/**
 	 * Add new `element` to array list.
 	 */
-	public void add(int element) {
+	public void add(float element) {
 		int newSize = size + 1;
 		if (newSize >= arr.length) {
 			growCapacity(newSize);
@@ -71,7 +71,7 @@ public class DkIntArrayList {
 	 *
 	 * @param index Must in range [0, size].
 	 */
-	public void add(int index, int element) {
+	public void add(int index, float element) {
 		int newSize = size + 1;
 		if (newSize >= arr.length) {
 			growCapacity(newSize);
@@ -87,7 +87,7 @@ public class DkIntArrayList {
 	/**
 	 * Add new element if not exists.
 	 */
-	public boolean addIfAbsence(int element) {
+	public boolean addIfAbsence(float element) {
 		if (indexOf(element) < 0) {
 			add(element);
 			return true;
@@ -95,15 +95,15 @@ public class DkIntArrayList {
 		return false;
 	}
 
-	public void addAll(int[] elements) {
+	public void addAll(float[] elements) {
 		addRange(size, elements, 0, elements.length);
 	}
 
-	public void addAll(int index, int[] elements) {
+	public void addAll(int index, float[] elements) {
 		addRange(index, elements, 0, elements.length);
 	}
 
-	public void addRange(int[] elements, int startIndex, int endIndex) {
+	public void addRange(float[] elements, int startIndex, int endIndex) {
 		addRange(size, elements, startIndex, endIndex);
 	}
 
@@ -116,7 +116,7 @@ public class DkIntArrayList {
 	 * @param startIndex Start-index of copy-range inclusive.
 	 * @param endIndex End-index of copy-range exclusive.
 	 */
-	public void addRange(int index, int[] elements, int startIndex, int endIndex) {
+	public void addRange(int index, float[] elements, int startIndex, int endIndex) {
 		final int oldSize = size;
 		final int addMore = endIndex - startIndex;
 		final int newSize = oldSize + addMore;
@@ -136,7 +136,7 @@ public class DkIntArrayList {
 		size = newSize;
 	}
 
-	public void fastRemoveElement(int element) {
+	public void fastRemoveElement(float element) {
 		fastRemove(indexOf(element));
 	}
 
@@ -157,7 +157,7 @@ public class DkIntArrayList {
 	/**
 	 * Remove left-most element which equals to given `element`.
 	 */
-	public void removeElement(int element) {
+	public void removeElement(float element) {
 		remove(indexOf(element));
 	}
 
@@ -183,7 +183,7 @@ public class DkIntArrayList {
 	 *
 	 * @param index Must in range [0, size).
 	 */
-	public int get(int index) {
+	public float get(int index) {
 		return arr[index];
 	}
 
@@ -192,14 +192,14 @@ public class DkIntArrayList {
 	 *
 	 * @param index Must in range [0, size).
 	 */
-	public void set(int index, int element) {
+	public void set(int index, float element) {
 		arr[index] = element;
 	}
 
 	/**
 	 * Check existence of element which equals to given `value`.
 	 */
-	public boolean contains(int element) {
+	public boolean contains(float element) {
 		return indexOf(element) >= 0;
 	}
 
@@ -216,15 +216,15 @@ public class DkIntArrayList {
 	 * Get current snapshot of internal array. Because capacity of internal array maybe bigger than actual size of it,
 	 * so caller take care of checking iteration-index with `size()` of result-array when take an action.
 	 */
-	public int[] getCurrentArray() {
+	public float[] getCurrentArray() {
 		return arr;
 	}
 
 	/**
 	 * @return Clone new array from internal array in range [0, size).
 	 */
-	public int[] toArray() {
-		int[] result = new int[size];
+	public float[] toArray() {
+		float[] result = new float[size];
 		System.arraycopy(arr, 0, result, 0, size);
 		return result;
 	}
@@ -243,7 +243,7 @@ public class DkIntArrayList {
 		int newCapacity = MyArrayHelper.calcNextCapacity(arr.length, minCapacity, Integer.MAX_VALUE - 8);
 
 		// Make new array and then copy from old array.
-		int[] newArr = new int[newCapacity];
+		float[] newArr = new float[newCapacity];
 		System.arraycopy(arr, 0, newArr, 0, size);
 
 		arr = newArr;

@@ -17,16 +17,16 @@ import java.lang.reflect.Proxy;
 import tool.compet.core.DkJsonHelper;
 import tool.compet.core.DkLogs;
 import tool.compet.core.DkUtils;
-import tool.compet.core.stream.DkObservable;
 
 import static tool.compet.core.BuildConfig.DEBUG;
 
 /**
- * Create new instance of http requester, also called as ServiceApi, then request to server.
- * Here is usage example:
+ * It is convenience class. It will create new instance of http api requester,
+ * called as ServiceApi, so caller can use it to request to server.
+ * Usage example:
  * <pre>
  *    // Create new instance of UserApi
- *    UserApi userApi = DkHttp.newIns()
+ *    UserApi userApi = DkApiService.newIns()
  *       .configWith(App.getContext(), "server/server_darkcompet_apps.json")
  *       .create(UserApi.class);
  *
@@ -38,7 +38,7 @@ import static tool.compet.core.BuildConfig.DEBUG;
  *       .subscribe();
  * </pre>
  */
-public class DkHttp {
+public class DkApiService {
 	private String baseUrl;
 	private String credential;
 	private int connectTimeoutMillis;
@@ -46,20 +46,20 @@ public class DkHttp {
 
 	private final SimpleArrayMap<Method, MyServiceMethod<?>> serviceMethods;
 
-	private DkHttp() {
+	private DkApiService() {
 		serviceMethods = new ArrayMap<>();
 	}
 
-	public static DkHttp newIns() {
-		return new DkHttp();
+	public static DkApiService newIns() {
+		return new DkApiService();
 	}
 
-	public DkHttp setBaseUrl(String baseUrl) {
+	public DkApiService setBaseUrl(String baseUrl) {
 		this.baseUrl = baseUrl;
 		return this;
 	}
 
-	public DkHttp configWith(Context context, String filename) {
+	public DkApiService configWith(Context context, String filename) {
 		String json = DkUtils.asset2string(context, filename);
 		DkServer server = DkJsonHelper.getIns().json2obj(json, DkServer.class);
 
@@ -88,7 +88,7 @@ public class DkHttp {
 	 * Static set basic credential to authenticate with server.
 	 * Note that, dynamic adding should be performed in Service's methods.
 	 */
-	public DkHttp setBasicCredential(String username, String password) {
+	public DkApiService setBasicCredential(String username, String password) {
 		String auth = username + ":" + password;
 		this.credential = DkHttpConst.BASIC + new String(Base64.encode(auth.getBytes(), Base64.NO_WRAP));
 		return this;
@@ -98,17 +98,17 @@ public class DkHttp {
 	 * Static set bearer credential to authenticate with server.
 	 * Note that, dynamic adding should be performed in Service's methods.
 	 */
-	public DkHttp setBearerCredential(String auth) {
+	public DkApiService setBearerCredential(String auth) {
 		this.credential = DkHttpConst.BEARER + auth;
 		return this;
 	}
 
-	public DkHttp setConnectTimeoutMillis(int connectTimeoutSecond) {
+	public DkApiService setConnectTimeoutMillis(int connectTimeoutSecond) {
 		this.connectTimeoutMillis = connectTimeoutSecond;
 		return this;
 	}
 
-	public DkHttp setReadTimeoutMillis(int readTimeoutSecond) {
+	public DkApiService setReadTimeoutMillis(int readTimeoutSecond) {
 		this.readTimeoutMillis = readTimeoutSecond;
 		return this;
 	}
@@ -135,17 +135,17 @@ public class DkHttp {
 
 		InvocationHandler handler = (Object proxy, Method method, Object[] args) -> {
 			// Don't handle method which is not in service class
-			if (!method.getDeclaringClass().equals(serviceClass)) {
+			if (! method.getDeclaringClass().equals(serviceClass)) {
 				return method.invoke(proxy, args);
 			}
 
-			return createReturnValue(method, args);
+			return callApi(method, args);
 		};
 
 		return (T) Proxy.newProxyInstance(serviceClass.getClassLoader(), new Class[]{serviceClass}, handler);
 	}
 
-	private DkObservable<DkHttpResponse<?>> createReturnValue(Method method, Object[] args) {
+	private TheHttpResponse callApi(Method method, Object[] args) throws Exception {
 		// Create and cache service method
 		MyServiceMethod<?> serviceMethod;
 
@@ -163,27 +163,47 @@ public class DkHttp {
 
 		final MyServiceMethod<?> finalServiceMethod = serviceMethod;
 
-		return DkObservable.fromCallable(() -> {
-			// Rebuild arguments of service method since args are dynamic
-			String requestMethod;
-			byte[] body;
-			ArrayMap<String, String> headers = new ArrayMap<>();
-			String url;
-			Class<?> responseClass;
+		// Rebuild arguments of service method since args are dynamic
+		String requestMethod;
+		byte[] body;
+		ArrayMap<String, String> headers = new ArrayMap<>();
+		String url;
+		Class<?> responseClass;
 
-			synchronized (finalServiceMethod) {
-				finalServiceMethod.build(method, args);
+		synchronized (finalServiceMethod) {
+			finalServiceMethod.build(method, args);
 
-				requestMethod = finalServiceMethod.requestMethod;
-				body = finalServiceMethod.body;
-				headers.putAll(finalServiceMethod.headers);
-				url = finalServiceMethod.url;
-				responseClass = finalServiceMethod.responseClass;
-			}
+			requestMethod = finalServiceMethod.requestMethod;
+			body = finalServiceMethod.body;
+			headers.putAll(finalServiceMethod.headers);
+			url = finalServiceMethod.url;
+			responseClass = finalServiceMethod.responseClass;
+		}
 
-			// Start request to server with parsed info
-			return startRequest(requestMethod, body, headers, url, responseClass);
-		});
+		// Start request to server with parsed info
+		return startRequest(requestMethod, body, headers, url, responseClass);
+	}
+
+	private <R> TheHttpResponse startRequest(String requestMethod, byte[] body,
+		SimpleArrayMap<String, String> headers, String url, Class<R> responseClass) throws Exception {
+
+		DkHttpClient httpClient = new DkHttpClient(url)
+			.setReadTimeout(readTimeoutMillis)
+			.setConnectTimeout(connectTimeoutMillis)
+			.setRequestMethod(requestMethod)
+			.setBody(body);
+
+		if (credential != null) {
+			httpClient.addToHeader(DkHttpConst.AUTHORIZATION, credential);
+		}
+
+		httpClient.addAllToHeader(headers);
+
+		if (DEBUG) {
+			DkLogs.info(this, "Network request at thread: %s", Thread.currentThread().toString());
+		}
+
+		return httpClient.execute();
 	}
 
 	private void validateConfig() {
@@ -193,27 +213,5 @@ public class DkHttp {
 		if (!baseUrl.endsWith("/")) {
 			baseUrl += '/';
 		}
-	}
-
-	private <R> DkHttpResponse<R> startRequest(String requestMethod, byte[] body,
-		SimpleArrayMap<String, String> headers, String url, Class<R> responseClass) throws Exception {
-
-		DkHttpRequester<R> requester = new DkHttpRequester<R>()
-			.setReadTimeout(readTimeoutMillis)
-			.setConnectTimeout(connectTimeoutMillis)
-			.setRequestMethod(requestMethod)
-			.setBody(body);
-
-		if (credential != null) {
-			requester.addToHeader(DkHttpConst.AUTHORIZATION, credential);
-		}
-
-		requester.addAllToHeader(headers);
-
-		if (DEBUG) {
-			DkLogs.info(this, "Network request in thread `%s`", Thread.currentThread().toString());
-		}
-
-		return requester.request(url, responseClass);
 	}
 }
