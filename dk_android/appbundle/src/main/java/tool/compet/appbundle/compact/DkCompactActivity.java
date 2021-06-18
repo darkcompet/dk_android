@@ -52,7 +52,7 @@ import tool.compet.core.DkUtils;
  * Be aware of lifecycle in Activity: if activity is not going to be destroyed and
  * returns to foreground after onStop(), then onRestart() -> onStart() will be called respectively.
  */
-public abstract class DkCompactActivity<L extends DkCompactLogic, D>
+public abstract class DkCompactActivity<L extends DkCompactLogic, M>
 	extends AppCompatActivity
 	implements DkActivity, DkFragmentNavigator.Callback, DkCompactView, DkNavigatorOwner {
 
@@ -76,8 +76,8 @@ public abstract class DkCompactActivity<L extends DkCompactLogic, D>
 	protected DkFragmentNavigator childNavigator;
 	// Logic for View (to instantiate it, subclass just provide generic type of logic when extends this view)
 	@MyInjectLogic protected L logic;
-	// Data for View (to instantiate it, subclass just provide generic type of data when extends this view)
-	@MyInjectData protected D data;
+	// Model for View (to instantiate it, subclass just provide generic type of model when extends this view)
+	@MyInjectData protected M model;
 
 	/**
 	 * Subclass should use `getIntent()` in `onResume()` instead since we called `setIntent()` here.
@@ -267,7 +267,7 @@ public abstract class DkCompactActivity<L extends DkCompactLogic, D>
 		if (logic != null) {
 			logic.onViewDestroy(this);
 			logic = null;
-			data = null;
+			model = null;
 		}
 
 		this.app = null;

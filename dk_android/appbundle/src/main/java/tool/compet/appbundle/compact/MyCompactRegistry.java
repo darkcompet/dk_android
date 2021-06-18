@@ -55,14 +55,14 @@ class MyCompactRegistry {
 
 			// Logic is ViewModelOwner, so it get aware of its destroy completely
 			final L logic = new ViewModelProvider(view).get(logicClass.getName(), logicClass);
-			final boolean isInit = (logic.data == null);
+			final boolean isInit = (logic.model == null);
 			if (isInit) {
-				logic.data = instantiate(dataClass);
+				logic.model = instantiate(dataClass);
 			}
 
 			// Set Logic and Data fields inside View
 			setFieldValue(viewLogicField, view, logic);
-			setFieldValue(viewDataField, view, logic.data);
+			setFieldValue(viewDataField, view, logic.model);
 
 			// Attach view as soon as possible
 			logic.view = view;

@@ -44,7 +44,7 @@ import tool.compet.core.DkUtils;
  * they should call opposite in one way and receive result at other callback-method from opposite.
  * - [Optional] Utility (floating bar, open activity or fragment, ...)
  */
-public abstract class DkCompactFragment<L extends DkCompactLogic, D>
+public abstract class DkCompactFragment<L extends DkCompactLogic, M>
 	extends Fragment
 	implements DkFragment, DkFragmentNavigator.Callback, DkCompactView, DkNavigatorOwner {
 
@@ -70,8 +70,8 @@ public abstract class DkCompactFragment<L extends DkCompactLogic, D>
 	protected DkFragmentNavigator childNavigator;
 	// Logic for View (to instantiate it, subclass just provide generic type of logic when extends this view)
 	@MyInjectLogic protected L logic;
-	// Data for View (to instantiate it, subclass just provide generic type of data when extends this view)
-	@MyInjectData protected D data;
+	// Model for View (to instantiate it, subclass just provide generic type of model when extends this view)
+	@MyInjectData protected M model;
 
 	@Override
 	public void onAttach(@NonNull Context context) {
@@ -257,7 +257,7 @@ public abstract class DkCompactFragment<L extends DkCompactLogic, D>
 		if (logic != null) {
 			logic.onViewDestroy(host);
 			logic = null;
-			data = null;
+			model = null;
 		}
 		super.onDestroy();
 	}

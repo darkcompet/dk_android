@@ -31,7 +31,7 @@ import tool.compet.core.DkRunner1;
  * Note that, view lifecycle methods maybe called multiple times since lifecycle or configuration maybe
  * often triggered.
  */
-public abstract class DkCompactLogic<V extends DkCompactView, D> extends ViewModel {
+public abstract class DkCompactLogic<V extends DkCompactView, M> extends ViewModel {
 	// Indicate state of this logic and view
 	protected static final int STATE_INVALID = 0;
 	protected static final int STATE_INIT = 1;
@@ -52,7 +52,7 @@ public abstract class DkCompactLogic<V extends DkCompactView, D> extends ViewMod
 	 * #Nullable
 	 */
 	protected V view;
-	protected D data;
+	protected M model;
 
 	/**
 	 * This object overcomes configuration change, useful for viewLogics.
