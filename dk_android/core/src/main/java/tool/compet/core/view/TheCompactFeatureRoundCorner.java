@@ -33,7 +33,7 @@ public class TheCompactFeatureRoundCorner {
 		this.clipRoundPath = new Path();
 		this.roundPath = new Path();
 		final int roundColor = this.roundColor = DkConfig.colorAccent(context);
-		final float roundRadius = 12 * DkConfig.density();
+		final float roundRadius = 16 * DkConfig.density();
 
 		final Paint roundPaint = this.roundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		roundPaint.setStyle(Paint.Style.STROKE);

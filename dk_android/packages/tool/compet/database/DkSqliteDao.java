@@ -8,11 +8,13 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -106,15 +108,15 @@ public abstract class DkSqliteDao<M> extends TheDao<M> { // M: table model
 		return getReadableDatabase().rawQuery(query, null);
 	}
 
+	@NonNull
 	@Override
 	public List<M> rawQuery(String query, Class<M> modelClass) {
-		List<M> result = new ArrayList<>();
-
 		Cursor cursor = this.rawQuery(query);
 		if (cursor == null) {
-			return result;
+			return Collections.emptyList();
 		}
 
+		final List<M> result = new ArrayList<>();
 		try {
 			if (cursor.moveToFirst()) {
 				do {
@@ -175,6 +177,18 @@ public abstract class DkSqliteDao<M> extends TheDao<M> { // M: table model
 	@Override
 	public long insert(Object model, @Nullable String[] fillable) {
 		return newQuery().insert(model, fillable);
+	}
+
+	@Override
+	public long lastInsertRowId() {
+		long insertRowId = -1;
+		Cursor cursor = rawQuery("select last_insert_rowid()");
+		if (cursor.moveToFirst()) {
+			insertRowId = cursor.getLong(0);
+		}
+		cursor.close();
+
+		return insertRowId;
 	}
 
 	@Override

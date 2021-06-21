@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStoreOwner;
@@ -39,16 +40,16 @@ import tool.compet.core.DkUtils;
  * - [Optional] Bind layout, views with DkBinder, enable/disable via `enableBindingView()`
  * - [Optional] Navigator (we can forward, backward, dismiss... page easily)
  * - [Optional] Scoped topic (pass data between/under fragments, activities, app)
- * - [Optional] ViewLogic design pattern (coupling View and Logic), enable/disable via `enableViewLogicDesignPattern()`.
+ * - [Optional] ViewLogic design pattern (coupling View&Logic via Model), enable/disable via `enableViewLogicDesignPattern()`.
  * When use this pattern, should remember that, Logic and View should not wait opposite returned value,
  * they should call opposite in one way and receive result at other callback-method from opposite.
  * - [Optional] Utility (floating bar, open activity or fragment, ...)
  */
 public abstract class DkCompactFragment<L extends DkCompactLogic, M>
 	extends Fragment
-	implements DkFragment, DkFragmentNavigator.Callback, DkCompactView, DkNavigatorOwner {
+	implements DkFragment, DkCompactView, DkNavigatorOwner {
 
-	// Allow init ViewLogic which couples with this View
+	// Allow init ViewLogic design pattern
 	protected boolean enableViewLogicDesignPattern() {
 		return true;
 	}
@@ -71,7 +72,8 @@ public abstract class DkCompactFragment<L extends DkCompactLogic, M>
 	// Logic for View (to instantiate it, subclass just provide generic type of logic when extends this view)
 	@MyInjectLogic protected L logic;
 	// Model for View (to instantiate it, subclass just provide generic type of model when extends this view)
-	@MyInjectData protected M model;
+	@MyInjectModel
+	protected M model;
 
 	@Override
 	public void onAttach(@NonNull Context context) {
@@ -165,7 +167,7 @@ public abstract class DkCompactFragment<L extends DkCompactLogic, M>
 			DkLogs.info(this, "onViewStateRestored");
 		}
 		if (childNavigator != null) {
-			childNavigator.restoreState(savedInstanceState);
+			childNavigator.restoreInstanceState(savedInstanceState);
 		}
 		if (logic != null) {
 			logic.onViewRestoreInstanceState(host, savedInstanceState);
@@ -186,34 +188,24 @@ public abstract class DkCompactFragment<L extends DkCompactLogic, M>
 
 	@Override
 	public void onResume() {
-		onActive(true);
+		if (BuildConfig.DEBUG) {
+			DkLogs.info(this, "onResume");
+		}
+		if (logic != null) {
+			logic.onViewResume(host);
+		}
 		super.onResume();
 	}
 
 	@Override
-	public void onActive(boolean isResume) {
-		if (BuildConfig.DEBUG) {
-			DkLogs.info(this, isResume ? "onResume" : "onFront");
-		}
-		if (logic != null) {
-			logic.onViewActive(host, isResume);
-		}
-	}
-
-	@Override
 	public void onPause() {
-		onInactive(true);
-		super.onPause();
-	}
-
-	@Override
-	public void onInactive(boolean isPause) {
 		if (BuildConfig.DEBUG) {
-			DkLogs.info(this, isPause ? "onPause" : "onBehind");
+			DkLogs.info(this, "onPause");
 		}
 		if (logic != null) {
-			logic.onViewInactive(host, isPause);
+			logic.onViewPause(host);
 		}
+		super.onPause();
 	}
 
 	@Override
@@ -241,7 +233,7 @@ public abstract class DkCompactFragment<L extends DkCompactLogic, M>
 			DkLogs.info(this, "onSaveInstanceState");
 		}
 		if (childNavigator != null) {
-			childNavigator.saveState(outState);
+			childNavigator.storeInstanceState(outState);
 		}
 		if (logic != null) {
 			logic.onViewSaveInstanceState(host, outState);
@@ -256,8 +248,6 @@ public abstract class DkCompactFragment<L extends DkCompactLogic, M>
 		}
 		if (logic != null) {
 			logic.onViewDestroy(host);
-			logic = null;
-			model = null;
 		}
 		super.onDestroy();
 	}
@@ -272,6 +262,8 @@ public abstract class DkCompactFragment<L extends DkCompactLogic, M>
 		this.host = null;
 		this.context = null;
 		this.layout = null;
+		this.logic = null;
+		this.model = null;
 
 		super.onDetach();
 	}
@@ -351,7 +343,7 @@ public abstract class DkCompactFragment<L extends DkCompactLogic, M>
 				DkUtils.complainAt(this, "Must provide `fragmentContainerId()`");
 			}
 
-			childNavigator = new DkFragmentNavigator(containerId, getChildFragmentManager(), this);
+			childNavigator = new DkFragmentNavigator(containerId, getChildFragmentManager());
 		}
 		return childNavigator;
 	}
@@ -382,17 +374,17 @@ public abstract class DkCompactFragment<L extends DkCompactLogic, M>
 	// region ViewModel
 
 	// Get or Create new ViewModel instance which be owned by this Fragment.
-	public <M extends ViewModel> M obtainOwnViewModel(String key, Class<M> modelType) {
+	public <VM extends ViewModel> VM obtainOwnViewModel(String key, Class<VM> modelType) {
 		return new ViewModelProvider(this).get(key, modelType);
 	}
 
 	// Get or Create new ViewModel instance which be owned by Activity which hosts this Fragment.
-	public <M extends ViewModel> M obtainHostViewModel(String key, Class<M> modelType) {
+	public <VM extends ViewModel> VM obtainHostViewModel(String key, Class<VM> modelType) {
 		return new ViewModelProvider(host).get(key, modelType);
 	}
 
 	// Get or Create new ViewModel instance which be owned by current app.
-	public <M extends ViewModel> M obtainAppViewModel(String key, Class<M> modelType) {
+	public <VM extends ViewModel> VM obtainAppViewModel(String key, Class<VM> modelType) {
 		Application app = host.getApplication();
 
 		if (app instanceof ViewModelStoreOwner) {
@@ -457,6 +449,17 @@ public abstract class DkCompactFragment<L extends DkCompactLogic, M>
 
 	public Fragment instantiateFragment(Class<? extends Fragment> fragClass) {
 		return getParentFragmentManager().getFragmentFactory().instantiate(context.getClassLoader(), fragClass.getName());
+	}
+
+	/**
+	 * Listen lifecycle callbacks of descendant fragments managed by this activity.
+	 *
+	 * @param recursive TRUE to listen all descendant fragments under this host, that is,
+	 *                  it includes all child fragments of child fragment-managers and so on.
+	 *                  FALSE to listen only child fragments of the child-fragment-manager of this activity.
+	 */
+	public void registerFragmentLifecycleCallbacks(FragmentManager.FragmentLifecycleCallbacks callback, boolean recursive) {
+		getChildFragmentManager().registerFragmentLifecycleCallbacks(callback, recursive);
 	}
 
 	public DkSnackbar snackbar() {

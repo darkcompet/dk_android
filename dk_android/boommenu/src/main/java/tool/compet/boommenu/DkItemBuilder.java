@@ -50,8 +50,8 @@ public abstract class DkItemBuilder<T extends DkItemBuilder> {
 	protected float endScaleFactor = 1f;
 
 	// Building process
-	private float widthWeight;
-	private float heightWeight;
+	private float widthPercent;
+	private float heightPercent;
 	private boolean ratioBaseOnWidth = true;
 	private float widthRatio;
 	private float heightRatio;
@@ -125,12 +125,12 @@ public abstract class DkItemBuilder<T extends DkItemBuilder> {
 			width = view.getMeasuredWidth();
 			height = view.getMeasuredHeight();
 		}
-		// Calculate dimension by weight
-		if (widthWeight > 0f) {
-			width = (int) (widthWeight * boardWidth);
+		// Calculate dimension by percent
+		if (widthPercent > 0f) {
+			width = (int) (widthPercent * boardWidth);
 		}
-		if (heightWeight > 0f) {
-			height = (int) (heightWeight * boardHeight);
+		if (heightPercent > 0f) {
+			height = (int) (heightPercent * boardHeight);
 		}
 		// Re-calculate dimension by ratio
 		if (widthRatio > 0f && heightRatio > 0f) {
@@ -209,10 +209,10 @@ public abstract class DkItemBuilder<T extends DkItemBuilder> {
 		return (T) this;
 	}
 
-	// Length on board
-	public T setWeight(float widthWeight, float heightWeight) {
-		this.widthWeight = widthWeight;
-		this.heightWeight = heightWeight;
+	// Percent size on board
+	public T setPercent(float widthPercent, float heightPercent) {
+		this.widthPercent = widthPercent;
+		this.heightPercent = heightPercent;
 		return (T) this;
 	}
 

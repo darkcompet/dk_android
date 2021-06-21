@@ -7,45 +7,49 @@ package tool.compet.appbundle.navigator;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.collection.ArraySet;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import java.util.Set;
+
 import tool.compet.appbundle.DkFragment;
+import tool.compet.core.BuildConfig;
+import tool.compet.core.DkLogs;
 import tool.compet.core.DkStrings;
 
 /**
  * Differ with stack of Activities, the important feature of this navigator is,
  * we can re-arrange fragments inside stack.
  */
-public class DkFragmentNavigator implements MyTagManager.OnStackChangeListener {
-	public interface Callback {
-		void onActive(boolean isResume);
-
-		void onInactive(boolean isPause);
+public class DkFragmentNavigator {
+	public interface Listener {
+		void onStackSizeChanged(int size, int oldSize);
 	}
-
-	private static final String KEY_BACKSTACK_STATE = "DkFragmentNavigator.KEY_BACKSTACK_STATE";
 
 	final int containerId;
 	final FragmentManager fm;
 	final MyTagManager tags;
 
-	private final Callback callback;
+	Set<Listener> listeners;
 
-	public DkFragmentNavigator(int containerId, FragmentManager fm, @NonNull Callback cb) {
+	public DkFragmentNavigator(int containerId, FragmentManager fm) {
 		this.containerId = containerId;
 		this.fm = fm;
-		this.callback = cb;
-		this.tags = new MyTagManager(this);
+		this.tags = new MyTagManager();
 	}
 
-	@Override
-	public void onStackSizeChanged(int size, int oldSize) {
-		if (size == 0) {
-			callback.onActive(false);
+	public void registerListener(Listener listener) {
+		if (listeners == null) {
+			listeners = new ArraySet<>();
 		}
-		else if (size == 1 && oldSize == 0) {
-			callback.onInactive(false);
+		listeners.add(listener);
+	}
+
+	public void unregisterListener(Listener listener) {
+		if (listeners != null) {
+			listeners.remove(listener);
 		}
 	}
 
@@ -54,9 +58,9 @@ public class DkFragmentNavigator implements MyTagManager.OnStackChangeListener {
 	}
 
 	/**
-	 * Notify the event to last child fragment
+	 * Notify the event to last child fragment.
 	 *
-	 * @return true if child fragment not exist or has dismissed successfully, otherwise false.
+	 * @return TRUE iff child fragment not exist or has closed successfully, otherwise FALSE.
 	 */
 	public boolean handleOnBackPressed() {
 		int lastIndex = tags.size() - 1;
@@ -74,11 +78,11 @@ public class DkFragmentNavigator implements MyTagManager.OnStackChangeListener {
 			return ((DkFragment) lastChild).onBackPressed();
 		}
 
-		throw new RuntimeException(DkStrings.format("Fragment %s must be subclass of `DkFragment`", lastChild.getClass().getName()));
+		throw new RuntimeException(DkStrings.format("Fragment %s must implement `DkFragment`", lastChild.getClass().getName()));
 	}
 
 	/**
-	 * @return NUmber of fragment inside backstack of the view.
+	 * @return Number of fragment inside backstack of the view.
 	 */
 	public int childCount() {
 		return tags.size();
@@ -87,19 +91,25 @@ public class DkFragmentNavigator implements MyTagManager.OnStackChangeListener {
 	/**
 	 * Be called from our DkActivity and DkFragment.
 	 */
-	public void restoreState(Bundle in) {
+	public void restoreInstanceState(@Nullable Bundle in) {
 		if (in != null) {
-			MyTagManager.MyTagsParcelable state = in.getParcelable(KEY_BACKSTACK_STATE);
-			tags.restoreStates(state);
+			MyTagManager.MyTagsParcelable tags = in.getParcelable("DkFragmentNavigator.tags");
+			this.tags.restoreFrom(tags);
+
+			if (BuildConfig.DEBUG) {
+				DkLogs.info(this, "Restored tags: " + this.tags.toString());
+			}
 		}
 	}
 
 	/**
 	 * Be called from our DkActivity and DkFragment.
 	 */
-	public void saveState(Bundle out) {
-		if (out != null) {
-			out.putParcelable(KEY_BACKSTACK_STATE, tags.saveStates());
+	public void storeInstanceState(@NonNull Bundle out) {
+		out.putParcelable("DkFragmentNavigator.tags", tags.generateState());
+
+		if (BuildConfig.DEBUG) {
+			DkLogs.info(this, "Stored tags: " + tags.toString());
 		}
 	}
 }

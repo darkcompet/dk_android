@@ -17,6 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
@@ -54,7 +55,7 @@ import tool.compet.core.DkUtils;
  */
 public abstract class DkCompactActivity<L extends DkCompactLogic, M>
 	extends AppCompatActivity
-	implements DkActivity, DkFragmentNavigator.Callback, DkCompactView, DkNavigatorOwner {
+	implements DkActivity, DkCompactView, DkNavigatorOwner {
 
 	// Allow init ViewLogic which couples with this View
 	protected boolean enableViewLogicDesignPattern() {
@@ -77,7 +78,8 @@ public abstract class DkCompactActivity<L extends DkCompactLogic, M>
 	// Logic for View (to instantiate it, subclass just provide generic type of logic when extends this view)
 	@MyInjectLogic protected L logic;
 	// Model for View (to instantiate it, subclass just provide generic type of model when extends this view)
-	@MyInjectData protected M model;
+	@MyInjectModel
+	protected M model;
 
 	/**
 	 * Subclass should use `getIntent()` in `onResume()` instead since we called `setIntent()` here.
@@ -87,9 +89,7 @@ public abstract class DkCompactActivity<L extends DkCompactLogic, M>
 		if (BuildConfig.DEBUG) {
 			DkLogs.info(this, "onNewIntent: " + intent);
 		}
-
 		setIntent(intent);
-
 		super.onNewIntent(intent);
 	}
 
@@ -174,7 +174,7 @@ public abstract class DkCompactActivity<L extends DkCompactLogic, M>
 			DkLogs.info(this, "onRestoreInstanceState");
 		}
 		if (childNavigator != null) {
-			childNavigator.restoreState(savedInstanceState);
+			childNavigator.restoreInstanceState(savedInstanceState);
 		}
 		if (logic != null) {
 			logic.onViewRestoreInstanceState(this, savedInstanceState);
@@ -194,35 +194,25 @@ public abstract class DkCompactActivity<L extends DkCompactLogic, M>
 	}
 
 	@Override
-	public void onActive(boolean isResume) {
+	protected void onResume() {
 		if (BuildConfig.DEBUG) {
-			DkLogs.info(this, isResume ? "onResume" : "onActive");
+			DkLogs.info(this, "onResume");
 		}
 		if (logic != null) {
-			logic.onViewActive(this, isResume);
+			logic.onViewResume(this);
 		}
-	}
-
-	@Override
-	protected void onResume() {
-		onActive(true);
 		super.onResume();
 	}
 
 	@Override
 	protected void onPause() {
-		onInactive(true);
-		super.onPause();
-	}
-
-	@Override
-	public void onInactive(boolean isPause) {
 		if (BuildConfig.DEBUG) {
-			DkLogs.info(this, isPause ? "onPause" : "onInactive");
+			DkLogs.info(this, "onPause");
 		}
 		if (logic != null) {
-			logic.onViewInactive(this, isPause);
+			logic.onViewPause(this);
 		}
+		super.onPause();
 	}
 
 	@Override // maybe called before onStop() or onDestroy()
@@ -231,7 +221,7 @@ public abstract class DkCompactActivity<L extends DkCompactLogic, M>
 			DkLogs.info(this, "onSaveInstanceState");
 		}
 		if (childNavigator != null) {
-			childNavigator.saveState(outState);
+			childNavigator.storeInstanceState(outState);
 		}
 		if (logic != null) {
 			logic.onViewSaveInstanceState(this, outState);
@@ -266,13 +256,13 @@ public abstract class DkCompactActivity<L extends DkCompactLogic, M>
 		}
 		if (logic != null) {
 			logic.onViewDestroy(this);
-			logic = null;
-			model = null;
 		}
 
 		this.app = null;
 		this.context = null;
 		this.layout = null;
+		this.logic = null;
+		this.model = null;
 
 		super.onDestroy();
 	}
@@ -328,7 +318,7 @@ public abstract class DkCompactActivity<L extends DkCompactLogic, M>
 				DkUtils.complainAt(this, "Must provide `fragmentContainerId()`");
 			}
 
-			childNavigator = new DkFragmentNavigator(containerId, getSupportFragmentManager(), this);
+			childNavigator = new DkFragmentNavigator(containerId, getSupportFragmentManager());
 		}
 
 		return childNavigator;
@@ -344,12 +334,12 @@ public abstract class DkCompactActivity<L extends DkCompactLogic, M>
 	// region ViewModel
 
 	// Get or Create new ViewModel instance which be owned by this activity.
-	public <M extends ViewModel> M obtainOwnViewModel(String key, Class<M> modelType) {
+	public <VM extends ViewModel> VM obtainOwnViewModel(String key, Class<VM> modelType) {
 		return new ViewModelProvider(this).get(key, modelType);
 	}
 
 	// Get or Create new ViewModel instance which be owned by current app.
-	public <M extends ViewModel> M obtainAppViewModel(String key, Class<M> modelType) {
+	public <VM extends ViewModel> VM obtainAppViewModel(String key, Class<VM> modelType) {
 		Application app = getApplication();
 
 		if (app instanceof ViewModelStoreOwner) {
@@ -396,6 +386,17 @@ public abstract class DkCompactActivity<L extends DkCompactLogic, M>
 	// endregion Scoped topic
 
 	// region Utility
+
+	/**
+	 * Listen lifecycle callbacks of descendant fragments managed by this activity.
+	 *
+	 * @param recursive TRUE to listen all descendant fragments under this host, that is,
+	 *                  it includes all child fragments of child fragment-managers and so on.
+	 *                  FALSE to listen only child fragments of the child-fragment-manager of this activity.
+	 */
+	public void registerFragmentLifecycleCallbacks(FragmentManager.FragmentLifecycleCallbacks callback, boolean recursive) {
+		getSupportFragmentManager().registerFragmentLifecycleCallbacks(callback, recursive);
+	}
 
 	public DkSnackbar snackbar() {
 		return DkSnackbar.newIns(layout);

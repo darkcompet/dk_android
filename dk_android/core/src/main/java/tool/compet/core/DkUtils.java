@@ -553,9 +553,15 @@ public class DkUtils {
 		return intent;
 	}
 
-	public static boolean isBatterySaveModeTurnOn(Context context) {
-		PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && powerManager.isPowerSaveMode();
+	/**
+	 * @return TRUE iff it is api 21+ and battery is in save-mode. Otherwise FALSE.
+	 */
+	public static boolean isPowerSaveMode(Context context) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+			return powerManager.isPowerSaveMode();
+		}
+		return false;
 	}
 
 	public static boolean checkPermission(Context context, String... permissions) {

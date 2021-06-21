@@ -19,6 +19,7 @@ import androidx.annotation.Nullable;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
+import tool.compet.core.DkUtils;
 import tool.compet.core.view.DkAnimationConfiguration;
 import tool.compet.core.view.DkInterpolatorProvider;
 
@@ -59,6 +60,7 @@ public class DkBoomMenu {
 	private int animState = ANIM_STATE_NOT_YET;
 
 	private boolean enableCache = true; // for faster animation at next time
+	private boolean enableBatteryPowerMode = true; // to reduce energy for low battery
 	private boolean backgroundWholeScreen = true;
 	private boolean dismissImmediate;
 	private boolean dismissOnClickOutsideItem = true;
@@ -142,7 +144,7 @@ public class DkBoomMenu {
 			setupBackground();
 			setupMenuItems();
 
-			if (immediate) {
+			if (immediate || (enableBatteryPowerMode && DkUtils.isPowerSaveMode(context))) {
 				animState = ANIM_STATE_ANIMATED;
 				for (DkItem item : clusterManager.items) {
 					item.show();
@@ -274,8 +276,8 @@ public class DkBoomMenu {
 		View anchor = this.anchor.get();
 		ViewGroup parent = findSuitableParent(anchor);
 
-		if (anchor == null) {
-			throw new RuntimeException("Must provide anchor. For eg,. call `setAnchor()`");
+		if (anchor == null || parent == null) {
+			throw new RuntimeException("Must provide anchor and parent.");
 		}
 		if (isShouldBuildItems()) {
 			clusterManager.buildItems(context, anchor, parent, new DkItemBuilder.Callback() {
@@ -296,6 +298,7 @@ public class DkBoomMenu {
 			});
 		}
 
+		// Prepare start and end position for each item inside cluster
 		clusterManager.calcStartEndPositions(anchor, parent);
 
 		for (DkItem item : clusterManager.items) {
@@ -539,6 +542,11 @@ public class DkBoomMenu {
 
 	public DkBoomMenu setCacheOptimization(boolean enable) {
 		this.enableCache = enable;
+		return this;
+	}
+
+	public DkBoomMenu setEnableBatteryPowerMode(boolean enable) {
+		this.enableBatteryPowerMode = enable;
 		return this;
 	}
 

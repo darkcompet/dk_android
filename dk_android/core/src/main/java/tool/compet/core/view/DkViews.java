@@ -8,7 +8,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
@@ -33,7 +32,6 @@ import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
-import android.view.animation.Transformation;
 import android.view.animation.TranslateAnimation;
 import android.webkit.WebView;
 import android.widget.ProgressBar;
@@ -74,24 +72,6 @@ public class DkViews {
 
 	public static void setTextSize(TextView tv, float newSizeInPx) {
 		tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, newSizeInPx);
-	}
-
-	public static Spanned getSpannedText(String text, boolean hasColor, int color, boolean isBold, boolean hasUnderline) {
-		if (hasColor) {
-			String hexColor = String.format("#%06X", (0xFFFFFF & color));
-			text = "<font color=\"%s\">" + text + "</font>";
-			text = String.format(text, hexColor);
-		}
-
-		if (isBold) {
-			text = "<b>" + text + "</b>";
-		}
-
-		if (hasUnderline) {
-			text = "<u>" + text + "</u>";
-		}
-
-		return Html.fromHtml(text);
 	}
 
 	public static void makeUnderlineTagClickable(TextView textView, DkRunner1<View> clickCb) {
@@ -198,54 +178,6 @@ public class DkViews {
 		}
 	}
 
-	public static void expandView(View view, long duration) {
-		view.measure(-1, -2);
-		final int targetHeight = view.getMeasuredHeight();
-
-		view.getLayoutParams().height = 1;
-		view.setVisibility(View.VISIBLE);
-		Animation anim = new Animation() {
-			@Override
-			protected void applyTransformation(float interpolatedTime, Transformation t) {
-				view.getLayoutParams().height = (interpolatedTime == 1) ? -2 : (int) (targetHeight * interpolatedTime);
-				view.requestLayout();
-			}
-
-			@Override
-			public boolean willChangeBounds() {
-				return true;
-			}
-		};
-
-		anim.setDuration(duration);
-		view.startAnimation(anim);
-	}
-
-	public static void collapseView(View view, long duration) {
-		final int initialHeight = view.getMeasuredHeight();
-
-		Animation anim = new Animation() {
-			@Override
-			protected void applyTransformation(float interpolatedTime, Transformation t) {
-				if (interpolatedTime == 1) {
-					view.setVisibility(View.GONE);
-				}
-				else {
-					view.getLayoutParams().height = initialHeight - (int) (initialHeight * interpolatedTime);
-					view.requestLayout();
-				}
-			}
-
-			@Override
-			public boolean willChangeBounds() {
-				return true;
-			}
-		};
-
-		anim.setDuration(duration);
-		view.startAnimation(anim);
-	}
-
 	public static void loadWebviewFromHtml(WebView webView, String htmlContent) {
 		webView.loadDataWithBaseURL("",
 			htmlContent,
@@ -272,10 +204,6 @@ public class DkViews {
 		view.destroyDrawingCache();
 
 		return bitmap;
-	}
-
-	public static void changeBackgroundColor(View view, String color, float radius, float density) {
-		changeBackgroundColor(view, Color.parseColor(color), radius, density);
 	}
 
 	public static void changeBackgroundColor(View view, int argb, float radius, float density) {

@@ -33,34 +33,28 @@ import tool.compet.core.DkRunner1;
  */
 public abstract class DkCompactLogic<V extends DkCompactView, M> extends ViewModel {
 	// Indicate state of this logic and view
-	protected static final int STATE_INVALID = 0;
-	protected static final int STATE_INIT = 1;
-	protected static final int STATE_CREATE = 2;
+	protected static final int STATE_INVALID = -1;
+	protected static final int STATE_INIT = 0;
+	protected static final int STATE_CREATE = 1;
+	protected static final int STATE_VIEW_READY = 2;
 	protected static final int STATE_START = 3;
-	protected static final int STATE_VIEW_READY = 4;
-	protected static final int STATE_ACTIVE = 5;
-	protected static final int STATE_RESUME = 6;
-	protected static final int STATE_PAUSE = 7;
-	protected static final int STATE_INACTIVE = 8;
-	protected static final int STATE_STOP = 9;
-	protected static final int STATE_DESTROY = 10;
+	protected static final int STATE_RESUME = 4;
+	protected static final int STATE_PAUSE = 5;
+	protected static final int STATE_STOP = 6;
+	protected static final int STATE_DESTROY = 7;
 	protected int state = STATE_INVALID;
 
-	/**
-	 * Reference to the View, this field  will be attached and detached respectively at #onCreate(), #onDestroy().
-	 * Only use this field directly if you know the view is still available, otherwise lets use `sendToView()` instead.
-	 * #Nullable
-	 */
+	// Reference to the View, this field  will be attached and detached respectively at #onCreate(), #onDestroy().
+	// Only use this field directly if you know the view is still available, otherwise lets use `sendToView()` instead.
+	// #Nullable
 	protected V view;
 	protected M model;
 
-	/**
-	 * This object overcomes configuration change, useful for viewLogics.
-	 * Actions which sent to View when View was absent
-	 * We need optimize this field since 2 consequence commands maybe update
-	 * same part of View.
-	 */
-	private List<DkRunner1<V>> pendingCommands;
+	// This object overcomes configuration change, useful for viewLogics.
+	// Actions which sent to View when View was absent
+	// We need optimize this field since 2 consequence commands maybe update
+	// same part of View.
+	private List<DkRunner1<V>> pendingActions;
 
 	/**
 	 * Use this method can avoid checking View is null or not at each invocation. As well the action
@@ -73,7 +67,7 @@ public abstract class DkCompactLogic<V extends DkCompactView, M> extends ViewMod
 			command.run(view);
 		}
 		else {
-			addPendingCommand(command);
+			addPendingAction(command);
 		}
 	}
 
@@ -96,6 +90,26 @@ public abstract class DkCompactLogic<V extends DkCompactView, M> extends ViewMod
 	}
 
 	/**
+	 * Called multiple times from View. The app can use `view` directly from this time,
+	 * since `layout` inside View was initialized completely.
+	 */
+	@CallSuper
+	protected void onViewReady(FragmentActivity host, @Nullable Bundle savedInstanceState) {
+		state = STATE_VIEW_READY;
+
+		// Execute pending actions
+		if (pendingActions != null && pendingActions.size() > 0) {
+			for (DkRunner1<V> action : pendingActions) {
+				action.run(view);
+			}
+			if (BuildConfig.DEBUG) {
+				DkLogs.info(this, "Executed %d pending actions", pendingActions.size());
+			}
+			pendingActions.clear();
+		}
+	}
+
+	/**
 	 * Called multiple times from View.
 	 * It is coupled with `onViewStop()`.
 	 */
@@ -105,32 +119,12 @@ public abstract class DkCompactLogic<V extends DkCompactView, M> extends ViewMod
 	}
 
 	/**
-	 * Called multiple times from View. The app should start send commands to View
-	 * from this time, any command before this time will not safe since `layout` inside
-	 * View is maybe not initialized.
-	 */
-	@CallSuper
-	protected void onViewReady(FragmentActivity host, @Nullable Bundle savedInstanceState) {
-		state = STATE_VIEW_READY;
-	}
-
-	/**
 	 * Called multiple times from View.
 	 * It is coupled with `onViewInactive()`.
 	 */
 	@CallSuper
-	protected void onViewActive(FragmentActivity host, boolean isResume) {
-		state = isResume ? STATE_RESUME : STATE_ACTIVE;
-
-		if (isResume && view != null && pendingCommands != null) {
-			for (DkRunner1<V> action : pendingCommands) {
-				action.run(view);
-			}
-			if (BuildConfig.DEBUG) {
-				DkLogs.info(this, "Executed %d pending actions", pendingCommands.size());
-			}
-			pendingCommands = null;
-		}
+	protected void onViewResume(FragmentActivity host) {
+		state = STATE_RESUME;
 	}
 
 	/**
@@ -138,8 +132,8 @@ public abstract class DkCompactLogic<V extends DkCompactView, M> extends ViewMod
 	 * It is coupled with `onViewActive()`.
 	 */
 	@CallSuper
-	protected void onViewInactive(FragmentActivity host, boolean isPause) {
-		state = isPause ? STATE_PAUSE : STATE_INACTIVE;
+	protected void onViewPause(FragmentActivity host) {
+		state = STATE_PAUSE;
 	}
 
 	/**
@@ -154,6 +148,8 @@ public abstract class DkCompactLogic<V extends DkCompactView, M> extends ViewMod
 	/**
 	 * Called multiple times from View.
 	 * It is coupled with `onViewCreate()`.
+	 * Subclass should stop using `view` at this time since we `layout` inside View
+	 * is not ready.
 	 */
 	@CallSuper
 	protected void onViewDestroy(FragmentActivity host) {
@@ -170,7 +166,7 @@ public abstract class DkCompactLogic<V extends DkCompactView, M> extends ViewMod
 	}
 
 	/**
-	 * Called only one time when this is destroyed. At this time, the view is also destroyed.
+	 * Called only one time when this logic is destroyed.
 	 * It is coupled with `onInit()`.
 	 */
 	@Override
@@ -185,10 +181,10 @@ public abstract class DkCompactLogic<V extends DkCompactView, M> extends ViewMod
 	protected void onLowMemory(FragmentActivity host) {
 	}
 
-	private void addPendingCommand(DkRunner1<V> command) {
-		if (pendingCommands == null) {
-			pendingCommands = new ArrayList<>();
+	private void addPendingAction(DkRunner1<V> action) {
+		if (pendingActions == null) {
+			pendingActions = new ArrayList<>();
 		}
-		pendingCommands.add(command);
+		pendingActions.add(action);
 	}
 }

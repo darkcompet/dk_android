@@ -6,12 +6,11 @@ package tool.compet.appbundle.compact;
 
 import android.os.Bundle;
 
+import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import tool.compet.appbundle.DkDialogFragment;
-import tool.compet.appbundle.navigator.DkFragmentNavigator;
-import tool.compet.appbundle.navigator.DkNavigatorOwner;
 
 /**
  * This is standard dialog and provides some below features:
@@ -22,12 +21,9 @@ import tool.compet.appbundle.navigator.DkNavigatorOwner;
  * In theory, this does not provide ViewLogic design pattern since we consider
  * a dialog as a view of its parent (activity or fragment).
  */
-@SuppressWarnings("unchecked")
 public abstract class DkCompactDialogFragment<D>
 	extends DkCompactFragment
-	implements DkDialogFragment, DkFragmentNavigator.Callback, DkNavigatorOwner {
-
-	protected boolean cancelable;
+	implements DkDialogFragment {
 
 	/**
 	 * By default, we disable binder for dialog.
@@ -38,7 +34,7 @@ public abstract class DkCompactDialogFragment<D>
 	}
 
 	/**
-	 * By default, we disable ViewLogic design pattern for dialog.
+	 * By default, we disable VML design pattern for dialog.
 	 */
 	@Override
 	protected boolean enableViewLogicDesignPattern() {
@@ -46,13 +42,32 @@ public abstract class DkCompactDialogFragment<D>
 	}
 
 	@Override
-	public void onSaveInstanceState(@NonNull Bundle outState) {
-		super.onSaveInstanceState(outState);
+	public void onCreate(@Nullable Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		restoreInstanceState(savedInstanceState);
 	}
 
 	@Override
+	public void onSaveInstanceState(@NonNull Bundle outState) {
+		super.onSaveInstanceState(outState);
+
+		storeInstanceState(outState);
+	}
+
+	@Override // onViewCreated() -> onViewStateRestored() -> onStart()
 	public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
 		super.onViewStateRestored(savedInstanceState);
+
+		restoreInstanceState(savedInstanceState);
+	}
+
+	@CallSuper
+	protected void storeInstanceState(@NonNull Bundle outState) {
+	}
+
+	@CallSuper
+	protected void restoreInstanceState(@Nullable Bundle savedInstanceState) {
 	}
 
 	// region Protected (overridable)
@@ -64,11 +79,6 @@ public abstract class DkCompactDialogFragment<D>
 	// endregion Private
 
 	// region Get/Set
-
-	public D setCancellable(boolean cancelable) {
-		this.cancelable = cancelable;
-		return (D) this;
-	}
 
 	// endregion Get/Set
 }

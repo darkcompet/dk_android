@@ -39,11 +39,11 @@ import tool.compet.core.view.DkDoubleFingerDetector;
 import static tool.compet.core.BuildConfig.DEBUG;
 import static tool.compet.core.view.DkViews.getTextViewDrawPoint;
 
-public class DkCompassView extends View implements DkDoubleFingerDetector.Listener, View.OnTouchListener {
+public class DkCompassView extends View implements View.OnTouchListener {
 	// Compass modes: normal, rotator and pointer.
-	public static final int MODE_NORMAL = 1;
-	public static final int MODE_ROTATE = 2;
-	public static final int MODE_POINT = 3;
+	public static final int MODE_NORMAL = 0;
+	public static final int MODE_ROTATE = 1;
+	public static final int MODE_POINT = 2;
 
 	private static final float DEFAULT_WORD_TEXT_SIZE = 12 * DkConfig.scaledDensity();
 
@@ -127,7 +127,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 	// Highlight, move compass
 	private final int MSG_ALLOW_MOVE_COMPASS = 1;
 	private final int MSG_TURN_OFF_HIGH_LIGHT = 2;
-	private Handler handler = new Handler(Looper.getMainLooper()) {
+	private final Handler handler = new Handler(Looper.getMainLooper()) {
 		@Override
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
@@ -182,7 +182,7 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 		fillPaint.setStrokeWidth(3);
 		fillPaint.setStyle(Paint.Style.FILL_AND_STROKE);
 
-		gestureDetector = new DkDoubleFingerDetector(context, this);
+		gestureDetector = new DkDoubleFingerDetector(context, gestureDetectorListener);
 
 		setOnTouchListener(this);
 	}
@@ -427,58 +427,177 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 		return isRequestNextEvent || isTouchInsideRotator;
 	}
 
-	@Override
-	public boolean onScale(float scaleFactor, float px, float py) {
-		if (!isAdjustCompass) {
-			return true;
-		}
-		if (!isTouchInsideRotator) {
-			scaleFactor = scaleFactor > 1.0f ? 1.01f : 0.99f;
-			compassBitmapZoomLevel += (scaleFactor - 1.0);
-			compassBitmapMatrix.postScale(scaleFactor, scaleFactor, compassCx, compassCy);
-			invalidate();
-			return true;
-		}
-		return false;
+	//region GetSet
+
+	public DkCompassView setIsAdjustCompass(boolean isAdjust) {
+		isAdjustCompass = isAdjust;
+		return this;
 	}
 
-	@Override
-	public boolean onDrag(float x1, float y1, float x2, float y2) {
-		if (!isAdjustCompass) {
-			return true;
+	/**
+	 * @param poleShortNames Array contains 4 elements, for eg,. ['N', 'E', 'S', 'W']
+	 */
+	public void setPoleShortNames(String[] poleShortNames) {
+		this.poleShortNames = poleShortNames;
+	}
+
+	/**
+	 * @param poleLongNames Array contains 4 elements, for eg,. ['North', 'East', 'South', 'West']
+	 */
+	public void setPoleLongNames(String[] poleLongNames) {
+		this.poleLongNames = poleLongNames;
+	}
+
+	public void setRotationFactor(double rotationFactor) {
+		this.rotationFactor = rotationFactor;
+	}
+
+	public void setHandlerDisablePeriodTime(long handlerDisablePeriodTime) {
+		rotatorDisabledCountDown = handlerDisablePeriodTime;
+	}
+
+	public DkCompassView setListener(DkCompassView.Listener listener) {
+		this.listener = listener;
+		return this;
+	}
+
+	public DkCompassView setCompassColor(int color) {
+		compassColor = color;
+		compassSemiColor = handlerColor = DkColors.toSemiColor(color);
+		compassPaint.setColorFilter(new PorterDuffColorFilter(compassColor, PorterDuff.Mode.SRC_ATOP));
+
+		countdownAnimator.setIntValues(color, compassSemiColor);
+		countdownAnimator.setEvaluator(controller.getArgbEvaluator());
+		countdownAnimator.removeAllUpdateListeners();
+		countdownAnimator.addUpdateListener((va) -> {
+			invalidate();
+		});
+
+		return this;
+	}
+
+	public DkCompassView setMode(int compassMode) {
+		this.compassMode = compassMode;
+		return this;
+	}
+
+	public DkCompassView setShow24PointerLines(boolean show) {
+		isShow24PointerLines = show;
+		return this;
+	}
+
+	public DkCompassView setShowRotator(boolean show) {
+		isShowRotator = show;
+		return this;
+	}
+
+	public DkCompassView setShowPointer(boolean show) {
+		isShowPointer = show;
+		return this;
+	}
+
+	public boolean isShowRotator() {
+		return isShowRotator;
+	}
+
+	public boolean isShowPointer() {
+		return isShowPointer;
+	}
+
+	public int getMode() {
+		return compassMode;
+	}
+
+	public boolean isShow24PointerLines() {
+		return isShow24PointerLines;
+	}
+
+	/**
+	 * @return degrees (Oy based rotation) of the compass
+	 */
+	public double getCompassDegrees() {
+		switch (compassMode) {
+			case MODE_NORMAL: {
+				return compassDegreesInNormalMode;
+			}
+			case MODE_ROTATE: {
+				return compassDegreesInRotateMode;
+			}
+			case MODE_POINT: {
+				return compassDegreesInPointMode;
+			}
 		}
-		if (isCompassMovable && !isTouchInsideRotator) {
-			if (isShouldStartCountDown()) {
-				if (!countdownAnimator.isRunning()) {
-					countdownAnimator.start();
+		throw new RuntimeException("Invalid compass mode");
+	}
+
+	public int getCompassColor() {
+		return compassColor;
+	}
+
+	public int getCompassSemiColor() {
+		return compassSemiColor;
+	}
+
+	public boolean isAdjustCompass() {
+		return isAdjustCompass;
+	}
+
+	//endregion GetSet
+
+	private final DkDoubleFingerDetector.Listener gestureDetectorListener = new DkDoubleFingerDetector.Listener() {
+		@Override
+		public boolean onScale(float scaleFactor, float px, float py) {
+			if (! isAdjustCompass) {
+				return true;
+			}
+			if (! isTouchInsideRotator) {
+				scaleFactor = scaleFactor > 1.0f ? 1.01f : 0.99f;
+				compassBitmapZoomLevel += (scaleFactor - 1.0);
+				compassBitmapMatrix.postScale(scaleFactor, scaleFactor, compassCx, compassCy);
+				invalidate();
+				return true;
+			}
+			return false;
+		}
+
+		@Override
+		public boolean onDrag(float x1, float y1, float x2, float y2) {
+			if (! isAdjustCompass) {
+				return true;
+			}
+			if (isCompassMovable && ! isTouchInsideRotator) {
+				if (isShouldStartCountDown()) {
+					if (! countdownAnimator.isRunning()) {
+						countdownAnimator.start();
+					}
 				}
+				else {
+					postTranslateCompassMatrix(x2 - x1, y2 - y1);
+				}
+				invalidate();
+				return true;
 			}
-			else {
-				postTranslateCompassMatrix(x2 - x1, y2 - y1);
+			return false;
+		}
+
+		@Override
+		public boolean onRotate(float deltaDegrees, float px, float py) {
+			if (! isAdjustCompass) {
+				return true;
 			}
-			invalidate();
-			return true;
+			if (isTouchInsideRotator) {
+				postRotateCompassMatrix(deltaDegrees + lastAnimatedDegrees);
+				invalidate();
+				return true;
+			}
+			return false;
 		}
-		return false;
-	}
 
-	@Override
-	public boolean onRotate(float deltaDegrees, float px, float py) {
-		if (!isAdjustCompass) {
-			return true;
+		@Override
+		public boolean onDoubleTap() {
+			return false;
 		}
-		if (isTouchInsideRotator) {
-			postRotateCompassMatrix(deltaDegrees + lastAnimatedDegrees);
-			invalidate();
-			return true;
-		}
-		return false;
-	}
-
-	@Override
-	public boolean onDoubleTap() {
-		return false;
-	}
+	};
 
 	private void moveCompassToCenterAndStopCountdown() {
 		isCompassMovable = false;
@@ -962,107 +1081,6 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 		return 2000f;
 	}
 
-	//region GetSet
-	public DkCompassView setIsAdjustCompass(boolean isAdjust) {
-		isAdjustCompass = isAdjust;
-		return this;
-	}
-
-	public void setRotationFactor(double rotationFactor) {
-		this.rotationFactor = rotationFactor;
-	}
-
-	public void setHandlerDisablePeriodTime(long handlerDisablePeriodTime) {
-		rotatorDisabledCountDown = handlerDisablePeriodTime;
-	}
-
-	public DkCompassView setListener(DkCompassView.Listener listener) {
-		this.listener = listener;
-		return this;
-	}
-
-	public DkCompassView setCompassColor(int color) {
-		compassColor = color;
-		compassSemiColor = handlerColor = DkColors.toSemiColor(color);
-		compassPaint.setColorFilter(new PorterDuffColorFilter(compassColor, PorterDuff.Mode.SRC_ATOP));
-
-		countdownAnimator.setIntValues(color, compassSemiColor);
-		countdownAnimator.setEvaluator(controller.getArgbEvaluator());
-		countdownAnimator.removeAllUpdateListeners();
-		countdownAnimator.addUpdateListener((va) -> {
-			invalidate();
-		});
-
-		return this;
-	}
-
-	public DkCompassView setMode(int compassMode) {
-		this.compassMode = compassMode;
-		return this;
-	}
-
-	public DkCompassView setShow24PointerLines(boolean show) {
-		isShow24PointerLines = show;
-		return this;
-	}
-
-	public DkCompassView setShowRotator(boolean show) {
-		isShowRotator = show;
-		return this;
-	}
-
-	public DkCompassView setShowPointer(boolean show) {
-		isShowPointer = show;
-		return this;
-	}
-
-	public boolean isShowRotator() {
-		return isShowRotator;
-	}
-
-	public boolean isShowPointer() {
-		return isShowPointer;
-	}
-
-	public int getMode() {
-		return compassMode;
-	}
-
-	public boolean isShow24PointerLines() {
-		return isShow24PointerLines;
-	}
-
-	/**
-	 * @return degrees (Oy based rotation) of the compass
-	 */
-	public double getCompassDegrees() {
-		switch (compassMode) {
-			case MODE_NORMAL: {
-				return compassDegreesInNormalMode;
-			}
-			case MODE_ROTATE: {
-				return compassDegreesInRotateMode;
-			}
-			case MODE_POINT: {
-				return compassDegreesInPointMode;
-			}
-		}
-		throw new RuntimeException("Invalid compass mode");
-	}
-
-	public int getCompassColor() {
-		return compassColor;
-	}
-
-	public int getCompassSemiColor() {
-		return compassSemiColor;
-	}
-
-	public boolean isAdjustCompass() {
-		return isAdjustCompass;
-	}
-	//endregion GetSet
-
 	private String getPoleShortName(int index) {
 		return getPoleShortNames()[index];
 	}
@@ -1093,19 +1111,5 @@ public class DkCompassView extends View implements DkDoubleFingerDetector.Listen
 			};
 		}
 		return poleLongNames;
-	}
-
-	/**
-	 * @param poleShortNames Array contains 4 elements, for eg,. ['N', 'E', 'S', 'W']
-	 */
-	public void setPoleShortNames(String[] poleShortNames) {
-		this.poleShortNames = poleShortNames;
-	}
-
-	/**
-	 * @param poleLongNames Array contains 4 elements, for eg,. ['North', 'East', 'South', 'West']
-	 */
-	public void setPoleLongNames(String[] poleLongNames) {
-		this.poleLongNames = poleLongNames;
 	}
 }

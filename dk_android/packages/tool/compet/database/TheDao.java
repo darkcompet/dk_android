@@ -49,6 +49,8 @@ public abstract class TheDao<M> { // M: table model
 
 	public abstract long insert(Object model, @Nullable String[] fillable);
 
+	public abstract long lastInsertRowId();
+
 	// Trigger before update
 	public void onUpdate(Object model) {
 		if (model instanceof DkModel) {

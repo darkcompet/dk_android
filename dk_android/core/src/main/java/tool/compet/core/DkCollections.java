@@ -4,13 +4,11 @@
 
 package tool.compet.core;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.collection.ArraySet;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -23,11 +21,15 @@ public class DkCollections {
 		return collection == null || collection.size() == 0;
 	}
 
+	public static <M> int sizeOf(@Nullable List<M> list) {
+		return list == null ? 0 : list.size();
+	}
+
 	public static <T> Set<T> asSet(@Nullable T[] objs) {
 		if (objs == null || objs.length == 0) {
-			return new HashSet<>();
+			return new ArraySet<>();
 		}
-		Set<T> set = new HashSet<>(objs.length);
+		Set<T> set = new ArraySet<>(objs.length);
 		set.addAll(Arrays.asList(objs));
 		return set;
 	}
@@ -43,30 +45,17 @@ public class DkCollections {
 		return false;
 	}
 
-	public static void moveItem(@NonNull List<?> list, int fromPos, int toPos) {
-		if (fromPos < toPos) {
-			for (int index = fromPos; index < toPos; ++index) {
-				Collections.swap(list, index, index + 1);
-			}
-		}
-		else if (fromPos > toPos) {
-			for (int index = fromPos; index > toPos; --index) {
-				Collections.swap(list, index, index - 1);
-			}
-		}
-	}
-
 	/**
 	 * Only use it if you don't care about order of items in result list.
 	 */
-	public static <T> void fastRemove(T item, @NonNull List<T> list) {
+	public static <T> void fastRemove(T item, List<T> list) {
 		fastRemove(list.indexOf(item), list);
 	}
 
 	/**
 	 * Only use it if you don't care about order of items in result list.
 	 */
-	public static <T> void fastRemove(int index, @NonNull List<T> list) {
+	public static <T> void fastRemove(int index, List<T> list) {
 		int lastIndex = list.size() - 1;
 
 		if (index >= 0 && index <= lastIndex) {
@@ -90,9 +79,5 @@ public class DkCollections {
 			}
 		}
 		return -1;
-	}
-
-	public static <M> int sizeOf(@Nullable List<M> list) {
-		return list == null ? 0 : list.size();
 	}
 }

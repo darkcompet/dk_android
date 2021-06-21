@@ -29,28 +29,28 @@ class MyCompactRegistry {
 	static <L extends DkCompactLogic, D> void init(DkCompactView view, FragmentActivity host, @Nullable Bundle savedInstanceState) {
 		Class viewClass = view.getClass();
 		List<Field> viewLogics = DkReflectionFinder.getIns().findFields(viewClass, MyInjectLogic.class);
-		List<Field> viewDatas = DkReflectionFinder.getIns().findFields(viewClass, MyInjectData.class);
+		List<Field> viewModels = DkReflectionFinder.getIns().findFields(viewClass, MyInjectModel.class);
 
-		if (viewLogics.size() == 0 && viewDatas.size() == 0) {
+		if (viewLogics.size() == 0 && viewModels.size() == 0) {
 			return; // Ignore since no field to process
 		}
-		if (viewLogics.size() != 1 || viewDatas.size() != 1) {
-			throw new RuntimeException("Must declare only 1 ViewLogic and 1 ViewData inside View");
+		if (viewLogics.size() != 1 || viewModels.size() != 1) {
+			throw new RuntimeException("Must declare only 1 Logic and 1 Model inside View");
 		}
 
 		final Field viewLogicField = viewLogics.get(0);
-		final Field viewDataField = viewDatas.get(0);
+		final Field viewModelField = viewModels.get(0);
 
 		Type[] viewGenericTypes = DkReflections.getAllGenericOfSuperClass(viewClass);
 
-		// Only handle when have 2 generic arguments given (logic and data)
+		// Only handle when have 2 generic arguments given (logic and model)
 		if (viewGenericTypes != null && viewGenericTypes.length >= 2) {
 			// Obtain logic and data
 			Class<L> logicClass = (Class<L>) viewGenericTypes[0];
 			Class<D> dataClass = (Class<D>) viewGenericTypes[1];
 
 			if (! DkCompactLogic.class.isAssignableFrom(logicClass)) {
-				throw new RuntimeException(DkStrings.format("ViewLogic `%s` must be subclass of `DkCompactViewLogic`", logicClass.toString()));
+				throw new RuntimeException(DkStrings.format("Logic `%s` must be subclass of `DkCompactLogic`", logicClass.toString()));
 			}
 
 			// Logic is ViewModelOwner, so it get aware of its destroy completely
@@ -59,13 +59,12 @@ class MyCompactRegistry {
 			if (isInit) {
 				logic.model = instantiate(dataClass);
 			}
+			// Attach view as soon as possible
+			logic.view = view;
 
 			// Set Logic and Data fields inside View
 			setFieldValue(viewLogicField, view, logic);
-			setFieldValue(viewDataField, view, logic.model);
-
-			// Attach view as soon as possible
-			logic.view = view;
+			setFieldValue(viewModelField, view, logic.model);
 
 			// Tell Logic init state
 			if (isInit) {

@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -35,7 +36,9 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 	extends DkCompactDialogFragment<D>
 	implements View.OnClickListener, TheConfirmDialogInterface {
 
-	// Callback
+	/**
+	 * Callback
+	 */
 	public interface ConfirmCallback {
 		void onClick(TheConfirmDialogInterface dialog, View button);
 	}
@@ -59,24 +62,30 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 	public static final int LAYOUT_TYPE_VERTICAL_ACTIONS = 2;
 	protected int layoutType = LAYOUT_TYPE_VERTICAL_ACTIONS;
 
-	// Fullground (full screen, can touch outside to dismiss dialog)
-	protected ViewGroup vFullground;
+	/**
+	 * Background (rounded corner view, that is, dialog itself)
+	 */
 
-	// Background (rounded corner view, that is, dialog itself)
 	protected ViewGroup vBackground;
 	private Integer backgroundColor;
 	private Drawable backgroundDrawable;
 
-	// Header
+	/**
+	 * Header
+	 */
+
 	protected View vHeader;
 	protected TextView vTitle;
 	protected int iconResId; // store in instance state
 	protected int titleTextResId; // store in instance state
 	protected CharSequence title; // store in instance state
 	protected int subTitleTextResId; // store in instance state
-	protected Integer headerBackgroundColor; // store in instance state
+	protected int headerBackgroundColor = Color.TRANSPARENT; // store in instance state
 
-	// Body
+	/**
+	 * Body
+	 */
+
 	protected ViewGroup vBody;
 	protected int bodyLayoutResId; // store in instance state
 	protected float widthPercent = 0.85f; // store in instance state
@@ -90,7 +99,10 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 	protected String message; // store in instance state
 	protected Integer messageBackgroundColor; // store in instance state
 
-	// Footer
+	/**
+	 * Footer
+	 */
+
 	protected TextView vCancel;
 	protected TextView vReset;
 	protected TextView vOk;
@@ -101,10 +113,16 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 	private ConfirmCallback resetCb; // store in ViewModel
 	private ConfirmCallback okCb; // store in ViewModel
 
-	// Setting
+	/**
+	 * Setting
+	 */
+
 	protected boolean isDismissOnClickButton = true;
 	protected boolean isDismissOnTouchOutside = true;
 	protected boolean isFullScreen;
+
+	// Indicate this dialog is dismissable for some actions as: back pressed...
+	protected boolean cancelable = true;
 
 	@Override
 	public int layoutResourceId() {
@@ -120,111 +138,18 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 	}
 
 	@Override
-	public void onCreate(@Nullable Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-
-		onRestoreInstanceState(savedInstanceState);
-	}
-
-	@Override
-	public void onSaveInstanceState(@NonNull Bundle outState) {
-		onStoreInstanceState(outState);
-
-		super.onSaveInstanceState(outState);
+	public boolean onBackPressed() {
+		return ! cancelable; // TRUE: i will handle, FALSE: please popback
 	}
 
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+		// Call it before `super.onViewCreated()` since super will tell Logic that View is ready.
+		onInitChildren(view);
+
 		super.onViewCreated(view, savedInstanceState);
 
 		onSetupLayout(view);
-	}
-
-	// Subclass can override to customize layout setting
-	@SuppressLint("ClickableViewAccessibility")
-	protected void onSetupLayout(View view) {
-		// layout = background + foreground
-		// foreground = innner-padding + content (= header + content + footer)
-		// header = title + subtitle
-		// content = custom-view || message
-		// footer = buttons
-		vFullground = view.findViewById(R.id.dk_fullground);
-		vBackground = view.findViewById(R.id.dk_background);
-		vBody = view.findViewById(R.id.dk_body);
-
-		vHeader = view.findViewById(R.id.dk_header);
-		vTitle = view.findViewById(R.id.dk_title);
-		vMessage = view.findViewById(R.id.dk_message);
-		vCancel = view.findViewById(R.id.dk_cancel);
-		vReset = view.findViewById(R.id.dk_reset);
-		vOk = view.findViewById(R.id.dk_ok);
-
-		vFullground.setOnTouchListener((v, event) -> {
-			switch (event.getActionMasked()) {
-				case MotionEvent.ACTION_DOWN:
-					return true;
-				case MotionEvent.ACTION_UP: {
-					if (! DkViews.isInsideView(event, vBackground)) {
-						onClickOutside();
-					}
-					break;
-				}
-			}
-			return false;
-		});
-
-		// Background (rounded corner view)
-		decorBackground();
-
-		// Header
-		decorHeader();
-		decorIcon();
-		decorTitle();
-
-		// Body
-		decorBodyView();
-
-		// Footer
-		vCancel.setOnClickListener(this);
-		decorCancelButton();
-
-		vReset.setOnClickListener(this);
-		decorResetButton();
-
-		vOk.setOnClickListener(this);
-		decorOkButton();
-
-		// Background (dialog) dimension
-		ViewGroup.LayoutParams bkgLayoutParams = vBackground.getLayoutParams();
-		final int[] dimensions = DkConfig.displaySize();
-		if (bkgLayoutParams == null) {
-			bkgLayoutParams = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-		}
-		if (isFullScreen) {
-			bkgLayoutParams.width = bkgLayoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
-		}
-		if (widthPercent != 0) {
-			bkgLayoutParams.width = (int) (dimensions[0] * widthPercent);
-		}
-		if (heightPercent != 0) {
-			bkgLayoutParams.height = (int) (dimensions[1] * heightPercent);
-		}
-		if (widthRatio != 0 && heightRatio != 0) {
-			if (dimensionRatioBasedOnWidth) {
-				bkgLayoutParams.height = (int) (bkgLayoutParams.width * heightRatio / widthRatio);
-			}
-			else {
-				bkgLayoutParams.width = (int) (bkgLayoutParams.height * widthRatio / heightRatio);
-			}
-		}
-		vBackground.setLayoutParams(bkgLayoutParams);
-	}
-
-	@Override // onViewCreated() -> onViewStateRestored() -> onStart()
-	public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-		onRestoreInstanceState(savedInstanceState);
-
-		super.onViewStateRestored(savedInstanceState);
 	}
 
 	@Override // from View.OnClickListener interface
@@ -468,6 +393,92 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 	// region Protected
 
 	/**
+	 * Subclass can override to customize init children.
+	 */
+	protected void onInitChildren(View view) {
+		// layout = background + foreground
+		// foreground = innner-padding + content (= header + content + footer)
+		// header = title + subtitle
+		// content = custom-view || message
+		// footer = buttons
+		vBackground = view.findViewById(R.id.dk_background);
+		vBody = view.findViewById(R.id.dk_body);
+
+		vHeader = view.findViewById(R.id.dk_header);
+		vTitle = view.findViewById(R.id.dk_title);
+		vMessage = view.findViewById(R.id.dk_message);
+		vCancel = view.findViewById(R.id.dk_cancel);
+		vReset = view.findViewById(R.id.dk_reset);
+		vOk = view.findViewById(R.id.dk_ok);
+	}
+
+	/**
+	 * Subclass can override to customize layout setting.
+	 */
+	@SuppressLint("ClickableViewAccessibility")
+	protected void onSetupLayout(View view) {
+		view.setOnTouchListener((v, event) -> {
+			switch (event.getActionMasked()) {
+				case MotionEvent.ACTION_DOWN:
+					return true;
+				case MotionEvent.ACTION_UP: {
+					if (! DkViews.isInsideView(event, vBackground)) {
+						onClickOutside();
+					}
+					break;
+				}
+			}
+			return false;
+		});
+
+		// Background (rounded corner view)
+		decorBackground();
+
+		// Header
+		decorHeader();
+		decorIcon();
+		decorTitle();
+
+		// Body
+		decorBodyView();
+
+		// Footer
+		vCancel.setOnClickListener(this);
+		decorCancelButton();
+
+		vReset.setOnClickListener(this);
+		decorResetButton();
+
+		vOk.setOnClickListener(this);
+		decorOkButton();
+
+		// Background (dialog) dimension
+		ViewGroup.LayoutParams bkgLayoutParams = vBackground.getLayoutParams();
+		final int[] dimensions = DkConfig.displaySize();
+		if (bkgLayoutParams == null) {
+			bkgLayoutParams = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+		}
+		if (isFullScreen) {
+			bkgLayoutParams.width = bkgLayoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
+		}
+		if (widthPercent != 0) {
+			bkgLayoutParams.width = (int) (dimensions[0] * widthPercent);
+		}
+		if (heightPercent != 0) {
+			bkgLayoutParams.height = (int) (dimensions[1] * heightPercent);
+		}
+		if (widthRatio != 0 && heightRatio != 0) {
+			if (dimensionRatioBasedOnWidth) {
+				bkgLayoutParams.height = (int) (bkgLayoutParams.width * heightRatio / widthRatio);
+			}
+			else {
+				bkgLayoutParams.width = (int) (bkgLayoutParams.height * widthRatio / heightRatio);
+			}
+		}
+		vBackground.setLayoutParams(bkgLayoutParams);
+	}
+
+	/**
 	 * By default, this try to perform cancel-callback.
 	 * Subclass can override to customize click event.
 	 */
@@ -507,8 +518,11 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 		}
 	}
 
-	// Subclass can override this to store something
-	protected void onStoreInstanceState(@NonNull Bundle outState) {
+	@CallSuper
+	@Override
+	protected void storeInstanceState(@NonNull Bundle outState) {
+		super.storeInstanceState(outState);
+
 		if (backgroundColor != null) {
 			outState.putInt("DkConfirmDialog.backgroundColor", backgroundColor);
 		}
@@ -517,9 +531,7 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 		outState.putInt("DkConfirmDialog.titleTextResId", titleTextResId);
 		outState.putCharSequence("DkConfirmDialog.title", title);
 		outState.putInt("DkConfirmDialog.subTitleTextResId", subTitleTextResId);
-		if (headerBackgroundColor != null) {
-			outState.putInt("DkConfirmDialog.headerBackgroundColor", headerBackgroundColor);
-		}
+		outState.putInt("DkConfirmDialog.headerBackgroundColor", headerBackgroundColor);
 
 		if (bodyLayoutResId > 0) {
 			outState.putInt("DkConfirmDialog.bodyLayoutResId", bodyLayoutResId);
@@ -548,8 +560,9 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 		outState.putBoolean("DkConfirmDialog.isDismissOnClickButton", isDismissOnClickButton);
 		outState.putBoolean("DkConfirmDialog.isDismissOnTouchOutside", isDismissOnTouchOutside);
 		outState.putBoolean("DkConfirmDialog.isFullScreen", isFullScreen);
+		outState.putBoolean("DkConfirmDialog.cancelable", cancelable);
 
-		ConfirmTopic confirmTopic = viewHostTopic(CONFIRM_TOPIC).obtain(ConfirmTopic.class);
+		ConfirmTopic confirmTopic = joinHostTopic(CONFIRM_TOPIC).obtain(ConfirmTopic.class);
 		confirmTopic.cancelCb = this.cancelCb;
 		confirmTopic.resetCb = this.resetCb;
 		confirmTopic.okCb = this.okCb;
@@ -558,8 +571,11 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 		}
 	}
 
-	// Subclass can override this to restore something
-	protected void onRestoreInstanceState(@Nullable Bundle savedInstanceState) {
+	@CallSuper
+	@Override
+	protected void restoreInstanceState(@Nullable Bundle savedInstanceState) {
+		super.restoreInstanceState(savedInstanceState);
+
 		if (savedInstanceState != null) {
 			backgroundColor = savedInstanceState.getInt("DkConfirmDialog.backgroundColor");
 
@@ -584,8 +600,9 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 			isDismissOnClickButton = savedInstanceState.getBoolean("DkConfirmDialog.isDismissOnClickButton");
 			isDismissOnTouchOutside = savedInstanceState.getBoolean("DkConfirmDialog.isDismissOnTouchOutside");
 			isFullScreen = savedInstanceState.getBoolean("DkConfirmDialog.isFullScreen");
+			cancelable = savedInstanceState.getBoolean("DkConfirmDialog.cancelable", false);
 
-			ConfirmTopic confirmTopic = viewHostTopic(CONFIRM_TOPIC).obtain(ConfirmTopic.class);
+			ConfirmTopic confirmTopic = joinHostTopic(CONFIRM_TOPIC).obtain(ConfirmTopic.class);
 			this.cancelCb = confirmTopic.cancelCb;
 			this.resetCb = confirmTopic.resetCb;
 			this.okCb = confirmTopic.okCb;
@@ -613,9 +630,7 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 		if (vHeader == null) {
 			return;
 		}
-		if (headerBackgroundColor != null) {
-			vHeader.setBackgroundColor(headerBackgroundColor);
-		}
+		vHeader.setBackgroundColor(headerBackgroundColor);
 	}
 
 	private void decorIcon() {

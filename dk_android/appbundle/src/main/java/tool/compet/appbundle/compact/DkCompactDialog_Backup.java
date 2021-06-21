@@ -12,13 +12,8 @@ import android.view.View;
 import android.view.animation.Interpolator;
 
 import androidx.core.view.animation.PathInterpolatorCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 
-import tool.compet.appbundle.DkActivity;
 import tool.compet.appbundle.DkDialogFragment;
-import tool.compet.appbundle.DkFragment;
-import tool.compet.appbundle.navigator.DkFragmentNavigator;
 import tool.compet.appbundle.navigator.DkNavigatorOwner;
 import tool.compet.core.DkRunner2;
 import tool.compet.core.view.DkAnimationConfiguration;
@@ -36,7 +31,7 @@ import tool.compet.core.view.DkInterpolatorProvider;
 @SuppressWarnings("unchecked")
 public abstract class DkCompactDialog_Backup<D>
 	extends DkCompactFragment
-	implements DkDialogFragment, DkFragmentNavigator.Callback, DkNavigatorOwner {
+	implements DkDialogFragment, DkNavigatorOwner {
 
 	// onCreate() -> onCreateDialog() -> onCreateView()
 
@@ -229,23 +224,6 @@ public abstract class DkCompactDialog_Backup<D>
 	// endregion Get/Set
 
 	// region Private
-
-	private void notifyParentInactive() {
-		// Notify inactive for parent fragment
-		Fragment parent = getParentFragment();
-
-		// when null, parent is activity
-		if (parent == null) {
-			FragmentActivity host = getActivity();
-			if (host instanceof DkActivity) {
-				((DkActivity) host).onInactive(false);
-			}
-		}
-		// otherwise parent is fragment
-		else if (parent instanceof DkFragment) {
-			((DkFragment) parent).onInactive(false);
-		}
-	}
 
 	// endregion Private
 }

@@ -4,8 +4,9 @@
 
 package tool.compet.database;
 
+import androidx.collection.ArraySet;
+
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -13,7 +14,7 @@ import java.util.Set;
  */
 public class MyMySqlGrammar extends MyGrammar {
 	// SQLite available operators
-	private final Set<String> availableOperators = new HashSet<>(Arrays.asList(
+	private final Set<String> availableOperators = new ArraySet<>(Arrays.asList(
 		"=", "<", ">", "<=", ">=", "<>", "!=",
 		"like", "not like", "ilike",
 		"&", "|", "<<", ">>"

@@ -104,7 +104,9 @@ public class DkItem {
 	}
 
 	/**
-	 * Make view be normally displayed on its parent. Since the view is always visible, so just scale up to 1.
+	 * Make view be normally displayed on its parent.
+	 * Because we apply scale to view instead of making it to gone,
+	 * so the view is always visible, just scale up to 1.
 	 */
 	void show() {
 		View view = this.view;
@@ -121,7 +123,8 @@ public class DkItem {
 	}
 
 	/**
-	 * Make view be hidden on its parent. Note that, we make the view size to 0 instead of make it gone.
+	 * Make view be hidden on its parent.
+	 * We make the view size to 0 instead of make it gone.
 	 */
 	void hide() {
 		view.setScaleX(0f);

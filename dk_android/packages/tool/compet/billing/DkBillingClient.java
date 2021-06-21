@@ -9,6 +9,7 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.collection.ArraySet;
 
 import com.android.billingclient.api.BillingClient;
 import com.android.billingclient.api.BillingClientStateListener;
@@ -22,8 +23,8 @@ import com.android.billingclient.api.SkuDetailsParams;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import tool.compet.core.DkLogs;
 import tool.compet.core.DkRunner2;
@@ -91,7 +92,7 @@ public class DkBillingClient implements PurchasesUpdatedListener {
 
 	private BillingClient billingClient;
 	private final String publicKey;
-	private HashSet<String> revokedTokens;
+	private Set<String> revokedTokens;
 
 	// Caller can set this to listen event when purchase finish
 	@Nullable private PurchaseListener purchaseListener;
@@ -248,7 +249,7 @@ public class DkBillingClient implements PurchasesUpdatedListener {
 	 */
 	public void revokeAsync(String purchaseToken) {
 		if (revokedTokens == null) {
-			revokedTokens = new HashSet<>();
+			revokedTokens = new ArraySet<String>();
 		}
 		if (revokedTokens.contains(purchaseToken)) {
 			DkLogs.warning(this, "Skip revoke item which has already revoked");

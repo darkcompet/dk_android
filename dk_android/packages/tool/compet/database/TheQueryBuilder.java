@@ -48,11 +48,6 @@ public abstract class TheQueryBuilder<M> {
 	// Enable this to reduce mistake when query
 	private boolean enableStrictMode = true;
 
-	/**
-	 * @return Last insert row id.
-	 */
-	public abstract long lastInsertRowId();
-
 	protected final TheDao<M> dao;
 	protected final MyGrammar grammar;
 	protected String tableName;
@@ -369,13 +364,6 @@ public abstract class TheQueryBuilder<M> {
 		return rows == null || rows.size() == 0 ? null : rows.get(0);
 	}
 
-	/**
-	 * Subclass should override this to perform more efficient count calculation.
-	 */
-	public long count() {
-		return DkCollections.sizeOf(get());
-	}
-
 	public List<M> get() {
 		MyGrammar grammar = this.grammar;
 		String[] all = {
@@ -425,7 +413,7 @@ public abstract class TheQueryBuilder<M> {
 
 		dao.execQuery(query);
 
-		return lastInsertRowId();
+		return dao.lastInsertRowId();
 	}
 
 	public void update(Object model) {

@@ -48,18 +48,4 @@ public interface DkFragment {
 	 * @return true if finish succeed, otherwise failed.
 	 */
 	boolean close();
-
-	/**
-	 * Indicates the fragment is resumsed or come to front.
-	 *
-	 * @param isResume true if this fragment is in resume state, otherwise it is on front.
-	 */
-	void onActive(boolean isResume);
-
-	/**
-	 * Indicates the fragment is paused or go to behind.
-	 *
-	 * @param isPause true if this fragment is in pause state, otherwise it is in behind.
-	 */
-	void onInactive(boolean isPause);
 }

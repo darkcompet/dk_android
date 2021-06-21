@@ -9,26 +9,28 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import tool.compet.appbundle.DkFragment;
 import tool.compet.core.DkLogs;
 
 public class TheFragmentTransactor {
+	private final DkFragmentNavigator navigator;
+
 	private final int containerId;
 	private final FragmentManager fragmentManager;
 	private final FragmentTransaction transaction;
-	private final MyTagManager originTags;
-	private final MyTagManager tags;
+	private final MyTagManager originTags; // current tags, will accept work tags later
+	private final MyTagManager workTags; // for working, will apply to origin tags later
 	private int enterAnim;
 	private int exitAnim;
 	private int attachAnim;
 	private int detachAnim;
 
 	TheFragmentTransactor(DkFragmentNavigator navigator) {
+		this.navigator = navigator;
 		this.containerId = navigator.containerId;
 		this.fragmentManager = navigator.fm;
 		this.transaction = navigator.fm.beginTransaction();
 		this.originTags = navigator.tags;
-		this.tags = navigator.tags.deepClone();
+		this.workTags = navigator.tags.deepClone();
 	}
 
 	public TheFragmentTransactor setAnims(int enterAnim) {
@@ -73,7 +75,7 @@ public class TheFragmentTransactor {
 	}
 
 	public TheFragmentTransactor addIfAbsent(Fragment fragment, String tag) {
-		if (tags.contains(tag)) {
+		if (workTags.contains(tag)) {
 			DkLogs.info(this, "Ignore add since given fragment was existed");
 			return this;
 		}
@@ -88,8 +90,8 @@ public class TheFragmentTransactor {
 	 * Bring a fragment (child) to UI top if exist, otherwise add new fragment.
 	 */
 	public TheFragmentTransactor bringToTop(String tag) {
-		int index = tags.indexOf(tag);
-		if (index < 0 || index == tags.size() - 1) {
+		int index = workTags.lastIndexOf(tag);
+		if (index < 0 || index == workTags.size() - 1) {
 			return this; // not found or already at top -> ignore
 		}
 
@@ -111,7 +113,7 @@ public class TheFragmentTransactor {
 	}
 
 	public TheFragmentTransactor replaceTop(Fragment fragment, String tag) {
-		int lastIndex = tags.size() - 1;
+		int lastIndex = workTags.size() - 1;
 		if (lastIndex >= 0) {
 			performRemoveRange(lastIndex - 1, lastIndex);
 		}
@@ -126,8 +128,8 @@ public class TheFragmentTransactor {
 	}
 
 	public TheFragmentTransactor replace(Fragment fragment, String tag) {
-		tags.clear();
-		tags.add(new MyTag(tag));
+		workTags.clear();
+		workTags.add(new MyTag(tag));
 
 		transaction.setCustomAnimations(enterAnim, 0);
 		transaction.replace(containerId, fragment, tag);
@@ -143,7 +145,7 @@ public class TheFragmentTransactor {
 	 * Perform back with given `times`. That is, `times` fragments will be removed.
 	 */
 	public TheFragmentTransactor back(int times) {
-		int lastIndex = tags.size() - 1;
+		int lastIndex = workTags.size() - 1;
 		if (lastIndex < 0) {
 			DkLogs.notice(this, "Backstack empty -> ignore backing");
 			return this;
@@ -163,7 +165,7 @@ public class TheFragmentTransactor {
 	 * Remove from fragment manager a fragment which has tag equals to given `tag`.
 	 */
 	public TheFragmentTransactor remove(String tag) {
-		int index = tags.indexOf(tag);
+		int index = workTags.lastIndexOf(tag);
 		if (index < 0) {
 			DkLogs.notice(this, "Ignore remove fragment since not found tag `%s`", tag);
 			return this;
@@ -172,7 +174,7 @@ public class TheFragmentTransactor {
 	}
 
 	public TheFragmentTransactor removeRange(String fromTag, String toTag) {
-		return performRemoveRange(tags.indexOf(fromTag), tags.indexOf(toTag));
+		return performRemoveRange(workTags.lastIndexOf(fromTag), workTags.lastIndexOf(toTag));
 	}
 
 	public TheFragmentTransactor removeAllAfter(Class<? extends Fragment> fragClass) {
@@ -183,16 +185,16 @@ public class TheFragmentTransactor {
 	 * Remove all fragments which be located after given fragment by tag.
 	 */
 	public TheFragmentTransactor removeAllAfter(String tag) {
-		int index = tags.indexOf(tag);
+		int index = workTags.lastIndexOf(tag);
 		if (index < 0) {
 			DkLogs.notice(this, "Tag `%s` not found -> skip remove range", tag);
 			return this;
 		}
-		return performRemoveRange(index + 1, tags.size() - 1);
+		return performRemoveRange(index + 1, workTags.size() - 1);
 	}
 
 	public TheFragmentTransactor removeAll() {
-		return performRemoveRange(0, tags.size() - 1);
+		return performRemoveRange(0, workTags.size() - 1);
 	}
 
 	/**
@@ -203,13 +205,15 @@ public class TheFragmentTransactor {
 	 * - Commit all pending transactions
 	 * - Do NOT register this commit to framework's backstack
 	 *
-	 * @return true if some action was commited and no exception occured. Otherwise false.
+	 * @return true if there EXISTS operation was commited and NO exception occured. Otherwise false.
 	 */
 	public boolean commit() {
 		try {
-			transaction.commitNow(); // call `BackStackRecord.commitNow()`
-			applyChangesAndNotifyTargetFragment();
-			return true;
+			if (! transaction.isEmpty()) {
+				transaction.commitNow(); // call `BackStackRecord.commitNow()`
+				applyChangesAndReportCallback();
+				return true;
+			}
 		}
 		catch (Exception e) {
 			DkLogs.error(this, e);
@@ -225,30 +229,41 @@ public class TheFragmentTransactor {
 	 * - Commit all pending transactions
 	 * - Do NOT register this commit to framework's backstack
 	 *
-	 * @return true if some action was commited and no exception occured. Otherwise false.
+	 * @return true if there EXISTS operation was commited and NO exception occured. Otherwise false.
 	 */
 	public boolean commitAllowingStateLoss() {
 		try {
-			transaction.commitNowAllowingStateLoss();
-			applyChangesAndNotifyTargetFragment();
-			return true;
+			if (! transaction.isEmpty()) {
+				transaction.commitNowAllowingStateLoss(); // call `BackStackRecord.commitNowAllowingStateLoss()`
+				applyChangesAndReportCallback();
+				return true;
+			}
 		}
 		catch (Exception e) {
 			DkLogs.error(this, e);
-			return false;
 		}
+		return false;
 	}
 
 	// region Private
 
-	private void applyChangesAndNotifyTargetFragment() {
-		//todo notify active and inactive status to target fragment
+	private void applyChangesAndReportCallback() {
+		final int oldSize = originTags.size();
+		final int newSize = workTags.size();
 
-		originTags.copyFrom(tags);
+		// Apply changes of tags
+		originTags.applyChanges(workTags);
+
+		// Tell changed of stack
+		if (navigator.listeners != null) {
+			for (DkFragmentNavigator.Listener listener : navigator.listeners) {
+				listener.onStackSizeChanged(newSize, oldSize);
+			}
+		}
 	}
 
 	private TheFragmentTransactor performAdd(Fragment fragment, String tag) {
-		tags.add(new MyTag(tag));
+		workTags.add(new MyTag(tag));
 
 		transaction.setCustomAnimations(enterAnim, 0);
 		transaction.add(containerId, fragment, tag);
@@ -257,7 +272,7 @@ public class TheFragmentTransactor {
 	}
 
 	private TheFragmentTransactor performRemoveRange(int startIndex, int endIndex) {
-		final int lastIndex = tags.size() - 1;
+		final int lastIndex = workTags.size() - 1;
 
 		// Fix start, end range
 		if (startIndex < 0) {
@@ -274,11 +289,11 @@ public class TheFragmentTransactor {
 		}
 
 		for (int index = endIndex; index >= startIndex; --index) {
-			MyTag myTag = tags.get(index);
+			MyTag myTag = workTags.get(index);
 			Fragment fragment = fragmentManager.findFragmentByTag(myTag.tag);
 
 			if (fragment != null) {
-				tags.remove(myTag);
+				workTags.remove(myTag);
 
 				transaction.setCustomAnimations(exitAnim, 0);
 				transaction.remove(fragment);
@@ -290,7 +305,7 @@ public class TheFragmentTransactor {
 
 	// This makes fragment view be destroyed but the its state is still managed by fragment manager.
 	private TheFragmentTransactor performDetach(Fragment fragment) {
-		tags.remove(calcTag(fragment.getClass()));
+		workTags.remove(calcTag(fragment.getClass()));
 
 		transaction.setCustomAnimations(detachAnim, 0);
 		transaction.detach(fragment);
@@ -300,7 +315,7 @@ public class TheFragmentTransactor {
 
 	// Re-attach the fragment which was detached from UI before.
 	private TheFragmentTransactor performAttach(Fragment fragment) {
-		tags.add(new MyTag(calcTag(fragment.getClass())));
+		workTags.add(new MyTag(calcTag(fragment.getClass())));
 
 		transaction.setCustomAnimations(attachAnim, 0);
 		transaction.attach(fragment);
@@ -318,36 +333,8 @@ public class TheFragmentTransactor {
 	 */
 	@Nullable
 	private Fragment findFragmentByIndex(int index) {
-		MyTag myTag = tags.get(index);
+		MyTag myTag = workTags.get(index);
 		return myTag == null ? null : fragmentManager.findFragmentByTag(myTag.tag);
-	}
-
-	private void notifyFragmentActive(int index) {
-		Fragment fragment = findFragmentByIndex(index);
-
-		if (fragment instanceof DkFragment) {
-			notifyFragmentActive(fragment);
-		}
-	}
-
-	private void notifyFragmentActive(Fragment fragment) {
-		if (fragment.isAdded() && fragment.isResumed()) {
-			((DkFragment) fragment).onActive(false);
-		}
-	}
-
-	private void notifyFragmentInactive(int index) {
-		Fragment fragment = findFragmentByIndex(index);
-
-		if (fragment != null) {
-			notifyFragmentInactive(fragment);
-		}
-	}
-
-	private void notifyFragmentInactive(Fragment fragment) {
-		if (fragment.isAdded() && fragment.isResumed()) {
-			((DkFragment) fragment).onInactive(false);
-		}
 	}
 
 	// endregion Private

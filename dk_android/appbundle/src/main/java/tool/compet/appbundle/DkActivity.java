@@ -41,18 +41,4 @@ public interface DkActivity {
 	 * @return true if finish succeed, otherwise falied.
 	 */
 	boolean close();
-
-	/**
-	 * Indicates the activity is resumsed or come to front.
-	 *
-	 * @param isResume true if this activity is in resume state, otherwise it is on front.
-	 */
-	void onActive(boolean isResume);
-
-	/**
-	 * Indicates the activity is paused or go to behind.
-	 *
-	 * @param isPause true if this activity is in pause state, otherwise it is in behind.
-	 */
-	void onInactive(boolean isPause);
 }

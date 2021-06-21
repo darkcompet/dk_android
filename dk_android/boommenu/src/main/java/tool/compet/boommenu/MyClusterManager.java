@@ -145,7 +145,8 @@ class MyClusterManager {
 					items.get(i).setupAnimation(
 						animStartDelay + emissionDelayBetweenItems * i,
 						animDuration,
-						totalDuration);
+						totalDuration
+					);
 				}
 				break;
 			}
@@ -154,7 +155,8 @@ class MyClusterManager {
 					items.get(i).setupAnimation(
 						animStartDelay + emissionDelayBetweenItems * (lastIndex - i),
 						animDuration,
-						totalDuration);
+						totalDuration
+					);
 				}
 				break;
 			}
@@ -174,7 +176,8 @@ class MyClusterManager {
 					items.get(itemIndex).setupAnimation(
 						animStartDelay + emissionDelayBetweenItems * index,
 						animDuration,
-						totalDuration);
+						totalDuration
+					);
 				}
 				break;
 			}
