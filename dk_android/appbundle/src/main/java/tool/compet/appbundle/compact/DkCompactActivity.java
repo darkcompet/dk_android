@@ -114,7 +114,7 @@ public abstract class DkCompactActivity<L extends DkCompactLogic, M>
 
 		// Must run after #super.onCreate()
 		if (enableViewLogicDesignPattern()) {
-			MyCompactRegistry.init(this, this, savedInstanceState);
+			MyCompactInitializer.init(this, this, savedInstanceState);
 
 			if (logic != null) {
 				logic.onViewCreate(this, savedInstanceState);

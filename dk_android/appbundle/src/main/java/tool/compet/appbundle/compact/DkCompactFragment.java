@@ -121,7 +121,7 @@ public abstract class DkCompactFragment<L extends DkCompactLogic, M>
 
 		// Must run after #super.onCreate()
 		if (enableViewLogicDesignPattern()) {
-			MyCompactRegistry.init(this, host, savedInstanceState);
+			MyCompactInitializer.init(this, host, savedInstanceState);
 
 			if (logic != null) {
 				logic.onViewCreate(host, savedInstanceState);
@@ -320,7 +320,7 @@ public abstract class DkCompactFragment<L extends DkCompactLogic, M>
 	@Override // from `DkFragment`
 	public boolean close() {
 		try {
-			// Need try catch `getParentNavigator()` since this maybe cause exception (multiple time of calling this method)
+			// Multiple times of calling `getParentNavigator()` maybe cause exception
 			return getParentNavigator().beginTransaction().remove(this).commit();
 		}
 		catch (Exception e) {

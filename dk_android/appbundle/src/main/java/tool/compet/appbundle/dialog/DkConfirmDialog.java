@@ -4,6 +4,9 @@
 
 package tool.compet.appbundle.dialog;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -12,6 +15,7 @@ import android.text.method.ScrollingMovementMethod;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Interpolator;
 import android.widget.TextView;
 
 import androidx.annotation.CallSuper;
@@ -19,17 +23,23 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.animation.PathInterpolatorCompat;
 
 import tool.compet.appbundle.R;
 import tool.compet.appbundle.compact.DkCompactDialogFragment;
 import tool.compet.core.DkConfig;
+import tool.compet.core.DkLogs;
+import tool.compet.core.DkRunner2;
 import tool.compet.core.graphics.drawable.DkDrawables;
+import tool.compet.core.view.DkAnimationConfiguration;
+import tool.compet.core.view.DkInterpolatorProvider;
 import tool.compet.core.view.DkViews;
 
 /**
  * By default,
  * - Title, subtitle, message, buttons are gone
  * - Auto dismiss dialog when click to buttons or outside dialog
+ * - Default open, close animation
  */
 @SuppressWarnings("unchecked")
 public class DkConfirmDialog<D extends DkConfirmDialog>
@@ -58,15 +68,15 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 	private static final int INFO = Color.parseColor("#493ebb");
 	private static final int SUCCESS = Color.parseColor("#00bb4d");
 
-	public static final int LAYOUT_TYPE_HORIZONTAL_ACTIONS = 1;
-	public static final int LAYOUT_TYPE_VERTICAL_ACTIONS = 2;
+	public static final int LAYOUT_TYPE_HORIZONTAL_ACTIONS = 0;
+	public static final int LAYOUT_TYPE_VERTICAL_ACTIONS = 1;
 	protected int layoutType = LAYOUT_TYPE_VERTICAL_ACTIONS;
 
 	/**
-	 * Background (rounded corner view, that is, dialog itself)
+	 * Dialog content.
 	 */
 
-	protected ViewGroup vBackground;
+	protected ViewGroup vContent;
 	private Integer backgroundColor;
 	private Drawable backgroundDrawable;
 
@@ -124,6 +134,23 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 	// Indicate this dialog is dismissable for some actions as: back pressed...
 	protected boolean cancelable = true;
 
+	/**
+	 * Animation
+	 */
+
+	public static final int ANIM_ZOOM_IN = 1;
+	public static final int ANIM_SWIPE_DOWN = 2;
+	private static Interpolator animZoomInInterpolator;
+	private static Interpolator animSwipeDownInterpolator;
+
+	private ValueAnimator animator;
+	private boolean enableEnterAnimation = true; // whether has animation when show dialog
+	private boolean enableExitAnimation; // whether has animation when dismiss dialog
+	private int enterAnimationType = ANIM_ZOOM_IN;
+	private int exitAnimationType = -1;
+	private Interpolator animInterpolator;
+	private DkRunner2<ValueAnimator, View> animUpdater;
+
 	@Override
 	public int layoutResourceId() {
 		if (layoutType == LAYOUT_TYPE_VERTICAL_ACTIONS) {
@@ -150,6 +177,8 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 		super.onViewCreated(view, savedInstanceState);
 
 		onSetupLayout(view);
+
+		showEnterAnimation();
 	}
 
 	@Override // from View.OnClickListener interface
@@ -177,7 +206,7 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 
 	public D setBackgroundColor(int backgroundColor) {
 		this.backgroundColor = backgroundColor;
-		if (vBackground != null) {
+		if (vContent != null) {
 			decorBackground();
 		}
 		return (D) this;
@@ -401,7 +430,7 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 		// header = title + subtitle
 		// content = custom-view || message
 		// footer = buttons
-		vBackground = view.findViewById(R.id.dk_background);
+		vContent = view.findViewById(R.id.dk_background);
 		vBody = view.findViewById(R.id.dk_body);
 
 		vHeader = view.findViewById(R.id.dk_header);
@@ -422,7 +451,7 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 				case MotionEvent.ACTION_DOWN:
 					return true;
 				case MotionEvent.ACTION_UP: {
-					if (! DkViews.isInsideView(event, vBackground)) {
+					if (! DkViews.isInsideView(event, vContent)) {
 						onClickOutside();
 					}
 					break;
@@ -453,7 +482,7 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 		decorOkButton();
 
 		// Background (dialog) dimension
-		ViewGroup.LayoutParams bkgLayoutParams = vBackground.getLayoutParams();
+		ViewGroup.LayoutParams bkgLayoutParams = vContent.getLayoutParams();
 		final int[] dimensions = DkConfig.displaySize();
 		if (bkgLayoutParams == null) {
 			bkgLayoutParams = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -475,7 +504,7 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 				bkgLayoutParams.width = (int) (bkgLayoutParams.height * widthRatio / heightRatio);
 			}
 		}
-		vBackground.setLayoutParams(bkgLayoutParams);
+		vContent.setLayoutParams(bkgLayoutParams);
 	}
 
 	/**
@@ -615,14 +644,14 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 	// region Private
 
 	private void decorBackground() {
-		if (vBackground == null) {
+		if (vContent == null) {
 			return;
 		}
 		if (backgroundColor != null) {
-			vBackground.setBackgroundColor(backgroundColor);
+			vContent.setBackgroundColor(backgroundColor);
 		}
 		if (backgroundDrawable != null) {
-			ViewCompat.setBackground(vBackground, backgroundDrawable);
+			ViewCompat.setBackground(vContent, backgroundDrawable);
 		}
 	}
 
@@ -731,5 +760,154 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 		}
 	}
 
+	private void showEnterAnimation() {
+		if (enableEnterAnimation) {
+			if (vContent == null) {
+				return;
+			}
+			// Jump to end state to complete last animation
+			if (animator != null) {
+				animator.end();
+				animator.removeAllUpdateListeners();
+				animator.removeAllListeners();
+			}
+			else {
+				animator = ValueAnimator.ofFloat(0.8f, 1f);
+			}
+
+			animUpdater = getAnimationUpdater();
+			animInterpolator = getAnimationInterpolator();
+
+			animator.setDuration(DkAnimationConfiguration.ANIM_LARGE_EXPAND_DURATION);
+			animator.setInterpolator(animInterpolator);
+			animator.addUpdateListener(anim -> {
+				animUpdater.run(anim, vContent);
+			});
+			animator.addListener(new AnimatorListenerAdapter() {
+				@Override
+				public void onAnimationEnd(Animator animation) {
+//					super.onAnimationEnd(animation);
+//					onShowAnimationEnd(dialog);
+				}
+			});
+			animator.start();
+		}
+		else {
+//			onShowAnimationEnd(dialog);
+		}
+	}
+
+	private void showExitAnimation() {
+		if (enableExitAnimation) {
+			if (animator != null) {
+				animUpdater = getAnimationUpdater();
+				animInterpolator = getAnimationInterpolator();
+
+				animator.removeAllListeners();
+				animator.removeAllUpdateListeners();
+				animator.setDuration(DkAnimationConfiguration.ANIM_LARGE_COLLAPSE_DURATION);
+				animator.addListener(new AnimatorListenerAdapter() {
+					@Override
+					public void onAnimationEnd(Animator animation) {
+//						super.onAnimationEnd(animation);
+//						onDismissAnimationEnd(dialog);
+					}
+				});
+				animator.reverse();
+			}
+		}
+		else {
+//			onDismissAnimationEnd(dialog);
+		}
+	}
+
+	private Interpolator getAnimationInterpolator() {
+		if (animInterpolator == null) {
+			switch (enterAnimationType) {
+				case ANIM_ZOOM_IN: {
+					if (animZoomInInterpolator == null) {
+						animZoomInInterpolator = PathInterpolatorCompat.create(
+							0.78f, 1.27f,
+							0.87f, 1.06f);
+					}
+					animInterpolator = animZoomInInterpolator;
+					break;
+				}
+				case ANIM_SWIPE_DOWN: {
+					if (animSwipeDownInterpolator == null) {
+						animSwipeDownInterpolator = DkInterpolatorProvider.newElasticOut(true);
+					}
+					animInterpolator = animSwipeDownInterpolator;
+					break;
+				}
+				default: {
+					throw new RuntimeException("Invalid animType");
+				}
+			}
+		}
+		return animInterpolator;
+	}
+
+	private DkRunner2<ValueAnimator, View> getAnimationUpdater() {
+		if (animUpdater == null) {
+			switch (enterAnimationType) {
+				case ANIM_ZOOM_IN: {
+					animUpdater = (va, view) -> {
+						if (view != null) {
+							float scaleFactor = va.getAnimatedFraction();
+							DkLogs.debug(this, "scaleFactor: " + scaleFactor);
+							view.setScaleX(scaleFactor);
+							view.setScaleY(scaleFactor);
+						}
+					};
+					break;
+				}
+				case ANIM_SWIPE_DOWN: {
+					animUpdater = (va, view) -> {
+						if (view != null) {
+							view.setY((va.getAnimatedFraction() - 1) * view.getHeight() / 2);
+						}
+					};
+					break;
+				}
+				default: {
+					throw new RuntimeException("Invalid animType");
+				}
+			}
+		}
+		return animUpdater;
+	}
+
 	// endregion Private
+
+	// onCreate() -> onCreateDialog() -> onCreateView()
+
+	// onViewCreated() -> onViewStateRestored() -> onStart()
+
+	//	@Override
+	//	public void onStart() {
+	//		if (BuildConfig.DEBUG) {
+	//			DkLogs.info(this, "onStart");
+	//		}
+	//		super.onStart();
+	//
+	//		// At this time, window is displayed, so we can set size of the dialog
+	//		Dialog dialog = getDialog();
+	//
+	//		if (dialog != null) {
+	//			Window window = dialog.getWindow();
+	//
+	//			if (window != null) {
+	//				window.setLayout(MATCH_PARENT, MATCH_PARENT);
+	//				window.setBackgroundDrawable(new ColorDrawable(Color.YELLOW));
+	//
+	//				if (requestInputMethod()) {
+	//					window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+	//				}
+	//			}
+	//		}
+	//	}
+
+
+	// onSaveInstanceState() -> onDestroy()
 }

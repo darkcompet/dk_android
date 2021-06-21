@@ -19,7 +19,7 @@ import tool.compet.core.DkStrings;
 import tool.compet.core.reflection.DkReflectionFinder;
 
 @SuppressWarnings("unchecked")
-class MyCompactRegistry {
+class MyCompactInitializer {
 	/**
 	 * Start from all compact-annotated fields inside the View. Collect all compact-annotated fields
 	 * which be specified in each type of field. After at all, init them and inject to correspond field.
