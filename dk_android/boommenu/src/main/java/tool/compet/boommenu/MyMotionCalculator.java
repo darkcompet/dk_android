@@ -16,28 +16,28 @@ class MyMotionCalculator {
 	private final DkMovingShape movingShape;
 	private final Interpolator movingInterpolator;
 
-	public MyMotionCalculator(Interpolator movingInterpolator, DkMovingShape movingShape, PointF startPos, PointF endPos) {
+	MyMotionCalculator(Interpolator movingInterpolator, DkMovingShape movingShape, PointF startPos, PointF endPos) {
 		this.movingInterpolator = movingInterpolator;
 		this.movingShape = movingShape;
 		this.startPos = startPos;
 		this.endPos = endPos;
 	}
 
-	public void calculateCoordinates(float fraction) {
+	void calcCurrentCoordinates(float fraction) {
 		final float x1 = startPos.x;
 		final float y1 = startPos.y;
 		final float x2 = endPos.x;
 		final float y2 = endPos.y;
-		final float DX = x2 - x1;
-		final float DY = y2 - y1;
+		final float dx = x2 - x1;
+		final float dy = y2 - y1;
 
-		// Calculate X
-		this.curX = x1 + DX * movingInterpolator.getInterpolation(fraction);
+		// Calculate current X
+		curX = x1 + dx * movingInterpolator.getInterpolation(fraction);
 
-		// Calculate Y
+		// Calculate current Y
 		switch (movingShape) {
 			case LINE: {
-				this.curY = y1 + DY * (curX - x1) / DX;
+				curY = y1 + dy * (curX - x1) / dx;
 				break;
 			}
 			case PARABOL_UP: {
@@ -48,7 +48,7 @@ class MyMotionCalculator {
 				float b = (y1 - y2) / (x1 - x2) - a * (x1 + x2);
 				float c = y1 - x1 * (a * x1 + b);
 
-				this.curY = (a * curX + b) * curX + c;
+				curY = (a * curX + b) * curX + c;
 				break;
 			}
 			case PARABOL_DOWN: {
@@ -59,7 +59,7 @@ class MyMotionCalculator {
 				float b = (y1 - y2) / (x1 - x2) - a * (x1 + x2);
 				float c = y1 - x1 * (a * x1 + b);
 
-				this.curY = (a * curX + b) * curX + c;
+				curY = (a * curX + b) * curX + c;
 				break;
 			}
 			default: {

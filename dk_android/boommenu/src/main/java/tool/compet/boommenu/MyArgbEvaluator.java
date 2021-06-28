@@ -7,7 +7,7 @@ package tool.compet.boommenu;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
 
-import tool.compet.core.view.DkArgbEvaluator;
+import tool.compet.core.animation.DkArgbEvaluator;
 
 class MyArgbEvaluator extends DkArgbEvaluator {
 	private final int defaultDimColor;

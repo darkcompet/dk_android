@@ -2,7 +2,7 @@
  * Copyright (c) 2017-2021 DarkCompet. All rights reserved.
  */
 
-package tool.compet.core.view;
+package tool.compet.core.animation;
 
 import android.view.animation.Interpolator;
 
@@ -32,7 +32,7 @@ public class DkLookupTableInterpolator implements Interpolator {
 		// v(f) := interpolated result value
 		// v_s: start value, v_e: end value
 		// v(f) = v_s + (v_e - v_s) * interpolate(f)
-		if (fraction <= 0f) return 0f;
+		if (fraction <= 0.0f) return 0f;
 		if (fraction >= 1.0f) return 1.0f;
 
 		// Calculate index in lookup-table from current progress (fraction)

@@ -2,7 +2,7 @@
  * Copyright (c) 2017-2021 DarkCompet. All rights reserved.
  */
 
-package tool.compet.core.view;
+package tool.compet.core.animation;
 
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;

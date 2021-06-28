@@ -13,11 +13,11 @@ class MyAsyncPoster {
 	private final SerialExecutor serialExecutor;
 
 	MyAsyncPoster(DkEventBus eventbus) {
-		serialExecutor = new SerialExecutor(DkExecutorService.getIns(), eventbus);
+		serialExecutor = new SerialExecutor(DkExecutorService.getExecutor(), eventbus);
 	}
 
 	void post(DkEventBus eventbus, MySubscription subscription, Object event) {
-		DkExecutorService.getIns().execute(() -> {
+		DkExecutorService.getExecutor().execute(() -> {
 			eventbus.invokeSubscriber(subscription, event);
 		});
 	}

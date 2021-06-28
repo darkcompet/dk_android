@@ -80,7 +80,7 @@ public class DkItem {
 
 		if (f >= 0f && f <= 1f) {
 			View view = this.view;
-			motionCalculator.calculateCoordinates(f);
+			motionCalculator.calcCurrentCoordinates(f);
 			view.setX(motionCalculator.curX);
 			view.setY(motionCalculator.curY);
 

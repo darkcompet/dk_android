@@ -20,8 +20,8 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 
 import tool.compet.core.DkUtils;
-import tool.compet.core.view.DkAnimationConfiguration;
-import tool.compet.core.view.DkInterpolatorProvider;
+import tool.compet.core.animation.DkAnimationConfiguration;
+import tool.compet.core.animation.DkInterpolatorFunctions;
 
 /**
  * This class shows a menu with a lot of items (cluster), start from an anchor and end in
@@ -328,7 +328,7 @@ public class DkBoomMenu {
 		clusterManager.setupAnimation(animStartDelay, emissionDelayBetweenItems, boomDuration, totalDuration);
 
 		animator = ValueAnimator.ofInt(0, 1);
-		animator.setInterpolator(DkInterpolatorProvider.newLinear());
+		animator.setInterpolator(DkInterpolatorFunctions::linear);
 		animator.setStartDelay(animStartDelay);
 		animator.setDuration(totalDuration);
 		animator.addListener(listener);

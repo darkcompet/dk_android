@@ -42,7 +42,7 @@ public class DkExecutorService {
 		}
 	}
 
-	public static ScheduledThreadPoolExecutor getIns() {
+	public static ScheduledThreadPoolExecutor getExecutor() {
 		if (INS == null) {
 			throw new RuntimeException("Must call `install()` first");
 		}

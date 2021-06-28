@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
 
-import tool.compet.core.view.DkInterpolatorProvider;
+import tool.compet.core.animation.DkLookupTableInterpolator;
 
 class MyBackgroundLayout extends FrameLayout implements View.OnClickListener, View.OnTouchListener, View.OnKeyListener {
 	interface Listener {
@@ -36,9 +36,14 @@ class MyBackgroundLayout extends FrameLayout implements View.OnClickListener, Vi
 	private float f2;
 	private boolean needRoundStart = true;
 	private boolean needRoundEnd = true;
-	private MyGestureDetector detector;
+	private final MyGestureDetector detector;
 	private static final MyArgbEvaluator colorEvaluator = new MyArgbEvaluator(DEFAULT_DIM_COLOR);
-	private static final Interpolator interpolator = DkInterpolatorProvider.newCircOut(true);
+	private static final Interpolator interpolator = new DkLookupTableInterpolator(new float[] {
+		0.0000f, 0.2560f, 0.3590f, 0.4359f, 0.4989f, 0.5528f, 0.6000f, 0.6420f, 0.6799f, 0.7141f,
+		0.7454f, 0.7739f, 0.8000f, 0.8239f, 0.8459f, 0.8660f, 0.8844f, 0.9012f, 0.9165f, 0.9304f,
+		0.9428f, 0.9539f, 0.9638f, 0.9724f, 0.9798f, 0.9860f, 0.9911f, 0.9950f, 0.9978f, 0.9994f,
+		1.0000f
+	}); // ease circ out
 
 	MyBackgroundLayout(Context context) {
 		super(context);

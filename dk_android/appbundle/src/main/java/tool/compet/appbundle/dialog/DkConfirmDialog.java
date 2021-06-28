@@ -31,8 +31,8 @@ import tool.compet.core.DkConfig;
 import tool.compet.core.DkLogs;
 import tool.compet.core.DkRunner2;
 import tool.compet.core.graphics.DkDrawables;
-import tool.compet.core.view.DkAnimationConfiguration;
-import tool.compet.core.view.DkInterpolatorProvider;
+import tool.compet.core.animation.DkAnimationConfiguration;
+import tool.compet.core.animation.DkLookupTableInterpolator;
 import tool.compet.core.view.DkViews;
 
 /**
@@ -138,17 +138,21 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 	 * Animation
 	 */
 
-	public static final int ANIM_ZOOM_IN = 1;
+	// Zoom-in (bigger) and then Zomm-out (smaller)
+	public static final int ANIM_ZOOM_IN_OUT = 1;
+	// Like as spring mocks a ball which is pulling down
 	public static final int ANIM_SWIPE_DOWN = 2;
-	private static Interpolator animZoomInInterpolator;
-	private static Interpolator animSwipeDownInterpolator;
 
 	private ValueAnimator animator;
 	private boolean enableEnterAnimation = true; // whether has animation when show dialog
 	private boolean enableExitAnimation; // whether has animation when dismiss dialog
-	private int enterAnimationType = ANIM_ZOOM_IN;
+	private int enterAnimationType = ANIM_ZOOM_IN_OUT;
 	private int exitAnimationType = -1;
+
 	private Interpolator animInterpolator;
+	private Interpolator defaultEnterAnimInterpolator;
+	private Interpolator exitAnimInterpolator;
+
 	private DkRunner2<ValueAnimator, View> animUpdater;
 
 	@Override
@@ -417,6 +421,14 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 			vMessage.setBackgroundColor(messageBackgroundColor);
 		}
 		return (D) this;
+	}
+
+	public void setEnableEnterAnimation(boolean enableEnterAnimation) {
+		this.enableEnterAnimation = enableEnterAnimation;
+	}
+
+	public void setEnableExitAnimation(boolean enableExitAnimation) {
+		this.enableExitAnimation = enableExitAnimation;
 	}
 
 	// endregion Get/Set
@@ -767,7 +779,7 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 			}
 
 			animUpdater = acquireAnimationUpdater();
-			animInterpolator = acquireAnimationInterpolator();
+			animInterpolator = acquireEnterAnimationInterpolator();
 
 			animator.setDuration(150);
 			animator.setInterpolator(animInterpolator);
@@ -788,7 +800,7 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 	private void showExitAnimation() {
 		if (animator != null) {
 			animUpdater = acquireAnimationUpdater();
-			animInterpolator = acquireAnimationInterpolator();
+			animInterpolator = acquireEnterAnimationInterpolator();
 
 			animator.removeAllListeners();
 			animator.removeAllUpdateListeners();
@@ -804,41 +816,37 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 		}
 	}
 
-	private Interpolator acquireAnimationInterpolator() {
-		if (animInterpolator == null) {
-			switch (enterAnimationType) {
-				case ANIM_ZOOM_IN: {
-					if (animZoomInInterpolator == null) {
-//						animZoomInInterpolator = PathInterpolatorCompat.create(
-//							0.72f, 1.32f,
-//							0.90f, 1.33f);
-						animZoomInInterpolator = t -> {
-							DkLogs.debug(this, "t: %f", t);
-							return 1f;
-						};
-					}
-					animInterpolator = animZoomInInterpolator;
-					break;
-				}
-				case ANIM_SWIPE_DOWN: {
-					if (animSwipeDownInterpolator == null) {
-						animSwipeDownInterpolator = DkInterpolatorProvider.newElasticOut(true);
-					}
-					animInterpolator = animSwipeDownInterpolator;
-					break;
-				}
-				default: {
-					throw new RuntimeException("Invalid animType");
-				}
+	private Interpolator acquireEnterAnimationInterpolator() {
+		if (enterAnimationType == ANIM_ZOOM_IN_OUT) {
+			if (defaultEnterAnimInterpolator == null) {
+				defaultEnterAnimInterpolator = PathInterpolatorCompat.create(
+					0.72f, 1.32f,
+					0.90f, 1.33f);
 			}
 		}
-		return animInterpolator;
+		else if (enterAnimationType == ANIM_SWIPE_DOWN) {
+			if (defaultEnterAnimInterpolator == null) {
+				defaultEnterAnimInterpolator = new DkLookupTableInterpolator(null); // DkInterpolatorProvider.easeElasticOut()
+			}
+		}
+		else {
+			throw new RuntimeException("Invalid animType");
+		}
+		return (animInterpolator = defaultEnterAnimInterpolator);
 	}
+
+	private static float[] enterAnimationlookupTable = {
+		1f
+	};
+
+	private static float[] exitAnimationlookupTable = {
+		1f
+	};
 
 	private DkRunner2<ValueAnimator, View> acquireAnimationUpdater() {
 		if (animUpdater == null) {
 			switch (enterAnimationType) {
-				case ANIM_ZOOM_IN: {
+				case ANIM_ZOOM_IN_OUT: {
 					animUpdater = (va, view) -> {
 						float t = va.getAnimatedFraction();
 						float scaleFactor = (float) va.getAnimatedValue();

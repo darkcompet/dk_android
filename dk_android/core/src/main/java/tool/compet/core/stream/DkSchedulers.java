@@ -16,7 +16,7 @@ public class DkSchedulers {
 		if (ioScheduler == null) {
 			synchronized (DkSchedulers.class) {
 				if (ioScheduler == null) {
-					ioScheduler = new MyIoScheduler<>(DkExecutorService.getIns());
+					ioScheduler = new MyIoScheduler<>(DkExecutorService.getExecutor());
 				}
 			}
 		}

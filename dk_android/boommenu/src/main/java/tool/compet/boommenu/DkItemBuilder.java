@@ -32,7 +32,7 @@ public abstract class DkItemBuilder<T extends DkItemBuilder> {
 	protected Boolean enableRotation = null;
 	protected Boolean enable3DAnimation = null;
 	protected Boolean enableScale = null;
-	protected Interpolator movingInterpolator;
+	protected static Interpolator movingInterpolator;
 	protected DkMovingShape movingShape = DkMovingShape.LINE;
 	protected Boolean dismissMenuOnClickItem = null;
 	protected Boolean dismissMenuImmediate = null;
@@ -76,6 +76,7 @@ public abstract class DkItemBuilder<T extends DkItemBuilder> {
 			throw new RuntimeException("Must provide item view at `getView()`");
 		}
 		if (movingInterpolator == null) {
+			// up-down interpolator
 			movingInterpolator = PathInterpolatorCompat.create(
 				0.48f,
 				1.47f,
@@ -86,7 +87,7 @@ public abstract class DkItemBuilder<T extends DkItemBuilder> {
 			widthRatio = heightRatio = 1f;
 		}
 
-		// Just assign info to item first, we maybe need re-assign after
+		// Assign info to item first, maybe need re-assign later
 		item.index = index;
 		item.view = view;
 		item.onClickLisener = onClickListener;
@@ -148,7 +149,7 @@ public abstract class DkItemBuilder<T extends DkItemBuilder> {
 		if (scaleY > 0f) {
 			height *= scaleY;
 		}
-		// Auto fix start scaleFactor if oversize anchor (default make item equals to 1/8 size of anchor)
+		// Auto fix start scaleFactor if over anchor size (default make item equals to 1/8 size of anchor)
 		final float startWidth = anchorWidth >> 3;
 		final float startHeight = anchorHeight >> 3;
 		// choose suitable start scale factor

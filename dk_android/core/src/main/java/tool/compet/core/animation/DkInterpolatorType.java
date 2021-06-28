@@ -2,7 +2,7 @@
  * Copyright (c) 2017-2021 DarkCompet. All rights reserved.
  */
 
-package tool.compet.core.view;
+package tool.compet.core.animation;
 
 public enum DkInterpolatorType {
 	LINEAR, // line
