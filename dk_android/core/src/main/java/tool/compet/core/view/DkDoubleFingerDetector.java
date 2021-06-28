@@ -12,6 +12,10 @@ import tool.compet.core.DkLogs;
 
 import static tool.compet.core.BuildConfig.DEBUG;
 
+/**
+ * This supports detection of two fingers.
+ * By default, it detects some actions as: scale (zoom), rotate, double tap, drag...
+ */
 public class DkDoubleFingerDetector {
 	public interface Listener {
 		/**
@@ -29,7 +33,7 @@ public class DkDoubleFingerDetector {
 		 * @param x2 x of end point
 		 * @param y2 y of end point
 		 *
-		 * @return false if you are happy with this detection, so other events will be ignored to check.
+		 * @return false if you are happy with this detection, other events will be ignored to check.
 		 */
 		boolean onDrag(float x1, float y1, float x2, float y2);
 
@@ -67,12 +71,15 @@ public class DkDoubleFingerDetector {
 	private final int touchSlopSquare;
 	private final long doubleTapTimeout;
 
-	public DkDoubleFingerDetector(Context context, Listener listener) {
+	public DkDoubleFingerDetector(Context context) {
 		int touchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
-
-		this.listener = listener;
 		this.doubleTapTimeout = ViewConfiguration.getDoubleTapTimeout();
 		this.touchSlopSquare = touchSlop * touchSlop;
+	}
+
+	public DkDoubleFingerDetector(Context context, Listener listener) {
+		this(context);
+		this.listener = listener;
 	}
 
 	public void setListener(Listener listener) {
@@ -146,7 +153,7 @@ public class DkDoubleFingerDetector {
 		final int pid = event.getPointerId(index);
 
 		if (DEBUG) {
-			DkLogs.info(this, "Primary down~ pid: %d, index: %d", pid, index);
+			DkLogs.debug(this, "Primary down~ pid: %d, index: %d", pid, index);
 		}
 
 		isFirstTouched = true;
@@ -168,7 +175,7 @@ public class DkDoubleFingerDetector {
 		final int pid = event.getPointerId(index);
 
 		if (DEBUG) {
-			DkLogs.info(this, "Pointer down~ pid: %d, index: %d", pid, index);
+			DkLogs.debug(this, "Pointer down~ pid: %d, index: %d", pid, index);
 		}
 
 		f2Pid = pid;
@@ -189,7 +196,7 @@ public class DkDoubleFingerDetector {
 		final int pid = event.getPointerId(index);
 
 		if (DEBUG) {
-			DkLogs.info(this, "Primary up~ pid: %d, index: %d", pid, index);
+			DkLogs.debug(this, "Primary up~ pid: %d, index: %d", pid, index);
 		}
 
 		f1Pid = INVALID_PID;
@@ -203,7 +210,7 @@ public class DkDoubleFingerDetector {
 		final int pid = event.getPointerId(index);
 
 		if (DEBUG) {
-			DkLogs.info(this, "Pointer up~ pid: %d, index: %d", pid, index);
+			DkLogs.debug(this, "Pointer up~ pid: %d, index: %d", pid, index);
 		}
 
 		f2Pid = INVALID_PID;
@@ -271,7 +278,7 @@ public class DkDoubleFingerDetector {
 
 		if (rotatedAngleDegrees < 150) {
 			if (DEBUG) {
-				DkLogs.info(this, "skipped gesture with angle: " + rotatedAngleDegrees);
+				DkLogs.debug(this, "skipped gesture with angle: " + rotatedAngleDegrees);
 			}
 			updateLastTouches(firstX, firstY, secondX, secondY);
 			return;
@@ -297,7 +304,7 @@ public class DkDoubleFingerDetector {
 				isUserAcceptedAction = listener.onRotate(rotatedDegrees, px, py);
 			}
 			if (DEBUG) {
-				DkLogs.info(this, "rotatedDegrees: " + rotatedDegrees);
+				DkLogs.debug(this, "rotatedDegrees: " + rotatedDegrees);
 			}
 			updateLastTouches(firstX, firstY, secondX, secondY);
 			return;
@@ -325,7 +332,7 @@ public class DkDoubleFingerDetector {
 					(firstY + f1LastY + secondY + f2LastY) / 4f);
 			}
 			if (DEBUG) {
-				DkLogs.info(this, "scaleFactor: " + scaleFactor);
+				DkLogs.debug(this, "scaleFactor: " + scaleFactor);
 			}
 
 			updateLastTouches(firstX, firstY, secondX, secondY);
@@ -360,7 +367,7 @@ public class DkDoubleFingerDetector {
 		final int pid = event.getPointerId(index);
 
 		if (DEBUG) {
-			DkLogs.info(this, "Cancel or Outside pid: %d, index: %d", pid, index);
+			DkLogs.debug(this, "Cancel or Outside pid: %d, index: %d", pid, index);
 		}
 
 		f1Pid = INVALID_PID;

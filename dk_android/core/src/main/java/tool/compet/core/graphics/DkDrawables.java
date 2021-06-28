@@ -2,7 +2,7 @@
  * Copyright (c) 2017-2021 DarkCompet. All rights reserved.
  */
 
-package tool.compet.core.graphics.drawable;
+package tool.compet.core.graphics;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;

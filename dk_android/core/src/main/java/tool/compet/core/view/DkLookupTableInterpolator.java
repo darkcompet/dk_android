@@ -6,36 +6,47 @@ package tool.compet.core.view;
 
 import android.view.animation.Interpolator;
 
+/**
+ * Suppose we use `ValueAnimator` in animation. Usually, we pass an interpolator function
+ * to interpolate input to obtain various animation styles.
+ * But normally, interpolator is complex and maybe take a long time to calculate result value,
+ * instead of calculating at each step, we can use lookup-table to approximate result value.
+ */
 public class DkLookupTableInterpolator implements Interpolator {
-	private final float[] values;
-	private final float stepSize;
-	private final int lastIndex;
+	private final float[] lookupTable; // interpolated values
 
-	public DkLookupTableInterpolator(float[] interpolationValues) {
-		this.values = interpolationValues;
-		this.lastIndex = interpolationValues.length - 1;
-		this.stepSize = 1f / lastIndex;
+	/**
+	 * @param lookupTable Interpolated values, must start with 0.0000f and end with 1.0000f.
+	 */
+	public DkLookupTableInterpolator(float[] lookupTable) {
+		this.lookupTable = lookupTable;
 	}
 
+	/**
+	 * @param fraction Animation progress, range in [0f, 1f]. In theory, it is (currentElapsedTime / totalDuration).
+	 * @return Interpolated animation value, range in [0f, 1f].
+	 */
 	@Override
 	public float getInterpolation(float fraction) {
-		if (fraction <= 0f) {
-			return 0f;
+		// f := fraction (progress in range [0f, 1f])
+		// v(f) := interpolated result value
+		// v_s: start value, v_e: end value
+		// v(f) = v_s + (v_e - v_s) * interpolate(f)
+		if (fraction <= 0f) return 0f;
+		if (fraction >= 1.0f) return 1.0f;
+
+		// Calculate index in lookup-table from current progress (fraction)
+		final int lastIndex = lookupTable.length - 1;
+		final float position = fraction * lastIndex;
+		int index = (int) position;
+		// We cut-down at `lastIndex - 1` since later suppliment
+		if (index >= lastIndex) {
+			index = lastIndex - 1;
 		}
-		if (fraction >= 1.0f) {
-			return 1.0f;
-		}
 
-		// Calculate index - We use min with length - 2 to avoid IndexOutOfBoundsException when
-		// we lerp (linearly interpolate) in the return statement
-		int position = Math.min((int) (fraction * lastIndex), lastIndex - 1);
+		final float weight = position - index;
+		// value := (1 - w) * f(i) + w * f(i + 1);
 
-		// Calculate values to account for small offsets as the lookup table has discrete values
-		float quantized = position * stepSize;
-		float diff = fraction - quantized;
-		float weight = diff / stepSize;
-
-		// Linearly interpolate between the table values
-		return values[position] + weight * (values[position + 1] - values[position]);
+		return lookupTable[index] + weight * (lookupTable[index + 1] - lookupTable[index]);
 	}
 }

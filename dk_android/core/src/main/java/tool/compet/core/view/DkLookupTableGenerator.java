@@ -4,47 +4,57 @@
 
 package tool.compet.core.view;
 
-import android.annotation.SuppressLint;
+import tool.compet.core.DkCaller1;
+import tool.compet.core.DkConst;
+import tool.compet.core.DkStrings;
 
-import java.util.function.Function;
+public class DkLookupTableGenerator {
+	public static void main(String[] args) {
+		String lookupTable = generateLookupTableValues(300, t -> {
+			return t + 1f;
+		});
 
-class MyEaseLookupTable {
-	@SuppressLint({"NewApi", "DefaultLocale"})
-	public String generateLookupTableValues(Function<Float, Float> fractionConverter) {
-		//		println(generateLookupTableValues(fraction -> {
-		//			return (float) your_convert_function_here;
-		//		}));
+		System.out.println(lookupTable);
+	}
 
-		long duration = 3000;
-		StringBuilder sb = new StringBuilder(3000);
+	/**
+	 * Instead of use function to calculate animated-value for each step during animating,
+	 * we can use lookup table for faster animation.
+	 *
+	 * @param duration Animation duration in milli second, for eg,. 300 (ms)
+	 * @param animatedValueConverter Function which converts current step (0, 10, 20, ..., 300) to animated value.
+	 * @return Text contains sequent animated values which be called as interpolator table.
+	 */
+	public static String generateLookupTableValues(long duration, DkCaller1<Float, Float> animatedValueConverter) {
+		final StringBuilder builder = new StringBuilder(3000);
+		final long frameDelay = 10;
+		float step = 0f;
 
-		long frameDelay = 10;
-		String ls = System.getProperty("line.separator");
-
-		for (long i = 1, p = 0; p <= duration; p += frameDelay) {
-			float fraction = fractionConverter.apply(1f * p / duration);
-
-			String value = String.format("%.4f", fraction);
+		// duration 3000ms -> 300 steps
+		for (int index = 1; step <= duration; step += frameDelay) {
+			float progress = step / duration;
+			float fraction = animatedValueConverter.call(progress);
+			String value = DkStrings.format("%.4f", fraction);
 
 			if (value.equals("0.0000")) {
-				if (i == 1) {
-					sb.append(value).append("f, ");
-					++i;
+				if (index == 1) {
+					builder.append(value).append("f, ");
+					++index;
 				}
 				continue;
 			}
 
-			sb.append(value).append("f, ");
+			builder.append(value).append("f, ");
 
-			if (i++ % 10 == 0) {
-				sb.append(ls);
+			if (index++ % 10 == 0) {
+				builder.append(DkConst.LS);
 			}
 		}
 
-		int N = sb.length();
-		sb.delete(N - 2, N);
+		final int N = builder.length();
+		builder.delete(N - 2, N);
 
-		return sb.toString();
+		return builder.toString();
 	}
 
 	static float[] createQuadInValues() {

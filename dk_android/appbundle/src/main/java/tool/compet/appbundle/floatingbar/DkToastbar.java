@@ -18,7 +18,7 @@ import android.widget.TextView;
 import tool.compet.appbundle.R;
 import tool.compet.core.DkConfig;
 import tool.compet.core.DkRunner;
-import tool.compet.core.graphics.drawable.DkDrawables;
+import tool.compet.core.graphics.DkDrawables;
 
 /**
  * Differ with Android Toast, this just show a floating text on the layout of current activity.
@@ -38,9 +38,7 @@ public class DkToastbar extends DkFloatingbar<DkToastbar> {
 		super(context, parent, bar);
 
 		duration = DURATION_NORMAL;
-
 		tvMessage = bar.findViewById(R.id.dk_tv_message);
-
 		bar.setBackgroundDrawable(makeBarBackground());
 	}
 

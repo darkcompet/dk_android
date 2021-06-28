@@ -21,8 +21,8 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 
 import tool.compet.core.DkConfig;
 import tool.compet.core.DkConst;
-import tool.compet.core.graphics.drawable.DkDrawable;
-import tool.compet.core.graphics.drawable.DkRippleDrawable;
+import tool.compet.core.graphics.DkDrawable;
+import tool.compet.core.graphics.DkRippleDrawable;
 
 /**
  * This is compatible View, for eg,. it provides backward-compatibility for `foreground`.

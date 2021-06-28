@@ -30,7 +30,7 @@ import tool.compet.appbundle.compact.DkCompactDialogFragment;
 import tool.compet.core.DkConfig;
 import tool.compet.core.DkLogs;
 import tool.compet.core.DkRunner2;
-import tool.compet.core.graphics.drawable.DkDrawables;
+import tool.compet.core.graphics.DkDrawables;
 import tool.compet.core.view.DkAnimationConfiguration;
 import tool.compet.core.view.DkInterpolatorProvider;
 import tool.compet.core.view.DkViews;
@@ -178,7 +178,9 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 
 		onSetupLayout(view);
 
-		showEnterAnimation();
+		if (enableEnterAnimation) {
+			showEnterAnimation();
+		}
 	}
 
 	@Override // from View.OnClickListener interface
@@ -207,7 +209,7 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 	public D setBackgroundColor(int backgroundColor) {
 		this.backgroundColor = backgroundColor;
 		if (vContent != null) {
-			decorBackground();
+			decorContent();
 		}
 		return (D) this;
 	}
@@ -460,8 +462,8 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 			return false;
 		});
 
-		// Background (rounded corner view)
-		decorBackground();
+		// Dialog content (rounded corner view)
+		decorContent();
 
 		// Header
 		decorHeader();
@@ -643,142 +645,131 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 
 	// region Private
 
-	private void decorBackground() {
-		if (vContent == null) {
-			return;
-		}
-		if (backgroundColor != null) {
-			vContent.setBackgroundColor(backgroundColor);
-		}
-		if (backgroundDrawable != null) {
-			ViewCompat.setBackground(vContent, backgroundDrawable);
+	private void decorContent() {
+		if (vContent != null) {
+			if (backgroundColor != null) {
+				vContent.setBackgroundColor(backgroundColor);
+			}
+			if (backgroundDrawable != null) {
+				ViewCompat.setBackground(vContent, backgroundDrawable);
+			}
 		}
 	}
 
 	private void decorHeader() {
-		if (vHeader == null) {
-			return;
+		if (vHeader != null) {
+			vHeader.setBackgroundColor(headerBackgroundColor);
 		}
-		vHeader.setBackgroundColor(headerBackgroundColor);
 	}
 
 	private void decorIcon() {
-		if (vTitle == null) {
-			return;
-		}
-		if (iconResId > 0) {
-			if (layoutType == LAYOUT_TYPE_VERTICAL_ACTIONS) {
-				Drawable left = DkDrawables.loadDrawable(context, iconResId);
-				vTitle.setCompoundDrawables(left, null, null, null);
-			}
-			else if (layoutType == LAYOUT_TYPE_HORIZONTAL_ACTIONS) {
-				Drawable left = DkDrawables.loadDrawable(context, iconResId);
-				vTitle.setCompoundDrawables(left, null, null, null);
-			}
+		if (vTitle != null) {
+			if (iconResId > 0) {
+				if (layoutType == LAYOUT_TYPE_VERTICAL_ACTIONS) {
+					Drawable left = DkDrawables.loadDrawable(context, iconResId);
+					vTitle.setCompoundDrawables(left, null, null, null);
+				}
+				else if (layoutType == LAYOUT_TYPE_HORIZONTAL_ACTIONS) {
+					Drawable left = DkDrawables.loadDrawable(context, iconResId);
+					vTitle.setCompoundDrawables(left, null, null, null);
+				}
 
-			if (vTitle.getVisibility() != View.VISIBLE) {
-				vTitle.setVisibility(View.VISIBLE);
+				if (vTitle.getVisibility() != View.VISIBLE) {
+					vTitle.setVisibility(View.VISIBLE);
+				}
 			}
 		}
 	}
 
 	private void decorTitle() {
-		if (vTitle == null) {
-			return;
-		}
-		if (titleTextResId > 0) {
-			title = context.getString(titleTextResId);
-		}
-		if (title != null) {
-			DkViews.setTextSize(vTitle, 1.25f * vReset.getTextSize());
-			vTitle.setText(title);
-			vTitle.setVisibility(View.VISIBLE);
-		}
-		else {
-			vTitle.setVisibility(View.GONE);
+		if (vTitle != null) {
+			if (titleTextResId > 0) {
+				title = context.getString(titleTextResId);
+			}
+			if (title != null) {
+				DkViews.setTextSize(vTitle, 1.25f * vReset.getTextSize());
+				vTitle.setText(title);
+				vTitle.setVisibility(View.VISIBLE);
+			}
+			else {
+				vTitle.setVisibility(View.GONE);
+			}
 		}
 	}
 
 	private void decorBodyView() {
-		if (vMessage == null || vBody == null) {
-			return;
-		}
-		if (messageTextResId > 0 || message != null) {
-			if (messageBackgroundColor != null) {
-				vMessage.setBackgroundColor(messageBackgroundColor);
+		if (vMessage != null && vBody != null) {
+			if (messageTextResId > 0 || message != null) {
+				if (messageBackgroundColor != null) {
+					vMessage.setBackgroundColor(messageBackgroundColor);
+				}
+				if (messageTextResId > 0) {
+					message = context.getString(messageTextResId);
+				}
+				DkViews.setTextSize(vMessage, 1.125f * vReset.getTextSize());
+				vMessage.setMovementMethod(new ScrollingMovementMethod());
+				vMessage.setText(message);
+				vMessage.setVisibility(View.VISIBLE);
 			}
-			if (messageTextResId > 0) {
-				message = context.getString(messageTextResId);
+			else if (bodyLayoutResId > 0) {
+				vBody.removeAllViews();
+				vBody.addView(View.inflate(context, bodyLayoutResId, null));
 			}
-			DkViews.setTextSize(vMessage, 1.125f * vReset.getTextSize());
-			vMessage.setMovementMethod(new ScrollingMovementMethod());
-			vMessage.setText(message);
-			vMessage.setVisibility(View.VISIBLE);
-		}
-		else if (bodyLayoutResId > 0) {
-			vBody.removeAllViews();
-			vBody.addView(View.inflate(context, bodyLayoutResId, null));
 		}
 	}
 
 	private void decorCancelButton() {
-		if (vCancel == null) {
-			return;
-		}
-		if (cancelTextResId > 0) {
-			vCancel.setVisibility(View.VISIBLE);
-			vCancel.setText(cancelTextResId);
-		}
-		else {
-			vCancel.setVisibility(View.GONE);
+		if (vCancel != null) {
+			if (cancelTextResId > 0) {
+				vCancel.setVisibility(View.VISIBLE);
+				vCancel.setText(cancelTextResId);
+			}
+			else {
+				vCancel.setVisibility(View.GONE);
+			}
 		}
 	}
 
 	private void decorResetButton() {
-		if (vReset == null) {
-			return;
-		}
-		if (resetTextResId > 0) {
-			vReset.setVisibility(View.VISIBLE);
-			vReset.setText(resetTextResId);
-		}
-		else {
-			vReset.setVisibility(View.GONE);
+		if (vReset != null) {
+			if (resetTextResId > 0) {
+				vReset.setVisibility(View.VISIBLE);
+				vReset.setText(resetTextResId);
+			}
+			else {
+				vReset.setVisibility(View.GONE);
+			}
 		}
 	}
 
 	private void decorOkButton() {
-		if (vOk == null) {
-			return;
-		}
-		if (okTextResId > 0) {
-			vOk.setVisibility(View.VISIBLE);
-			vOk.setText(okTextResId);
-		}
-		else {
-			vOk.setVisibility(View.GONE);
+		if (vOk != null) {
+			if (okTextResId > 0) {
+				vOk.setVisibility(View.VISIBLE);
+				vOk.setText(okTextResId);
+			}
+			else {
+				vOk.setVisibility(View.GONE);
+			}
 		}
 	}
 
 	private void showEnterAnimation() {
-		if (enableEnterAnimation) {
-			if (vContent == null) {
-				return;
-			}
+		if (vContent != null) {
 			// Jump to end state to complete last animation
-			if (animator != null) {
+			if (animator == null) {
+				animator = ValueAnimator.ofFloat(0.85f, 1f);
+			}
+			else {
 				animator.end();
 				animator.removeAllUpdateListeners();
 				animator.removeAllListeners();
 			}
-			else {
-				animator = ValueAnimator.ofFloat(0.8f, 1f);
-			}
 
-			animUpdater = getAnimationUpdater();
-			animInterpolator = getAnimationInterpolator();
+			animUpdater = acquireAnimationUpdater();
+			animInterpolator = acquireAnimationInterpolator();
 
-			animator.setDuration(DkAnimationConfiguration.ANIM_LARGE_EXPAND_DURATION);
+			animator.setDuration(150);
 			animator.setInterpolator(animInterpolator);
 			animator.addUpdateListener(anim -> {
 				animUpdater.run(anim, vContent);
@@ -786,49 +777,45 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 			animator.addListener(new AnimatorListenerAdapter() {
 				@Override
 				public void onAnimationEnd(Animator animation) {
-//					super.onAnimationEnd(animation);
-//					onShowAnimationEnd(dialog);
+					//					super.onAnimationEnd(animation);
+					//					onShowAnimationEnd(dialog);
 				}
 			});
 			animator.start();
 		}
-		else {
-//			onShowAnimationEnd(dialog);
-		}
 	}
 
 	private void showExitAnimation() {
-		if (enableExitAnimation) {
-			if (animator != null) {
-				animUpdater = getAnimationUpdater();
-				animInterpolator = getAnimationInterpolator();
+		if (animator != null) {
+			animUpdater = acquireAnimationUpdater();
+			animInterpolator = acquireAnimationInterpolator();
 
-				animator.removeAllListeners();
-				animator.removeAllUpdateListeners();
-				animator.setDuration(DkAnimationConfiguration.ANIM_LARGE_COLLAPSE_DURATION);
-				animator.addListener(new AnimatorListenerAdapter() {
-					@Override
-					public void onAnimationEnd(Animator animation) {
-//						super.onAnimationEnd(animation);
-//						onDismissAnimationEnd(dialog);
-					}
-				});
-				animator.reverse();
-			}
-		}
-		else {
-//			onDismissAnimationEnd(dialog);
+			animator.removeAllListeners();
+			animator.removeAllUpdateListeners();
+			animator.setDuration(DkAnimationConfiguration.ANIM_LARGE_COLLAPSE_DURATION);
+			animator.addListener(new AnimatorListenerAdapter() {
+				@Override
+				public void onAnimationEnd(Animator animation) {
+					//						super.onAnimationEnd(animation);
+					//						onDismissAnimationEnd(dialog);
+				}
+			});
+			animator.reverse();
 		}
 	}
 
-	private Interpolator getAnimationInterpolator() {
+	private Interpolator acquireAnimationInterpolator() {
 		if (animInterpolator == null) {
 			switch (enterAnimationType) {
 				case ANIM_ZOOM_IN: {
 					if (animZoomInInterpolator == null) {
-						animZoomInInterpolator = PathInterpolatorCompat.create(
-							0.78f, 1.27f,
-							0.87f, 1.06f);
+//						animZoomInInterpolator = PathInterpolatorCompat.create(
+//							0.72f, 1.32f,
+//							0.90f, 1.33f);
+						animZoomInInterpolator = t -> {
+							DkLogs.debug(this, "t: %f", t);
+							return 1f;
+						};
 					}
 					animInterpolator = animZoomInInterpolator;
 					break;
@@ -848,25 +835,22 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 		return animInterpolator;
 	}
 
-	private DkRunner2<ValueAnimator, View> getAnimationUpdater() {
+	private DkRunner2<ValueAnimator, View> acquireAnimationUpdater() {
 		if (animUpdater == null) {
 			switch (enterAnimationType) {
 				case ANIM_ZOOM_IN: {
 					animUpdater = (va, view) -> {
-						if (view != null) {
-							float scaleFactor = va.getAnimatedFraction();
-							DkLogs.debug(this, "scaleFactor: " + scaleFactor);
-							view.setScaleX(scaleFactor);
-							view.setScaleY(scaleFactor);
-						}
+						float t = va.getAnimatedFraction();
+						float scaleFactor = (float) va.getAnimatedValue();
+						DkLogs.debug(this, "t: %f -> v: %f", t, scaleFactor);
+						view.setScaleX(scaleFactor);
+						view.setScaleY(scaleFactor);
 					};
 					break;
 				}
 				case ANIM_SWIPE_DOWN: {
 					animUpdater = (va, view) -> {
-						if (view != null) {
-							view.setY((va.getAnimatedFraction() - 1) * view.getHeight() / 2);
-						}
+						view.setY((va.getAnimatedFraction() - 1) * view.getHeight() / 2);
 					};
 					break;
 				}
