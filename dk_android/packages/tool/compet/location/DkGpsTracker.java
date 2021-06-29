@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import tool.compet.core.DkConst;
-import tool.compet.core.DkLogs;
+import tool.compet.core.DkLogcats;
 import tool.compet.core.DkUtils;
 
 import static tool.compet.core.BuildConfig.DEBUG;
@@ -116,14 +116,14 @@ public class DkGpsTracker extends LocationCallback implements
 	@Override
 	public void onConnectionSuspended(int i) {
 		if (DEBUG) {
-			DkLogs.info(this, "onConnectionSuspended: " + i);
+			DkLogcats.info(this, "onConnectionSuspended: " + i);
 		}
 	}
 
 	@Override
 	public void onConnectionFailed(@NonNull ConnectionResult result) {
 		if (DEBUG) {
-			DkLogs.info(this, "onConnectionFailed !!");
+			DkLogcats.info(this, "onConnectionFailed !!");
 		}
 	}
 
@@ -141,7 +141,7 @@ public class DkGpsTracker extends LocationCallback implements
 
 	public void start() {
 		if (! DkUtils.checkPermission(host, DkConst.ACCESS_FINE_LOCATION, DkConst.ACCESS_COARSE_LOCATION)) {
-			DkLogs.warning(this, "Could not start gps tracker since lack of permission");
+			DkLogcats.warning(this, "Could not start gps tracker since lack of permission");
 			return;
 		}
 		providerClient.requestLocationUpdates(locationRequest, this, null);

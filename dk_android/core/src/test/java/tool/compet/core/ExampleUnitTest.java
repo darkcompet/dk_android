@@ -18,9 +18,6 @@ package tool.compet.core;
 
 import org.junit.Test;
 
-import tool.compet.core.animation.DkInterpolatorFunctions;
-import tool.compet.core.animation.DkLookupTableGenerator;
-
 /**
  * Example local unit test, which will execute on the development machine (host).
  *
@@ -29,7 +26,5 @@ import tool.compet.core.animation.DkLookupTableGenerator;
 public class ExampleUnitTest {
 	@Test
 	public void foo() {
-		String table = DkLookupTableGenerator.generateLookupTableValues(300, DkInterpolatorFunctions::easeCubicOut);
-		System.out.println(table);
 	}
 }

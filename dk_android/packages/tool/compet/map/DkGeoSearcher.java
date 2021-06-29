@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import tool.compet.core.DkLogs;
+import tool.compet.core.DkLogcats;
 import tool.compet.location.DkLocation;
 import tool.compet.location.DkLocations;
 
@@ -33,7 +33,7 @@ public class DkGeoSearcher {
 			return geocoder.getFromLocation(lat, lng, 3);
 		}
 		catch (Exception e) {
-			DkLogs.error(this, e);
+			DkLogcats.error(this, e);
 			return Collections.emptyList();
 		}
 	}
@@ -43,7 +43,7 @@ public class DkGeoSearcher {
 			return geocoder.getFromLocationName(name, 3);
 		}
 		catch (Exception e) {
-			DkLogs.error(this, e);
+			DkLogcats.error(this, e);
 			return Collections.emptyList();
 		}
 	}

@@ -11,7 +11,7 @@ import android.location.Address;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import tool.compet.core.DkLogs;
+import tool.compet.core.DkLogcats;
 
 public class DkLocations {
 	public static DkLocation[] jsonAutoComplete2myLocation(String jsonAuto) {
@@ -66,7 +66,7 @@ public class DkLocations {
 			return res;
 		}
 		catch (Exception e) {
-			DkLogs.error(DkLocations.class, e);
+			DkLogcats.error(DkLocations.class, e);
 			return null;
 		}
 	}
@@ -90,7 +90,7 @@ public class DkLocations {
 			return res;
 		}
 		catch (Exception e) {
-			DkLogs.error(DkLocations.class, e);
+			DkLogcats.error(DkLocations.class, e);
 			return null;
 		}
 	}

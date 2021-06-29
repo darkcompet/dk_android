@@ -12,8 +12,8 @@ import androidx.annotation.NonNull;
 import java.io.File;
 import java.io.IOException;
 
-import tool.compet.core.DkFiles;
-import tool.compet.core.DkStrings;
+import tool.compet.core4j.DkFiles;
+import tool.compet.core4j.DkStrings;
 import tool.compet.core.graphics.DkBitmaps;
 
 public class DkInternalStorage {

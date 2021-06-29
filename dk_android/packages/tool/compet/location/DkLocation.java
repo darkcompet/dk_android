@@ -9,7 +9,7 @@ import android.location.Location;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
-import tool.compet.core.DkStrings;
+import tool.compet.core4j.DkStrings;
 
 /**
  * Dk defined location model.

@@ -12,9 +12,9 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import tool.compet.core.DkLogs;
-import tool.compet.core.DkStrings;
-import tool.compet.http.DkHttpClient;
+import tool.compet.core.DkLogcats;
+import tool.compet.core4j.DkStrings;
+import tool.compet.http4j.DkHttpClient;
 
 /**
  * Search location (address, elevation...) with open api.
@@ -41,7 +41,7 @@ public class DkOpenApiSearcher {
 				.execute().body().string();
 		}
 		catch (Exception e) {
-			DkLogs.error(DkOpenApiSearcher.class, e);
+			DkLogcats.error(DkOpenApiSearcher.class, e);
 			data = "";
 		}
 
@@ -68,7 +68,7 @@ public class DkOpenApiSearcher {
 			}
 		}
 		catch (Exception e) {
-			DkLogs.error(DkLocations.class, e);
+			DkLogcats.error(DkLocations.class, e);
 		}
 		return result;
 	}

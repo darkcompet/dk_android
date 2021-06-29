@@ -10,9 +10,9 @@ import android.content.SharedPreferences;
 
 import java.util.Set;
 
-import tool.compet.core.DkJsonHelper;
-import tool.compet.core.DkLogs;
-import tool.compet.core.DkMaths;
+import tool.compet.json4j.DkJsonConverter;
+import tool.compet.core.DkLogcats;
+import tool.compet.core4j.DkMaths;
 
 /**
  * This works as memory-cache (after first time of retriving data from system file).
@@ -154,7 +154,7 @@ public class DkSharedPreferences {
 			return preferences.getString(key, null);
 		}
 		catch (Exception e) {
-			DkLogs.error(this, e);
+			DkLogcats.error(this, e);
 		}
 		return null;
 	}
@@ -165,7 +165,7 @@ public class DkSharedPreferences {
 			return preferences.getString(key, defaultValue);
 		}
 		catch (Exception e) {
-			DkLogs.error(this, e);
+			DkLogcats.error(this, e);
 		}
 		return defaultValue;
 	}
@@ -188,7 +188,7 @@ public class DkSharedPreferences {
 			return preferences.getStringSet(key, null);
 		}
 		catch (Exception e) {
-			DkLogs.error(this, e);
+			DkLogcats.error(this, e);
 		}
 		return null;
 	}
@@ -199,7 +199,7 @@ public class DkSharedPreferences {
 			return preferences.getStringSet(key, defaultValue);
 		}
 		catch (Exception e) {
-			DkLogs.error(this, e);
+			DkLogcats.error(this, e);
 		}
 		return defaultValue;
 	}
@@ -213,15 +213,15 @@ public class DkSharedPreferences {
 	//
 
 	public void putJsonObject(String key, Object value) {
-		putString(key, DkJsonHelper.getIns().obj2json(value));
+		putString(key, DkJsonConverter.getIns().obj2json(value));
 	}
 
 	public <T> T getJsonObject(String key, Class<T> resClass) {
-		return DkJsonHelper.getIns().json2obj(getString(key), resClass);
+		return DkJsonConverter.getIns().json2obj(getString(key), resClass);
 	}
 
 	public void storeJsonObject(String key, Object value) {
-		storeString(key, DkJsonHelper.getIns().obj2json(value));
+		storeString(key, DkJsonConverter.getIns().obj2json(value));
 	}
 
 	//

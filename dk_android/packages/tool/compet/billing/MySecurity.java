@@ -11,9 +11,9 @@ import java.security.PublicKey;
 import java.security.Signature;
 import java.security.spec.X509EncodedKeySpec;
 
-import tool.compet.core.DkLogs;
+import tool.compet.core.DkLogcats;
 
-import static tool.compet.core.DkObjects.empty;
+import static tool.compet.core4j.DkObjects.empty;
 
 class MySecurity {
 	private static final String KEY_FACTORY_ALGORITHM = "RSA";
@@ -35,7 +35,7 @@ class MySecurity {
 			return keyFactory.generatePublic(new X509EncodedKeySpec(decodedKey));
 		}
 		catch (Exception e) {
-			DkLogs.error(MySecurity.class, e);
+			DkLogcats.error(MySecurity.class, e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -57,7 +57,7 @@ class MySecurity {
 			return signatureAlgorithm.verify(signatureBytes);
 		}
 		catch (Exception e) {
-			DkLogs.error(MySecurity.class, e);
+			DkLogcats.error(MySecurity.class, e);
 		}
 
 		return false;

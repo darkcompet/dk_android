@@ -11,11 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import tool.compet.core.BuildConfig;
-import tool.compet.core.DkDateTimes;
-import tool.compet.core.DkLogger;
-import tool.compet.core.DkRunner2;
-import tool.compet.core.DkStrings;
-import tool.compet.core.DkUtils;
+import tool.compet.core4j.DkDateTimes;
+import tool.compet.core4j.DkLogger;
+import tool.compet.core4j.DkRunner2;
+import tool.compet.core4j.DkStrings;
+import tool.compet.core4j.DkUtils;
 
 /**
  * File log. It provides log callback, benchmark...

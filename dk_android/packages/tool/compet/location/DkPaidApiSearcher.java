@@ -13,13 +13,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import tool.compet.core.DkLogs;
-import tool.compet.core.DkStrings;
-import tool.compet.http.DkHttpClient;
+import tool.compet.core.DkLogcats;
+import tool.compet.core4j.DkStrings;
+import tool.compet.http4j.DkHttpClient;
 
 import static java.util.Locale.US;
 import static tool.compet.core.BuildConfig.DEBUG;
-import static tool.compet.core.DkStrings.white;
+import static tool.compet.core4j.DkStrings.white;
 
 public class DkPaidApiSearcher implements DkPaidApiConst {
 	private String gmapKey;
@@ -118,7 +118,7 @@ public class DkPaidApiSearcher implements DkPaidApiConst {
 		}
 
 		if (DEBUG) {
-			DkLogs.info(DkLocations.class, "geo: %s\nplace: %s\ntext: %s\nauto: %s",
+			DkLogcats.info(DkLocations.class, "geo: %s\nplace: %s\ntext: %s\nauto: %s",
 				geoLink, placeLink, textLink, autoLink);
 		}
 
@@ -130,7 +130,7 @@ public class DkPaidApiSearcher implements DkPaidApiConst {
 			return new DkHttpClient().execute().body().string();
 		}
 		catch (Exception e) {
-			DkLogs.error(DkLocations.class, e);
+			DkLogcats.error(DkLocations.class, e);
 			return "";
 		}
 	}
@@ -154,7 +154,7 @@ public class DkPaidApiSearcher implements DkPaidApiConst {
 				.execute().body().string();
 		}
 		catch (Exception e) {
-			DkLogs.error(DkPaidApiSearcher.class, e);
+			DkLogcats.error(DkPaidApiSearcher.class, e);
 			data = "";
 		}
 
@@ -178,7 +178,7 @@ public class DkPaidApiSearcher implements DkPaidApiConst {
 			}
 		}
 		catch (Exception e) {
-			DkLogs.error(DkLocations.class, e);
+			DkLogcats.error(DkLocations.class, e);
 		}
 		return res;
 	}

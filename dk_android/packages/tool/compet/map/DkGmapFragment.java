@@ -21,7 +21,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import tool.compet.core.DkRunner1;
+import tool.compet.core4j.DkRunner1;
 
 /**
  * Google map fragment.

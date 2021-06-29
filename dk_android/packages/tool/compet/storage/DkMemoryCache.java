@@ -15,10 +15,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
-import tool.compet.core.DkLogs;
 import tool.compet.core.graphics.DkBitmaps;
-
-import static tool.compet.core.BuildConfig.DEBUG;
 
 /**
  * Thread-safe memory cache (LruCache).
@@ -39,10 +36,6 @@ public class DkMemoryCache {
 	private DkMemoryCache() {
 		maxSize = Runtime.getRuntime().maxMemory() >> 2;
 		cache = new TreeMap<>();
-
-		if (DEBUG) {
-			DkLogs.info(this, "Initial cache's maxSize: " + maxSize);
-		}
 	}
 
 	public static DkMemoryCache getIns() {
@@ -59,9 +52,6 @@ public class DkMemoryCache {
 	public DkMemoryCache setMaxSize(long maxSize) {
 		if (maxSize <= 0) {
 			maxSize = 1;
-		}
-		if (DEBUG) {
-			DkLogs.info(this, "Set cache's maxSize: %d → %d", this.maxSize, maxSize);
 		}
 		this.maxSize = maxSize;
 		return this;
@@ -85,10 +75,6 @@ public class DkMemoryCache {
 		if (size + more >= maxSize) {
 			trimToSize(maxSize - more);
 		}
-		if (DEBUG) {
-			DkLogs.info(this, "Put to cache, size changed: %d → %d",
-				size, size + more);
-		}
 
 		size += more;
 		cache.put(key, snapshot);
@@ -98,10 +84,6 @@ public class DkMemoryCache {
 		Snapshot snapshot = cache.get(key);
 
 		if (snapshot != null) {
-			if (DEBUG) {
-				DkLogs.info(this, "Remove from cache, size changed: %d → %d",
-					size, size - snapshot.size);
-			}
 			size -= snapshot.size;
 		}
 
@@ -143,9 +125,6 @@ public class DkMemoryCache {
 				listener.onRemoved(entry.getKey(), snapshot);
 			}
 		}
-		if (DEBUG) {
-			DkLogs.info(this, "Trim cache, size changed: %d → %d", size, curSize);
-		}
 
 		size = curSize < 0 ? 0 : curSize;
 	}
@@ -170,10 +149,6 @@ public class DkMemoryCache {
 					listener.onRemoved(entry.getKey(), snapshot);
 				}
 			}
-		}
-		if (DEBUG) {
-			DkLogs.info(this, "Remove expired objects, size changed: %d → %d",
-				size, curSize);
 		}
 
 		size = curSize < 0 ? 0 : curSize;

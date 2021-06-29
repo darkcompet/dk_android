@@ -8,7 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.Matrix;
 
 import tool.compet.core.graphics.DkBitmaps;
-import tool.compet.core.DkLogs;
+import tool.compet.core.DkLogcats;
 
 class MyRotator {
 	static Bitmap rotate(Bitmap input, float degrees, int pivotX, int pivotY) {
@@ -19,7 +19,7 @@ class MyRotator {
 			return Bitmap.createBitmap(input, 0, 0, input.getWidth(), input.getHeight(), matrix, true);
 		}
 		catch (Exception e) {
-			DkLogs.error(DkBitmaps.class, e);
+			DkLogcats.error(DkBitmaps.class, e);
 		}
 		return input;
 	}

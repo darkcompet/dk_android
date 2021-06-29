@@ -1,8 +1,2 @@
 include ':app'
 include ':core'
-include ':appbundle'
-include ':packages'
-include ':boommenu'
-include ':chips'
-include ':compassview'
-include ':paintview'

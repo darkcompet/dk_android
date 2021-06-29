@@ -8,7 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import tool.compet.core.DkRunner1;
+import tool.compet.core4j.DkRunner1;
 
 /**
  * Example of usage:
@@ -38,7 +38,7 @@ public class DkNetworkChangeReceiver extends BroadcastReceiver {
 	}
 
 	/**
-	 * @param statusListener will callback status of network, #see DkNetworkStatus.XXX
+	 * @param statusListener Callback with network status (see `DkNetworkStatus.XXX`)
 	 */
 	public void setNetworkChangeListener(DkRunner1<Integer> statusListener) {
 		this.listener = statusListener;

@@ -26,11 +26,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import tool.compet.core.DkLogs;
-import tool.compet.core.DkRunner2;
+import tool.compet.core.DkLogcats;
+import tool.compet.core4j.DkRunner2;
 
 /**
  * Client billing (in-app, subscribe) for app.
+ *
+ * Dependency: com.android.billingclient:billing:4.0.0
  */
 public class DkBillingClient implements PurchasesUpdatedListener {
 	/**
@@ -252,7 +254,7 @@ public class DkBillingClient implements PurchasesUpdatedListener {
 			revokedTokens = new ArraySet<String>();
 		}
 		if (revokedTokens.contains(purchaseToken)) {
-			DkLogs.warning(this, "Skip revoke item which has already revoked");
+			DkLogcats.warning(this, "Skip revoke item which has already revoked");
 			return;
 		}
 
@@ -320,7 +322,7 @@ public class DkBillingClient implements PurchasesUpdatedListener {
 
 	private Purchase.PurchasesResult queryPurchaseHistories(String skuType) {
 		if (billingClient == null) {
-			DkLogs.warning(this, "Stop query purchase histories since `billingClient` is null");
+			DkLogcats.warning(this, "Stop query purchase histories since `billingClient` is null");
 			return null;
 		}
 		return billingClient.queryPurchases(skuType);
@@ -331,7 +333,7 @@ public class DkBillingClient implements PurchasesUpdatedListener {
 			return MySecurity.verifyPurchase(publicKey, purchase.getOriginalJson(), purchase.getSignature());
 		}
 		catch (Exception e) {
-			DkLogs.error(this, e);
+			DkLogcats.error(this, e);
 		}
 		return false;
 	}
