@@ -12,7 +12,7 @@ import java.util.List;
 
 import tool.compet.core.DkLogcats;
 import tool.compet.core4j.DkUtils;
-import tool.compet.core4j.reflection.DkReflectionFinder;
+import tool.compet.reflection4j.DkReflectionFinder;
 
 /**
  * Binds resources into fields, methods of an obj via reflection approach.

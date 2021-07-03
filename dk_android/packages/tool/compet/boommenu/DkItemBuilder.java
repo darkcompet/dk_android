@@ -14,7 +14,7 @@ import androidx.core.view.animation.PathInterpolatorCompat;
 import tool.compet.core.DkConfig;
 
 @SuppressWarnings("unchecked")
-public abstract class DkItemBuilder<T extends DkItemBuilder> {
+public abstract class DkItemBuilder<T> {
 	protected abstract DkItemView getView(Context context);
 
 	interface Callback {
@@ -32,7 +32,8 @@ public abstract class DkItemBuilder<T extends DkItemBuilder> {
 	protected Boolean enableRotation = null;
 	protected Boolean enable3DAnimation = null;
 	protected Boolean enableScale = null;
-	protected static Interpolator movingInterpolator;
+	// up -> over top -> down
+	protected static Interpolator movingInterpolator = PathInterpolatorCompat.create(0.48f, 1.47f, 0.91f, 1.06f);
 	protected DkMovingShape movingShape = DkMovingShape.LINE;
 	protected Boolean dismissMenuOnClickItem = null;
 	protected Boolean dismissMenuImmediate = null;
@@ -74,14 +75,6 @@ public abstract class DkItemBuilder<T extends DkItemBuilder> {
 		// Validate and initialize
 		if (view == null) {
 			throw new RuntimeException("Must provide item view at `getView()`");
-		}
-		if (movingInterpolator == null) {
-			// up-down interpolator
-			movingInterpolator = PathInterpolatorCompat.create(
-				0.48f,
-				1.47f,
-				0.91f,
-				1.06f);
 		}
 		if (isCircleShape) { // auto-fix ratio if its shape is circle
 			widthRatio = heightRatio = 1f;

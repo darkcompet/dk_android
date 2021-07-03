@@ -33,7 +33,7 @@ import tool.compet.core.DkLogcats;
 import tool.compet.core4j.DkMaths;
 import tool.compet.core.graphics.DkBitmaps;
 import tool.compet.core.graphics.DkColors;
-import tool.compet.stream4j.DkObservable;
+import tool.compet.stream.DkObservable;
 import tool.compet.core.view.DkDoubleFingerDetector;
 
 import static tool.compet.core.BuildConfig.DEBUG;

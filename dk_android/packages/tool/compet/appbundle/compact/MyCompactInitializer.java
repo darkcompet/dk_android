@@ -14,9 +14,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.List;
 
-import tool.compet.core4j.reflection.DkReflections;
+import tool.compet.core4j.DkReflections;
 import tool.compet.core4j.DkStrings;
-import tool.compet.core4j.reflection.DkReflectionFinder;
+import tool.compet.reflection4j.DkReflectionFinder;
 
 @SuppressWarnings("unchecked")
 class MyCompactInitializer {

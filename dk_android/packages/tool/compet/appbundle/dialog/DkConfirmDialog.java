@@ -29,11 +29,11 @@ import tool.compet.appbundle.R;
 import tool.compet.appbundle.compact.DkCompactDialogFragment;
 import tool.compet.core.DkConfig;
 import tool.compet.core.DkLogcats;
-import tool.compet.core4j.DkRunner2;
-import tool.compet.core.graphics.DkDrawables;
 import tool.compet.core.animation.DkAnimationConfiguration;
 import tool.compet.core.animation.DkLookupTableInterpolator;
+import tool.compet.core.graphics.DkDrawables;
 import tool.compet.core.view.DkViews;
+import tool.compet.core4j.DkRunner2;
 
 /**
  * By default,

@@ -6,7 +6,7 @@ package tool.compet.boommenu;
 
 import android.graphics.Color;
 
-import tool.compet.core4j.collection.DkIntArrayList;
+import tool.compet.core4j.DkIntArrayList;
 import tool.compet.core4j.DkMaths;
 
 class MyColorGenerator {

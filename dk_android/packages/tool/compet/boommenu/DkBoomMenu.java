@@ -20,7 +20,6 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 
 import tool.compet.core.DkUtils;
-import tool.compet.core.animation.DkAnimationConfiguration;
 import tool.compet.core.animation.DkInterpolatorFunctions;
 
 /**
@@ -67,9 +66,9 @@ public class DkBoomMenu {
 	private boolean dismissOnBackPressed = true;
 	private boolean bringAnchorToFront;
 	private long animStartDelay;
-	private long boomDuration = DkAnimationConfiguration.ANIM_MEDIUM_EXPAND_DURATION;
-	private long unboomDuration = DkAnimationConfiguration.ANIM_MEDIUM_COLLAPSE_DURATION;
-	private long emissionDelayBetweenItems = 50;
+	private long boomDuration = 200; // ms
+	private long unboomDuration = 150; // ms
+	private long emissionDelayBetweenItems = 15; // ms
 	private ValueAnimator animator;
 
 	private final MyClusterManager clusterManager = new MyClusterManager();
