@@ -160,15 +160,15 @@ public class DkConfig {
 	}
 
 	public static int colorPrimaryDark(Context context) {
-		return attrColor(context, tool.compet.appbundle.R.attr.colorPrimaryDark);
+		return attrColor(context, R.attr.colorPrimaryDark);
 	}
 
 	public static int colorPrimary(Context context) {
-		return attrColor(context, tool.compet.appbundle.R.attr.colorPrimary);
+		return attrColor(context, R.attr.colorPrimary);
 	}
 
 	public static int colorAccent(Context context) {
-		return attrColor(context, tool.compet.appbundle.R.attr.colorAccent);
+		return attrColor(context, R.attr.colorAccent);
 	}
 
 	private static int attrColor(Context context, int colorAccentAttrId) {

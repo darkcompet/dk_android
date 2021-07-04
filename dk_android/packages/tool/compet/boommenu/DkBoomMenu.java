@@ -66,9 +66,9 @@ public class DkBoomMenu {
 	private boolean dismissOnBackPressed = true;
 	private boolean bringAnchorToFront;
 	private long animStartDelay;
-	private long boomDuration = 200; // ms
+	private long boomDuration = 225; // ms
 	private long unboomDuration = 150; // ms
-	private long emissionDelayBetweenItems = 15; // ms
+	private long emissionDelayBetweenItems = 50; // ms
 	private ValueAnimator animator;
 
 	private final MyClusterManager clusterManager = new MyClusterManager();

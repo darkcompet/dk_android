@@ -18,6 +18,8 @@ import tool.compet.core.view.DkCompatConstraintLayout;
 /**
  * Base item view which be used in DkItemBuilder.getView().
  * For customize view, you must extend this class and provide settings via builder class.
+ *
+ * Ref: https://github.com/Nightonke/BoomMenu/wiki/Text-Inside-Circle-Button
  */
 public class DkItemView extends DkCompatConstraintLayout implements View.OnTouchListener {
 	boolean isCircleShape;
