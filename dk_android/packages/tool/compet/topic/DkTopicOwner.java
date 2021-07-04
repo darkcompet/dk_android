@@ -63,7 +63,7 @@ public class DkTopicOwner {
 	}
 
 	/**
-	 * Clear all materials which be held by the topic (such as: ViewModels, Clients...).
+	 * Clear all materials which be held by the topic (ViewModels, Clients...).
 	 */
 	public DkTopicOwner clear() {
 		topicProvider.removeTopic(topicId);
