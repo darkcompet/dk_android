@@ -8,7 +8,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import tool.compet.core.DkLogcats;
-import tool.compet.core4j.DkBuildConfig;
+import tool.compet.core4j.BuildConfig;
 import tool.compet.core4j.DkUtils;
 import tool.compet.http4j.DkHttpConst;
 
@@ -38,7 +38,7 @@ public class DkHttpClient extends tool.compet.http4j.DkHttpClient<DkHttpClient> 
 		if (link == null) {
 			throw new RuntimeException("Must provide url");
 		}
-		if (DkBuildConfig.DEBUG) {
+		if (BuildConfig.DEBUG) {
 			DkLogcats.info(this, "Start request with link: %s", link);
 		}
 		final URL url = new URL(link);

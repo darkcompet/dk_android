@@ -7,36 +7,52 @@ package tool.compet.livedata;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
 
+/**
+ * This is wrapper of observer (callback from client).
+ * Normally, subclass contains lifecycle owner, so this wrapper can be considered as a client.
+ * If lifecycle owner is available at it, then it can observe changes of lifespan from lifecycle owner.
+ *
+ * @param <M> Data type.
+ */
 abstract class MyObserverWrapper<M> {
-	protected final DkLiveData<M> liveData;
-	final Observer<? super M> mObserver;
-	boolean mActive;
-	int mLastVersion = DkLiveData.START_VERSION;
+	// Live data
+	protected final DkLiveData<M> host;
 
-	MyObserverWrapper(DkLiveData<M> liveData, Observer<? super M> observer) {
-		this.liveData = liveData;
-		this.mObserver = observer;
+	// Callback from client
+	protected final Observer<? super M> observer;
+
+	// Current active state of this observer (client)
+	// True (active): it is ready to handle incoming dispatched data
+	// False (inactive): does NOT ready to handle incoming dispatched data
+	protected boolean active;
+
+	// Version at last dispatched data from host
+	// To avoid multiple invocation, we only accept newer version from host
+	protected int lastVersion = DkLiveData.DATA_START_VERSION;
+
+	// Make this observer (client) become more flexible for usage
+	protected final TheOptions options;
+
+	protected MyObserverWrapper(DkLiveData<M> host, TheOptions options, Observer<? super M> observer) {
+		this.host = host;
+		this.options = options;
+		this.observer = observer;
 	}
 
-	abstract boolean shouldBeActive();
+	/**
+	 * Called after this observer was added to host (live data).
+	 */
+	protected abstract void onRegistered();
 
-	boolean isAttachedTo(LifecycleOwner owner) {
+	/**
+	 * Called after this observer was removed from host (live data).
+	 */
+	protected abstract void onUnregistered();
+
+	/**
+	 * Check whether or not this wrapper is associated with a lifecycle owner.
+	 */
+	protected boolean isAttachedTo(LifecycleOwner owner) {
 		return false;
-	}
-
-	void detachObserver() {
-	}
-
-	void activeStateChanged(boolean newActive) {
-		if (newActive == mActive) {
-			return;
-		}
-		// Immediately set active state, so we'd never dispatch anything to inactive owner
-		mActive = newActive;
-		liveData.changeActiveCounter(mActive ? 1 : -1);
-
-		if (mActive) {
-			liveData.dispatchingValue(this);
-		}
 	}
 }

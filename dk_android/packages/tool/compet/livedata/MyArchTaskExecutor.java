@@ -6,17 +6,12 @@ package tool.compet.livedata;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 
 import java.util.concurrent.Executor;
 
 /**
  * A static class that serves as a central point to execute common tasks.
- * <p>
- *
- * @hide This API is not final.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class MyArchTaskExecutor extends MyTaskExecutor {
 	private static volatile MyArchTaskExecutor sInstance;
 
@@ -27,20 +22,10 @@ public class MyArchTaskExecutor extends MyTaskExecutor {
 	private MyTaskExecutor mDefaultTaskExecutor;
 
 	@NonNull
-	private static final Executor sMainThreadExecutor = new Executor() {
-		@Override
-		public void execute(Runnable command) {
-			getInstance().postToMainThread(command);
-		}
-	};
+	private static final Executor sMainThreadExecutor = command -> getInstance().postToMainThread(command);
 
 	@NonNull
-	private static final Executor sIOThreadExecutor = new Executor() {
-		@Override
-		public void execute(Runnable command) {
-			getInstance().executeOnDiskIO(command);
-		}
-	};
+	private static final Executor sIOThreadExecutor = command -> getInstance().executeOnDiskIO(command);
 
 	private MyArchTaskExecutor() {
 		mDefaultTaskExecutor = new MyDefaultTaskExecutor();
@@ -80,12 +65,12 @@ public class MyArchTaskExecutor extends MyTaskExecutor {
 	}
 
 	@Override
-	public void executeOnDiskIO(Runnable runnable) {
+	public void executeOnDiskIO(@NonNull Runnable runnable) {
 		mDelegate.executeOnDiskIO(runnable);
 	}
 
 	@Override
-	public void postToMainThread(Runnable runnable) {
+	public void postToMainThread(@NonNull Runnable runnable) {
 		mDelegate.postToMainThread(runnable);
 	}
 

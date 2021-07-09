@@ -17,7 +17,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
-//@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 class MyDefaultTaskExecutor extends MyTaskExecutor {
 	private final Object mLock = new Object();
 

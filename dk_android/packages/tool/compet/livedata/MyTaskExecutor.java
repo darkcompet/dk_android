@@ -5,17 +5,12 @@
 package tool.compet.livedata;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 
 /**
  * A task executor that can divide tasks into logical groups.
  * <p>
  * It holds a collection a executors for each group of task.
- * <p>
- * TODO: Don't use this from outside, we don't know what the API will look like yet.
- * @hide
  */
-//@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 abstract class MyTaskExecutor {
 	/**
 	 * Executes the given task in the disk IO thread pool.
@@ -41,7 +36,8 @@ abstract class MyTaskExecutor {
 	public void executeOnMainThread(@NonNull Runnable runnable) {
 		if (isMainThread()) {
 			runnable.run();
-		} else {
+		}
+		else {
 			postToMainThread(runnable);
 		}
 	}

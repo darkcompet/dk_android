@@ -4,6 +4,8 @@
 
 package tool.compet.livedata;
 
+import android.os.Looper;
+
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -14,38 +16,37 @@ import androidx.lifecycle.Observer;
 import java.util.Iterator;
 import java.util.Map;
 
-/**
- * @param <M> Model type.
- */
+import tool.compet.core.BuildConfig;
+import tool.compet.core.DkLogcats;
+import tool.compet.core4j.DkCaller;
+
+@SuppressWarnings("unchecked")
 public class DkLiveData<M> {
-	@SuppressWarnings("WeakerAccess")
-	protected final Object mDataLock = new Object();
-	protected static final int START_VERSION = -1;
-	@SuppressWarnings("WeakerAccess")
-	protected static final Object VALUE_NOT_SET = new Object();
+	protected MySafeIterableMap<Observer<? super M>, MyObserverWrapper<M>> observers = new MySafeIterableMap<>();
 
-	protected MySafeIterableMap<Observer<? super M>, MyObserverWrapper> mObservers = new MySafeIterableMap<>();
+	// How many observers are in active state
+	protected int activeCount = 0;
 
-	// how many observers are in active state
-	@SuppressWarnings("WeakerAccess")
-	protected int mActiveCount = 0;
-	// to handle active/inactive reentry, we guard with this boolean
-	protected boolean mChangingActiveState;
-	protected volatile Object mData;
+	// To handle active/inactive reentry, we guard with this boolean
+	protected boolean changingActiveState;
+
+	protected static final int DATA_START_VERSION = -1;
+	protected static final Object DATA_NOT_SET = new Object();
+	// Lock to sync data
+	protected final Object dataLock = new Object();
+	// Value to send
+	protected volatile Object data;
 	// When setData is called, we set the pending data and actual data swap happens on the main thread
-	@SuppressWarnings("WeakerAccess")
-	protected volatile Object mPendingData = VALUE_NOT_SET;
-	protected int mVersion;
-
-	protected boolean mDispatchingValue;
-	@SuppressWarnings("FieldCanBeLocal")
-	protected boolean mDispatchInvalidated;
-	@SuppressWarnings("unchecked")
-	protected final Runnable mPostValueRunnable = () -> {
+	protected volatile Object pendingData = DATA_NOT_SET;
+	// Increment when set new value
+	protected int version;
+	protected boolean dispatchingData;
+	protected boolean dispatchInvalidated;
+	protected final Runnable postDataAction = () -> {
 		Object newValue;
-		synchronized (mDataLock) {
-			newValue = mPendingData;
-			mPendingData = VALUE_NOT_SET;
+		synchronized (dataLock) {
+			newValue = pendingData;
+			pendingData = DATA_NOT_SET;
 		}
 		setValue((M) newValue);
 	};
@@ -56,65 +57,16 @@ public class DkLiveData<M> {
 	 * @param value initial value
 	 */
 	public DkLiveData(M value) {
-		mData = value;
-		mVersion = START_VERSION + 1;
+		data = value;
+		version = DATA_START_VERSION + 1;
 	}
 
 	/**
 	 * Creates a LiveData with no value assigned to it.
 	 */
 	public DkLiveData() {
-		mData = VALUE_NOT_SET;
-		mVersion = START_VERSION;
-	}
-
-	@SuppressWarnings("unchecked")
-	private void considerNotify(MyObserverWrapper observer) {
-		if (! observer.mActive) {
-			return;
-		}
-		// Check latest state b4 dispatch. Maybe it changed state but we didn't get the event yet.
-		//
-		// we still first check observer.active to keep it as the entrance for events. So even if
-		// the observer moved to an active state, if we've not received that event, we better not
-		// notify for a more predictable notification order.
-		if (! observer.shouldBeActive()) {
-			observer.activeStateChanged(false);
-			return;
-		}
-		if (observer.mLastVersion >= mVersion) {
-			return;
-		}
-		observer.mLastVersion = mVersion;
-		observer.mObserver.onChanged((M) mData);
-	}
-
-	@SuppressWarnings("WeakerAccess")
-	protected void dispatchingValue(@Nullable MyObserverWrapper initiator) {
-		if (mDispatchingValue) {
-			mDispatchInvalidated = true;
-			return;
-		}
-		mDispatchingValue = true;
-
-		do {
-			mDispatchInvalidated = false;
-			if (initiator != null) {
-				considerNotify(initiator);
-				initiator = null;
-			}
-			else {
-				for (Iterator<Map.Entry<Observer<? super M>, MyObserverWrapper>> iterator = mObservers.iteratorWithAdditions(); iterator.hasNext(); ) {
-					considerNotify(iterator.next().getValue());
-
-					if (mDispatchInvalidated) {
-						break;
-					}
-				}
-			}
-		} while (mDispatchInvalidated);
-
-		mDispatchingValue = false;
+		data = DATA_NOT_SET;
+		version = DATA_START_VERSION;
 	}
 
 	/**
@@ -142,24 +94,42 @@ public class DkLiveData<M> {
 	 * If the observer is already in the list with another owner, LiveData throws an
 	 * {@link IllegalArgumentException}.
 	 *
-	 * @param owner    The LifecycleOwner which controls the observer
-	 * @param observer The observer that will receive the events
+	 * @param owner The LifecycleOwner which controls the observer, for eg,. Activity, Fragment...
+	 * @param observer The observer that will receive the events, for eg,. just a callback.
 	 */
 	@MainThread
 	public void observe(@NonNull LifecycleOwner owner, @NonNull Observer<? super M> observer) {
-		assertMainThread("observe");
+		observe(owner, TheOptions::new, observer);
+	}
+
+	@MainThread
+	public void observe(@NonNull LifecycleOwner owner, @NonNull DkCaller<TheOptions> options, @NonNull Observer<? super M> observer) {
+		if (BuildConfig.DEBUG) {
+			assertMainThread("observe");
+		}
 		if (owner.getLifecycle().getCurrentState() == Lifecycle.State.DESTROYED) {
 			return; // ignore
 		}
-		MyLifecycleBoundObserver<M> wrapper = new MyLifecycleBoundObserver<>(this, owner, observer);
-		MyObserverWrapper existing = mObservers.putIfAbsent(observer, wrapper);
-		if (existing != null && !existing.isAttachedTo(owner)) {
-			throw new IllegalArgumentException("Cannot add the same observer" + " with different lifecycles");
+		MyObserverWrapper<M> client = new MyLifecycleObserverWrapper<>(this, owner, options.call(), observer);
+		MyObserverWrapper<M> prevClient = observers.putIfAbsent(observer, client);
+		// Does NOT allow this observer associate with other lifecycle owner
+		if (prevClient != null && ! prevClient.isAttachedTo(owner)) {
+			throw new IllegalArgumentException("Not allowed to add the same observer with different owner");
 		}
-		if (existing != null) {
-			return;
+		if (prevClient == null) {
+			// Tell client that is was registered
+			client.onRegistered();
+
+			// We need update something when active state of the observer changed
+			if (client.active) {
+				updateActiveState(1);
+
+				// Client can get newest data if out of date
+				if (client.options.receiveDataWhenActive) {
+					dispatchValue(client);
+				}
+			}
 		}
-		owner.getLifecycle().addObserver(wrapper);
 	}
 
 	/**
@@ -177,17 +147,25 @@ public class DkLiveData<M> {
 	 * @param observer The observer that will receive the events
 	 */
 	@MainThread
-	public void observeForever(@NonNull Observer<? super M> observer) {
-		assertMainThread("observeForever");
-		MyAlwaysActiveObserver<M> wrapper = new MyAlwaysActiveObserver<>(this, observer);
-		MyObserverWrapper existing = mObservers.putIfAbsent(observer, wrapper);
-		if (existing instanceof MyLifecycleBoundObserver) {
-			throw new IllegalArgumentException("Cannot add the same observer with different lifecycles");
+	public void observeForever(@NonNull DkCaller<TheOptions> options, @NonNull Observer<? super M> observer) {
+		if (BuildConfig.DEBUG) {
+			assertMainThread("observeForever");
 		}
-		if (existing != null) {
-			return;
+		MyAlwaysActiveObserverWrapper<M> client = new MyAlwaysActiveObserverWrapper<>(this, options.call(), observer);
+		MyObserverWrapper<M> prevWrapper = observers.putIfAbsent(observer, client);
+		if (prevWrapper != null) {
+			throw new IllegalArgumentException("Not allowed to add same observer");
 		}
-		wrapper.activeStateChanged(true);
+
+		// Tell client that it was registered
+		client.onRegistered();
+
+		updateActiveState(1);
+
+		// Maybe client will be active at this time, check to dispatch event if required
+		if (client.active && client.options.receiveDataWhenActive) {
+			dispatchValue(client);
+		}
 	}
 
 	/**
@@ -197,28 +175,95 @@ public class DkLiveData<M> {
 	 */
 	@MainThread
 	public void removeObserver(@NonNull final Observer<? super M> observer) {
-		assertMainThread("removeObserver");
-		MyObserverWrapper removed = mObservers.remove(observer);
-		if (removed == null) {
-			return;
+		if (BuildConfig.DEBUG) {
+			assertMainThread("removeObserver");
 		}
-		removed.detachObserver();
-		removed.activeStateChanged(false);
+		MyObserverWrapper<M> client = observers.remove(observer);
+		if (client != null) {
+			// Tell client that it was unregistered
+			client.onUnregistered();
+
+			updateActiveState(-1);
+		}
 	}
 
 	/**
-	 * Removes all observers that are tied to the given {@link LifecycleOwner}.
+	 * Returns true if this LiveData has observers.
 	 *
-	 * @param owner The {@code LifecycleOwner} scope for the observers to be removed.
+	 * @return true if this LiveData has observers
 	 */
-	@SuppressWarnings("WeakerAccess")
-	@MainThread
-	public void removeObservers(@NonNull final LifecycleOwner owner) {
-		assertMainThread("removeObservers");
-		for (Map.Entry<Observer<? super M>, MyObserverWrapper> entry : mObservers) {
-			if (entry.getValue().isAttachedTo(owner)) {
-				removeObserver(entry.getKey());
+	public boolean hasObservers() {
+		return observers.size() > 0;
+	}
+
+	/**
+	 * Returns true if this LiveData has active observers.
+	 *
+	 * @return true if this LiveData has active observers
+	 */
+	public boolean hasActiveObservers() {
+		return activeCount > 0;
+	}
+
+	/**
+	 * It is convenience method, like as EventBus, send an event to subscriber at specified thread.
+	 * So it combines `setValue()`, `postValue()`... to match with client options.
+	 */
+	public void sendValue(M value) {
+		final Iterator<Map.Entry<Observer<? super M>, MyObserverWrapper<M>>> it = observers.iteratorWithAdditions();
+		final boolean isMainThread = Thread.currentThread() == Looper.getMainLooper().getThread();
+
+		while (it.hasNext()) {
+			MyObserverWrapper<M> client = it.next().getValue();
+
+			if (client.options.threadMode == TheOptions.THREAD_MODE_MAIN) {
+				if (isMainThread) {
+					setValue(value);
+				}
+				else {
+					postValue(value);
+				}
 			}
+			else if (client.options.threadMode == TheOptions.THREAD_MODE_POSTER) {
+				setValue(value);
+			}
+			else {
+				throw new RuntimeException("Not yet support or invalid thread mode: " + client.options.threadMode);
+			}
+		}
+	}
+
+	/**
+	 * Sets the value. If there are active observers, the value will be dispatched to them.
+	 * <p>
+	 * This method must be called from the main thread. If you need set a value from a background
+	 * thread, you can use {@link #postValue(Object)}
+	 *
+	 * @param value The new value
+	 */
+	@MainThread
+	public void setValue(M value) {
+		if (BuildConfig.DEBUG) {
+			assertMainThread("setValue");
+		}
+		data = value;
+		version++;
+		dispatchValue(null);
+	}
+
+	@MainThread
+	public void unsetValue() {
+		if (BuildConfig.DEBUG) {
+			assertMainThread("unsetValue");
+		}
+		data = DATA_NOT_SET;
+		version = DATA_START_VERSION;
+
+		// Also reset last version for observers (clients)
+		Iterator<Map.Entry<Observer<? super M>, MyObserverWrapper<M>>> iterator = observers.iteratorWithAdditions();
+		while (iterator.hasNext()) {
+			MyObserverWrapper<M> client = iterator.next().getValue();
+			client.lastVersion = DATA_START_VERSION;
 		}
 	}
 
@@ -237,53 +282,98 @@ public class DkLiveData<M> {
 	 *
 	 * @param value The new value
 	 */
-	protected void postValue(M value) {
-		boolean postTask;
-		synchronized (mDataLock) {
-			postTask = mPendingData == VALUE_NOT_SET;
-			mPendingData = value;
+	public void postValue(M value) {
+		boolean shouldPost;
+		synchronized (dataLock) {
+			shouldPost = (pendingData == DATA_NOT_SET);
+			pendingData = value;
 		}
-		if (!postTask) {
-			return;
+		if (shouldPost) {
+			MyArchTaskExecutor.getInstance().postToMainThread(postDataAction);
 		}
-		MyArchTaskExecutor.getInstance().postToMainThread(mPostValueRunnable);
+	}
+
+	@MainThread
+	protected void updateActiveState(int change) {
+		int prevActiveCount = activeCount;
+		activeCount += change;
+
+		if (! changingActiveState) {
+			try {
+				changingActiveState = true;
+
+				while (prevActiveCount != activeCount) {
+					boolean needToCallActive = (prevActiveCount == 0 && activeCount > 0);
+					boolean needToCallInactive = (prevActiveCount > 0 && activeCount == 0);
+
+					prevActiveCount = activeCount;
+
+					if (needToCallActive) {
+						onActive();
+					}
+					else if (needToCallInactive) {
+						onInactive();
+					}
+				}
+			}
+			finally {
+				changingActiveState = false;
+			}
+		}
 	}
 
 	/**
-	 * Sets the value. If there are active observers, the value will be dispatched to them.
-	 * <p>
-	 * This method must be called from the main thread. If you need set a value from a background
-	 * thread, you can use {@link #postValue(Object)}
+	 * Called when the data was changed (updated). This will notify the change to all active observers.
 	 *
-	 * @param value The new value
+	 * @param client Null to dispatch to all observers. Otherwise dispatch to target observer.
 	 */
 	@MainThread
-	protected void setValue(M value) {
-		assertMainThread("setValue");
-		mVersion++;
-		mData = value;
-		dispatchingValue(null);
-	}
-
-	/**
-	 * Returns the current value.
-	 * Note that calling this method on a background thread does not guarantee that the latest
-	 * value set will be received.
-	 *
-	 * @return the current value
-	 */
-	@SuppressWarnings("unchecked")
-	@Nullable
-	public M getValue() {
-		Object data = mData;
-		if (data != VALUE_NOT_SET) {
-			return (M) data;
+	protected void dispatchValue(@Nullable MyObserverWrapper<M> client) {
+		if (dispatchingData) {
+			dispatchInvalidated = true;
+			return;
 		}
-		return null;
+
+		dispatchingData = true;
+
+		do {
+			dispatchInvalidated = false;
+
+			// Notify to all observers
+			if (client == null) {
+				Iterator<Map.Entry<Observer<? super M>, MyObserverWrapper<M>>> it = observers.iteratorWithAdditions();
+
+				while (it.hasNext()) {
+					considerNotify(it.next().getValue());
+
+					if (dispatchInvalidated) {
+						break;
+					}
+				}
+			}
+			// Notify to target observer
+			else {
+				considerNotify(client);
+				client = null;
+			}
+		} while (dispatchInvalidated);
+
+		dispatchingData = false;
 	}
 
-	int getVersion() {
-		return mVersion;
+	@MainThread
+	protected void considerNotify(MyObserverWrapper<M> client) {
+		if (BuildConfig.DEBUG) {
+			DkLogcats.notice(this, "Should notify data? %b, %b, %b", data != DATA_NOT_SET, client.active, client.lastVersion < version);
+		}
+		// Perform notify data changed iff:
+		// - data was set
+		// - client is active
+		// - client data is out of date (last data version of client < current data version)
+		if (data != DATA_NOT_SET && client.active && client.lastVersion < version) {
+			client.lastVersion = version;
+			client.observer.onChanged((M) data);
+		}
 	}
 
 	/**
@@ -292,8 +382,8 @@ public class DkLiveData<M> {
 	 * This callback can be used to know that this LiveData is being used thus should be kept
 	 * up to date.
 	 */
+	@MainThread
 	protected void onActive() {
-
 	}
 
 	/**
@@ -305,57 +395,47 @@ public class DkLiveData<M> {
 	 * <p>
 	 * You can check if there are observers via {@link #hasObservers()}.
 	 */
+	@MainThread
 	protected void onInactive() {
-
-	}
-
-	/**
-	 * Returns true if this LiveData has observers.
-	 *
-	 * @return true if this LiveData has observers
-	 */
-	@SuppressWarnings("WeakerAccess")
-	public boolean hasObservers() {
-		return mObservers.size() > 0;
-	}
-
-	/**
-	 * Returns true if this LiveData has active observers.
-	 *
-	 * @return true if this LiveData has active observers
-	 */
-	@SuppressWarnings("WeakerAccess")
-	public boolean hasActiveObservers() {
-		return mActiveCount > 0;
 	}
 
 	@MainThread
-	void changeActiveCounter(int change) {
-		int previousActiveCount = mActiveCount;
-		mActiveCount += change;
-		if (mChangingActiveState) {
-			return;
+	protected void onObserverActiveStateChanged(MyObserverWrapper<M> client, boolean active) {
+		updateActiveState(active ? 1 : -1);
+		if (! active) {
+			removeObserver(client.observer);
 		}
-		mChangingActiveState = true;
-		try {
-			while (previousActiveCount != mActiveCount) {
-				boolean needToCallActive = previousActiveCount == 0 && mActiveCount > 0;
-				boolean needToCallInactive = previousActiveCount > 0 && mActiveCount == 0;
-				previousActiveCount = mActiveCount;
-				if (needToCallActive) {
-					onActive();
-				} else if (needToCallInactive) {
-					onInactive();
-				}
-			}
-		} finally {
-			mChangingActiveState = false;
+		else if (client.options.receiveDataWhenActive) {
+			dispatchValue(client);
 		}
 	}
 
-	static void assertMainThread(String methodName) {
+	private static void assertMainThread(String methodName) {
 		if (! MyArchTaskExecutor.getInstance().isMainThread()) {
 			throw new IllegalStateException("Cannot invoke " + methodName + " on a background thread");
 		}
 	}
+
+	// region Get/Set
+
+	/**
+	 * Returns the current value.
+	 * Note that calling this method on a background thread does not guarantee that the latest
+	 * value set will be received.
+	 *
+	 * @return the current value
+	 */
+	@Nullable
+	public M getValue() {
+		return (data != DATA_NOT_SET) ? (M) data : null;
+	}
+
+	/**
+	 * Get version of current this data, it is just count of `setValue()` invocation.
+	 */
+	public int getVersion() {
+		return version;
+	}
+
+	// endregion Get/Set
 }

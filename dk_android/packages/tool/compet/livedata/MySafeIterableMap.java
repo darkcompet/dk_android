@@ -11,21 +11,20 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 class MySafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
-	@SuppressWarnings("WeakerAccess")
-	protected Entry<K, V> mStart;
-	protected Entry<K, V> mEnd;
+	Entry<K, V> start;
+	Entry<K, V> end;
 	// Using WeakHashMap over List<WeakReference>, so we don't have to manually remove
 	// WeakReferences that have null in them.
-	protected WeakHashMap<SupportRemove<K, V>, Boolean> mIterators = new WeakHashMap<>();
-	protected int mSize = 0;
+	WeakHashMap<SupportRemove<K, V>, Boolean> iterators = new WeakHashMap<>();
+	int size = 0;
 
-	protected Entry<K, V> get(K k) {
-		Entry<K, V> currentNode = mStart;
+	public Entry<K, V> get(K k) {
+		Entry<K, V> currentNode = start;
 		while (currentNode != null) {
-			if (currentNode.mKey.equals(k)) {
+			if (currentNode.key.equals(k)) {
 				break;
 			}
-			currentNode = currentNode.mNext;
+			currentNode = currentNode.next;
 		}
 		return currentNode;
 	}
@@ -42,26 +41,24 @@ class MySafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
 	public V putIfAbsent(@NonNull K key, @NonNull V v) {
 		Entry<K, V> entry = get(key);
 		if (entry != null) {
-			return entry.mValue;
+			return entry.value;
 		}
 		put(key, v);
 		return null;
 	}
 
-	protected Entry<K, V> put(@NonNull K key, @NonNull V v) {
+	public Entry<K, V> put(@NonNull K key, @NonNull V v) {
 		Entry<K, V> newEntry = new Entry<>(key, v);
-		mSize++;
-		if (mEnd == null) {
-			mStart = newEntry;
-			mEnd = mStart;
+		size++;
+		if (end == null) {
+			start = newEntry;
+			end = start;
 			return newEntry;
 		}
-
-		mEnd.mNext = newEntry;
-		newEntry.mPrevious = mEnd;
-		mEnd = newEntry;
+		end.next = newEntry;
+		newEntry.prev = end;
+		end = newEntry;
 		return newEntry;
-
 	}
 
 	/**
@@ -76,35 +73,37 @@ class MySafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
 		if (toRemove == null) {
 			return null;
 		}
-		mSize--;
-		if (!mIterators.isEmpty()) {
-			for (SupportRemove<K, V> iter : mIterators.keySet()) {
+		size--;
+		if (!iterators.isEmpty()) {
+			for (SupportRemove<K, V> iter : iterators.keySet()) {
 				iter.supportRemove(toRemove);
 			}
 		}
 
-		if (toRemove.mPrevious != null) {
-			toRemove.mPrevious.mNext = toRemove.mNext;
-		} else {
-			mStart = toRemove.mNext;
+		if (toRemove.prev != null) {
+			toRemove.prev.next = toRemove.next;
+		}
+		else {
+			start = toRemove.next;
 		}
 
-		if (toRemove.mNext != null) {
-			toRemove.mNext.mPrevious = toRemove.mPrevious;
-		} else {
-			mEnd = toRemove.mPrevious;
+		if (toRemove.next != null) {
+			toRemove.next.prev = toRemove.prev;
+		}
+		else {
+			end = toRemove.prev;
 		}
 
-		toRemove.mNext = null;
-		toRemove.mPrevious = null;
-		return toRemove.mValue;
+		toRemove.next = null;
+		toRemove.prev = null;
+		return toRemove.value;
 	}
 
 	/**
 	 * @return the number of elements in this map
 	 */
 	public int size() {
-		return mSize;
+		return size;
 	}
 
 	/**
@@ -114,8 +113,8 @@ class MySafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
 	@NonNull
 	@Override
 	public Iterator<Map.Entry<K, V>> iterator() {
-		ListIterator<K, V> iterator = new AscendingIterator<>(mStart, mEnd);
-		mIterators.put(iterator, false);
+		ListIterator<K, V> iterator = new AscendingIterator<>(start, end);
+		iterators.put(iterator, false);
 		return iterator;
 	}
 
@@ -124,8 +123,8 @@ class MySafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
 	 * iteration.
 	 */
 	public Iterator<Map.Entry<K, V>> descendingIterator() {
-		DescendingIterator<K, V> iterator = new DescendingIterator<>(mEnd, mStart);
-		mIterators.put(iterator, false);
+		DescendingIterator<K, V> iterator = new DescendingIterator<>(end, start);
+		iterators.put(iterator, false);
 		return iterator;
 	}
 
@@ -133,9 +132,8 @@ class MySafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
 	 * return an iterator with additions.
 	 */
 	public IteratorWithAdditions iteratorWithAdditions() {
-		@SuppressWarnings("unchecked")
 		IteratorWithAdditions iterator = new IteratorWithAdditions();
-		mIterators.put(iterator, false);
+		iterators.put(iterator, false);
 		return iterator;
 	}
 
@@ -143,14 +141,14 @@ class MySafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
 	 * @return eldest added entry or null
 	 */
 	public Map.Entry<K, V> eldest() {
-		return mStart;
+		return start;
 	}
 
 	/**
 	 * @return newest added entry or null
 	 */
 	public Map.Entry<K, V> newest() {
-		return mEnd;
+		return end;
 	}
 
 	@Override
@@ -158,7 +156,7 @@ class MySafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
 		if (obj == this) {
 			return true;
 		}
-		if (!(obj instanceof MySafeIterableMap)) {
+		if (! (obj instanceof MySafeIterableMap)) {
 			return false;
 		}
 		MySafeIterableMap map = (MySafeIterableMap) obj;
@@ -170,8 +168,7 @@ class MySafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
 		while (iterator1.hasNext() && iterator2.hasNext()) {
 			Map.Entry<K, V> next1 = iterator1.next();
 			Object next2 = iterator2.next();
-			if ((next1 == null && next2 != null)
-				|| (next1 != null && !next1.equals(next2))) {
+			if ((next1 == null && next2 != null) || (next1 != null && !next1.equals(next2))) {
 				return false;
 			}
 		}
@@ -181,13 +178,13 @@ class MySafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
 	@Override
 	public int hashCode() {
 		int h = 0;
-		Iterator<Map.Entry<K, V>> i = iterator();
-		while (i.hasNext()) {
-			h += i.next().hashCode();
+		for (Map.Entry<K, V> kvEntry : this) {
+			h += kvEntry.hashCode();
 		}
 		return h;
 	}
 
+	@NonNull
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
@@ -205,48 +202,44 @@ class MySafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
 
 	private abstract static class ListIterator<K, V> implements Iterator<Map.Entry<K, V>>,
 		SupportRemove<K, V> {
-		Entry<K, V> mExpectedEnd;
-		Entry<K, V> mNext;
+		Entry<K, V> expectedEnd;
+		Entry<K, V> next;
 
 		ListIterator(Entry<K, V> start, Entry<K, V> expectedEnd) {
-			this.mExpectedEnd = expectedEnd;
-			this.mNext = start;
+			this.expectedEnd = expectedEnd;
+			this.next = start;
 		}
 
 		@Override
 		public boolean hasNext() {
-			return mNext != null;
+			return next != null;
 		}
 
-		@SuppressWarnings("ReferenceEquality")
 		@Override
 		public void supportRemove(@NonNull Entry<K, V> entry) {
-			if (mExpectedEnd == entry && entry == mNext) {
-				mNext = null;
-				mExpectedEnd = null;
+			if (expectedEnd == entry && entry == next) {
+				next = null;
+				expectedEnd = null;
 			}
-
-			if (mExpectedEnd == entry) {
-				mExpectedEnd = backward(mExpectedEnd);
+			if (expectedEnd == entry) {
+				expectedEnd = backward(expectedEnd);
 			}
-
-			if (mNext == entry) {
-				mNext = nextNode();
+			if (next == entry) {
+				next = nextNode();
 			}
 		}
 
-		@SuppressWarnings("ReferenceEquality")
 		private Entry<K, V> nextNode() {
-			if (mNext == mExpectedEnd || mExpectedEnd == null) {
+			if (next == expectedEnd || expectedEnd == null) {
 				return null;
 			}
-			return forward(mNext);
+			return forward(next);
 		}
 
 		@Override
 		public Map.Entry<K, V> next() {
-			Map.Entry<K, V> result = mNext;
-			mNext = nextNode();
+			Map.Entry<K, V> result = next;
+			next = nextNode();
 			return result;
 		}
 
@@ -262,65 +255,64 @@ class MySafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
 
 		@Override
 		Entry<K, V> forward(Entry<K, V> entry) {
-			return entry.mNext;
+			return entry.next;
 		}
 
 		@Override
 		Entry<K, V> backward(Entry<K, V> entry) {
-			return entry.mPrevious;
+			return entry.prev;
 		}
 	}
 
 	private static class DescendingIterator<K, V> extends ListIterator<K, V> {
-
 		DescendingIterator(Entry<K, V> start, Entry<K, V> expectedEnd) {
 			super(start, expectedEnd);
 		}
 
 		@Override
 		Entry<K, V> forward(Entry<K, V> entry) {
-			return entry.mPrevious;
+			return entry.prev;
 		}
 
 		@Override
 		Entry<K, V> backward(Entry<K, V> entry) {
-			return entry.mNext;
+			return entry.next;
 		}
 	}
 
 	private class IteratorWithAdditions implements Iterator<Map.Entry<K, V>>, SupportRemove<K, V> {
-		private Entry<K, V> mCurrent;
-		private boolean mBeforeStart = true;
+		private Entry<K, V> current;
+		private boolean beforeStart = true;
 
 		IteratorWithAdditions() {
 		}
 
-		@SuppressWarnings("ReferenceEquality")
 		@Override
 		public void supportRemove(@NonNull Entry<K, V> entry) {
-			if (entry == mCurrent) {
-				mCurrent = mCurrent.mPrevious;
-				mBeforeStart = mCurrent == null;
+			if (entry == current) {
+				current = current.prev;
+				beforeStart = (current == null);
 			}
 		}
 
 		@Override
 		public boolean hasNext() {
-			if (mBeforeStart) {
-				return mStart != null;
+			if (beforeStart) {
+				return start != null;
 			}
-			return mCurrent != null && mCurrent.mNext != null;
+			return current != null && current.next != null;
 		}
 
 		@Override
 		public Map.Entry<K, V> next() {
-			if (mBeforeStart) {
-				mBeforeStart = false;
-				mCurrent = mStart;
-			} else {
-				mCurrent = mCurrent != null ? mCurrent.mNext : null;
+			if (beforeStart) {
+				beforeStart = false;
+				current = start;
 			}
-			return mCurrent;
+			else {
+				current = current != null ? current.next : null;
+			}
+			return current;
 		}
 	}
 
@@ -329,28 +321,26 @@ class MySafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
 	}
 
 	static class Entry<K, V> implements Map.Entry<K, V> {
-		@NonNull
-		final K mKey;
-		@NonNull
-		final V mValue;
-		Entry<K, V> mNext;
-		Entry<K, V> mPrevious;
+		@NonNull final K key;
+		@NonNull final V value;
+		Entry<K, V> next;
+		Entry<K, V> prev;
 
 		Entry(@NonNull K key, @NonNull V value) {
-			mKey = key;
-			this.mValue = value;
+			this.key = key;
+			this.value = value;
 		}
 
 		@NonNull
 		@Override
 		public K getKey() {
-			return mKey;
+			return key;
 		}
 
 		@NonNull
 		@Override
 		public V getValue() {
-			return mValue;
+			return value;
 		}
 
 		@Override
@@ -358,27 +348,25 @@ class MySafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
 			throw new UnsupportedOperationException("An entry modification is not supported");
 		}
 
+		@NonNull
 		@Override
 		public String toString() {
-			return mKey + "=" + mValue;
+			return key + "=" + value;
 		}
 
-		@SuppressWarnings("ReferenceEquality")
 		@Override
 		public boolean equals(Object obj) {
-			if (obj == this) {
-				return true;
-			}
-			if (!(obj instanceof Entry)) {
-				return false;
-			}
+			if (obj == this) return true;
+			if (! (obj instanceof Entry)) return false;
+
 			Entry entry = (Entry) obj;
-			return mKey.equals(entry.mKey) && mValue.equals(entry.mValue);
+
+			return key.equals(entry.key) && value.equals(entry.value);
 		}
 
 		@Override
 		public int hashCode() {
-			return mKey.hashCode() ^ mValue.hashCode();
+			return key.hashCode() ^ value.hashCode();
 		}
 	}
 }
