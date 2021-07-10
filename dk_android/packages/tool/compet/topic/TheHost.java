@@ -109,9 +109,17 @@ public class TheHost extends ViewModel implements TheClient.Listener {
 		}
 	}
 
+	// Just remove topic without clear its resource.
 	public void removeTopic(String topicId) {
 		OwnTopic topic = allTopics.get(topicId);
+		if (topic != null) {
+			allTopics.remove(topicId);
+		}
+	}
 
+	// Remove topic and clear its resource.
+	public void cleanupTopic(String topicId) {
+		OwnTopic topic = allTopics.get(topicId);
 		if (topic != null) {
 			topic.clear();
 			allTopics.remove(topicId);

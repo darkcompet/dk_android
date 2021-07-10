@@ -12,11 +12,11 @@ import androidx.lifecycle.ViewModelStoreOwner;
  */
 public class DkTopicOwner {
 	protected String topicId;
-	protected DkTopicProvider topicProvider;
+	protected DkTopicsProvider topicsProvider;
 
 	public DkTopicOwner(String topicId, ViewModelStoreOwner owner) {
 		this.topicId = topicId;
-		this.topicProvider = new DkTopicProvider(owner);
+		this.topicsProvider = new DkTopicsProvider(owner);
 	}
 
 	/**
@@ -30,7 +30,7 @@ public class DkTopicOwner {
 	 * Use this to switch owner.
 	 */
 	public DkTopicOwner setOwner(@NonNull ViewModelStoreOwner newOwner) {
-		this.topicProvider = new DkTopicProvider(newOwner);
+		this.topicsProvider = new DkTopicsProvider(newOwner);
 		return this;
 	}
 
@@ -38,7 +38,7 @@ public class DkTopicOwner {
 	 * Make the client as topic-owner.
 	 */
 	public DkTopicOwner registerClient(ViewModelStoreOwner client) {
-		topicProvider.registerClient(topicId, client);
+		topicsProvider.registerClient(topicId, client);
 		return this;
 	}
 
@@ -46,7 +46,7 @@ public class DkTopicOwner {
 	 * Remove a client from the topic.
 	 */
 	public void unregisterClient(ViewModelStoreOwner client) {
-		topicProvider.unregisterClient(topicId, client);
+		topicsProvider.unregisterClient(topicId, client);
 	}
 	
 	public <M> M obtain(Class<M> modelType) {
@@ -59,14 +59,24 @@ public class DkTopicOwner {
 	 * If not exist the model in the topic, then create and register new model inside the topic.
 	 */
 	public <M> M obtain(String modelKey, Class<M> modelType) {
-		return topicProvider.obtainModel(topicId, modelKey, modelType);
+		return topicsProvider.obtainModel(topicId, modelKey, modelType);
 	}
 
 	/**
-	 * Clear all materials which be held by the topic (ViewModels, Clients...).
+	 * Just cleanup its materials without close (remove from topics provider) this topic.
+	 * So its resource can be used if some where holds this topic instance.
 	 */
-	public DkTopicOwner clear() {
-		topicProvider.removeTopic(topicId);
+	public DkTopicOwner close() {
+		topicsProvider.removeTopic(topicId);
+		return this;
+	}
+
+	/**
+	 * Close (remove from topics provider) this topic and Cleanup its materials.
+	 * So its resource will not be used even some where holds this topic instance.
+	 */
+	public DkTopicOwner cleanup() {
+		topicsProvider.cleanupTopic(topicId);
 		return this;
 	}
 }

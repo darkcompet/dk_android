@@ -19,7 +19,7 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 /**
  * Just show view (this is used for decoration purposed).
  */
-public class DkCustomViewPreference extends MyBasePreference<DkCustomViewPreference> {
+public class DkCustomViewPreference extends TheBasePreference<DkCustomViewPreference> {
 	private int layoutResId;
 	private View view;
 

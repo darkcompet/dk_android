@@ -18,7 +18,7 @@ import tool.compet.core.R;
 import tool.compet.core4j.DkArrays;
 import tool.compet.core.view.DkViews;
 
-public class DkGroupPreference extends MyBasePreference<DkGroupPreference> {
+public class DkGroupPreference extends TheBasePreference<DkGroupPreference> {
 	protected CharSequence title;
 	protected int titleResId;
 

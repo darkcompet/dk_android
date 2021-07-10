@@ -9,7 +9,7 @@ import android.content.Context;
 import androidx.annotation.Nullable;
 
 @SuppressWarnings("unchecked")
-abstract class MyBasePreference<P> implements DkPreference<P> {
+public abstract class TheBasePreference<P> implements DkPreference<P> {
 	// Control enabled/disabled state by this
 	protected boolean enabled = true;
 
@@ -25,7 +25,7 @@ abstract class MyBasePreference<P> implements DkPreference<P> {
 	protected DkPreferenceStorage storage; // to store setting
 	protected DkPreferenceListener listener; // to callback when something changed
 
-	MyBasePreference(@Nullable String key) {
+	TheBasePreference(@Nullable String key) {
 		this.key = key;
 	}
 

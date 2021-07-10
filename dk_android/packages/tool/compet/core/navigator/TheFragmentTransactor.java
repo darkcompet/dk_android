@@ -255,10 +255,8 @@ public class TheFragmentTransactor {
 		originTags.applyChanges(workTags);
 
 		// Tell changed of stack
-		if (navigator.listeners != null) {
-			for (DkFragmentNavigator.Listener listener : navigator.listeners) {
-				listener.onStackSizeChanged(newSize, oldSize);
-			}
+		if (navigator.listener != null) {
+			navigator.listener.onStackSizeChanged(newSize, oldSize);
 		}
 	}
 

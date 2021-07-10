@@ -22,7 +22,10 @@ import tool.compet.core.view.DkViews;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
-public class DkSelectboxPreference extends MyBasePreference<DkSelectboxPreference> {
+/**
+ * Single selection preference with multiple entries.
+ */
+public class DkSelectboxPreference extends TheBasePreference<DkSelectboxPreference> {
 	public static final int POPUP_STYLE_DIALOG = 1;
 	public static final int POPUP_STYLE_POPUP = 2;
 
@@ -184,9 +187,25 @@ public class DkSelectboxPreference extends MyBasePreference<DkSelectboxPreferenc
 		return this;
 	}
 
+	public DkSelectboxPreference addEntryIf(boolean ok, int nameTextId, String value) {
+		if (ok) {
+			entryNameList.add(nameTextId);
+			entryValueList.add(value);
+		}
+		return this;
+	}
+
 	public DkSelectboxPreference addEntry(int nameTextId, String value) {
 		entryNameList.add(nameTextId);
 		entryValueList.add(value);
+		return this;
+	}
+
+	public DkSelectboxPreference addEntryIf(boolean ok, String name, String value) {
+		if (ok) {
+			entryNameList.add(name);
+			entryValueList.add(value);
+		}
 		return this;
 	}
 

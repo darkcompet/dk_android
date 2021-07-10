@@ -16,7 +16,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import tool.compet.core.R;
 import tool.compet.core.view.DkViews;
 
-public class DkCheckBoxPreference extends MyBasePreference<DkCheckBoxPreference> {
+/**
+ * Single check/uncheck preference with one entry.
+ */
+public class DkCheckBoxPreference extends TheBasePreference<DkCheckBoxPreference> {
 	// Title
 	private int titleViewId = R.id.dk_title; // title view id
 	protected String title; // text for title of checkbox

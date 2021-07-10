@@ -22,13 +22,13 @@ import tool.compet.core4j.DkCaller;
 
 @SuppressWarnings("unchecked")
 public class DkLiveData<M> {
-	protected MySafeIterableMap<Observer<? super M>, MyObserverWrapper<M>> observers = new MySafeIterableMap<>();
+	protected final MySafeIterableMap<Observer<? super M>, MyClientObserver<M>> observers = new MySafeIterableMap<>();
 
-	// How many observers are in active state
+	// Count of observer which is in active state
 	protected int activeCount = 0;
 
 	// To handle active/inactive reentry, we guard with this boolean
-	protected boolean changingActiveState;
+	protected boolean isUpdatingActiveState;
 
 	protected static final int DATA_START_VERSION = -1;
 	protected static final Object DATA_NOT_SET = new Object();
@@ -99,23 +99,20 @@ public class DkLiveData<M> {
 	 */
 	@MainThread
 	public void observe(@NonNull LifecycleOwner owner, @NonNull Observer<? super M> observer) {
-		observe(owner, TheOptions::new, observer);
+		observe(owner, new TheOptions(), observer);
 	}
 
 	@MainThread
-	public void observe(@NonNull LifecycleOwner owner, @NonNull DkCaller<TheOptions> options, @NonNull Observer<? super M> observer) {
+	public void observe(@NonNull LifecycleOwner owner, @NonNull TheOptions options, @NonNull Observer<? super M> observer) {
 		if (BuildConfig.DEBUG) {
 			assertMainThread("observe");
 		}
 		if (owner.getLifecycle().getCurrentState() == Lifecycle.State.DESTROYED) {
+			DkLogcats.warning(this, "Ignore obsere when lifecycle owner goto destroyed state");
 			return; // ignore
 		}
-		MyObserverWrapper<M> client = new MyLifecycleObserverWrapper<>(this, owner, options.call(), observer);
-		MyObserverWrapper<M> prevClient = observers.putIfAbsent(observer, client);
-		// Does NOT allow this observer associate with other lifecycle owner
-		if (prevClient != null && ! prevClient.isAttachedTo(owner)) {
-			throw new IllegalArgumentException("Not allowed to add the same observer with different owner");
-		}
+		MyClientObserver<M> client = new MyLifecycleClientObserver<>(this, owner, options, observer);
+		MyClientObserver<M> prevClient = observers.putIfAbsent(observer, client);
 		if (prevClient == null) {
 			// Tell client that is was registered
 			client.onRegistered();
@@ -125,10 +122,13 @@ public class DkLiveData<M> {
 				updateActiveState(1);
 
 				// Client can get newest data if out of date
-				if (client.options.receiveDataWhenActive) {
+				if (client.options.notifyWhenObserve) {
 					dispatchValue(client);
 				}
 			}
+		}
+		else {
+			DkLogcats.warning(this, "Not allowed to add the same observer");
 		}
 	}
 
@@ -151,8 +151,8 @@ public class DkLiveData<M> {
 		if (BuildConfig.DEBUG) {
 			assertMainThread("observeForever");
 		}
-		MyAlwaysActiveObserverWrapper<M> client = new MyAlwaysActiveObserverWrapper<>(this, options.call(), observer);
-		MyObserverWrapper<M> prevWrapper = observers.putIfAbsent(observer, client);
+		MyAlwaysActiveClientObserver<M> client = new MyAlwaysActiveClientObserver<>(this, options.call(), observer);
+		MyClientObserver<M> prevWrapper = observers.putIfAbsent(observer, client);
 		if (prevWrapper != null) {
 			throw new IllegalArgumentException("Not allowed to add same observer");
 		}
@@ -160,11 +160,13 @@ public class DkLiveData<M> {
 		// Tell client that it was registered
 		client.onRegistered();
 
-		updateActiveState(1);
-
 		// Maybe client will be active at this time, check to dispatch event if required
-		if (client.active && client.options.receiveDataWhenActive) {
-			dispatchValue(client);
+		if (client.active) {
+			updateActiveState(1);
+
+			if (client.options.notifyWhenObserve) {
+				dispatchValue(client);
+			}
 		}
 	}
 
@@ -178,7 +180,7 @@ public class DkLiveData<M> {
 		if (BuildConfig.DEBUG) {
 			assertMainThread("removeObserver");
 		}
-		MyObserverWrapper<M> client = observers.remove(observer);
+		MyClientObserver<M> client = observers.remove(observer);
 		if (client != null) {
 			// Tell client that it was unregistered
 			client.onUnregistered();
@@ -210,11 +212,11 @@ public class DkLiveData<M> {
 	 * So it combines `setValue()`, `postValue()`... to match with client options.
 	 */
 	public void sendValue(M value) {
-		final Iterator<Map.Entry<Observer<? super M>, MyObserverWrapper<M>>> it = observers.iteratorWithAdditions();
-		final boolean isMainThread = Thread.currentThread() == Looper.getMainLooper().getThread();
+		final Iterator<Map.Entry<Observer<? super M>, MyClientObserver<M>>> it = observers.iteratorWithAdditions();
+		final boolean isMainThread = (Thread.currentThread() == Looper.getMainLooper().getThread());
 
 		while (it.hasNext()) {
-			MyObserverWrapper<M> client = it.next().getValue();
+			MyClientObserver<M> client = it.next().getValue();
 
 			if (client.options.threadMode == TheOptions.THREAD_MODE_MAIN) {
 				if (isMainThread) {
@@ -251,6 +253,10 @@ public class DkLiveData<M> {
 		dispatchValue(null);
 	}
 
+	/**
+	 * Unset current value to `DATA_NOT_SET` which does not equal to any value.
+	 * Call this to make all observers don't get notification until new value is dispatched.
+	 */
 	@MainThread
 	public void unsetValue() {
 		if (BuildConfig.DEBUG) {
@@ -260,9 +266,9 @@ public class DkLiveData<M> {
 		version = DATA_START_VERSION;
 
 		// Also reset last version for observers (clients)
-		Iterator<Map.Entry<Observer<? super M>, MyObserverWrapper<M>>> iterator = observers.iteratorWithAdditions();
+		Iterator<Map.Entry<Observer<? super M>, MyClientObserver<M>>> iterator = observers.iteratorWithAdditions();
 		while (iterator.hasNext()) {
-			MyObserverWrapper<M> client = iterator.next().getValue();
+			MyClientObserver<M> client = iterator.next().getValue();
 			client.lastVersion = DATA_START_VERSION;
 		}
 	}
@@ -298,9 +304,9 @@ public class DkLiveData<M> {
 		int prevActiveCount = activeCount;
 		activeCount += change;
 
-		if (! changingActiveState) {
+		if (! isUpdatingActiveState) {
 			try {
-				changingActiveState = true;
+				isUpdatingActiveState = true;
 
 				while (prevActiveCount != activeCount) {
 					boolean needToCallActive = (prevActiveCount == 0 && activeCount > 0);
@@ -308,6 +314,8 @@ public class DkLiveData<M> {
 
 					prevActiveCount = activeCount;
 
+					// Maybe activeCount is changed at this time,
+					// so we need perform while until prevActiveCount equals to activeCount
 					if (needToCallActive) {
 						onActive();
 					}
@@ -317,7 +325,7 @@ public class DkLiveData<M> {
 				}
 			}
 			finally {
-				changingActiveState = false;
+				isUpdatingActiveState = false;
 			}
 		}
 	}
@@ -328,7 +336,7 @@ public class DkLiveData<M> {
 	 * @param client Null to dispatch to all observers. Otherwise dispatch to target observer.
 	 */
 	@MainThread
-	protected void dispatchValue(@Nullable MyObserverWrapper<M> client) {
+	protected void dispatchValue(@Nullable MyClientObserver<M> client) {
 		if (dispatchingData) {
 			dispatchInvalidated = true;
 			return;
@@ -341,10 +349,10 @@ public class DkLiveData<M> {
 
 			// Notify to all observers
 			if (client == null) {
-				Iterator<Map.Entry<Observer<? super M>, MyObserverWrapper<M>>> it = observers.iteratorWithAdditions();
+				Iterator<Map.Entry<Observer<? super M>, MyClientObserver<M>>> it = observers.iteratorWithAdditions();
 
 				while (it.hasNext()) {
-					considerNotify(it.next().getValue());
+					attemptNotify(it.next().getValue());
 
 					if (dispatchInvalidated) {
 						break;
@@ -353,7 +361,7 @@ public class DkLiveData<M> {
 			}
 			// Notify to target observer
 			else {
-				considerNotify(client);
+				attemptNotify(client);
 				client = null;
 			}
 		} while (dispatchInvalidated);
@@ -362,11 +370,11 @@ public class DkLiveData<M> {
 	}
 
 	@MainThread
-	protected void considerNotify(MyObserverWrapper<M> client) {
+	protected void attemptNotify(MyClientObserver<M> client) {
 		if (BuildConfig.DEBUG) {
-			DkLogcats.notice(this, "Should notify data? %b, %b, %b", data != DATA_NOT_SET, client.active, client.lastVersion < version);
+			DkLogcats.notice(this, "Should notify to client? data not set (%b), client active (%b), newer data (%b)", data != DATA_NOT_SET, client.active, client.lastVersion < version);
 		}
-		// Perform notify data changed iff:
+		// Perform notify data changed to given observer (client) iff:
 		// - data was set
 		// - client is active
 		// - client data is out of date (last data version of client < current data version)
@@ -400,12 +408,12 @@ public class DkLiveData<M> {
 	}
 
 	@MainThread
-	protected void onObserverActiveStateChanged(MyObserverWrapper<M> client, boolean active) {
+	protected void onObserverActiveStateChanged(MyClientObserver<M> client, boolean active) {
 		updateActiveState(active ? 1 : -1);
 		if (! active) {
 			removeObserver(client.observer);
 		}
-		else if (client.options.receiveDataWhenActive) {
+		else if (client.options.notifyWhenObserve) {
 			dispatchValue(client);
 		}
 	}

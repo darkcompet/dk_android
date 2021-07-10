@@ -10,22 +10,25 @@ import androidx.lifecycle.ViewModelStoreOwner;
 
 import tool.compet.core.DkLogcats;
 
-public class DkTopicProvider {
+/**
+ * Provide topics.
+ */
+public class DkTopicsProvider {
 	// Topic owner, for eg,. app/activity
 	private final ViewModelStoreOwner owner;
 
-	public DkTopicProvider(@NonNull ViewModelStoreOwner owner) {
+	public DkTopicsProvider(@NonNull ViewModelStoreOwner owner) {
 		this.owner = owner;
 	}
 
 	// Get or Create a topic from host, also make client listen to the topic
-	public DkTopicProvider registerClient(String topicId, ViewModelStoreOwner client) {
+	public DkTopicsProvider registerClient(String topicId, ViewModelStoreOwner client) {
 		try {
 			theHost().registerClient(topicId, theClient(client));
 			return this;
 		}
 		catch (Exception e) {
-			DkLogcats.error(DkTopicProvider.class, e);
+			DkLogcats.error(DkTopicsProvider.class, e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -36,19 +39,24 @@ public class DkTopicProvider {
 			return theHost().obtainModel(topicId, modelKey, modelType);
 		}
 		catch (Exception e) {
-			DkLogcats.error(DkTopicProvider.class, e);
+			DkLogcats.error(DkTopicsProvider.class, e);
 			throw new RuntimeException(e);
 		}
 	}
 
 	// Remove client from topic
-	public DkTopicProvider unregisterClient(String topicId, ViewModelStoreOwner client) {
+	public DkTopicsProvider unregisterClient(String topicId, ViewModelStoreOwner client) {
 		theHost().unregisterClient(topicId, theClient(client));
 		return this;
 	}
 
-	public DkTopicProvider removeTopic(String topicId) {
+	public DkTopicsProvider removeTopic(String topicId) {
 		theHost().removeTopic(topicId);
+		return this;
+	}
+
+	public DkTopicsProvider cleanupTopic(String topicId) {
+		theHost().cleanupTopic(topicId);
 		return this;
 	}
 

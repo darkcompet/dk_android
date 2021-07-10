@@ -8,14 +8,11 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.collection.ArraySet;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
-import java.util.Set;
-
-import tool.compet.core.DkFragment;
 import tool.compet.core.BuildConfig;
+import tool.compet.core.DkFragment;
 import tool.compet.core.DkLogcats;
 import tool.compet.core4j.DkStrings;
 
@@ -32,7 +29,7 @@ public class DkFragmentNavigator {
 	final FragmentManager fm;
 	final MyTagManager tags;
 
-	Set<Listener> listeners;
+	Listener listener;
 
 	public DkFragmentNavigator(int containerId, FragmentManager fm) {
 		this.containerId = containerId;
@@ -40,17 +37,8 @@ public class DkFragmentNavigator {
 		this.tags = new MyTagManager();
 	}
 
-	public void registerListener(Listener listener) {
-		if (listeners == null) {
-			listeners = new ArraySet<>();
-		}
-		listeners.add(listener);
-	}
-
-	public void unregisterListener(Listener listener) {
-		if (listeners != null) {
-			listeners.remove(listener);
-		}
+	public void setListener(Listener listener) {
+		this.listener = listener;
 	}
 
 	public TheFragmentTransactor beginTransaction() {

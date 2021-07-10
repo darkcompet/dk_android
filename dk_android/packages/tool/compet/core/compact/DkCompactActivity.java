@@ -18,7 +18,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.MutableLiveData;
+import tool.compet.livedata.DkLiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStoreOwner;
@@ -137,7 +137,7 @@ public abstract class DkCompactActivity<L extends DkCompactLogic, M>
 		// Debug log as visual
 		if (BuildConfig.DEBUG) {
 			// Observe log to show at active state of the view
-			MutableLiveData<String[]> logLiveData = new MutableLiveData<>();
+			DkLiveData<String[]> logLiveData = new DkLiveData<>();
 			logLiveData.observe(this, type_message -> {
 				new DkConfirmDialog()
 					.setTitle(type_message[0])

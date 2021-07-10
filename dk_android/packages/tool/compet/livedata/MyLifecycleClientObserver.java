@@ -13,14 +13,14 @@ import androidx.lifecycle.Observer;
 import tool.compet.core.DkLogcats;
 
 /**
- * This wrapper of observer, which aware of lifespan events from lifecycle owner.
+ * This contains client and observer, which aware of lifespan events from lifecycle owner.
  *
  * @param <M> Data (value) type.
  */
-class MyLifecycleObserverWrapper<M> extends MyObserverWrapper<M> implements LifecycleEventObserver {
+class MyLifecycleClientObserver<M> extends MyClientObserver<M> implements LifecycleEventObserver {
 	protected final LifecycleOwner owner;
 
-	MyLifecycleObserverWrapper(DkLiveData<M> liveData, @NonNull LifecycleOwner owner, TheOptions options, Observer<? super M> observer) {
+	MyLifecycleClientObserver(DkLiveData<M> liveData, @NonNull LifecycleOwner owner, TheOptions options, Observer<? super M> observer) {
 		super(liveData, options, observer);
 		this.owner = owner;
 	}
@@ -30,9 +30,7 @@ class MyLifecycleObserverWrapper<M> extends MyObserverWrapper<M> implements Life
 	 */
 	@Override
 	public void onRegistered() {
-		if (! active && stillInActiveState()) {
-			active = true;
-		}
+		super.onRegistered();
 		// Start listen to lifespan of lifecycle owner
 		owner.getLifecycle().addObserver(this);
 	}
@@ -47,18 +45,13 @@ class MyLifecycleObserverWrapper<M> extends MyObserverWrapper<M> implements Life
 
 		DkLogcats.debug(this, "lifecycle state of owner %s was changed to: %s", owner.toString(), curState.toString());
 
-		// Remove observer when owner (activity, fragment) was destroyed
-//		if (curState == Lifecycle.State.DESTROYED) {
-//			host.removeObserver(observer);
-//			return;
-//		}
-
-		// When observer has changed state inactive -> active, we should tell host dispatch data
+		// At this time, we will update active state which should follow up state of lifecycle owner.
+		// If observer has changed state inactive -> active, we should make host known it
 		Lifecycle.State prevState = null;
 		while (prevState != curState) {
 			prevState = curState;
 
-			boolean newActive = stillInActiveState();
+			boolean newActive = isInActiveState();
 			if (newActive != active) {
 				active = newActive;
 				host.onObserverActiveStateChanged(this, newActive);
@@ -73,21 +66,18 @@ class MyLifecycleObserverWrapper<M> extends MyObserverWrapper<M> implements Life
 	 */
 	@Override
 	public void onUnregistered() {
-		// After was removed from host, this will be inactive
-		if (active && ! stillInActiveState()) {
-			active = false;
-		}
-
+		super.onUnregistered();
 		// Stop listen to lifespan of lifecycle owner
 		owner.getLifecycle().removeObserver(this);
 	}
 
-	@Override
-	public boolean isAttachedTo(LifecycleOwner owner) {
-		return this.owner == owner;
-	}
-
-	protected boolean stillInActiveState() {
+	/**
+	 * Check whether lifecycle owner is still in active state,
+	 * so we should follow up that active state.
+	 *
+	 * @return True if lifecycle owner is in active state. Otherwise False.
+	 */
+	protected boolean isInActiveState() {
 		// Activity, Fragment are at onStart()
 		return owner.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED);
 	}

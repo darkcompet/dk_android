@@ -25,12 +25,11 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.animation.PathInterpolatorCompat;
 
-import tool.compet.core.R;
-import tool.compet.core.compact.DkCompactDialogFragment;
 import tool.compet.core.DkConfig;
-import tool.compet.core.DkLogcats;
+import tool.compet.core.R;
 import tool.compet.core.animation.DkAnimationConfiguration;
 import tool.compet.core.animation.DkLookupTableInterpolator;
+import tool.compet.core.compact.DkCompactDialogFragment;
 import tool.compet.core.graphics.DkDrawables;
 import tool.compet.core.view.DkViews;
 import tool.compet.core4j.DkRunner2;
@@ -850,7 +849,7 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 					animUpdater = (va, view) -> {
 						float t = va.getAnimatedFraction();
 						float scaleFactor = (float) va.getAnimatedValue();
-						DkLogcats.debug(this, "t: %f -> v: %f", t, scaleFactor);
+
 						view.setScaleX(scaleFactor);
 						view.setScaleY(scaleFactor);
 					};
