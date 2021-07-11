@@ -207,6 +207,228 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 		}
 	}
 
+	// region Protected
+
+	/**
+	 * Subclass can override to customize init children.
+	 */
+	protected void onInitChildren(View view) {
+		// layout = background + foreground
+		// foreground = innner-padding + content (= header + content + footer)
+		// header = title + subtitle
+		// content = custom-view || message
+		// footer = buttons
+		vContent = view.findViewById(R.id.dk_background);
+		vBody = view.findViewById(R.id.dk_body);
+
+		vHeader = view.findViewById(R.id.dk_header);
+		vTitle = view.findViewById(R.id.dk_title);
+		vMessage = view.findViewById(R.id.dk_message);
+		vCancel = view.findViewById(R.id.dk_cancel);
+		vReset = view.findViewById(R.id.dk_reset);
+		vOk = view.findViewById(R.id.dk_ok);
+	}
+
+	/**
+	 * Subclass can override to customize layout setting.
+	 */
+	@SuppressLint("ClickableViewAccessibility")
+	protected void onSetupLayout(View view) {
+		view.setOnTouchListener((v, event) -> {
+			switch (event.getActionMasked()) {
+				case MotionEvent.ACTION_DOWN:
+					return true;
+				case MotionEvent.ACTION_UP: {
+					if (! DkViews.isInsideView(event, vContent)) {
+						onClickOutside();
+					}
+					break;
+				}
+			}
+			return false;
+		});
+
+		// Dialog content (rounded corner view)
+		decorContent();
+
+		// Header
+		decorHeader();
+		decorIcon();
+		decorTitle();
+
+		// Body
+		decorBodyView();
+
+		// Footer
+		vCancel.setOnClickListener(this);
+		decorCancelButton();
+
+		vReset.setOnClickListener(this);
+		decorResetButton();
+
+		vOk.setOnClickListener(this);
+		decorOkButton();
+
+		// Background (dialog) dimension
+		ViewGroup.LayoutParams bkgLayoutParams = vContent.getLayoutParams();
+		final int[] dimensions = DkConfig.displaySize();
+		if (bkgLayoutParams == null) {
+			bkgLayoutParams = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+		}
+		if (isFullScreen) {
+			bkgLayoutParams.width = bkgLayoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
+		}
+		if (widthPercent != 0) {
+			bkgLayoutParams.width = (int) (dimensions[0] * widthPercent);
+		}
+		if (heightPercent != 0) {
+			bkgLayoutParams.height = (int) (dimensions[1] * heightPercent);
+		}
+		if (widthRatio != 0 && heightRatio != 0) {
+			if (dimensionRatioBasedOnWidth) {
+				bkgLayoutParams.height = (int) (bkgLayoutParams.width * heightRatio / widthRatio);
+			}
+			else {
+				bkgLayoutParams.width = (int) (bkgLayoutParams.height * widthRatio / heightRatio);
+			}
+		}
+		vContent.setLayoutParams(bkgLayoutParams);
+	}
+
+	/**
+	 * By default, this try to perform cancel-callback.
+	 * Subclass can override to customize click event.
+	 */
+	protected void onCancelButtonClick(View button) {
+		if (this.cancelCb != null) {
+			this.cancelCb.onClick(this, button);
+		}
+	}
+
+	/**
+	 * By default, this try to perform reset-callback.
+	 * Subclass can override to customize click event.
+	 */
+	protected void onResetButtonClick(View button) {
+		if (this.resetCb != null) {
+			this.resetCb.onClick(this, button);
+		}
+	}
+
+	/**
+	 * By default, this try to perform ok-callback.
+	 * Subclass can override to customize click event.
+	 */
+	protected void onOkButtonClick(View button) {
+		if (this.okCb != null) {
+			this.okCb.onClick(this, button);
+		}
+	}
+
+	/**
+	 * By default, this check `isDismissOnTouchOutside` flag to dismiss dialog.
+	 * Subclass can override to customize click event.
+	 */
+	protected void onClickOutside() {
+		if (isDismissOnTouchOutside) {
+			close();
+		}
+	}
+
+	@CallSuper
+	@Override
+	protected void storeInstanceState(@NonNull Bundle outState) {
+		super.storeInstanceState(outState);
+
+		if (backgroundColor != null) {
+			outState.putInt("DkConfirmDialog.backgroundColor", backgroundColor);
+		}
+
+		outState.putInt("DkConfirmDialog.iconResId", iconResId);
+		outState.putInt("DkConfirmDialog.titleTextResId", titleTextResId);
+		outState.putCharSequence("DkConfirmDialog.title", title);
+		outState.putInt("DkConfirmDialog.subTitleTextResId", subTitleTextResId);
+		outState.putInt("DkConfirmDialog.headerBackgroundColor", headerBackgroundColor);
+
+		if (bodyLayoutResId > 0) {
+			outState.putInt("DkConfirmDialog.bodyLayoutResId", bodyLayoutResId);
+		}
+		if (widthPercent > 0) {
+			outState.putFloat("DkConfirmDialog.widthWeight", widthPercent);
+		}
+		if (heightPercent > 0) {
+			outState.putFloat("DkConfirmDialog.heightWeight", heightPercent);
+		}
+
+		if (messageTextResId > 0) {
+			outState.putInt("DkConfirmDialog.messageTextResId", messageTextResId);
+		}
+		if (message != null) {
+			outState.putString("DkConfirmDialog.message", message);
+		}
+		if (messageBackgroundColor != null) {
+			outState.putInt("DkConfirmDialog.messageBackgroundColor", messageBackgroundColor);
+		}
+
+		outState.putInt("DkConfirmDialog.cancelTextResId", cancelTextResId);
+		outState.putInt("DkConfirmDialog.resetTextResId", resetTextResId);
+		outState.putInt("DkConfirmDialog.okTextResId", okTextResId);
+
+		outState.putBoolean("DkConfirmDialog.isDismissOnClickButton", isDismissOnClickButton);
+		outState.putBoolean("DkConfirmDialog.isDismissOnTouchOutside", isDismissOnTouchOutside);
+		outState.putBoolean("DkConfirmDialog.isFullScreen", isFullScreen);
+		outState.putBoolean("DkConfirmDialog.cancelable", cancelable);
+
+		ConfirmTopic confirmTopic = joinHostTopic(CONFIRM_TOPIC).obtain(ConfirmTopic.class);
+		confirmTopic.cancelCb = this.cancelCb;
+		confirmTopic.resetCb = this.resetCb;
+		confirmTopic.okCb = this.okCb;
+		if (backgroundDrawable != null) {
+			confirmTopic.backgroundDrawable = backgroundDrawable;
+		}
+	}
+
+	@CallSuper
+	@Override
+	protected void restoreInstanceState(@Nullable Bundle savedInstanceState) {
+		super.restoreInstanceState(savedInstanceState);
+
+		if (savedInstanceState != null) {
+			backgroundColor = savedInstanceState.getInt("DkConfirmDialog.backgroundColor");
+
+			iconResId = savedInstanceState.getInt("DkConfirmDialog.iconResId");
+			titleTextResId = savedInstanceState.getInt("DkConfirmDialog.titleTextResId");
+			title = savedInstanceState.getCharSequence("DkConfirmDialog.title");
+			subTitleTextResId = savedInstanceState.getInt("DkConfirmDialog.subTitleTextResId");
+			headerBackgroundColor = savedInstanceState.getInt("DkConfirmDialog.headerBackgroundColor");
+
+			bodyLayoutResId = savedInstanceState.getInt("DkConfirmDialog.bodyLayoutResId");
+			widthPercent = savedInstanceState.getFloat("DkConfirmDialog.widthWeight");
+			heightPercent = savedInstanceState.getFloat("DkConfirmDialog.heightWeight");
+
+			messageTextResId = savedInstanceState.getInt("DkConfirmDialog.messageTextResId");
+			message = savedInstanceState.getString("DkConfirmDialog.message");
+			messageBackgroundColor = savedInstanceState.getInt("DkConfirmDialog.messageBackgroundColor");
+
+			cancelTextResId = savedInstanceState.getInt("DkConfirmDialog.cancelTextResId");
+			resetTextResId = savedInstanceState.getInt("DkConfirmDialog.resetTextResId");
+			okTextResId = savedInstanceState.getInt("DkConfirmDialog.okTextResId");
+
+			isDismissOnClickButton = savedInstanceState.getBoolean("DkConfirmDialog.isDismissOnClickButton");
+			isDismissOnTouchOutside = savedInstanceState.getBoolean("DkConfirmDialog.isDismissOnTouchOutside");
+			isFullScreen = savedInstanceState.getBoolean("DkConfirmDialog.isFullScreen");
+			cancelable = savedInstanceState.getBoolean("DkConfirmDialog.cancelable", false);
+
+			ConfirmTopic confirmTopic = joinHostTopic(CONFIRM_TOPIC).obtain(ConfirmTopic.class);
+			this.cancelCb = confirmTopic.cancelCb;
+			this.resetCb = confirmTopic.resetCb;
+			this.okCb = confirmTopic.okCb;
+			this.backgroundDrawable = confirmTopic.backgroundDrawable;
+		}
+	}
+
+	// endregion Protected
+
 	// region Get/Set
 
 	public D setBackgroundColor(int backgroundColor) {
@@ -431,228 +653,6 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 	}
 
 	// endregion Get/Set
-
-	// region Protected
-
-	/**
-	 * Subclass can override to customize init children.
-	 */
-	protected void onInitChildren(View view) {
-		// layout = background + foreground
-		// foreground = innner-padding + content (= header + content + footer)
-		// header = title + subtitle
-		// content = custom-view || message
-		// footer = buttons
-		vContent = view.findViewById(R.id.dk_background);
-		vBody = view.findViewById(R.id.dk_body);
-
-		vHeader = view.findViewById(R.id.dk_header);
-		vTitle = view.findViewById(R.id.dk_title);
-		vMessage = view.findViewById(R.id.dk_message);
-		vCancel = view.findViewById(R.id.dk_cancel);
-		vReset = view.findViewById(R.id.dk_reset);
-		vOk = view.findViewById(R.id.dk_ok);
-	}
-
-	/**
-	 * Subclass can override to customize layout setting.
-	 */
-	@SuppressLint("ClickableViewAccessibility")
-	protected void onSetupLayout(View view) {
-		view.setOnTouchListener((v, event) -> {
-			switch (event.getActionMasked()) {
-				case MotionEvent.ACTION_DOWN:
-					return true;
-				case MotionEvent.ACTION_UP: {
-					if (! DkViews.isInsideView(event, vContent)) {
-						onClickOutside();
-					}
-					break;
-				}
-			}
-			return false;
-		});
-
-		// Dialog content (rounded corner view)
-		decorContent();
-
-		// Header
-		decorHeader();
-		decorIcon();
-		decorTitle();
-
-		// Body
-		decorBodyView();
-
-		// Footer
-		vCancel.setOnClickListener(this);
-		decorCancelButton();
-
-		vReset.setOnClickListener(this);
-		decorResetButton();
-
-		vOk.setOnClickListener(this);
-		decorOkButton();
-
-		// Background (dialog) dimension
-		ViewGroup.LayoutParams bkgLayoutParams = vContent.getLayoutParams();
-		final int[] dimensions = DkConfig.displaySize();
-		if (bkgLayoutParams == null) {
-			bkgLayoutParams = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-		}
-		if (isFullScreen) {
-			bkgLayoutParams.width = bkgLayoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
-		}
-		if (widthPercent != 0) {
-			bkgLayoutParams.width = (int) (dimensions[0] * widthPercent);
-		}
-		if (heightPercent != 0) {
-			bkgLayoutParams.height = (int) (dimensions[1] * heightPercent);
-		}
-		if (widthRatio != 0 && heightRatio != 0) {
-			if (dimensionRatioBasedOnWidth) {
-				bkgLayoutParams.height = (int) (bkgLayoutParams.width * heightRatio / widthRatio);
-			}
-			else {
-				bkgLayoutParams.width = (int) (bkgLayoutParams.height * widthRatio / heightRatio);
-			}
-		}
-		vContent.setLayoutParams(bkgLayoutParams);
-	}
-
-	/**
-	 * By default, this try to perform cancel-callback.
-	 * Subclass can override to customize click event.
-	 */
-	protected void onCancelButtonClick(View button) {
-		if (this.cancelCb != null) {
-			this.cancelCb.onClick(this, button);
-		}
-	}
-
-	/**
-	 * By default, this try to perform reset-callback.
-	 * Subclass can override to customize click event.
-	 */
-	protected void onResetButtonClick(View button) {
-		if (this.resetCb != null) {
-			this.resetCb.onClick(this, button);
-		}
-	}
-
-	/**
-	 * By default, this try to perform ok-callback.
-	 * Subclass can override to customize click event.
-	 */
-	protected void onOkButtonClick(View button) {
-		if (this.okCb != null) {
-			this.okCb.onClick(this, button);
-		}
-	}
-
-	/**
-	 * By default, this check `isDismissOnTouchOutside` flag to dismiss dialog.
-	 * Subclass can override to customize click event.
-	 */
-	protected void onClickOutside() {
-		if (isDismissOnTouchOutside) {
-			close();
-		}
-	}
-
-	@CallSuper
-	@Override
-	protected void storeInstanceState(@NonNull Bundle outState) {
-		super.storeInstanceState(outState);
-
-		if (backgroundColor != null) {
-			outState.putInt("DkConfirmDialog.backgroundColor", backgroundColor);
-		}
-
-		outState.putInt("DkConfirmDialog.iconResId", iconResId);
-		outState.putInt("DkConfirmDialog.titleTextResId", titleTextResId);
-		outState.putCharSequence("DkConfirmDialog.title", title);
-		outState.putInt("DkConfirmDialog.subTitleTextResId", subTitleTextResId);
-		outState.putInt("DkConfirmDialog.headerBackgroundColor", headerBackgroundColor);
-
-		if (bodyLayoutResId > 0) {
-			outState.putInt("DkConfirmDialog.bodyLayoutResId", bodyLayoutResId);
-		}
-		if (widthPercent > 0) {
-			outState.putFloat("DkConfirmDialog.widthWeight", widthPercent);
-		}
-		if (heightPercent > 0) {
-			outState.putFloat("DkConfirmDialog.heightWeight", heightPercent);
-		}
-
-		if (messageTextResId > 0) {
-			outState.putInt("DkConfirmDialog.messageTextResId", messageTextResId);
-		}
-		if (message != null) {
-			outState.putString("DkConfirmDialog.message", message);
-		}
-		if (messageBackgroundColor != null) {
-			outState.putInt("DkConfirmDialog.messageBackgroundColor", messageBackgroundColor);
-		}
-
-		outState.putInt("DkConfirmDialog.cancelTextResId", cancelTextResId);
-		outState.putInt("DkConfirmDialog.resetTextResId", resetTextResId);
-		outState.putInt("DkConfirmDialog.okTextResId", okTextResId);
-
-		outState.putBoolean("DkConfirmDialog.isDismissOnClickButton", isDismissOnClickButton);
-		outState.putBoolean("DkConfirmDialog.isDismissOnTouchOutside", isDismissOnTouchOutside);
-		outState.putBoolean("DkConfirmDialog.isFullScreen", isFullScreen);
-		outState.putBoolean("DkConfirmDialog.cancelable", cancelable);
-
-		ConfirmTopic confirmTopic = joinHostTopic(CONFIRM_TOPIC).obtain(ConfirmTopic.class);
-		confirmTopic.cancelCb = this.cancelCb;
-		confirmTopic.resetCb = this.resetCb;
-		confirmTopic.okCb = this.okCb;
-		if (backgroundDrawable != null) {
-			confirmTopic.backgroundDrawable = backgroundDrawable;
-		}
-	}
-
-	@CallSuper
-	@Override
-	protected void restoreInstanceState(@Nullable Bundle savedInstanceState) {
-		super.restoreInstanceState(savedInstanceState);
-
-		if (savedInstanceState != null) {
-			backgroundColor = savedInstanceState.getInt("DkConfirmDialog.backgroundColor");
-
-			iconResId = savedInstanceState.getInt("DkConfirmDialog.iconResId");
-			titleTextResId = savedInstanceState.getInt("DkConfirmDialog.titleTextResId");
-			title = savedInstanceState.getCharSequence("DkConfirmDialog.title");
-			subTitleTextResId = savedInstanceState.getInt("DkConfirmDialog.subTitleTextResId");
-			headerBackgroundColor = savedInstanceState.getInt("DkConfirmDialog.headerBackgroundColor");
-
-			bodyLayoutResId = savedInstanceState.getInt("DkConfirmDialog.bodyLayoutResId");
-			widthPercent = savedInstanceState.getFloat("DkConfirmDialog.widthWeight");
-			heightPercent = savedInstanceState.getFloat("DkConfirmDialog.heightWeight");
-
-			messageTextResId = savedInstanceState.getInt("DkConfirmDialog.messageTextResId");
-			message = savedInstanceState.getString("DkConfirmDialog.message");
-			messageBackgroundColor = savedInstanceState.getInt("DkConfirmDialog.messageBackgroundColor");
-
-			cancelTextResId = savedInstanceState.getInt("DkConfirmDialog.cancelTextResId");
-			resetTextResId = savedInstanceState.getInt("DkConfirmDialog.resetTextResId");
-			okTextResId = savedInstanceState.getInt("DkConfirmDialog.okTextResId");
-
-			isDismissOnClickButton = savedInstanceState.getBoolean("DkConfirmDialog.isDismissOnClickButton");
-			isDismissOnTouchOutside = savedInstanceState.getBoolean("DkConfirmDialog.isDismissOnTouchOutside");
-			isFullScreen = savedInstanceState.getBoolean("DkConfirmDialog.isFullScreen");
-			cancelable = savedInstanceState.getBoolean("DkConfirmDialog.cancelable", false);
-
-			ConfirmTopic confirmTopic = joinHostTopic(CONFIRM_TOPIC).obtain(ConfirmTopic.class);
-			this.cancelCb = confirmTopic.cancelCb;
-			this.resetCb = confirmTopic.resetCb;
-			this.okCb = confirmTopic.okCb;
-			this.backgroundDrawable = confirmTopic.backgroundDrawable;
-		}
-	}
-
-	// endregion Protected
 
 	// region Private
 

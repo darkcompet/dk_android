@@ -19,6 +19,7 @@ import java.util.Map;
 import tool.compet.core.BuildConfig;
 import tool.compet.core.DkLogcats;
 import tool.compet.core4j.DkCaller;
+import tool.compet.core4j.DkConst;
 
 @SuppressWarnings("unchecked")
 public class DkLiveData<M> {
@@ -31,7 +32,7 @@ public class DkLiveData<M> {
 	protected boolean isUpdatingActiveState;
 
 	protected static final int DATA_START_VERSION = -1;
-	protected static final Object DATA_NOT_SET = new Object();
+	protected static final Object DATA_NOT_SET = DkConst.UID_OBJ;
 	// Lock to sync data
 	protected final Object dataLock = new Object();
 	// Value to send

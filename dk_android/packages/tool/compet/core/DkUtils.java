@@ -4,7 +4,6 @@
 
 package tool.compet.core;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -15,7 +14,6 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.media.ExifInterface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -24,11 +22,9 @@ import android.os.Build;
 import android.os.PowerManager;
 import android.os.Process;
 import android.provider.MediaStore.Images.Media;
-import android.provider.Settings;
 import android.view.Surface;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.Nullable;
@@ -47,41 +43,41 @@ import static android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN;
  * Utility class, provides common basic operations for app.
  */
 public class DkUtils extends tool.compet.core4j.DkUtils {
-	public static int getResourceId(String resName, Class<?> clazz) {
-		try {
-			return (int) clazz.getDeclaredField(resName).get(null);
-		}
-		catch (Exception e) {
-			DkLogcats.error(DkLogcats.class, e);
-			return -1;
-		}
-	}
-
+	/**
+	 * Read all content of a file under assets folder as lines.
+	 *
+	 * @return List of line if succeed. Otherwise return Null.
+	 */
+	@Nullable
 	public static List<String> asset2lines(Context context, String fileName, boolean trim) {
 		List<String> lines = new ArrayList<>();
+		String line;
 
 		try {
-			String line;
-			BufferedReader br = new BufferedReader(new InputStreamReader(context.getAssets().open(fileName)));
-			while ((line = br.readLine()) != null) {
-				lines.add(trim ? line.trim() : line);
+			try (BufferedReader br = new BufferedReader(new InputStreamReader(context.getAssets().open(fileName)))) {
+				while ((line = br.readLine()) != null) {
+					lines.add(trim ? line.trim() : line);
+				}
 			}
-			br.close();
+			return lines;
 		}
 		catch (Exception e) {
 			DkLogcats.error(DkLogcats.class, e);
 		}
-
-		return lines;
+		return null;
 	}
 
+	/**
+	 * @return File content as string if succeed. Otherwise return Null.
+	 */
+	@Nullable
 	public static String asset2string(Context context, String fileName) {
 		try {
 			return stream2string(context.getAssets().open(fileName));
 		}
 		catch (IOException e) {
 			DkLogcats.error(DkLogcats.class, e);
-			return "";
+			return null;
 		}
 	}
 
@@ -114,78 +110,8 @@ public class DkUtils extends tool.compet.core4j.DkUtils {
 		}
 	}
 
-	public static void hideStatusBar(Activity host) {
-		// alter at onDetach(): host.getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-
-		if (Build.VERSION.SDK_INT < 16) {
-			host.getWindow().setFlags(FLAG_FULLSCREEN, FLAG_FULLSCREEN);
-		}
-		else {
-			View decorView = host.getWindow().getDecorView();
-			// Hide the status bar.
-			int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
-			decorView.setSystemUiVisibility(uiOptions);
-			// Remember that you should never show the action bar if the
-			// status bar is hidden, so hide that too if necessary.
-			ActionBar actionBar = host.getActionBar();
-
-			if (actionBar != null) {
-				actionBar.hide();
-			}
-		}
-	}
-
-	public static void transparentStatusBar(Activity host, boolean isTransparent, boolean fullscreen) {
-		int defaultStatusBarColor = Color.TRANSPARENT;
-		final Window window = host.getWindow();
-
-		if (isTransparent) {
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) { // 16+
-				window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
-			}
-
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) { // 21+
-				defaultStatusBarColor = window.getStatusBarColor();
-				window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-				window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-				// FOR TRANSPARENT NAVIGATION BAR
-				// window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
-				window.setStatusBarColor(Color.TRANSPARENT);
-			}
-			else {
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-					window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-				}
-			}
-		}
-		else {
-			if (fullscreen) {
-				View decorView = window.getDecorView();
-				int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN;
-				decorView.setSystemUiVisibility(uiOptions);
-			}
-			else {
-				window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
-
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-					window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
-					window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-					window.clearFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-					window.clearFlags(FLAG_FULLSCREEN);
-					window.setStatusBarColor(defaultStatusBarColor);
-
-				}
-				else {
-					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-						window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-					}
-				}
-			}
-		}
-	}
-
 	/**
-	 * Dim system bars like: status bar, navigation bar...
+	 * Dim ui system bars like: status bar, navigation bar...
 	 * Note that, once user touches some system bar, you need call this to dim again.
 	 */
 	public static void dimSystemBars(Activity host) {
@@ -193,12 +119,6 @@ public class DkUtils extends tool.compet.core4j.DkUtils {
 		int uiOptions = View.SYSTEM_UI_FLAG_LOW_PROFILE;
 
 		decorView.setSystemUiVisibility(uiOptions);
-	}
-
-	public static void showSystemBars(Activity host) {
-		View decorView = host.getWindow().getDecorView();
-		// Clears all flags
-		decorView.setSystemUiVisibility(View.VISIBLE);
 	}
 
 	public static void sendEmail(Context context, String dstEmail, String subject, String message) {
@@ -282,7 +202,6 @@ public class DkUtils extends tool.compet.core4j.DkUtils {
 
 	public static void hideSoftKeyboard(Context context, @Nullable View view) {
 		InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-
 		if (imm != null && view != null) {
 			imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 		}
@@ -292,10 +211,6 @@ public class DkUtils extends tool.compet.core4j.DkUtils {
 		ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
 		return (networkInfo != null && networkInfo.getState() == NetworkInfo.State.CONNECTED);
-	}
-
-	public static void gotoGpsSetting(Context context) {
-		context.startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
 	}
 
 	/**
@@ -383,10 +298,9 @@ public class DkUtils extends tool.compet.core4j.DkUtils {
 					return ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
 			}
 		}
-		//		return getWindowManager().getDefaultDisplay().getRotation();
 	}
 
-	public static void setScreenOritation(Activity host, int hostInfoOrientation) {
+	public static void setScreenOrientation(Activity host, int hostInfoOrientation) {
 		host.setRequestedOrientation(hostInfoOrientation);
 	}
 

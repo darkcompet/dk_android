@@ -6,6 +6,7 @@ package tool.compet.core.view;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Path;
@@ -139,7 +140,7 @@ public class DkViews {
 				}
 
 				if (callback != null) {
-					callback.run(new int[]{view.getMeasuredWidth(), view.getMeasuredHeight()});
+					callback.run(new int[] {view.getMeasuredWidth(), view.getMeasuredHeight()});
 				}
 			}
 		});
@@ -376,5 +377,13 @@ public class DkViews {
 		int left = offset.left;
 		int top = offset.top;
 		return new Rect(left, top, left + ancestor.getWidth(), top + ancestor.getHeight());
+	}
+
+	public static int getStatusbarHeight(Resources resources, int defaultValue) {
+		int resourceId = resources.getIdentifier("status_bar_height", "dimen", "android");
+		if (resourceId > 0) {
+			return resources.getDimensionPixelSize(resourceId);
+		}
+		return defaultValue;
 	}
 }

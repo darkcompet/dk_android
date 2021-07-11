@@ -19,7 +19,6 @@ import androidx.annotation.Nullable;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
-import tool.compet.core.DkUtils;
 import tool.compet.core.animation.DkInterpolatorFunctions;
 
 /**
@@ -59,9 +58,8 @@ public class DkBoomMenu {
 	private int animState = ANIM_STATE_NOT_YET;
 
 	private boolean enableCache = true; // for faster animation at next time
-	private boolean enableBatteryPowerMode = true; // to reduce energy for low battery
 	private boolean backgroundWholeScreen = true;
-	private boolean dismissImmediate;
+	private boolean dismissImmediateOnClickOutside = true;
 	private boolean dismissOnClickOutsideItem = true;
 	private boolean dismissOnBackPressed = true;
 	private boolean bringAnchorToFront;
@@ -96,7 +94,7 @@ public class DkBoomMenu {
 		@Override
 		public boolean onClick(View v) {
 			if (dismissOnClickOutsideItem) {
-				unboom(dismissImmediate);
+				unboom(dismissImmediateOnClickOutside);
 				return true;
 			}
 			return false;
@@ -106,7 +104,7 @@ public class DkBoomMenu {
 		public boolean onKey(View v, int keyCode, KeyEvent event) {
 			if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
 				if (dismissOnBackPressed && (animState == ANIM_STATE_WILL_ANIMATE_SOON || animState == ANIM_STATE_ANIMATED)) {
-					unboom(dismissImmediate);
+					unboom(dismissImmediateOnClickOutside);
 				}
 				return true;
 			}
@@ -143,7 +141,7 @@ public class DkBoomMenu {
 			setupBackground();
 			setupMenuItems();
 
-			if (immediate || (enableBatteryPowerMode && DkUtils.isPowerSaveMode(context))) {
+			if (immediate) {
 				animState = ANIM_STATE_ANIMATED;
 				for (DkItem item : clusterManager.items) {
 					item.show();
@@ -181,9 +179,9 @@ public class DkBoomMenu {
 	}
 
 	/**
-	 * Dismiss menu without animation.
+	 * Close menu without animation.
 	 */
-	public void dismiss() {
+	public void close() {
 		unboom(true);
 	}
 
@@ -288,7 +286,7 @@ public class DkBoomMenu {
 				@Override
 				public void onClick(DkItem item, float x, float y) {
 					if (item.dismissMenuOnClickItem) {
-						unboom(item.dismissMenuImmediate);
+						unboom(item.dismissMenuImmediateOnClickItem);
 					}
 					if (item.onClickLisener != null) {
 						item.onClickLisener.onClick(item.view, item.index);
@@ -431,13 +429,13 @@ public class DkBoomMenu {
 
 	public DkBoomMenu setDismissOnClickOutsideItem(boolean dismiss, boolean dismissImmediate) {
 		this.dismissOnClickOutsideItem = dismiss;
-		this.dismissImmediate = dismissImmediate;
+		this.dismissImmediateOnClickOutside = dismissImmediate;
 		return this;
 	}
 
 	public DkBoomMenu setDismissOnBackPressed(boolean dismiss, boolean dismissImmediate) {
 		this.dismissOnBackPressed = dismiss;
-		this.dismissImmediate = dismissImmediate;
+		this.dismissImmediateOnClickOutside = dismissImmediate;
 		return this;
 	}
 
@@ -446,8 +444,8 @@ public class DkBoomMenu {
 		return this;
 	}
 
-	public DkBoomMenu setDismissImmediate(boolean dismissImmediate) {
-		this.dismissImmediate = dismissImmediate;
+	public DkBoomMenu setDismissImmediateOnClickOutside(boolean dismissImmediateOnClickOutside) {
+		this.dismissImmediateOnClickOutside = dismissImmediateOnClickOutside;
 		return this;
 	}
 
@@ -544,8 +542,8 @@ public class DkBoomMenu {
 		return this;
 	}
 
-	public DkBoomMenu setEnableBatteryPowerMode(boolean enable) {
-		this.enableBatteryPowerMode = enable;
+	public DkBoomMenu setDismissOnClickOutsideItem(boolean dismissOnClickOutsideItem) {
+		this.dismissOnClickOutsideItem = dismissOnClickOutsideItem;
 		return this;
 	}
 

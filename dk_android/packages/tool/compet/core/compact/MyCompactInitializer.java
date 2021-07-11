@@ -84,7 +84,9 @@ class MyCompactInitializer {
 
 	private static void setFieldValue(Field field, Object target, Object value) {
 		try {
-			field.setAccessible(true);
+			if (! field.isAccessible()) {
+				field.setAccessible(true);
+			}
 			field.set(target, value);
 		}
 		catch (Exception e) {

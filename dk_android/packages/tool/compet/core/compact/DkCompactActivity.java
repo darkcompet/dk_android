@@ -121,19 +121,6 @@ public abstract class DkCompactActivity<L extends DkCompactLogic, M>
 			}
 		}
 
-		// Set content view
-		int layoutId = layoutResourceId();
-		if (layoutId > 0) {
-			// Pass `null` to indicate don't attach this layout to parent
-			layout = View.inflate(this, layoutId, null);
-			setContentView(layout);
-
-			// Bind views
-			if (enableBindingView()) {
-				DkBinder.bindViews(this, layout);
-			}
-		}
-
 		// Debug log as visual
 		if (BuildConfig.DEBUG) {
 			// Observe log to show at active state of the view
@@ -152,6 +139,21 @@ public abstract class DkCompactActivity<L extends DkCompactLogic, M>
 					logLiveData.postValue(new String[] {type, message});
 				}
 			};
+		}
+	}
+
+	protected void setupContentView() {
+		// Set content view
+		int layoutId = layoutResourceId();
+		if (layoutId > 0) {
+			// Pass `null` to indicate don't attach this layout to parent
+			layout = View.inflate(this, layoutId, null);
+			setContentView(layout);
+
+			// Bind views
+			if (enableBindingView()) {
+				DkBinder.bindViews(this, layout);
+			}
 		}
 	}
 

@@ -59,7 +59,9 @@ public abstract class DkSqliteMigration {
 		for (int version = oldVersion; version < newVersion; ++version) {
 			String methodName = calcMigrationMethodName(version, version + 1);
 			Method method = clazz.getDeclaredMethod(methodName, SQLiteDatabase.class);
-			method.setAccessible(true);
+			if (! method.isAccessible()) {
+				method.setAccessible(true);
+			}
 			method.invoke(this, db);
 		}
 	}

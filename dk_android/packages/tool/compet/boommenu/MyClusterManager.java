@@ -61,7 +61,7 @@ class MyClusterManager {
 	boolean itemEnable3DAnimation; // 3D animation while animating
 	boolean itemEnableScale = true; // scale while animating
 	boolean itemDismissMenuOnClickItem = true; // dismiss boom menu when click item itself
-	boolean itemDismissMenuImmediate; // true: dismiss boom menu immediate, false: animate unboom
+	boolean itemDismissMenuImmediateOnClickItem = true; // true: dismiss menu immediate, false: animate unboom
 	int itemMargin = 4; // default 4dp (call item.setMargin() to convert to pixel)
 	boolean itemDismissOnBackPressed = true;
 	boolean itemDismissImmediate;
@@ -109,8 +109,8 @@ class MyClusterManager {
 			if (itemBuilder.dismissMenuOnClickItem == null) {
 				itemBuilder.setDismissMenuOnClickItem(itemDismissMenuOnClickItem);
 			}
-			if (itemBuilder.dismissMenuImmediate == null) {
-				itemBuilder.setDismissMenuImmediate(itemDismissMenuImmediate);
+			if (itemBuilder.dismissMenuImmediateOnClickItem == null) {
+				itemBuilder.setDismissMenuImmediate(itemDismissMenuImmediateOnClickItem);
 			}
 			if (itemBuilder.margin == Integer.MIN_VALUE) {
 				itemBuilder.setMargin(itemMargin);

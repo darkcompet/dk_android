@@ -22,7 +22,7 @@ public class DkItem {
 	protected int margin;
 
 	// Extras
-	boolean dismissMenuImmediate;
+	boolean dismissMenuImmediateOnClickItem;
 	boolean dismissMenuOnClickItem;
 
 	// Animations

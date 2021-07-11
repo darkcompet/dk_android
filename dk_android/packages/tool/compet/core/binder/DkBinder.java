@@ -30,7 +30,9 @@ public class DkBinder {
 
 			if (childView != null) {
 				try {
-					field.setAccessible(true);
+					if (! field.isAccessible()) {
+						field.setAccessible(true);
+					}
 					field.set(target, childView);
 				}
 				catch (Exception e) {
@@ -53,7 +55,9 @@ public class DkBinder {
 			if (childView != null) {
 				childView.setOnClickListener((v) -> {
 					try {
-						method.setAccessible(true);
+						if (! method.isAccessible()) {
+							method.setAccessible(true);
+						}
 						method.invoke(target, v);
 					}
 					catch (Exception e) {

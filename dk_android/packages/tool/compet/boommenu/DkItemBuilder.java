@@ -36,7 +36,7 @@ public abstract class DkItemBuilder<T> {
 	protected static Interpolator movingInterpolator = PathInterpolatorCompat.create(0.48f, 1.47f, 0.91f, 1.06f);
 	protected DkMovingShape movingShape = DkMovingShape.LINE;
 	protected Boolean dismissMenuOnClickItem = null;
-	protected Boolean dismissMenuImmediate = null;
+	protected Boolean dismissMenuImmediateOnClickItem = null;
 	// extra basic info for view
 	protected boolean isCircleShape;
 	protected float cornerRadius = Integer.MIN_VALUE;
@@ -96,7 +96,7 @@ public abstract class DkItemBuilder<T> {
 		item.startScaleFactor = startScaleFactor;
 		item.endScaleFactor = endScaleFactor;
 		item.dismissMenuOnClickItem = dismissMenuOnClickItem;
-		item.dismissMenuImmediate = dismissMenuImmediate;
+		item.dismissMenuImmediateOnClickItem = dismissMenuImmediateOnClickItem;
 
 		// Setup internal detector listener
 		view.gestureDetector.setListener(new MyGestureDetector.Listener() {
@@ -307,7 +307,7 @@ public abstract class DkItemBuilder<T> {
 	}
 
 	public T setDismissMenuImmediate(boolean dismissImmediate) {
-		this.dismissMenuImmediate = dismissImmediate;
+		this.dismissMenuImmediateOnClickItem = dismissImmediate;
 		return (T) this;
 	}
 
