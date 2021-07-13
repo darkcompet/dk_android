@@ -19,7 +19,7 @@
 		android:paddingRight="4dp"
 		android:contentDescription="@null"
 		android:src="@android:drawable/ic_dialog_map"
-		app:tint="@android:color/white" />
+		android:tint="@android:color/white" />
 
 	<TextView
 		android:id="@+id/tvText"

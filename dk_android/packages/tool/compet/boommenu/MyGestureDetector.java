@@ -22,13 +22,13 @@ class MyGestureDetector {
 	private float lastY;
 	private Listener listener;
 
-	private final int touchSlop2;
+	private final int squaredTouchSlop;
 	private boolean clickable;
 	private boolean movable;
 
 	public MyGestureDetector(Context context) {
 		int touchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
-		touchSlop2 = touchSlop * touchSlop;
+		squaredTouchSlop = touchSlop * touchSlop;
 	}
 
 	public void setListener(Listener listener) {
@@ -61,7 +61,7 @@ class MyGestureDetector {
 					float dx = rawX - downX;
 					float dy = rawY - downY;
 
-					if (dx * dx + dy * dy >= touchSlop2) {
+					if (dx * dx + dy * dy >= squaredTouchSlop) {
 						movable = true;
 						clickable = false;
 						lastX = rawX;

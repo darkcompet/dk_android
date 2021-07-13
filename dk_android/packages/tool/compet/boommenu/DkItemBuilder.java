@@ -168,7 +168,7 @@ public abstract class DkItemBuilder<T> {
 
 		// This is time to need build some info for item view
 		if (cornerRadius == Integer.MIN_VALUE) {
-			cornerRadius = DkConfig.dp2px(8);
+			cornerRadius = DkConfig.dp2px(16);
 		}
 		if (normalColor == Color.TRANSPARENT) {
 			normalColor = colorGenerator.nextNormalColor();

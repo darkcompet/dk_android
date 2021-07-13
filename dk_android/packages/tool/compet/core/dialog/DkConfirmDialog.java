@@ -21,7 +21,6 @@ import android.widget.TextView;
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.animation.PathInterpolatorCompat;
 
@@ -272,24 +271,24 @@ public class DkConfirmDialog<D extends DkConfirmDialog>
 		// Background (dialog) dimension
 		ViewGroup.LayoutParams bkgLayoutParams = vContent.getLayoutParams();
 		final int[] dimensions = DkConfig.displaySize();
-		if (bkgLayoutParams == null) {
-			bkgLayoutParams = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-		}
+
 		if (isFullScreen) {
 			bkgLayoutParams.width = bkgLayoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
 		}
-		if (widthPercent != 0) {
-			bkgLayoutParams.width = (int) (dimensions[0] * widthPercent);
-		}
-		if (heightPercent != 0) {
-			bkgLayoutParams.height = (int) (dimensions[1] * heightPercent);
-		}
-		if (widthRatio != 0 && heightRatio != 0) {
-			if (dimensionRatioBasedOnWidth) {
-				bkgLayoutParams.height = (int) (bkgLayoutParams.width * heightRatio / widthRatio);
+		else {
+			if (widthPercent != 0) {
+				bkgLayoutParams.width = (int) (dimensions[0] * widthPercent);
 			}
-			else {
-				bkgLayoutParams.width = (int) (bkgLayoutParams.height * widthRatio / heightRatio);
+			if (heightPercent != 0) {
+				bkgLayoutParams.height = (int) (dimensions[1] * heightPercent);
+			}
+			if (widthRatio != 0 && heightRatio != 0) {
+				if (dimensionRatioBasedOnWidth) {
+					bkgLayoutParams.height = (int) (bkgLayoutParams.width * heightRatio / widthRatio);
+				}
+				else {
+					bkgLayoutParams.width = (int) (bkgLayoutParams.height * widthRatio / heightRatio);
+				}
 			}
 		}
 		vContent.setLayoutParams(bkgLayoutParams);

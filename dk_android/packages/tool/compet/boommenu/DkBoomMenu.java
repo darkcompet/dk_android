@@ -112,7 +112,7 @@ public class DkBoomMenu {
 		}
 	};
 
-	private DkBoomMenu(Context context, View anchor) {
+	public DkBoomMenu(Context context, View anchor) {
 		this.context = context;
 		this.anchor = new WeakReference<>(anchor);
 	}

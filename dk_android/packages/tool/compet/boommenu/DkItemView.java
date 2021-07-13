@@ -14,6 +14,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import tool.compet.core.view.DkCompatConstraintLayout;
+import tool.compet.core.view.DkViews;
 
 /**
  * Base item view which be used in DkItemBuilder.getView().
@@ -102,9 +103,8 @@ public class DkItemView extends DkCompatConstraintLayout implements View.OnTouch
 
 	@Override
 	public void draw(Canvas canvas) {
-		// Must choose software layer for clipping a path (circle, rectangle...)
-		// Note: hardware layer does not support clipping
-		setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+		// Hardware layer does not support clipping for old version -> should use compat for safe.
+		DkViews.clipPath(this, canvas, path);
 		canvas.clipPath(path);
 
 		super.draw(canvas);

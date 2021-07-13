@@ -373,7 +373,7 @@ public class DkLiveData<M> {
 	@MainThread
 	protected void attemptNotify(MyClientObserver<M> client) {
 		if (BuildConfig.DEBUG) {
-			DkLogcats.notice(this, "Should notify to client? data not set (%b), client active (%b), newer data (%b)", data != DATA_NOT_SET, client.active, client.lastVersion < version);
+			DkLogcats.debug(client, "Should notify to client? data set (%b), client active (%b), newer data (%b)", data != DATA_NOT_SET, client.active, client.lastVersion < version);
 		}
 		// Perform notify data changed to given observer (client) iff:
 		// - data was set

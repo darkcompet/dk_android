@@ -6,14 +6,17 @@ package tool.compet.boommenu;
 
 import android.content.Context;
 
+/**
+ * Extras version of `DkTextItemBuilder`, this contains title, summary and icon.
+ */
 public class DkDualTextItemBuilder extends DkItemBuilder<DkDualTextItemBuilder> {
 	public static final int STYLE_TEXT_LEFT = 1;
 	public static final int STYLE_TEXT_RIGHT = 2;
 
-	private int style = STYLE_TEXT_RIGHT;
-	private int iconRes;
-	private int titleRes;
-	private int summaryRes;
+	protected int style = STYLE_TEXT_RIGHT;
+	protected int iconRes;
+	protected int titleRes;
+	protected int summaryRes;
 
 	public DkDualTextItemBuilder() {
 	}

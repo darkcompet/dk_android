@@ -7,7 +7,7 @@ package tool.compet.boommenu;
 import android.content.Context;
 
 public class DkTextOnlyItemBuilder extends DkItemBuilder<DkTextOnlyItemBuilder> {
-	private int textRes;
+	protected int textRes;
 
 	public DkTextOnlyItemBuilder() {
 	}
@@ -23,7 +23,8 @@ public class DkTextOnlyItemBuilder extends DkItemBuilder<DkTextOnlyItemBuilder> 
 		return v;
 	}
 
-	public void setText(int strRes) {
+	public DkTextOnlyItemBuilder setText(int strRes) {
 		this.textRes = strRes;
+		return this;
 	}
 }

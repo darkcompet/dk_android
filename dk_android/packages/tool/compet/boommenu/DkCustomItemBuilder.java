@@ -13,8 +13,8 @@ import tool.compet.core4j.DkUtils;
  * call setters to setup view properties like: color, radius, useRippleEffect...
  */
 public class DkCustomItemBuilder extends DkItemBuilder<DkCustomItemBuilder> {
-	private int layoutRes;
-	private DkItemView view;
+	protected int layoutRes;
+	protected DkItemView view;
 
 	public DkCustomItemBuilder() {
 	}

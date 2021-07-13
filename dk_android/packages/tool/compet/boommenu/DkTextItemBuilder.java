@@ -8,21 +8,22 @@ import android.content.Context;
 import android.graphics.Color;
 
 /**
- * This item has one image and one text. You can set location of text relative to image by call setStyle().
+ * This item has one icon and one text.
+ * We can set location of text relative to image by `setStyle()`.
  */
 public class DkTextItemBuilder extends DkItemBuilder<DkTextItemBuilder> {
 	public static final int STYLE_TEXT_INSIDE_ICON = 1; // text at bottom and inside of icon
-	public static final int STYLE_TEXT_LEFT_OUT_ICON = 2; // text at left and outside of icon
-	public static final int STYLE_TEXT_RIGHT_OUT_ICON = 3; // text at right and outside of icon
-	public static final int STYLE_TEXT_TOP_OUT_ICON = 4; // text at top and outside of icon
-	public static final int STYLE_TEXT_BOTTOM_OUT_ICON = 5; // text at bottom and outside of icon
+	public static final int STYLE_TEXT_LEFT_OUTSIDE_ICON = 2; // text at left and outside of icon
+	public static final int STYLE_TEXT_RIGHT_OUTSIDE_ICON = 3; // text at right and outside of icon
+	public static final int STYLE_TEXT_TOP_OUTSIDE_ICON = 4; // text at top and outside of icon
+	public static final int STYLE_TEXT_BOTTOM_OUTSIDE_ICON = 5; // text at bottom and outside of icon
 
-	private int style = STYLE_TEXT_RIGHT_OUT_ICON;
+	protected int style = STYLE_TEXT_RIGHT_OUTSIDE_ICON;
 
-	private int iconRes;
-	private int iconBorderColor = Color.TRANSPARENT;
-	private int iconBorderThickness = Integer.MIN_VALUE;
-	private int textRes;
+	protected int iconRes;
+	protected int iconBorderColor = Color.TRANSPARENT;
+	protected int iconBorderThickness = Integer.MIN_VALUE;
+	protected int textRes;
 
 	@Override
 	protected DkItemView getView(Context context) {
@@ -32,16 +33,16 @@ public class DkTextItemBuilder extends DkItemBuilder<DkTextItemBuilder> {
 		if (style == STYLE_TEXT_INSIDE_ICON) {
 			layoutRes = R.layout.dk_boommenu_item_text_inside;
 		}
-		else if (style == STYLE_TEXT_LEFT_OUT_ICON) {
+		else if (style == STYLE_TEXT_LEFT_OUTSIDE_ICON) {
 			layoutRes = R.layout.dk_boommenu_item_text_left;
 		}
-		else if (style == STYLE_TEXT_RIGHT_OUT_ICON) {
+		else if (style == STYLE_TEXT_RIGHT_OUTSIDE_ICON) {
 			layoutRes = R.layout.dk_boommenu_item_text_right;
 		}
-		else if (style == STYLE_TEXT_TOP_OUT_ICON) {
+		else if (style == STYLE_TEXT_TOP_OUTSIDE_ICON) {
 			layoutRes = R.layout.dk_boommenu_item_text_top;
 		}
-		else if (style == STYLE_TEXT_BOTTOM_OUT_ICON) {
+		else if (style == STYLE_TEXT_BOTTOM_OUTSIDE_ICON) {
 			layoutRes = R.layout.dk_boommenu_item_text_bottom;
 		}
 		else {
