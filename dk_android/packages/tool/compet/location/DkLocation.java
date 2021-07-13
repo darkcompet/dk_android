@@ -15,8 +15,9 @@ import tool.compet.core4j.DkStrings;
  * Dk defined location model.
  */
 public class DkLocation {
-	private double lat, lng;
-	private LatLng latLng;
+	public double lat;
+	public double lng;
+	public LatLng latLng;
 
 	public String address;
 	public double alt;
@@ -53,10 +54,6 @@ public class DkLocation {
 			this.lat = latLng.latitude;
 			this.lng = latLng.longitude;
 		}
-	}
-
-	public LatLng getLatLng() {
-		return latLng;
 	}
 
 	public void updateLocation(Location loc) {

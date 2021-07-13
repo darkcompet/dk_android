@@ -121,4 +121,5 @@
 	<string name="light_theme_teal_style">轻，蓝绿色</string>
 	<string name="summary_light_theme">ライトテーマ</string>
 	<string name="information">情報</string>
+	<string name="preview">プレビュー</string>
 </resources>
