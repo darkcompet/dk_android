@@ -1,0 +1,78 @@
+plugins {
+	id 'com.android.library'
+}
+
+android {
+	compileSdkVersion 30
+
+	defaultConfig {
+		minSdkVersion 16
+		targetSdkVersion 30
+		versionCode 1
+		versionName "1.0"
+
+		testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+		consumerProguardFiles "consumer-rules.pro"
+	}
+
+	buildTypes {
+		debug {
+			minifyEnabled false
+			proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+		}
+		release {
+			minifyEnabled false
+			proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+		}
+	}
+	compileOptions {
+		sourceCompatibility JavaVersion.VERSION_1_8
+		targetCompatibility JavaVersion.VERSION_1_8
+	}
+
+	// Must enable databinding
+	buildFeatures {
+		dataBinding true
+	}
+
+	// In-Testing: Separate layout per library
+	sourceSets {
+		main {
+			// Subfolders must be declared first !
+//			res.srcDirs = [
+//				'src/main/res/layouts/boommenu', // boom menu
+//				'src/main/res/layouts', // layout entry
+//				'src/main/res', // res entry
+//			]
+		}
+	}
+}
+
+dependencies {
+	testImplementation 'junit:junit:'
+	androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+	androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+
+	// Androidx Jetpack
+	api 'androidx.appcompat:appcompat:1.3.1' // nullable, nonnull, compat view (LinearLayoutCompat,...),
+	api 'androidx.constraintlayout:constraintlayout:2.0.4' // powerful layout
+
+	// For [tool.compet.json4j]
+	api 'com.google.code.gson:gson:2.8.6' // json converter
+
+	// For [tool.compet.billing]
+	api 'com.android.billingclient:billing:4.0.0' // in-app, subscribe
+
+	// For [tool.compet.auth]
+	api 'com.google.android.gms:play-services-auth:19.2.0' // oauth with google
+
+	// For [tool.compet.map]
+	api 'com.google.android.gms:play-services-maps:17.0.1' // google map
+	api 'com.google.android.gms:play-services-location:18.0.0' // location
+
+	// For [tool.compet.preference]
+	api 'androidx.recyclerview:recyclerview:1.2.1' // power full recycled list view
+
+	// For [tool.compet.floatingbar]
+	api 'com.google.android.material:material:1.4.0' // coordinarlayout,...
+}

@@ -1,6 +1,6 @@
 # By darkcompet
-.github_*
-.gitlab_*
+.github
+.gitlab
 
 # Keystore files
 *.jks

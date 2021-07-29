@@ -1,6 +1,6 @@
 package compet.library;
 
-import tool.compet.appbundle.arch.DkApp;
+import tool.compet.core.DkSingleApp;
 
-public class App extends DkApp {
+public class App extends DkSingleApp {
 }
